@@ -119,6 +119,7 @@ android {
         implementation(libs.coil.compose)
         implementation(libs.coil.network.okhttp)
         implementation(libs.okhttp)
+        implementation(libs.kotlinx.coroutines.android)
         debugImplementation(libs.compose.ui.tooling)
         testImplementation(libs.kotlin.test)
         testImplementation(libs.kotlin.test.junit)

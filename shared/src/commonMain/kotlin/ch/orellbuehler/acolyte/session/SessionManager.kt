@@ -40,18 +40,18 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
-sealed interface SessionState {
-    data object Restoring : SessionState
+sealed class SessionState {
+    data object Restoring : SessionState()
 
     data class SignedOut(
         val lastServerUrl: String?,
         val lastUserName: String?,
         val expired: Boolean,
-    ) : SessionState
+    ) : SessionState()
 
     data class SignedIn(
         val account: Account,
-    ) : SessionState
+    ) : SessionState()
 }
 
 @Serializable

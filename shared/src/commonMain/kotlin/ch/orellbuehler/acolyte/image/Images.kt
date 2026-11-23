@@ -2,6 +2,8 @@ package ch.orellbuehler.acolyte.image
 
 import ch.orellbuehler.acolyte.api.ApiClient
 import ch.orellbuehler.acolyte.api.ArtworkEndpoints
+import io.ktor.http.Url
+import io.ktor.http.parseServerSetCookieHeader
 
 enum class ImageSize(
     internal val tmdb: String,
@@ -36,8 +38,25 @@ class Images internal constructor(
 
     fun headers(url: String): Map<String, String> {
         val current = client() ?: return emptyMap()
-        return if (url.startsWith(current.baseUrl.trimEnd('/') + "/")) current.imageHeaders() else emptyMap()
+        return if (onServer(current, url)) current.imageHeaders() else emptyMap()
     }
+
+    suspend fun storeCookies(
+        url: String,
+        setCookieHeaders: List<String>,
+    ) {
+        val current = client() ?: return
+        if (!onServer(current, url)) return
+        val requestUrl = Url(url)
+        for (header in setCookieHeaders) {
+            current.credentials.cookies.addCookie(requestUrl, parseServerSetCookieHeader(header))
+        }
+    }
+
+    private fun onServer(
+        current: ApiClient,
+        url: String,
+    ): Boolean = url.startsWith(current.baseUrl.trimEnd('/') + "/")
 
     private companion object {
         val TMDB = Regex("https?://image\\.tmdb\\.org/t/p/[^/]+/([A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp))")

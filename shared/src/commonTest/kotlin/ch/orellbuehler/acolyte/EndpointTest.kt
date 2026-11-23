@@ -5,6 +5,7 @@ import ch.orellbuehler.acolyte.api.HealthEndpoints
 import ch.orellbuehler.acolyte.image.ImageSize
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.session.ServerAddress
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -57,4 +58,15 @@ class EndpointTest {
         val keyed = server.client(apiKey = "hak_1")
         assertEquals(mapOf("X-Api-Key" to "hak_1"), Images { keyed }.headers("$BASE/api/v1/artwork/x"))
     }
+
+    @Test
+    fun imageResponsesKeepTheRotatedCookie() =
+        runTest {
+            val server = FakeServer()
+            val client = server.client(listOf(FakeServer.SESSION))
+            val images = Images { client }
+            images.storeCookies("$BASE/api/v1/artwork/x.jpg", listOf("holyarrs_session=token-2; Path=/holyarrs/; Max-Age=600; HttpOnly"))
+            images.storeCookies("https://other.example/x.jpg", listOf("holyarrs_session=evil; Path=/"))
+            assertEquals(mapOf("Cookie" to "holyarrs_session=token-2"), images.headers("$BASE/api/v1/artwork/x"))
+        }
 }

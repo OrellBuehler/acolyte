@@ -7,6 +7,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.crossfade
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 
 class AcolyteApplication :
@@ -20,8 +21,21 @@ class AcolyteApplication :
                 .Builder()
                 .addInterceptor { chain ->
                     val request = chain.request()
-                    val headers = sdk.images.headers(request.url.toString())
-                    chain.proceed(request.newBuilder().apply { headers.forEach { (name, value) -> header(name, value) } }.build())
+                    val url = request.url.toString()
+                    val headers = sdk.images.headers(url)
+                    val response =
+                        chain.proceed(
+                            request
+                                .newBuilder()
+                                .apply {
+                                    headers.forEach { (name, value) ->
+                                        header(name, value)
+                                    }
+                                }.build(),
+                        )
+                    val cookies = response.headers("Set-Cookie")
+                    if (cookies.isNotEmpty()) runBlocking { sdk.images.storeCookies(url, cookies) }
+                    response
                 }.build()
         return ImageLoader
             .Builder(context)
