@@ -18,14 +18,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -137,7 +138,6 @@ private fun ServerStep(
     BusyButton(stringResource(R.string.connect_continue), state.busy, enabled = address.isNotBlank()) { viewModel.connect(address) }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CredentialsStep(
     state: SignInState,
@@ -184,16 +184,12 @@ private fun CredentialsStep(
     } else {
         if (state.ways.size > 1) {
             var open by rememberSaveable { mutableStateOf(false) }
-            ExposedDropdownMenuBox(expanded = open, onExpandedChange = { open = it }, modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
-                    value = stringResource(way.label()),
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(stringResource(R.string.signin_account)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = open) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                )
-                ExposedDropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            Box(Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(way.label()), maxLines = 1, modifier = Modifier.weight(1f))
+                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = stringResource(R.string.signin_account))
+                }
+                DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
                     state.ways.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(stringResource(option.label())) },
