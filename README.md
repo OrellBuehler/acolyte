@@ -8,7 +8,105 @@ Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API. It is a s
 
 ## Status
 
-Early setup. Nothing to install yet.
+Early development. The foundation is in place on Android and iOS: connecting to a server (password with two-factor, Jellyfin/Emby account or API key), the signed-in shell with tabs and the More/Manage list, and the Status screen. The other sections are placeholders. Sign-in with Plex or single sign-on (OIDC) is not supported yet.
+
+## How it fits together
+
+| Part | What it is |
+|---|---|
+| `shared/` | Kotlin Multiplatform: the HolyArrs client (Ktor), sign-in and session, secure storage (Android Keystore, iOS Keychain), live updates (`/live`), image URLs, navigation rules and one presenter per feature. `AcolyteSdk` is the entry point. |
+| `androidApp/` | Jetpack Compose and Material 3. Renders the shared state. |
+| `iosApp/` | SwiftUI, project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
+| `api/` | The OpenAPI spec of the HolyArrs release the app is built against (`VERSION`). |
+
+Every endpoint the app calls is declared once in `shared` and checked against that spec in CI, and a CI job runs the client against the published HolyArrs Docker image of the same release. [CLAUDE.md](CLAUDE.md) has the conventions for adding endpoints and screens.
+
+Connecting: enter the server address as you open HolyArrs in a browser, including a URL base such as `/holyarrs`. Without a scheme the app tries HTTPS first, then HTTP. Plain HTTP is allowed on the local network; remote servers need HTTPS with a trusted certificate (for a self-signed one, install its certificate authority on the device). A host name other than an IP address must be in the server's allowed host names (HolyArrs Settings, Sign-in and security).
+
+## Build
+
+### Android
+
+Requirements: JDK 17 and the Android SDK (set `ANDROID_HOME` or `sdk.dir` in `local.properties`). `compileSdk` is 37, `minSdk` is 26.
+
+```sh
+./gradlew androidApp:assembleDebug        # debug APK in androidApp/build/outputs/apk/debug/
+./gradlew shared:allTests                 # shared module tests (the iOS test targets only run on macOS)
+./gradlew androidApp:testDebugUnitTest    # Android unit tests
+./gradlew androidApp:lintDebug            # Android lint
+./gradlew shared:ktlintCheck androidApp:ktlintCheck
+```
+
+### iOS
+
+Requires macOS with Xcode, JDK 17 and XcodeGen (`brew install xcodegen`). The deployment target is iOS 18. These are the steps CI runs:
+
+```sh
+./gradlew shared:linkDebugFrameworkIosSimulatorArm64
+
+SDK_NAME=$(xcrun --sdk iphonesimulator --show-sdk-version)
+DEST="shared/build/xcode-frameworks/Debug/iphonesimulator${SDK_NAME}"
+mkdir -p "$DEST"
+cp -R shared/build/bin/iosSimulatorArm64/debugFramework/shared.framework "$DEST/"
+
+cd iosApp
+xcodegen generate
+xcodebuild build \
+  -project Acolyte.xcodeproj \
+  -scheme Acolyte \
+  -destination 'generic/platform=iOS Simulator' \
+  -configuration Debug \
+  CODE_SIGNING_ALLOWED=NO \
+  ARCHS=arm64
+```
+
+`ARCHS=arm64` because the staged framework is the arm64 simulator slice. The Kotlin/Native tests of the shared module run with `./gradlew shared:iosSimulatorArm64Test`. To run the app, open `iosApp/Acolyte.xcodeproj` after the steps above.
+
+### Against a real server
+
+With Docker, `scripts/api/live-server.sh` starts the HolyArrs image of the release in `api/VERSION` on `http://127.0.0.1:6262`, finishes its setup and prints a user, password and API key:
+
+```sh
+eval "$(scripts/api/live-server.sh)"
+./gradlew shared:testDebugUnitTest --tests '*LiveContractTest*'
+scripts/api/live-server.sh stop
+```
+
+## Continuous integration
+
+| Workflow | Runs on | What it does |
+|---|---|---|
+| `android.yml` | pull requests and pushes to `main`, manual | ktlint, shared module build, debug APK (uploaded as artifact), Android lint, shared and Android unit tests, informational Kover coverage. `android-gate` is the always-reporting required check. |
+| `ios.yml` | pull requests and pushes to `main`, manual | `ios-build` (string table check, shared framework and simulator app build, the fast compile signal), then `ios-tests` (Kotlin/Native tests of `shared`). `ios-gate` is the always-reporting required check. |
+| `api.yml` | pull requests and pushes to `main`; weekly and manual for the drift report | `spec`: `api/openapi.json` equals the spec of the release in `api/VERSION`. `contract`: every endpoint the client declares exists in the spec with the same parameters, permission and part, and its models fit the typed schemas. `live`: the published Docker image of that release, set up over the API, answers every read endpoint (password and API key sign-in, strict decoding). `drift` (weekly, manual): compares with the latest HolyArrs release and `main`, writes the job summary and opens or updates an `api-drift` issue when a newer release exists or an endpoint the app uses changed. `api-gate` is the always-reporting required check. |
+| `release.yml` | published GitHub release, manual dispatch | Signed release builds, see below. |
+
+To move to a new HolyArrs release: `scripts/api/update-spec.sh [tag]` (default: the latest release), then fix what the contract and live tests report. The iOS jobs run on GitHub's `xcode-27` image with the Xcode 27.0 GM pinned and verified by `.github/actions/ios-setup`. Dependabot proposes weekly Gradle and GitHub Actions updates (Kotlin is bumped by hand together with SKIE).
+
+## Release
+
+Every store build belongs to a [GitHub release](https://github.com/OrellBuehler/acolyte/releases): publishing a release (tag such as `v1.0.0`) runs `release.yml`, and the tag is the version in both stores. Starting the workflow by hand from the Actions tab (inputs: `version`, and `platforms` = both, android or ios) only retries a platform of a release that already exists. The version must look like `1.2.3` or `v1.2.3`. Until the secrets exist the workflow does nothing on pushes and a release run fails in its first step, naming the missing secrets.
+
+- **Versions**: the tag without `v` is the Android `versionName` and the iOS `MARKETING_VERSION`. The workflow run number is the iOS build number and is folded into the Android `versionCode` (`(major*10000 + minor*100 + patch) * 1000 + run number`), so re-runs always increase.
+- **Android job**: builds a signed AAB and APK, uploads both as workflow artifacts, attaches them to the GitHub release as `acolyte-<version>.apk` and `.aab`, and uploads the AAB to the Google Play internal testing track when `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` is set.
+- **iOS job**: checks the stored provisioning profile, builds the shared release framework, archives with App Store Connect API key cloud signing, removes the development certificates that cloud signing created, exports with manual signing (Apple Distribution certificate and the stored profile), verifies the signature and uploads to TestFlight. The IPA is kept as workflow artifact.
+
+| Secret | Job | Content |
+|---|---|---|
+| `ANDROID_KEYSTORE_BASE64` | Android | The signing keystore, base64 on one line: `base64 -w0 release.jks \| gh secret set ANDROID_KEYSTORE_BASE64` |
+| `ANDROID_KEYSTORE_PASSWORD` | Android | Keystore password |
+| `ANDROID_KEY_ALIAS` | Android | Key alias in the keystore |
+| `ANDROID_KEY_PASSWORD` | Android | Password of that key |
+| `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` | Android, optional | Play Console service account JSON (plain text). Without it the Play upload is skipped. The app `ch.orellbuehler.acolyte` must exist in the Play Console first; a brand-new app may refuse the `completed` release status, then do the first upload by hand. |
+| `APP_STORE_CONNECT_API_KEY_BASE64` | iOS | The `.p8` App Store Connect API key (role Admin or App Manager): `openssl base64 -A -in AuthKey_XXXXXXXXXX.p8 \| gh secret set APP_STORE_CONNECT_API_KEY_BASE64` |
+| `APP_STORE_CONNECT_KEY_ID` | iOS | Key ID of that API key |
+| `APP_STORE_CONNECT_ISSUER_ID` | iOS | Issuer ID of the App Store Connect account |
+| `APPLE_TEAM_ID` | iOS | Apple developer team ID (injected into `iosApp/ExportOptions.plist` during the job) |
+| `IOS_DIST_CERT_P12_BASE64` | iOS | Apple Distribution certificate with private key, exported as `.p12`, base64 on one line |
+| `IOS_DIST_CERT_PASSWORD` | iOS | Password of the `.p12` |
+| `IOS_PROFILE_APP_BASE64` | iOS | App Store provisioning profile for `ch.orellbuehler.acolyte`, base64 on one line: `openssl base64 -A -in Acolyte_App_Store.mobileprovision \| gh secret set IOS_PROFILE_APP_BASE64` |
+
+One-time iOS setup: register the App ID `ch.orellbuehler.acolyte`, create the app in App Store Connect, and create the App Store provisioning profile with the exact name `Acolyte App Store` (the name `iosApp/ExportOptions.plist` refers to). The app uses no capabilities yet; if it gains some, regenerate the profile and update the secret.
 
 ## Icon
 
@@ -19,3 +117,5 @@ The icon files are in `assets/icon`.
 | `icon.svg`, `icon-1024.png`, `icon-512.png` | App icon, full square (the store or the system rounds the corners) |
 | `adaptive-foreground.svg`, `adaptive-foreground-1024.png` | Android adaptive icon foreground, on background `#05080D` |
 | `icon-small.svg`, `icon-small-48.png`, `icon-small-32.png`, `icon-small-16.png` | Simplified drawing for 48 px and below |
+
+The Android launcher icon (`androidApp/src/androidMain/res/drawable/ic_launcher_*.xml`) is the same drawing as a vector; the iOS app icon is `icon-1024.png` flattened onto `#05080D` (App Store icons cannot have an alpha channel).
