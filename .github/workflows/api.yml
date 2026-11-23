@@ -1,0 +1,260 @@
+name: API Conformance
+
+# Keeps the app's HolyArrs client honest against the server's OpenAPI spec:
+#   spec     api/openapi.json is the spec of the release named in api/VERSION
+#   contract every endpoint the client calls exists in that spec with the same
+#            parameters, permission and part, and its models fit the typed schemas
+#   live     the published image of that release, set up over the API, answers
+#            every read endpoint in a shape the models decode strictly
+#   drift    (weekly and manual) what changed upstream, in the latest release and
+#            on main, for the endpoints the app uses; opens or updates an issue
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: api-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  spec:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Compare api/openapi.json with the pinned upstream release
+        run: scripts/api/check-spec.sh
+
+  contract:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: platform-tools
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/build-cache
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Check client endpoints against the spec
+        run: ./gradlew shared:testDebugUnitTest --tests 'ch.orellbuehler.acolyte.contract.ApiContractTest'
+
+      - name: Summarize the API surface
+        if: always()
+        run: |
+          if [ -f shared/build/reports/api/summary.md ]; then
+            cat shared/build/reports/api/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload the endpoint report
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: api-endpoints
+          path: |
+            shared/build/reports/api/
+            shared/build/reports/tests/testDebugUnitTest/
+          retention-days: 14
+
+  live:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: platform-tools
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/build-cache
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Compile the tests
+        run: ./gradlew shared:compileDebugUnitTestKotlinAndroid
+
+      - name: Boot HolyArrs and finish its first-run setup
+        run: scripts/api/live-server.sh start
+
+      - name: Run the client against the live server
+        run: ./gradlew shared:testDebugUnitTest --tests 'ch.orellbuehler.acolyte.contract.LiveContractTest'
+
+      - name: Server log
+        if: failure()
+        run: docker logs acolyte-live 2>&1 | tail -200
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: api-live-results
+          path: shared/build/reports/tests/testDebugUnitTest/
+          retention-days: 7
+
+      - name: Stop the server
+        if: always()
+        run: scripts/api/live-server.sh stop
+
+  # Informational: never fails a PR. Runs weekly and on demand.
+  drift:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: platform-tools
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/build-cache
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: List the endpoints the app uses
+        run: ./gradlew shared:testDebugUnitTest --tests 'ch.orellbuehler.acolyte.contract.ApiContractTest.writesTheEndpointReport'
+
+      - name: Fetch the latest release and main specs
+        id: upstream
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          LATEST="$(gh release view -R HolyArrs/HolyArrs --json tagName -q .tagName)"
+          PINNED="$(tr -d '[:space:]' < api/VERSION)"
+          raw=https://raw.githubusercontent.com/HolyArrs/HolyArrs
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/latest.json" "$raw/$LATEST/app/backend/cmd/holyarrs/openapi.json"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/main.json" "$raw/main/app/backend/cmd/holyarrs/openapi.json"
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          echo "pinned=$PINNED" >> "$GITHUB_OUTPUT"
+          if [ "$LATEST" != "$PINNED" ]; then
+            echo "newer=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "newer=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compare
+        id: drift
+        env:
+          LATEST: ${{ steps.upstream.outputs.latest }}
+          PINNED: ${{ steps.upstream.outputs.pinned }}
+        run: |
+          python3 scripts/api/drift.py \
+            --pinned api/openapi.json --pinned-label "$PINNED" \
+            --compare "$RUNNER_TEMP/latest.json" --compare-label "latest release $LATEST" \
+            --compare "$RUNNER_TEMP/main.json" --compare-label "upstream main" \
+            --used shared/build/reports/api/client-endpoints.json \
+            --out "$RUNNER_TEMP/drift.md" --github-output "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/drift.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the drift issue
+        if: steps.upstream.outputs.newer == 'true' || steps.drift.outputs.surface_changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          LATEST: ${{ steps.upstream.outputs.latest }}
+          PINNED: ${{ steps.upstream.outputs.pinned }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          gh label create api-drift --color D42D24 --description "HolyArrs API changed upstream" --force > /dev/null
+          {
+            echo "The app is pinned to HolyArrs $PINNED; the latest release is $LATEST."
+            echo
+            echo "To move to it: \`scripts/api/update-spec.sh $LATEST\`, fix what the contract test reports, and run the live test (see CLAUDE.md, API spec contract)."
+            echo
+            cat "$RUNNER_TEMP/drift.md"
+            echo
+            echo "Last checked by $RUN_URL"
+          } > "$RUNNER_TEMP/issue.md"
+          number="$(gh issue list --label api-drift --state open --json number -q '.[0].number')"
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --title "HolyArrs API drift ($PINNED → $LATEST)" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create --title "HolyArrs API drift ($PINNED → $LATEST)" --label api-drift --body-file "$RUNNER_TEMP/issue.md"
+          fi
+
+  # Always-reporting required check: a failed or cancelled job fails the gate.
+  api-gate:
+    if: always() && github.event_name != 'schedule'
+    permissions: {}
+    needs: [spec, contract, live]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require API jobs to have passed
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if echo "$RESULTS" | grep -qE 'failure|cancelled'; then
+            exit 1
+          fi
