@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="section_home">Start</string>
+    <string name="section_library">Bibliothek</string>
+    <string name="section_requests">Anfragen</string>
+    <string name="section_downloads">Downloads</string>
+    <string name="section_explore">Entdecken</string>
+    <string name="section_search">Suche</string>
+    <string name="section_calendar">Kalender</string>
+    <string name="section_music">Musik</string>
+    <string name="section_people">Personen</string>
+    <string name="section_health">Status</string>
+    <string name="section_settings">Einstellungen</string>
+    <string name="section_account">Mein Konto</string>
+    <string name="section_popular">Neu &amp; beliebt</string>
+    <string name="section_movies">Filme</string>
+    <string name="section_shows">Serien</string>
+    <string name="section_stats">Statistik</string>
+    <string name="section_history">Verlauf</string>
+    <string name="nav_manage">Verwalten</string>
+    <string name="group_library">Bibliothek</string>
+    <string name="group_yours">Deine Sachen</string>
+    <string name="group_activity">Aktivität</string>
+    <string name="group_system">System</string>
+    <string name="group_you">Du</string>
+    <string name="nav_more">Mehr</string>
+
+    <string name="placeholder_title">Kommt bald</string>
+    <string name="placeholder_message">Dieser Bereich fehlt in der App noch. Nutze bis dahin die HolyArrs-Web-App.</string>
+
+    <string name="common_retry">Erneut versuchen</string>
+    <string name="common_back">Zurück</string>
+    <string name="common_cancel">Abbrechen</string>
+    <string name="common_see_all">Alle anzeigen</string>
+    <string name="common_loading">Wird geladen…</string>
+    <string name="empty_title">Noch nichts da</string>
+
+    <string name="error_title">Laden fehlgeschlagen</string>
+    <string name="error_offline">Der Server ist nicht erreichbar. Prüfe die Verbindung.</string>
+    <string name="error_timeout">Der Server hat zu lange nicht geantwortet.</string>
+    <string name="error_tls">Dem Zertifikat des Servers wird nicht vertraut.</string>
+    <string name="error_unauthorized">Deine Sitzung ist abgelaufen. Melde dich erneut an.</string>
+    <string name="error_forbidden">Dein Konto darf das nicht.</string>
+    <string name="error_not_found">Das wurde auf dem Server nicht gefunden.</string>
+    <string name="error_bad_request">Der Server hat die Anfrage nicht angenommen.</string>
+    <string name="error_conflict">Das passt nicht zum aktuellen Stand auf dem Server.</string>
+    <string name="error_part_off">Dieser Teil von HolyArrs ist ausgeschaltet.</string>
+    <string name="error_hands_off">Der Hands-off-Modus ist an, deshalb schickt HolyArrs nur an den Downloader.</string>
+    <string name="error_reauth">Bestätige dafür dein Passwort erneut.</string>
+    <string name="error_rate_limited">Zu viele Anfragen. Warte kurz und versuche es erneut.</string>
+    <string name="error_server">Auf dem Server ist ein Fehler aufgetreten.</string>
+    <string name="error_invalid_response">Der Server hat eine Antwort geschickt, die die App nicht versteht.</string>
+    <string name="error_unknown">Etwas ist schiefgelaufen.</string>
+
+    <string name="connect_title">Mit HolyArrs verbinden</string>
+    <string name="connect_subtitle">Gib die Adresse deines HolyArrs-Servers ein.</string>
+    <string name="connect_address">Serveradresse</string>
+    <string name="connect_address_hint">z. B. 192.168.1.10:6262 oder media.example.com</string>
+    <string name="connect_continue">Weiter</string>
+    <string name="connect_change_server">Ändern</string>
+    <string name="connect_expired">Deine Sitzung ist abgelaufen. Melde dich erneut an.</string>
+
+    <string name="signin_title">Anmelden</string>
+    <string name="signin_name">Name</string>
+    <string name="signin_password">Passwort</string>
+    <string name="signin_submit">Anmelden</string>
+    <string name="signin_with_password">Passwort</string>
+    <string name="signin_with_key">API-Schlüssel</string>
+    <string name="signin_api_key">API-Schlüssel</string>
+    <string name="signin_api_key_hint">Erstelle einen Schlüssel in der HolyArrs-Web-App unter Mein Konto.</string>
+    <string name="signin_account">Konto</string>
+    <string name="signin_way_password">HolyArrs-Konto</string>
+    <string name="signin_way_jellyfin">Jellyfin-Konto</string>
+    <string name="signin_way_emby">Emby-Konto</string>
+    <string name="signin_other_ways">Dieser Server bietet auch %1$s an. Die App kann das noch nicht: Melde dich mit Passwort oder API-Schlüssel an.</string>
+    <string name="way_plex">Plex</string>
+    <string name="way_oidc">Single Sign-on</string>
+    <string name="way_forward_auth">Proxy-Anmeldung</string>
+
+    <string name="signin_host_refused">Der Server erlaubt den Hostnamen %1$s nicht. Er lehnt Änderungen ab, bis der Besitzer ihn in HolyArrs unter Einstellungen, Anmeldung und Sicherheit, Erlaubte Hostnamen hinzufügt.</string>
+
+    <string name="twofactor_title">Zwei-Faktor-Anmeldung</string>
+    <string name="twofactor_message">Gib den sechsstelligen Code aus deiner Authenticator-App oder einen Backup-Code ein.</string>
+    <string name="twofactor_code">Code</string>
+    <string name="twofactor_submit">Bestätigen</string>
+
+    <string name="signin_error_invalid_address">Das sieht nicht nach einer Serveradresse aus.</string>
+    <string name="signin_error_unreachable">Unter dieser Adresse antwortet kein Server.</string>
+    <string name="signin_error_tls">Dem Zertifikat des Servers wird nicht vertraut. Installiere bei einem selbst signierten Zertifikat die Zertifizierungsstelle auf diesem Gerät.</string>
+    <string name="signin_error_not_holyarrs">Das ist kein HolyArrs-Server. Prüfe die Adresse und den URL-Pfad.</string>
+    <string name="signin_error_needs_setup">Dieser Server ist noch nicht eingerichtet. Schliesse die Einrichtung zuerst im Browser ab.</string>
+    <string name="signin_error_host_refused">Der Server lehnt diesen Hostnamen ab. Füge ihn in HolyArrs unter Einstellungen, Anmeldung und Sicherheit, Erlaubte Hostnamen hinzu.</string>
+    <string name="signin_error_wrong_credentials">Falscher Name oder falsches Passwort.</string>
+    <string name="signin_error_wrong_code">Falscher Code.</string>
+    <string name="signin_error_sign_in_ended">Diese Anmeldung ist abgelaufen. Beginne von vorn.</string>
+    <string name="signin_error_key_rejected">Der Server hat diesen API-Schlüssel nicht akzeptiert.</string>
+    <string name="signin_error_not_allowed">Dieses Konto darf sich nicht anmelden.</string>
+    <string name="signin_error_way_off">Diese Anmeldeart ist auf dem Server ausgeschaltet.</string>
+    <string name="signin_error_rate_limited">Zu viele Versuche. Versuche es in %1$d s erneut.</string>
+    <string name="signin_error_server">Auf dem Server ist ein Fehler aufgetreten. Versuche es später erneut.</string>
+
+    <string name="health_run">Jetzt prüfen</string>
+    <string name="health_empty_title">Noch keine Prüfungen</string>
+    <string name="health_empty_message">HolyArrs hat noch nichts geprüft.</string>
+    <string name="health_overall_ok">Alles in Ordnung</string>
+    <string name="health_overall_warning">Braucht Aufmerksamkeit</string>
+    <string name="health_overall_error">Etwas stimmt nicht</string>
+    <string name="health_state_ok">OK</string>
+    <string name="health_state_warning">Warnung</string>
+    <string name="health_state_error">Fehler</string>
+    <string name="health_state_unknown">Unbekannt</string>
+
+    <string name="account_summary">%1$s · %2$s</string>
+    <string name="account_server">Server</string>
+    <string name="account_version">Version</string>
+    <string name="account_role">Rolle</string>
+    <string name="account_method">Angemeldet mit</string>
+    <string name="account_live">Live-Updates</string>
+    <string name="account_sign_out">Abmelden</string>
+    <string name="account_sign_out_title">Abmelden?</string>
+    <string name="account_sign_out_message">Du kannst dich jederzeit wieder anmelden.</string>
+    <string name="account_two_factor_needed">Dein Server verlangt für dein Konto die Zwei-Faktor-Anmeldung. Schalte sie in der HolyArrs-Web-App unter Mein Konto ein.</string>
+    <string name="account_safe_mode">Der Server läuft im abgesicherten Modus: Nur der Kern ist eingeschaltet.</string>
+    <string name="role_owner">Besitzer</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_member">Mitglied</string>
+    <string name="role_unknown">Unbekannt</string>
+    <string name="method_password">Passwort</string>
+    <string name="method_media_server">Medienserver-Konto</string>
+    <string name="method_api_key">API-Schlüssel</string>
+    <string name="live_off">Aus</string>
+    <string name="live_connecting">Verbinde…</string>
+    <string name="live_live">Verbunden</string>
+    <string name="live_reconnecting">Verbinde erneut…</string>
+</resources>

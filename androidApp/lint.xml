@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- All user-facing Compose UI text must go through stringResource(...) /
+         strings.xml so it can be translated (en/de). -->
+    <issue id="HardcodedText" severity="error" />
+
+    <!-- Every string needs its German translation. -->
+    <issue id="MissingTranslation" severity="error" />
+
+    <!-- The German strings use Swiss spelling (ss instead of the eszett). -->
+    <issue id="Typos">
+        <ignore path="**/values-de/strings.xml" />
+    </issue>
+
+    <!-- Self-hosted servers are often reached over plain HTTP on the home
+         network and with certificates from a CA the user installed. -->
+    <issue id="InsecureBaseConfiguration" severity="ignore" />
+    <issue id="AcceptsUserCertificates" severity="ignore" />
+</lint>

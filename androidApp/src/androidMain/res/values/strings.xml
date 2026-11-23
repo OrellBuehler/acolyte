@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Acolyte</string>
+
+    <string name="section_home">Home</string>
+    <string name="section_library">Library</string>
+    <string name="section_requests">Requests</string>
+    <string name="section_downloads">Downloads</string>
+    <string name="section_explore">Explore</string>
+    <string name="section_search">Search</string>
+    <string name="section_calendar">Calendar</string>
+    <string name="section_music">Music</string>
+    <string name="section_people">People</string>
+    <string name="section_health">Status</string>
+    <string name="section_settings">Settings</string>
+    <string name="section_account">My account</string>
+    <string name="section_popular">New &amp; Popular</string>
+    <string name="section_movies">Movies</string>
+    <string name="section_shows">TV shows</string>
+    <string name="section_stats">Stats</string>
+    <string name="section_history">History</string>
+    <string name="nav_manage">Manage</string>
+    <string name="group_library">Library</string>
+    <string name="group_yours">Your stuff</string>
+    <string name="group_activity">Activity</string>
+    <string name="group_system">System</string>
+    <string name="group_you">You</string>
+    <string name="nav_more">More</string>
+
+    <string name="placeholder_title">Coming soon</string>
+    <string name="placeholder_message">This part is not in the app yet. Use the HolyArrs web app in the meantime.</string>
+
+    <string name="common_retry">Try again</string>
+    <string name="common_back">Back</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_see_all">See all</string>
+    <string name="common_loading">Loading…</string>
+    <string name="empty_title">Nothing here yet</string>
+
+    <string name="error_title">Could not load</string>
+    <string name="error_offline">Can\'t reach the server. Check your connection.</string>
+    <string name="error_timeout">The server took too long to answer.</string>
+    <string name="error_tls">The server\'s certificate is not trusted.</string>
+    <string name="error_unauthorized">Your session has ended. Sign in again.</string>
+    <string name="error_forbidden">Your account may not do this.</string>
+    <string name="error_not_found">This was not found on the server.</string>
+    <string name="error_bad_request">The server did not accept this request.</string>
+    <string name="error_conflict">This clashes with the current state on the server.</string>
+    <string name="error_part_off">This part of HolyArrs is turned off.</string>
+    <string name="error_hands_off">Hands-off mode is on, so HolyArrs only sends to the downloader.</string>
+    <string name="error_reauth">Confirm your password again to do this.</string>
+    <string name="error_rate_limited">Too many requests. Wait a moment and try again.</string>
+    <string name="error_server">The server ran into a problem.</string>
+    <string name="error_invalid_response">The server sent an answer the app does not understand.</string>
+    <string name="error_unknown">Something went wrong.</string>
+
+    <string name="connect_title">Connect to HolyArrs</string>
+    <string name="connect_subtitle">Enter the address of your HolyArrs server.</string>
+    <string name="connect_address">Server address</string>
+    <string name="connect_address_hint">e.g. 192.168.1.10:6262 or media.example.com</string>
+    <string name="connect_continue">Continue</string>
+    <string name="connect_change_server">Change</string>
+    <string name="connect_expired">Your session has ended. Sign in again.</string>
+
+    <string name="signin_title">Sign in</string>
+    <string name="signin_name">Name</string>
+    <string name="signin_password">Password</string>
+    <string name="signin_submit">Sign in</string>
+    <string name="signin_with_password">Password</string>
+    <string name="signin_with_key">API key</string>
+    <string name="signin_api_key">API key</string>
+    <string name="signin_api_key_hint">Make a key in the HolyArrs web app under My account.</string>
+    <string name="signin_account">Account</string>
+    <string name="signin_way_password">HolyArrs account</string>
+    <string name="signin_way_jellyfin">Jellyfin account</string>
+    <string name="signin_way_emby">Emby account</string>
+    <string name="signin_other_ways">This server also offers %1$s. The app cannot use that yet: sign in with a password or an API key.</string>
+    <string name="way_plex">Plex</string>
+    <string name="way_oidc">single sign-on</string>
+    <string name="way_forward_auth">proxy sign-in</string>
+
+    <string name="signin_host_refused">The server does not allow the host name %1$s. It refuses changes until the owner adds it in HolyArrs under Settings, Sign-in and security, Allowed host names.</string>
+
+    <string name="twofactor_title">Two-factor sign-in</string>
+    <string name="twofactor_message">Enter the six-digit code from your authenticator app, or a backup code.</string>
+    <string name="twofactor_code">Code</string>
+    <string name="twofactor_submit">Verify</string>
+
+    <string name="signin_error_invalid_address">That does not look like a server address.</string>
+    <string name="signin_error_unreachable">No server answered at this address.</string>
+    <string name="signin_error_tls">The server\'s certificate is not trusted. For a self-signed certificate, install its certificate authority on this device.</string>
+    <string name="signin_error_not_holyarrs">This is not a HolyArrs server. Check the address and the URL base.</string>
+    <string name="signin_error_needs_setup">This server is not set up yet. Finish the setup in a browser first.</string>
+    <string name="signin_error_host_refused">The server refuses this host name. Add it in HolyArrs under Settings, Sign-in and security, Allowed host names.</string>
+    <string name="signin_error_wrong_credentials">Wrong name or password.</string>
+    <string name="signin_error_wrong_code">Wrong code.</string>
+    <string name="signin_error_sign_in_ended">This sign-in has ended. Start again.</string>
+    <string name="signin_error_key_rejected">The server did not accept this API key.</string>
+    <string name="signin_error_not_allowed">This account may not sign in.</string>
+    <string name="signin_error_way_off">This sign-in method is turned off on the server.</string>
+    <string name="signin_error_rate_limited">Too many attempts. Try again in %1$d s.</string>
+    <string name="signin_error_server">The server ran into a problem. Try again later.</string>
+
+    <string name="health_run">Run checks now</string>
+    <string name="health_empty_title">No checks yet</string>
+    <string name="health_empty_message">HolyArrs has not checked anything yet.</string>
+    <string name="health_overall_ok">Everything is fine</string>
+    <string name="health_overall_warning">Needs attention</string>
+    <string name="health_overall_error">Something is wrong</string>
+    <string name="health_state_ok">OK</string>
+    <string name="health_state_warning">Warning</string>
+    <string name="health_state_error">Error</string>
+    <string name="health_state_unknown">Unknown</string>
+
+    <string name="account_summary">%1$s · %2$s</string>
+    <string name="account_server">Server</string>
+    <string name="account_version">Version</string>
+    <string name="account_role">Role</string>
+    <string name="account_method">Signed in with</string>
+    <string name="account_live">Live updates</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_sign_out_title">Sign out?</string>
+    <string name="account_sign_out_message">You can sign in again any time.</string>
+    <string name="account_two_factor_needed">Your server requires two-factor sign-in for your account. Turn it on in the HolyArrs web app under My account.</string>
+    <string name="account_safe_mode">The server runs in safe mode: only the core is on.</string>
+    <string name="role_owner">Owner</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_member">Member</string>
+    <string name="role_unknown">Unknown</string>
+    <string name="method_password">Password</string>
+    <string name="method_media_server">Media server account</string>
+    <string name="method_api_key">API key</string>
+    <string name="live_off">Off</string>
+    <string name="live_connecting">Connecting…</string>
+    <string name="live_live">Connected</string>
+    <string name="live_reconnecting">Reconnecting…</string>
+</resources>

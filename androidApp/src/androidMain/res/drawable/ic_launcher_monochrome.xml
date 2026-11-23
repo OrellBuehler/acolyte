@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Single-colour drawing for themed icons, from assets/icon/icon-small.svg. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="256"
+    android:viewportHeight="256">
+    <group android:pivotX="128" android:pivotY="128" android:scaleX="0.6" android:scaleY="0.6">
+        <path android:fillColor="#FFFFFF" android:pathData="M128,12 Q140.4,61.6 190,74 Q140.4,86.4 128,136 Q115.6,86.4 66,74 Q115.6,61.6 128,12 Z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M96,152h48v80h-48z" />
+    </group>
+</vector>
