@@ -26,6 +26,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -812,32 +814,31 @@ class HealthPresenterTest {
     fun liveHealthAndJobEventsReloadAfterTheThrottle() =
         runTest {
             val server = FakeServer()
+            server.dispatcher = StandardTestDispatcher(testScheduler)
             server.statusRoutes()
             val live = MutableSharedFlow<LiveEvent>(extraBufferCapacity = 16)
             val client = server.client(listOf(FakeServer.SESSION), csrf = "token")
             val presenter = server.presenter(api = Api({ client }, live))
+
+            fun reads() = server.recorded().count { it.path == "/api/v1/health/states" }
             presenter.load()
             val job = backgroundScope.launch { presenter.watch() }
-            runCurrent()
-            advanceTimeBy(500)
-            eventually { server.recorded().count { it.path == "/api/v1/health/states" } >= 2 }
-            val before = server.recorded().count { it.path == "/api/v1/health/states" }
+            settle(500)
+            assertTrue(reads() >= 2)
+            val before = reads()
             live.emit(LiveEvent("job", JsonNull, null))
-            runCurrent()
-            advanceTimeBy(500)
-            eventually { server.recorded().count { it.path == "/api/v1/health/states" } > before }
-            val again = server.recorded().count { it.path == "/api/v1/health/states" }
+            settle(500)
+            assertTrue(reads() > before)
+            val again = reads()
             live.emit(LiveEvent("somethingelse", JsonNull, null))
-            runCurrent()
-            advanceTimeBy(500)
-            assertEquals(again, server.recorded().count { it.path == "/api/v1/health/states" })
+            settle(500)
+            assertEquals(again, reads())
             live.emit(LiveEvent(LiveEvent.RESYNC, JsonNull, null))
-            runCurrent()
-            advanceTimeBy(500)
-            eventually { server.recorded().count { it.path == "/api/v1/health/states" } > again }
-            val third = server.recorded().count { it.path == "/api/v1/health/states" }
-            advanceTimeBy(61_000)
-            eventually { server.recorded().count { it.path == "/api/v1/health/states" } > third }
+            settle(500)
+            assertTrue(reads() > again)
+            val third = reads()
+            settle(61_000)
+            assertTrue(reads() > third)
             job.cancel()
         }
 
@@ -845,28 +846,35 @@ class HealthPresenterTest {
     fun aMovingInstallIsPolledEveryTwoSecondsAndReloadsWhenTheVersionChanges() =
         runTest {
             val server = FakeServer()
+            server.dispatcher = StandardTestDispatcher(testScheduler)
             server.statusRoutes()
             server.json("GET", "/api/v1/app/update/install", INSTALL.replace("\"phase\":\"idle\"", "\"phase\":\"restarting\""))
             val presenter = server.presenter()
+
+            fun count(path: String) = server.recorded().count { it.path == path }
             presenter.load()
             assertTrue(presenter.state.value.installMoving)
             val job = backgroundScope.launch { presenter.watch() }
-            runCurrent()
-            advanceTimeBy(500)
-            eventually { server.recorded().count { it.path == "/api/v1/health/states" } >= 2 }
-            val before = server.recorded().count { it.path == "/api/v1/app/update/install" }
+            settle(500)
+            assertTrue(count("/api/v1/health/states") >= 2)
+            val before = count("/api/v1/app/update/install")
             server.on("GET", "/api/v1/app/update/install") { throw IllegalStateException("restarting") }
-            advanceTimeBy(2_100)
-            eventually { server.recorded().count { it.path == "/api/v1/app/update/install" } > before }
+            settle(2_100)
+            assertTrue(count("/api/v1/app/update/install") > before)
             assertTrue(presenter.state.value.installMoving)
             server.json("GET", "/api/v1/app/update/install", INSTALL.replace("\"running\":\"1.3.0\"", "\"running\":\"1.4.0\""))
-            val reads = server.recorded().count { it.path == "/api/v1/app/update" }
-            advanceTimeBy(2_100)
-            eventually { !presenter.state.value.installMoving }
-            advanceTimeBy(500)
-            eventually { server.recorded().count { it.path == "/api/v1/app/update" } > reads }
+            val reads = count("/api/v1/app/update")
+            settle(2_100)
+            assertFalse(presenter.state.value.installMoving)
+            settle(500)
+            assertTrue(count("/api/v1/app/update") > reads)
             job.cancel()
         }
+}
+
+private suspend fun TestScope.settle(millis: Long) {
+    advanceTimeBy(millis)
+    runCurrent()
 }
 
 class ApiErrorTest {
