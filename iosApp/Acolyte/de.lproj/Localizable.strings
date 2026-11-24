@@ -6888,6 +6888,8 @@
 "tv.signin.unsupported" = "Dieser Schritt ist auf Apple TV noch nicht verfügbar. Geh zurück oder schliesse ihn in der App auf deinem Telefon ab.";
 "tv.reload" = "Neu laden";
 "tv.home.featured" = "Empfohlen";
+"tv.requests.more" = "Mehr anzeigen";
+"tv.downloads.review" = "%1$ld warten auf eine Entscheidung. Entscheide am Telefon.";
 "tv.phone.title" = "Öffne das auf deinem Telefon";
 "tv.phone.body" = "%1$@ ist auf Apple TV noch nicht verfügbar. Öffne die Acolyte-App auf deinem Telefon, um es zu nutzen.";
 "tv.phone.what.person" = "Personenseiten";

@@ -79,6 +79,12 @@ targets:
           - Discover/DiscoverText.swift
           - Home/HomeText.swift
           - Music/MusicRoutes.swift
+          - Downloads/CalendarStore.swift
+          - Downloads/DlTitleLinkRoute.swift
+          - Downloads/DlToastModel.swift
+          - Downloads/DownloadsStore.swift
+          - Downloads/DownloadsText.swift
+          - Requests/AskLinesView.swift
           - Requests/RequestsStores.swift
           - Requests/RequestsWords.swift
           - Title/TitleStore.swift

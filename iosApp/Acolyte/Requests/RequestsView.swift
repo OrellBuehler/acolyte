@@ -68,58 +68,6 @@ struct NoteToast: View {
     }
 }
 
-struct AskLinesView: View {
-    let ask: AskInfo
-    let approver: Bool
-    let myId: Int64
-
-    var body: some View {
-        let askedBy = L10n.format("requests.asked.by", RequestsWords.names(ask.askers))
-        muted(ask.askedAt.map { "\(askedBy) · \(Format.relative($0))" } ?? askedBy)
-        if !ask.viaPlugin.isEmpty { muted(L10n.format("requests.via", ask.viaPlugin)) }
-        if let first = ask.watchlist.first {
-            if ask.watchlist.count > 1 {
-                muted(L10n.format("requests.watchlist.many", ask.watchlist.count))
-            } else if first.id == myId {
-                muted(L10n.tr("requests.watchlist.yours"))
-            } else {
-                muted(L10n.format("requests.watchlist.of", first.name))
-            }
-        }
-        if ask.autoApproved, ask.state != "asked" {
-            muted(L10n.tr("requests.auto.approved"))
-        } else if ask.state == "turned_down", !ask.decider.isEmpty {
-            muted(L10n.format("requests.declined.by", ask.decider))
-        } else if ask.state != "asked", ask.state != "turned_down", !ask.decider.isEmpty {
-            muted(L10n.format("requests.approved.by", ask.decider))
-        } else if ask.state == "turned_down", let at = ask.decidedAt {
-            muted(L10n.format("requests.declined.at", Format.relative(at)))
-        }
-        if !ask.note.isEmpty {
-            Text("“\(ask.note)”")
-                .font(.footnote.italic())
-                .lineLimit(3)
-        }
-        if approver, !ask.alsoDeclined.isEmpty {
-            muted(L10n.format("requests.declined.before", RequestsWords.names(ask.alsoDeclined)))
-        }
-        if ask.isFailed {
-            Text(ask.problem.isEmpty ? L10n.tr("requests.failed.not.added") : ask.problem)
-                .font(.footnote)
-                .foregroundStyle(Theme.failText)
-        } else if ask.state == "approved" {
-            muted(RequestsWords.step(ask) ?? RequestsWords.keeps(ask))
-            if approver, !ask.stepText.isEmpty { muted(ask.stepText) }
-        }
-    }
-
-    private func muted(_ text: String) -> some View {
-        Text(text)
-            .font(.footnote)
-            .foregroundStyle(Theme.textMuted)
-    }
-}
-
 struct RequestsView: View {
     let account: AccountInfo
     @State private var store = RequestsStore()
@@ -277,27 +225,7 @@ struct RequestsView: View {
     }
 
     private func noteText(_ note: RequestsNoteInfo) -> String {
-        let error = note.error.map { RequestsWords.error($0) } ?? ""
-        switch note.kind {
-        case .approved: return L10n.format("requests.note.approved", note.name)
-        case .declined: return L10n.format("requests.note.declined", note.name)
-        case .approvedMany: return L10n.plural("requests.note.approved.many", note.count)
-        case .approveFailed: return L10n.format("requests.note.approve.failed", note.name, error)
-        case .declineFailed: return L10n.format("requests.note.decline.failed", note.name, error)
-        case .alreadyDecided:
-            let key = switch note.state {
-            case "turned_down": "requests.note.already.declined"
-            case "approved", "available": "requests.note.already.approved"
-            default: "requests.note.already.answered"
-            }
-            let head = L10n.format(key, note.name)
-            return note.by.isEmpty ? head : L10n.format("requests.note.by", head, note.by)
-        case .notice: return note.text
-        case .removed: return L10n.plural("requests.note.removed", note.count)
-        case .nothingToRemove: return L10n.tr("requests.note.nothing.removed")
-        case .removeFailed, .takeBackFailed: return L10n.format("requests.note.remove.failed", error)
-        case .takenBack: return L10n.format("requests.note.taken.back", note.name)
-        }
+        RequestsWords.note(note)
     }
 
     private var list: some View {
@@ -393,34 +321,10 @@ struct RequestsView: View {
 
     private var calm: some View {
         let filtered = info.approver && info.filtersOn > 0
-        let title: String
-        var message: String?
-        if filtered {
-            title = info.stage.map { L10n.format("requests.filtered.stage", RequestsWords.stage($0)) }
-                ?? L10n.format("requests.filtered.kind", RequestsWords.kindFilter(info.kind))
-            message = L10n.tr("requests.filtered.hidden")
-        } else if info.approver {
-            switch info.approverTab {
-            case .waiting:
-                title = L10n.tr("requests.calm.caught.up")
-                message = L10n.tr("requests.calm.waiting")
-            case .processing:
-                title = L10n.tr("requests.calm.processing.title")
-                message = L10n.tr("requests.calm.processing")
-            case .done:
-                title = L10n.tr("requests.calm.done.title")
-                message = L10n.tr("requests.calm.done")
-            }
-        } else {
-            switch info.memberTab {
-            case .waiting: title = L10n.tr("requests.calm.caught.up")
-            case .failed: title = L10n.tr("requests.calm.nothing.failed")
-            default: title = L10n.format("requests.calm.nothing.yet", RequestsWords.memberTab(info.memberTab))
-            }
-        }
+        let words = RequestsWords.calm(info)
         return VStack(spacing: Theme.Spacing.xSmall) {
-            Text(title).font(.headline)
-            if let message {
+            Text(words.title).font(.headline)
+            if let message = words.message {
                 Text(message).font(.footnote).foregroundStyle(Theme.textMuted)
             }
             if filtered {
