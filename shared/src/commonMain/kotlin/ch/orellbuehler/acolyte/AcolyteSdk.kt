@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.SettingsKeysAddresses
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
@@ -51,6 +52,8 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsAiPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -219,4 +222,12 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsApi(): SettingsApiPresenter =
+        SettingsApiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsAi(): SettingsAiPresenter =
+        SettingsAiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
 }
