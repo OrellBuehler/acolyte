@@ -6880,3 +6880,9 @@
 "music.unmatched.files.other" = "%1$d Musikdateien passen zu keinem Titel";
 "music.unmatched.link" = "%1$@ (%2$d)";
 "music.unmatched.more" = "+%1$d weitere";
+"tv.tab.home" = "Start";
+"tv.tab.settings" = "Einstellungen";
+"tv.settings.server" = "Server";
+"tv.settings.account" = "Angemeldet als";
+"tv.settings.sign.out" = "Abmelden";
+"tv.signin.unsupported" = "Dieser Schritt ist auf Apple TV noch nicht verfügbar. Geh zurück oder schliesse ihn in der App auf deinem Telefon ab.";

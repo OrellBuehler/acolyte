@@ -16,7 +16,7 @@ Early development. The foundation is in place on Android and iOS: connecting to 
 |---|---|
 | `shared/` | Kotlin Multiplatform: the HolyArrs client (Ktor), sign-in and session, secure storage (Android Keystore, iOS Keychain), live updates (`/live`), image URLs, navigation rules and one presenter per feature. `AcolyteSdk` is the entry point. |
 | `androidApp/` | Jetpack Compose and Material 3. Renders the shared state. |
-| `iosApp/` | SwiftUI, project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
+| `iosApp/` | SwiftUI (iPhone app `Acolyte`; `AcolyteTV` is an Apple TV app shell on the same shared code, spike stage: sign-in, Home shelves, Settings), project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
 | `api/` | The OpenAPI spec of the HolyArrs release the app is built against (`VERSION`). |
 
 Every endpoint the app calls is declared once in `shared` and checked against that spec in CI, and a CI job runs the client against the published HolyArrs Docker image of the same release. [CLAUDE.md](CLAUDE.md) has the conventions for adding endpoints and screens.
@@ -61,6 +61,8 @@ xcodebuild build \
 ```
 
 `ARCHS=arm64` because the staged framework is the arm64 simulator slice. The Kotlin/Native tests of the shared module run with `./gradlew shared:iosSimulatorArm64Test`. To run the app, open `iosApp/Acolyte.xcodeproj` after the steps above.
+
+The Apple TV app is the `AcolyteTV` scheme of the same project. Build `shared:linkDebugFrameworkTvosSimulatorArm64`, copy `shared/build/bin/tvosSimulatorArm64/debugFramework/shared.framework` to `shared/build/xcode-frameworks/Debug/appletvsimulator<sdk version>/` (CI does exactly this in `ios.yml`, job `tvos-build`), run `xcodegen generate` and build with `-destination 'generic/platform=tvOS Simulator'`. The tvOS Kotlin tests run with `./gradlew shared:tvosSimulatorArm64Test`.
 
 ### Against a real server
 

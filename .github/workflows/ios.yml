@@ -85,11 +85,64 @@ jobs:
       - name: Run shared Kotlin/Native tests
         run: ./gradlew shared:iosSimulatorArm64Test
 
+  # The Apple TV app: tvOS simulator framework of `shared` plus the AcolyteTV scheme.
+  # Runs next to ios-build; the tvOS Kotlin/Native tests follow in `tvos-tests`.
+  tvos-build:
+    runs-on: xcode-27
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      - name: Build shared tvOS framework
+        run: ./gradlew shared:linkDebugFrameworkTvosSimulatorArm64
+
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk appletvsimulator --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Debug/appletvsimulator${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/tvosSimulatorArm64/debugFramework/shared.framework "$DEST/"
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+
+      - name: Build tvOS app
+        working-directory: iosApp
+        run: |
+          xcodebuild build \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTV \
+            -destination 'generic/platform=tvOS Simulator' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64
+
+  tvos-tests:
+    needs: tvos-build
+    runs-on: xcode-27
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      - name: Run shared Kotlin/Native tests on tvOS
+        run: ./gradlew shared:tvosSimulatorArm64Test
+
   # Always-reporting required check: a failed or cancelled job fails the gate.
   ios-gate:
     if: always()
     permissions: {}
-    needs: [ios-build, ios-tests]
+    needs: [ios-build, ios-tests, tvos-build, tvos-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

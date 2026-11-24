@@ -6,6 +6,7 @@ import re
 import sys
 
 root = pathlib.Path(__file__).resolve().parents[2] / "iosApp" / "Acolyte"
+sources = [root, root.parent / "AcolyteTV"]
 entry = re.compile(r'^"((?:[^"\\]|\\.)+)"\s*=\s*"((?:[^"\\]|\\.)*)";\s*$')
 
 
@@ -27,7 +28,7 @@ problems += [f"missing in de: {k}" for k in sorted(en.keys() - de.keys())]
 problems += [f"missing in en: {k}" for k in sorted(de.keys() - en.keys())]
 problems += [f"eszett in de: {k}" for k, v in de.items() if "ß" in v]
 used = set()
-for swift in root.rglob("*.swift"):
+for swift in (path for source in sources for path in source.rglob("*.swift")):
     text = swift.read_text(encoding="utf-8")
     used.update(re.findall(r'L10n\.(?:tr|format)\(\s*"([^"]+)"', text))
     for a, b in re.findall(r'L10n\.tr\(\s*[^")]*\?\s*"([^"]+)"\s*:\s*"([^"]+)"', text):

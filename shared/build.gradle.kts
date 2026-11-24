@@ -17,6 +17,8 @@ kotlin {
         iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
+        tvosArm64(),
+        tvosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "shared"
@@ -40,7 +42,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.kotlinx.coroutines.android)
         }
-        iosMain.dependencies {
+        appleMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
         val androidUnitTest by getting {

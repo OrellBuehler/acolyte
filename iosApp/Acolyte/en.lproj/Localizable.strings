@@ -6880,3 +6880,9 @@
 "music.unmatched.files.other" = "%1$d music files fit no track";
 "music.unmatched.link" = "%1$@ (%2$d)";
 "music.unmatched.more" = "+%1$d more";
+"tv.tab.home" = "Home";
+"tv.tab.settings" = "Settings";
+"tv.settings.server" = "Server";
+"tv.settings.account" = "Signed in as";
+"tv.settings.sign.out" = "Sign out";
+"tv.signin.unsupported" = "This step is not available on Apple TV yet. Go back, or finish it in the app on your phone.";
