@@ -235,6 +235,14 @@ object DecisionRules {
                 DecisionFix.HAND -> DecisionStep.OPEN_RELEASES
                 DecisionFix.SEARCH -> DecisionStep.SEARCH
                 DecisionFix.FOLDER, DecisionFix.MATCH -> if (again) DecisionStep.IMPORT_AGAIN else DecisionStep.SEARCH
+            }.let {
+                if (d.kind == "artist" &&
+                    (it == DecisionStep.OPEN_RELEASES || it == DecisionStep.OPEN_VERSIONS)
+                ) {
+                    DecisionStep.SEARCH
+                } else {
+                    it
+                }
             }
         val beside = if (lead != DecisionStep.IMPORT_AGAIN && again) DecisionStep.IMPORT_AGAIN else null
         val more = mutableListOf<DecisionStep>()

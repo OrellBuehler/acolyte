@@ -16,6 +16,9 @@ import ch.orellbuehler.acolyte.ui.discover.PopularScreen
 import ch.orellbuehler.acolyte.ui.discover.SearchScreen
 import ch.orellbuehler.acolyte.ui.discover.discoverRoutes
 import ch.orellbuehler.acolyte.ui.discover.rememberDiscoverNav
+import ch.orellbuehler.acolyte.ui.downloads.CalendarScreen
+import ch.orellbuehler.acolyte.ui.downloads.DownloadsScreen
+import ch.orellbuehler.acolyte.ui.downloads.HistoryScreen
 import ch.orellbuehler.acolyte.ui.health.HealthScreen
 import ch.orellbuehler.acolyte.ui.home.HomeScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryCopiesScreen
@@ -67,10 +70,46 @@ fun AppNavHost(
         composable<ShowsRoute> { LibraryScreen(LibraryKind.SHOW, back(Section.SHOWS), open) }
         composable<MusicRoute> { PlaceholderScreen(Section.MUSIC, back(Section.MUSIC)) }
         composable<StatsRoute> { LibraryStatsScreen(back(Section.STATS)) }
-        composable<DownloadsRoute> { PlaceholderScreen(Section.DOWNLOADS, back(Section.DOWNLOADS)) }
-        composable<CalendarRoute> { PlaceholderScreen(Section.CALENDAR, back(Section.CALENDAR)) }
+        composable<DownloadsRoute> {
+            DownloadsScreen(
+                show = "",
+                open = "",
+                onBack = back(Section.DOWNLOADS),
+                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+            )
+        }
+        composable<CalendarRoute> {
+            CalendarScreen(onBack = back(Section.CALENDAR), onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) })
+        }
         composable<RequestsRoute> { RequestsScreen(account, onBack = back(Section.REQUESTS), onNavigate = { nav.navigate(it) }) }
-        composable<HistoryRoute> { PlaceholderScreen(Section.HISTORY, back(Section.HISTORY)) }
+        composable<HistoryRoute> {
+            HistoryScreen(
+                titleId = 0,
+                episodeId = 0,
+                onBack = back(Section.HISTORY),
+                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenDownload = { nav.navigate(Routes.downloads(open = it)) },
+            )
+        }
+        composable<DownloadsFocusRoute> { entry ->
+            val route = entry.toRoute<DownloadsFocusRoute>()
+            DownloadsScreen(
+                show = route.show,
+                open = route.open,
+                onBack = { nav.popBackStack() },
+                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+            )
+        }
+        composable<HistoryScopeRoute> { entry ->
+            val route = entry.toRoute<HistoryScopeRoute>()
+            HistoryScreen(
+                titleId = route.titleId,
+                episodeId = route.episodeId,
+                onBack = { nav.popBackStack() },
+                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenDownload = { nav.navigate(Routes.downloads(open = it)) },
+            )
+        }
         composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }
         composable<PeopleRoute> { PlaceholderScreen(Section.PEOPLE, back(Section.PEOPLE)) }
         composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
@@ -94,7 +133,14 @@ fun AppNavHost(
         composable<RequestRulesRoute> { RequestRulesScreen(onBack = { nav.popBackStack() }, onNavigate = { nav.navigate(it) }) }
         composable<OutsideListsRoute> { OutsideListsScreen(onBack = { nav.popBackStack() }) }
         composable<NeverAddRoute> { NeverAddScreen(onBack = { nav.popBackStack() }) }
-        composable<MoreRoute> { MoreScreen(account, onOpen = { nav.navigate(it.destination.route) }, onSignOut = onSignOut) }
+        composable<MoreRoute> {
+            MoreScreen(
+                account,
+                onOpen = { nav.navigate(it.destination.route) },
+                onSignOut = onSignOut,
+                onOpenDecisions = { nav.navigate(Routes.downloads(show = "problems.decide")) },
+            )
+        }
         composable<TitleRoute> { entry -> TitleScreen(entry.toRoute(), nav, onBack = { nav.popBackStack() }) }
         composable<LibraryToolsRoute> { LibraryToolsScreen(pop, open) }
         composable<LibraryDeletedRoute> { LibraryDeletedScreen(it.toRoute<LibraryDeletedRoute>().titleId, pop) }

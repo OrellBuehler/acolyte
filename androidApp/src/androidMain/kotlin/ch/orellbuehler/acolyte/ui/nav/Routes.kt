@@ -65,6 +65,18 @@ data class TitleRoute(
 )
 
 @Serializable
+data class DownloadsFocusRoute(
+    val show: String = "",
+    val open: String = "",
+)
+
+@Serializable
+data class HistoryScopeRoute(
+    val titleId: Long = 0,
+    val episodeId: Long = 0,
+)
+
+@Serializable
 data object LibraryToolsRoute
 
 @Serializable
@@ -172,6 +184,16 @@ object Routes {
     ): TitleRoute = TitleRoute(kind, tmdb)
 
     fun libraryTitle(id: Long): TitleRoute = TitleRoute("", "", id)
+
+    fun downloads(
+        show: String = "",
+        open: String = "",
+    ): Any = DownloadsFocusRoute(show, open)
+
+    fun history(
+        titleId: Long,
+        episodeId: Long = 0,
+    ): Any = HistoryScopeRoute(titleId, episodeId)
 
     fun person(id: String): PersonRoute = PersonRoute(id)
 
