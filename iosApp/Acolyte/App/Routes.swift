@@ -134,6 +134,9 @@ enum Route: Hashable, Sendable, Identifiable {
     case libraryImport
     case libraryImportFiles(path: String)
     case settingsLibraryFolders
+    case libraryTab(id: Int64, kind: String, tmdb: String)
+    case downloads(show: String, open: String)
+    case history(titleId: Int64, episodeId: Int64)
     case ask(kind: String, tmdb: String, fourK: Bool = false)
     case askMusic(artist: String, name: String = "", album: String = "", edition: String = "")
     case reports
@@ -252,6 +255,12 @@ struct RouteScreen: View {
             LibraryFilesView(path: path)
         case .settingsLibraryFolders:
             LibraryFoldersView()
+        case let .libraryTab(id, kind, tmdb):
+            TitleView(kind: kind, tmdb: tmdb, libraryId: id, openLibrary: true)
+        case let .downloads(show, open):
+            DownloadsView(show: show, open: open)
+        case let .history(titleId, episodeId):
+            HistoryView(titleId: titleId, episodeId: episodeId)
         case let .ask(kind, tmdb, fourK):
             AskSheetView(kind: kind, tmdb: tmdb, fourK: fourK)
         case let .askMusic(artist, name, album, edition):
@@ -284,27 +293,5 @@ struct PlaceholderView: View {
     var body: some View {
         EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: section.symbol)
             .navigationTitle(section.title)
-    }
-}
-
-enum Route: Hashable, Sendable {
-    case title(kind: String, tmdb: String)
-    case downloads(show: String, open: String)
-    case history(titleId: Int64, episodeId: Int64)
-}
-
-struct RouteScreen: View {
-    let route: Route
-    let account: AccountInfo
-
-    var body: some View {
-        switch route {
-        case .title:
-            PlaceholderView(section: .library)
-        case let .downloads(show, open):
-            DownloadsView(show: show, open: open)
-        case let .history(titleId, episodeId):
-            HistoryView(titleId: titleId, episodeId: episodeId)
-        }
     }
 }

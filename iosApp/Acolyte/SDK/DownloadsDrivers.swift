@@ -298,7 +298,7 @@ final class DownloadsDriver: @unchecked Sendable {
     func titleLink(titleId: Int64) async -> DlTitleLink? {
         do {
             guard let link = try await presenter.titleLink(titleId: titleId) else { return nil }
-            return DlTitleLink(kind: link.kind, tmdb: link.tmdb)
+            return DlTitleLink(kind: link.kind, tmdb: link.tmdb, libraryId: link.libraryId, openLibrary: link.openLibrary)
         } catch {
             return nil
         }
@@ -463,7 +463,7 @@ final class HistoryDriver: @unchecked Sendable {
     func titleLink(titleId: Int64) async -> DlTitleLink? {
         do {
             guard let link = try await presenter.titleLink(titleId: titleId) else { return nil }
-            return DlTitleLink(kind: link.kind, tmdb: link.tmdb)
+            return DlTitleLink(kind: link.kind, tmdb: link.tmdb, libraryId: link.libraryId, openLibrary: link.openLibrary)
         } catch {
             return nil
         }

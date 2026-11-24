@@ -2891,7 +2891,8 @@
 "downloads.decide.has.copy" = "A copy is already in the Library.";
 "downloads.decide.release" = "Release: %1$@";
 "downloads.decide.hint.path" = "Set up the download folder first: a path pair in Settings > Downloaders, or HOLYARRS_SAVE_PATH. Then import again.";
-"downloads.decide.hint.match" = "To match the files by hand, use Library > Import files in the HolyArrs web app.";
+"downloads.decide.hint.match" = "To match the files by hand, use Library tools > Import files by hand.";
+"downloads.decide.import.files" = "Import files by hand";
 "downloads.decide.edition.label" = "Edition, e.g. Theatrical";
 "downloads.decide.edition.save" = "Save and try again";
 "downloads.decide.import.confirm" = "Import %1$@ as %2$@?";
@@ -3086,6 +3087,9 @@
 "downloads.history.redo.confirm" = "Block this release and search again?";
 "downloads.history.redo.button" = "Block and search";
 "downloads.history.open.downloads" = "Open in Downloads";
+"downloads.history.open.turned.down" = "Turned-down releases";
+"downloads.history.open.held" = "Held releases";
+"downloads.history.open.deleted" = "Recently deleted";
 "downloads.history.replacing" = "Release turned down · searching again";
 "downloads.history.no.release" = "Release not found";
 "downloads.history.copy" = "Copy";

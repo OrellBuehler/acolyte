@@ -207,9 +207,13 @@ struct DownloadsView: View {
                 list: store,
                 key: key,
                 onAction: { item, action in handle(item, action) },
-                onOpenTitle: { titleId in
+                onOpenTitle: { titleId, library in
                     sheet = nil
-                    store.openTitle(titleId)
+                    store.openTitle(titleId, library: library)
+                },
+                onOpenRoute: { route in
+                    sheet = nil
+                    store.route = route
                 }
             )
         case let .remove(plan):

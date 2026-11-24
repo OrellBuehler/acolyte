@@ -204,12 +204,17 @@ final class DownloadsStore {
         Task { await driver.runMatches() }
     }
 
-    func openTitle(_ titleId: Int64) {
+    func openTitle(_ titleId: Int64, library: Bool = false) {
         let driver = self.driver
         Task {
-            guard let link = await driver.titleLink(titleId: titleId) else { return }
-            route = .title(kind: link.kind, tmdb: link.tmdb)
+            guard var link = await driver.titleLink(titleId: titleId) else { return }
+            link.openLibrary = library
+            route = link.route
         }
+    }
+
+    var canImportFiles: Bool {
+        SDKClient.shared.libraryTools().contains(.importFiles)
     }
 
     func makeDetailStore(key: String) -> DownloadDetailStore {

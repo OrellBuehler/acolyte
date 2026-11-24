@@ -88,7 +88,7 @@ final class HistoryStore {
         let driver = self.driver
         Task {
             guard let link = await driver.titleLink(titleId: titleId) else { return }
-            route = .title(kind: link.kind, tmdb: link.tmdb)
+            route = link.route
         }
     }
 }

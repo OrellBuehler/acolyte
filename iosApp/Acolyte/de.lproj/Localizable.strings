@@ -2891,7 +2891,8 @@
 "downloads.decide.has.copy" = "Eine Kopie ist schon in der Mediathek.";
 "downloads.decide.release" = "Release: %1$@";
 "downloads.decide.hint.path" = "Richte zuerst den Download-Ordner ein: ein Pfadpaar unter Einstellungen > Downloader oder HOLYARRS_SAVE_PATH. Dann erneut importieren.";
-"downloads.decide.hint.match" = "Um die Dateien von Hand zuzuordnen, nutze Mediathek > Dateien importieren in der HolyArrs-Web-App.";
+"downloads.decide.hint.match" = "Um die Dateien von Hand zuzuordnen, nutze Mediathek-Werkzeuge > Dateien von Hand importieren.";
+"downloads.decide.import.files" = "Dateien von Hand importieren";
 "downloads.decide.edition.label" = "Edition, z. B. Kinofassung";
 "downloads.decide.edition.save" = "Speichern und erneut versuchen";
 "downloads.decide.import.confirm" = "%1$@ als %2$@ importieren?";
@@ -3086,6 +3087,9 @@
 "downloads.history.redo.confirm" = "Dieses Release blockieren und erneut suchen?";
 "downloads.history.redo.button" = "Blockieren und suchen";
 "downloads.history.open.downloads" = "In Downloads öffnen";
+"downloads.history.open.turned.down" = "Abgelehnte Releases";
+"downloads.history.open.held" = "Zurückgehaltene Releases";
+"downloads.history.open.deleted" = "Kürzlich gelöscht";
 "downloads.history.replacing" = "Release abgelehnt · wird erneut gesucht";
 "downloads.history.no.release" = "Release nicht gefunden";
 "downloads.history.copy" = "Kopieren";

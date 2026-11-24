@@ -3,6 +3,8 @@ import Foundation
 struct DlTitleLink: Hashable, Sendable {
     let kind: String
     let tmdb: String
+    var libraryId: Int64 = 0
+    var openLibrary = false
 }
 
 struct DlDay: Hashable, Comparable, Sendable {
@@ -1061,6 +1063,13 @@ enum HistoryRedoKind: String, Hashable, Sendable {
     case replace
 }
 
+enum HistoryLibraryLinkKind: String, Hashable, Sendable {
+    case none
+    case turnedDown = "turneddown"
+    case held
+    case deleted
+}
+
 struct HistoryItemInfo: Identifiable, Hashable, Sendable {
     let key: String
     let verb: HistoryVerbKind
@@ -1082,6 +1091,7 @@ struct HistoryItemInfo: Identifiable, Hashable, Sendable {
     let at: Date?
     let failed: Bool
     let needsYou: Bool
+    let libraryLink: HistoryLibraryLinkKind
 
     var id: String { key }
 }

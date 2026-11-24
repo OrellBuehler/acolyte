@@ -41,7 +41,7 @@ struct CalendarView: View {
                 key: group.id,
                 onOpenTitle: { link in
                     open = nil
-                    store.route = .title(kind: link.kind, tmdb: link.tmdb)
+                    store.route = link.route
                 }
             )
         }

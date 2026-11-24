@@ -55,6 +55,10 @@ struct HistoryView: View {
                 onOpenDownload: { downloadKey in
                     open = nil
                     store.route = .downloads(show: "", open: downloadKey)
+                },
+                onOpenRoute: { route in
+                    open = nil
+                    store.route = route
                 }
             )
         }
@@ -201,6 +205,7 @@ private struct DlHistorySheet: View {
     let key: String
     let onOpenTitle: @MainActor (Int64) -> Void
     let onOpenDownload: @MainActor (String) -> Void
+    let onOpenRoute: @MainActor (Route) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var confirm = false
 
@@ -308,6 +313,23 @@ private struct DlHistorySheet: View {
         }
     }
 
+    @ViewBuilder
+    private func libraryButton(_ item: HistoryItemInfo) -> some View {
+        switch item.libraryLink {
+        case .turnedDown:
+            Button(L10n.tr("downloads.history.open.turned.down")) { onOpenRoute(.libraryReleases(turnedDown: true)) }
+                .buttonStyle(.bordered)
+        case .held:
+            Button(L10n.tr("downloads.history.open.held")) { onOpenRoute(.libraryReleases(turnedDown: false)) }
+                .buttonStyle(.bordered)
+        case .deleted:
+            Button(L10n.tr("downloads.history.open.deleted")) { onOpenRoute(.libraryDeleted(titleId: item.titleId)) }
+                .buttonStyle(.bordered)
+        case .none:
+            EmptyView()
+        }
+    }
+
     private func buttons(_ item: HistoryItemInfo) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Theme.Spacing.small) {
@@ -326,6 +348,7 @@ private struct DlHistorySheet: View {
                     Button(L10n.tr("downloads.history.open.downloads")) { onOpenDownload("d\(item.downloadId)") }
                         .buttonStyle(.bordered)
                 }
+                libraryButton(item)
             }
         }
         .padding(.top, Theme.Spacing.small)

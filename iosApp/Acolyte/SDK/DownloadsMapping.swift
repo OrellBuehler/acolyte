@@ -641,7 +641,8 @@ extension Mapping {
             titleId: i.head.titleId,
             at: Format.date(iso: i.head.at),
             failed: i.failed,
-            needsYou: i.needsYou
+            needsYou: i.needsYou,
+            libraryLink: HistoryLibraryLinkKind(rawValue: key(i.libraryLink)) ?? .none
         )
     }
 

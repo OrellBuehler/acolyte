@@ -4,7 +4,8 @@ struct DownloadDetailSheet: View {
     let list: DownloadsStore
     let key: String
     let onAction: @MainActor (DownloadItemInfo, DownloadActionKind) -> Void
-    let onOpenTitle: @MainActor (Int64) -> Void
+    let onOpenTitle: @MainActor (Int64, Bool) -> Void
+    let onOpenRoute: @MainActor (Route) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var detail: DownloadDetailStore
 
@@ -12,12 +13,14 @@ struct DownloadDetailSheet: View {
         list: DownloadsStore,
         key: String,
         onAction: @escaping @MainActor (DownloadItemInfo, DownloadActionKind) -> Void,
-        onOpenTitle: @escaping @MainActor (Int64) -> Void
+        onOpenTitle: @escaping @MainActor (Int64, Bool) -> Void,
+        onOpenRoute: @escaping @MainActor (Route) -> Void
     ) {
         self.list = list
         self.key = key
         self.onAction = onAction
         self.onOpenTitle = onOpenTitle
+        self.onOpenRoute = onOpenRoute
         _detail = State(initialValue: list.makeDetailStore(key: key))
     }
 
@@ -151,7 +154,7 @@ struct DownloadDetailSheet: View {
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Theme.failText)
             ForEach(item.decisions) { group in
-                DecisionCardView(group: group, store: list, onOpenTitle: onOpenTitle)
+                DecisionCardView(group: group, store: list, onOpenTitle: onOpenTitle, onOpenRoute: onOpenRoute)
             }
         }
     }
@@ -619,7 +622,8 @@ private enum DecisionConfirm {
 private struct DecisionCardView: View {
     let group: DecisionGroupInfo
     let store: DownloadsStore
-    let onOpenTitle: @MainActor (Int64) -> Void
+    let onOpenTitle: @MainActor (Int64, Bool) -> Void
+    let onOpenRoute: @MainActor (Route) -> Void
     @State private var why = false
     @State private var editing = false
     @State private var edition = ""
@@ -716,6 +720,10 @@ private struct DecisionCardView: View {
             Text(L10n.tr("downloads.decide.hint.match"))
                 .font(.footnote)
                 .foregroundStyle(Theme.waitText)
+            if store.canImportFiles {
+                Button(L10n.tr("downloads.decide.import.files")) { onOpenRoute(.libraryImportFiles(path: "")) }
+                    .buttonStyle(.bordered)
+            }
         case .none:
             EmptyView()
         }
@@ -769,7 +777,7 @@ private struct DecisionCardView: View {
                     ask(.stop(lead, pack: group.pack))
                 }
                 if lead.kind != "artist" {
-                    Button(L10n.tr("downloads.action.open")) { onOpenTitle(lead.titleId) }
+                    Button(L10n.tr("downloads.action.open")) { onOpenTitle(lead.titleId, false) }
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -816,7 +824,7 @@ private struct DecisionCardView: View {
         case .importAgain: store.importAgain(slotId: lead.slotId)
         case .importFile: ask(.importFile(lead))
         case .setEdition: editing = true
-        case .openVersions, .openReleases: onOpenTitle(lead.titleId)
+        case .openVersions, .openReleases: onOpenTitle(lead.titleId, true)
         }
     }
 
