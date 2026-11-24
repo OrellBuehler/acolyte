@@ -91,6 +91,7 @@ private struct TitleTabsBar: View {
 
 private struct TitleToolbar: View {
     let store: TitleStore
+    @Environment(\.openRoute) private var openRoute
 
     var body: some View {
         let info = store.info
@@ -155,7 +156,7 @@ private struct TitleToolbar: View {
         case .refresh: store.run { await $0.refreshDetails() }
         case .history: store.open(.history)
         case .delete: store.openRemove()
-        case .report: store.reportRoute = .report(titleId: store.info.ownedId)
+        case .report: openRoute(.reportProblem(titleId: store.info.ownedId, name: store.info.name))
         case .hide:
             store.run { await $0.loadUsers() }
             store.open(.hide)
@@ -221,16 +222,8 @@ private struct ConfirmModifier: ViewModifier {
     }
 }
 
-private struct RouteModifier: ViewModifier {
-    @Bindable var store: TitleStore
-
-    func body(content: Content) -> some View {
-        content.navigationDestination(item: $store.reportRoute) { RouteScreen(route: $0) }
-    }
-}
-
 extension View {
     func titleConfirmations(store: TitleStore) -> some View {
-        modifier(ConfirmModifier(store: store)).modifier(RouteModifier(store: store))
+        modifier(ConfirmModifier(store: store))
     }
 }

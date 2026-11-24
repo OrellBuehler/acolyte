@@ -5,6 +5,7 @@ import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
+import ch.orellbuehler.acolyte.api.TitleEndpoints
 import ch.orellbuehler.acolyte.api.model.ApproveBody
 import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.api.model.PartEpisode
@@ -244,7 +245,7 @@ class AskReviewPresenter internal constructor(
         val tmdb = s.ask?.tmdbId.orEmpty()
         if (s.episodes[number]?.isNotEmpty() == true || tmdb.isEmpty() || number in s.loading) return
         change { it.copy(loading = it.loading + number, failed = it.failed - number) }
-        when (val result = api.result(RequestsEndpoints.seasonEpisodes, "tmdb_id" to tmdb, "number" to number)) {
+        when (val result = api.result(TitleEndpoints.season, "tmdb_id" to tmdb, "number" to number)) {
             is ApiResult.Ok ->
                 change {
                     it.copy(

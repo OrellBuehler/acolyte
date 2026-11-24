@@ -6,12 +6,13 @@ import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
+import ch.orellbuehler.acolyte.api.TitleEndpoints
 import ch.orellbuehler.acolyte.api.model.AskAnswer
-import ch.orellbuehler.acolyte.api.model.TitleAsk
 import ch.orellbuehler.acolyte.api.model.AskEpisodes
 import ch.orellbuehler.acolyte.api.model.LookupShow
 import ch.orellbuehler.acolyte.api.model.NewAsk
 import ch.orellbuehler.acolyte.api.model.QualityChoice
+import ch.orellbuehler.acolyte.api.model.TitleAsk
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
@@ -316,7 +317,7 @@ class AskPresenter internal constructor(
                 .orEmpty()
                 .ifEmpty { mutableState.value.tmdb }
         updateRow(number) { it.copy(load = EpisodesLoad.LOADING) }
-        when (val result = api.result(RequestsEndpoints.seasonEpisodes, "tmdb_id" to tmdb, "number" to number)) {
+        when (val result = api.result(TitleEndpoints.season, "tmdb_id" to tmdb, "number" to number)) {
             is ApiResult.Ok -> {
                 val eps = result.value.episodes.map { AskEpisodeTick(it.number, it.name, false) }
                 updateRow(number) { it.copy(load = EpisodesLoad.READY, episodes = eps, picked = 0) }

@@ -5,6 +5,7 @@ import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
+import ch.orellbuehler.acolyte.api.RequestsEndpoints
 import ch.orellbuehler.acolyte.api.TitleEndpoints
 import ch.orellbuehler.acolyte.api.TitleSupportEndpoints
 import ch.orellbuehler.acolyte.api.model.AdoptBody
@@ -222,7 +223,7 @@ class TitlePresenter internal constructor(
             }
             if (s.access.mayAsk && !s.isShow) {
                 launch {
-                    api.result(TitleSupportEndpoints.askLimit).onSuccess { v -> mutableState.update { it.copy(fourKOn = v.fourK.movie) } }
+                    api.result(RequestsEndpoints.limit).onSuccess { v -> mutableState.update { it.copy(fourKOn = v.fourK.movie) } }
                 }
             }
             if (s.access.followOn && s.owned == null) launch { readFollow() }

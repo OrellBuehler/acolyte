@@ -141,7 +141,7 @@ internal data class ApproveBody(
 )
 
 @Serializable
-internal data class TurnDownBody(
+internal data class AskTurnDownBody(
     val note: String = "",
 )
 
@@ -275,17 +275,6 @@ data class AskableAlbum(
     @SerialName("release_date") val releaseDate: String = "",
     val kept: Boolean = false,
     @SerialName("left_out") val leftOut: Boolean = false,
-)
-
-@Serializable
-data class AskSeasonEpisode(
-    val number: Int = 0,
-    val name: String = "",
-)
-
-@Serializable
-data class AskSeasonEpisodes(
-    val episodes: List<AskSeasonEpisode> = emptyList(),
 )
 
 @Serializable

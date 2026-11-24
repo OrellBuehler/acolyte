@@ -61,4 +61,3 @@ internal data class NewReport(
 internal data class ReportFix(
     val reply: String? = null,
 )
-

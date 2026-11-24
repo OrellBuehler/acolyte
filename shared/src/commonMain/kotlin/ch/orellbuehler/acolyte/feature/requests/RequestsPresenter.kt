@@ -12,8 +12,8 @@ import ch.orellbuehler.acolyte.api.model.ApproveBody
 import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.api.model.AskCounts
 import ch.orellbuehler.acolyte.api.model.AskDecision
+import ch.orellbuehler.acolyte.api.model.AskTurnDownBody
 import ch.orellbuehler.acolyte.api.model.RemoveAsks
-import ch.orellbuehler.acolyte.api.model.TurnDownBody
 import ch.orellbuehler.acolyte.api.onFailure
 import ch.orellbuehler.acolyte.api.onSuccess
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -321,7 +321,7 @@ class RequestsPresenter internal constructor(
         reason: String,
     ) {
         val ask = mutableState.value.ask(id) ?: return
-        val body = TurnDownBody(reason.trim().take(NOTE_MAX))
+        val body = AskTurnDownBody(reason.trim().take(NOTE_MAX))
         hold(listOf(ask), PendingKind.DECLINE)
         note(RequestsNoteKind.DECLINED, name = ask.name, keys = listOf(id))
         undo.hold(id, onUndone = { release(id) }) { sendDecline(ask, body) }
@@ -502,7 +502,7 @@ class RequestsPresenter internal constructor(
 
     private suspend fun sendDecline(
         ask: Ask,
-        body: TurnDownBody,
+        body: AskTurnDownBody,
     ) {
         settle(ask, api.result(RequestsEndpoints.turnDown, body, "id" to ask.id), RequestsNoteKind.DECLINE_FAILED, quietNotice = true)
     }

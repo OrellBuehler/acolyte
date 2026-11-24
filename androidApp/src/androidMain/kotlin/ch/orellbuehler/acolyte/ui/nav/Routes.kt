@@ -173,8 +173,6 @@ object Routes {
 
     val reports: Any = ReportsRoute
 
-    fun report(titleId: Long): Any = ReportProblemRoute(titleId)
-
     fun reportProblem(
         titleId: Long,
         name: String = "",
