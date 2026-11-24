@@ -236,6 +236,13 @@ fun RenameContent(
     presenter: RenamePresenter,
     name: String,
     viewModel: TitleViewModel,
+) = RenameContent(presenter, name, viewModel::launch)
+
+@Composable
+fun RenameContent(
+    presenter: RenamePresenter,
+    name: String,
+    launch: (suspend () -> Unit) -> Unit,
 ) {
     val state by presenter.state.collectAsStateWithLifecycle()
     LaunchedEffect(presenter) { presenter.load() }
@@ -301,7 +308,7 @@ fun RenameContent(
             Text(state.note.ifBlank { stringResource(R.string.title_renaming) }, style = MaterialTheme.typography.bodySmall)
         }
         if (changes.isNotEmpty()) {
-            Button(onClick = { viewModel.launch { presenter.apply() } }, enabled = !state.running) {
+            Button(onClick = { launch { presenter.apply() } }, enabled = !state.running) {
                 Text(pluralStringResource(R.plurals.title_rename_button, changes.size, changes.size))
             }
         }
@@ -312,6 +319,13 @@ fun RenameContent(
 fun RemoveContent(
     presenter: RemovePresenter,
     viewModel: TitleViewModel,
+) = RemoveContent(presenter, viewModel::launch, viewModel::close)
+
+@Composable
+fun RemoveContent(
+    presenter: RemovePresenter,
+    launch: (suspend () -> Unit) -> Unit,
+    close: () -> Unit,
 ) {
     val state by presenter.state.collectAsStateWithLifecycle()
     LaunchedEffect(presenter) { presenter.load() }
@@ -334,11 +348,11 @@ fun RemoveContent(
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 if (state.heldIds.isNotEmpty() && state.whole) {
                     OutlinedButton(onClick = {
-                        viewModel.launch { presenter.undo() }
-                        viewModel.close()
+                        launch { presenter.undo() }
+                        close()
                     }) { Text(stringResource(R.string.title_undo)) }
                 }
-                Button(onClick = viewModel::close) { Text(stringResource(R.string.title_done)) }
+                Button(onClick = close) { Text(stringResource(R.string.title_done)) }
             }
             return@Column
         }
@@ -349,11 +363,11 @@ fun RemoveContent(
                 stringResource(if (state.whole) R.string.title_delete_files else R.string.title_delete_their_files),
                 stringResource(R.string.title_delete_files_hint),
                 state.deleteFiles,
-            ) { viewModel.launch { presenter.setDeleteFiles(it) } }
+            ) { launch { presenter.setDeleteFiles(it) } }
         }
         if (state.whole) {
             SettingSwitch(stringResource(R.string.title_never_add), stringResource(R.string.title_never_add_hint), state.neverAdd) {
-                viewModel.launch { presenter.setNeverAdd(it) }
+                launch { presenter.setNeverAdd(it) }
             }
         }
         Text(stringResource(R.string.title_what_happens), style = MaterialTheme.typography.titleSmall)
@@ -391,9 +405,9 @@ fun RemoveContent(
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-            TextButton(onClick = viewModel::close) { Text(stringResource(R.string.common_cancel)) }
+            TextButton(onClick = close) { Text(stringResource(R.string.common_cancel)) }
             Button(
-                onClick = { viewModel.launch { presenter.apply() } },
+                onClick = { launch { presenter.apply() } },
                 enabled = state.ready,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.acolyte.fail),
             ) {

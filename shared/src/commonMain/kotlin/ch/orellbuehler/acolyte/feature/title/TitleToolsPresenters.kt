@@ -316,6 +316,8 @@ data class RemoveState(
     val season: Int,
     val episodeIds: List<Long>,
     val handsOff: Boolean,
+    val albumId: Long = 0,
+    val trackIds: List<Long> = emptyList(),
     val deleteFiles: Boolean = false,
     val neverAdd: Boolean = false,
     val plan: RemovePlan? = null,
@@ -325,7 +327,7 @@ data class RemoveState(
     val heldIds: List<Long> = emptyList(),
     val feedback: Feedback? = null,
 ) {
-    val whole: Boolean get() = season < 0 && episodeIds.isEmpty()
+    val whole: Boolean get() = season < 0 && episodeIds.isEmpty() && albumId == 0L && trackIds.isEmpty()
 
     val ready: Boolean get() = plan != null && !running
 }
@@ -338,9 +340,11 @@ class RemovePresenter internal constructor(
     season: Int,
     episodeIds: List<Long>,
     handsOff: Boolean,
+    albumId: Long = 0,
+    trackIds: List<Long> = emptyList(),
     private val onRemoved: suspend (Boolean) -> Unit,
 ) {
-    private val mutableState = MutableStateFlow(RemoveState(name, show, season, episodeIds, handsOff))
+    private val mutableState = MutableStateFlow(RemoveState(name, show, season, episodeIds, handsOff, albumId, trackIds))
     private val feedback = FeedbackCounter()
     private var asked = 0
 
@@ -354,6 +358,8 @@ class RemovePresenter internal constructor(
             neverAdd = if (s.whole) s.neverAdd else null,
             season = s.season.takeIf { it >= 0 && s.episodeIds.isEmpty() },
             episodeIds = s.episodeIds.ifEmpty { null },
+            albumId = s.albumId.takeIf { it > 0 },
+            trackIds = s.trackIds.ifEmpty { null },
         )
     }
 

@@ -204,6 +204,49 @@ data object DiscoverHiddenRoute
 @Serializable
 data object DiscoverStatsRoute
 
+@Serializable
+data class MusicArtistRoute(
+    val mbid: String,
+)
+
+@Serializable
+data class MusicAlbumRoute(
+    val mbid: String,
+    val artist: String = "",
+)
+
+@Serializable
+data class MusicGenreRoute(
+    val slug: String,
+)
+
+@Serializable
+data class MusicPageRoute(
+    val kind: String,
+    val slug: String,
+)
+
+@Serializable
+data class MusicLibraryArtistRoute(
+    val titleId: Long,
+    val tab: String = "",
+)
+
+@Serializable
+data class MusicLibraryAlbumRoute(
+    val titleId: Long,
+    val albumId: Long,
+)
+
+@Serializable
+data class MusicAddRoute(
+    val mbid: String,
+    val name: String = "",
+)
+
+@Serializable
+data object SettingsMusicRoute
+
 object Routes {
     fun title(
         kind: String,
@@ -255,6 +298,12 @@ object Routes {
         versionId: Long = 0,
     ): Any = ReportProblemRoute(titleId, name, season, itemId, albumId, versionId)
 
+    fun musicLibraryArtist(
+        titleId: Long,
+        tab: String = "",
+    ): Any = MusicLibraryArtistRoute(titleId, tab)
+
+    val settingsMusic: Any = SettingsMusicRoute
     val settingsRequests: Any = RequestRulesRoute
     val settingsOutsideLists: Any = OutsideListsRoute
     val settingsNeverAdd: Any = NeverAddRoute

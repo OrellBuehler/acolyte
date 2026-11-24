@@ -5,9 +5,31 @@ struct ExploreView: View {
     @State private var store = ExploreStore()
     @State private var host = CardHost()
     @State private var notice: String?
+    @State private var musicTab = false
     @Environment(Navigator.self) private var navigator
 
+    private var musicShown: Bool { SDKClient.shared.musicAccess().show }
+
     var body: some View {
+        if musicTab, musicShown {
+            MusicExploreContent {
+                TypePicker(
+                    type: store.info.type,
+                    select: { type in
+                        musicTab = false
+                        store.select(type)
+                    },
+                    musicShown: true,
+                    musicSelected: true
+                )
+            }
+            .navigationTitle(SectionID.explore.title)
+        } else {
+            exploreScreen
+        }
+    }
+
+    private var exploreScreen: some View {
         StatusContent(load: store.info.load, isEmpty: store.info.isEmpty, reload: { await store.refresh() }) {
             ContentUnavailableView {
                 Label(L10n.tr("discover.explore.building.title"), systemImage: "safari")
@@ -20,7 +42,13 @@ struct ExploreView: View {
         } content: {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                    TypePicker(type: store.info.type, select: { store.select($0) }, genre: { navigator.open(.genre(type: store.info.type, genre: $0)) })
+                    TypePicker(
+                        type: store.info.type,
+                        select: { store.select($0) },
+                        genre: { navigator.open(.genre(type: store.info.type, genre: $0)) },
+                        musicShown: musicShown,
+                        onMusic: { musicTab = true }
+                    )
                     if let error = store.info.load.error {
                         NoticeBanner(text: error.localized).padding(.horizontal, Theme.Spacing.screen)
                     }
@@ -119,27 +147,62 @@ struct TypePicker: View {
     let type: ExploreTypeID
     let select: (ExploreTypeID) -> Void
     var genre: ((Int) -> Void)?
+    var musicShown = false
+    var musicSelected = false
+    var onMusic: () -> Void = {}
 
-    var body: some View {
-        HStack(spacing: Theme.Spacing.small) {
-            Picker(L10n.tr("discover.type.all"), selection: Binding(get: { type }, set: { select($0) })) {
-                ForEach(ExploreTypeID.allCases) { Text(DiscoverText.type($0)).tag($0) }
-            }
-            .pickerStyle(.segmented)
-            if let genre, type != .all {
-                Menu {
-                    ForEach(SDKClient.shared.genreOptions(type)) { option in
-                        Button(DiscoverText.genre(option.name)) { genre(option.id) }
-                    }
-                } label: {
-                    Label(L10n.tr("discover.genres"), systemImage: "chevron.down")
-                        .labelStyle(.titleAndIcon)
-                        .font(.subheadline.weight(.semibold))
+    private var selection: Binding<String> {
+        Binding(
+            get: { musicSelected ? "music" : type.rawValue },
+            set: { value in
+                if value == "music" {
+                    onMusic()
+                } else if let chosen = ExploreTypeID(rawValue: value) {
+                    select(chosen)
                 }
             }
+        )
+    }
+
+    private var showsGenres: Bool {
+        genre != nil && type != .all && !musicSelected
+    }
+
+    var body: some View {
+        VStack(alignment: .trailing, spacing: Theme.Spacing.small) {
+            HStack(spacing: Theme.Spacing.small) {
+                picker
+                if showsGenres, !musicShown { genres }
+            }
+            if showsGenres, musicShown { genres }
         }
         .padding(.horizontal, Theme.Spacing.screen)
         .padding(.vertical, Theme.Spacing.small)
+    }
+
+    private var picker: some View {
+        Picker(L10n.tr("discover.type.all"), selection: selection) {
+            ForEach(ExploreTypeID.allCases) { Text(DiscoverText.type($0)).tag($0.rawValue) }
+            if musicShown {
+                Text(L10n.tr("section.music")).tag("music")
+            }
+        }
+        .pickerStyle(.segmented)
+    }
+
+    @ViewBuilder
+    private var genres: some View {
+        if let genre {
+            Menu {
+                ForEach(SDKClient.shared.genreOptions(type)) { option in
+                    Button(DiscoverText.genre(option.name)) { genre(option.id) }
+                }
+            } label: {
+                Label(L10n.tr("discover.genres"), systemImage: "chevron.down")
+                    .labelStyle(.titleAndIcon)
+                    .font(.subheadline.weight(.semibold))
+            }
+        }
     }
 }
 

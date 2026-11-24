@@ -285,6 +285,7 @@ enum SearchScopeID: String, Hashable, Sendable, Identifiable {
     case people
     case movie
     case show
+    case music
 
     var id: Self { self }
 }

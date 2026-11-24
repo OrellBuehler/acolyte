@@ -42,6 +42,7 @@ data class OwnedTitle(
     val slots: List<OwnedSlot> = emptyList(),
     val asks: List<OwnedAsk> = emptyList(),
     val show: OwnedShow? = null,
+    val artist: GridArtist? = null,
 ) {
     val tmdbId: String get() = ids["tmdb"].orEmpty()
 }
@@ -151,6 +152,7 @@ data class OwnedAsk(
     val note: String = "",
     @SerialName("four_k") val fourK: Boolean = false,
     @SerialName("season_words") val seasonWords: String = "",
+    @SerialName("album_words") val albumWords: String = "",
 )
 
 @Serializable
