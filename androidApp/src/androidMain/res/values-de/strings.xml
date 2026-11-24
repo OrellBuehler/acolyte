@@ -1135,6 +1135,8 @@
     <string name="title_collapse_all">Alle zuklappen</string>
     <string name="title_contains">Enthält</string>
     <string name="title_created_by">Erschaffen von</string>
+    <string name="title_delete_album">Album löschen</string>
+    <string name="title_delete_artist">Künstler löschen</string>
     <string name="title_delete_episode">Folge löschen</string>
     <string name="title_delete_files">Auch die Dateien löschen</string>
     <string name="title_delete_files_hint">Bleiben eine Weile im Halteordner</string>

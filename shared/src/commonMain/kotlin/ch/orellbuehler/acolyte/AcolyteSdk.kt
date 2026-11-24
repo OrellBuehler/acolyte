@@ -439,5 +439,16 @@ class AcolyteSdk internal constructor(
         name: String,
         albumId: Long,
     ): RemovePresenter =
-        RemovePresenter(session.api, titleId, name, false, -1, emptyList(), session.account?.handsOff == true, albumId, emptyList()) {}
+        RemovePresenter(
+            session.api,
+            titleId,
+            name,
+            false,
+            -1,
+            emptyList(),
+            session.account?.handsOff == true,
+            albumId,
+            emptyList(),
+            true,
+        ) {}
 }

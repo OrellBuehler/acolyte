@@ -1137,6 +1137,8 @@
     <string name="title_collapse_all">Collapse all</string>
     <string name="title_contains">Contains</string>
     <string name="title_created_by">Created by</string>
+    <string name="title_delete_album">Delete album</string>
+    <string name="title_delete_artist">Delete artist</string>
     <string name="title_delete_episode">Delete episode</string>
     <string name="title_delete_files">Also delete the files</string>
     <string name="title_delete_files_hint">Kept in the holding folder for a while</string>

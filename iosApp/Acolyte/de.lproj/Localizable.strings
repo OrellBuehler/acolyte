@@ -959,6 +959,8 @@
 "title.collapse.all" = "Alle zuklappen";
 "title.contains" = "Enthält";
 "title.created.by" = "Erschaffen von";
+"title.delete.album" = "Album löschen";
+"title.delete.artist" = "Künstler löschen";
 "title.delete.episode" = "Folge löschen";
 "title.delete.files" = "Auch die Dateien löschen";
 "title.delete.files.hint" = "Bleiben eine Weile im Halteordner";

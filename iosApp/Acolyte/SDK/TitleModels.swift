@@ -940,6 +940,8 @@ struct RemoveInfo: Hashable, Sendable {
     let episodeCount: Int
     let handsOff: Bool
     let whole: Bool
+    let album: Bool
+    let artist: Bool
     let deleteFiles: Bool
     let neverAdd: Bool
     let hasPlan: Bool

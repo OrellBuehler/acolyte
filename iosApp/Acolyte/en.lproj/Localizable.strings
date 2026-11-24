@@ -959,6 +959,8 @@
 "title.collapse.all" = "Collapse all";
 "title.contains" = "Contains";
 "title.created.by" = "Created by";
+"title.delete.album" = "Delete album";
+"title.delete.artist" = "Delete artist";
 "title.delete.episode" = "Delete episode";
 "title.delete.files" = "Also delete the files";
 "title.delete.files.hint" = "Kept in the holding folder for a while";

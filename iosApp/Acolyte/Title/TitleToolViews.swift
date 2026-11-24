@@ -250,6 +250,8 @@ struct RemoveView: View {
     private func buttonText(_ info: RemoveInfo) -> String {
         if info.season >= 0 { return L10n.format("title.delete.season", TitleText.season(info.season)) }
         if info.episodeCount > 0 { return L10n.tr("title.delete.episode") }
+        if info.album { return L10n.tr("title.delete.album") }
+        if info.artist { return L10n.tr("title.delete.artist") }
         return info.show ? L10n.tr("title.delete.show") : L10n.tr("title.delete.movie")
     }
 
