@@ -122,6 +122,31 @@ class HistoryPresenter internal constructor(
         if (!filter.badRange) reload(quiet = false) else publish()
     }
 
+    suspend fun setFilterNames(
+        steps: List<String>,
+        type: String,
+        who: String,
+        period: String,
+        from: String,
+        to: String,
+        source: Long,
+    ) = setFilter(
+        HistoryFilter(
+            steps = steps.mapNotNull { name -> named(HistoryStep.entries, name) }.toSet(),
+            type = named(HistoryType.entries, type) ?: HistoryType.ALL,
+            who = named(HistoryWhoFilter.entries, who) ?: HistoryWhoFilter.ALL,
+            period = named(HistoryWhen.entries, period) ?: HistoryWhen.ALL,
+            from = from,
+            to = to,
+            source = source,
+        ),
+    )
+
+    private fun <E : Enum<E>> named(
+        entries: List<E>,
+        name: String,
+    ): E? = entries.firstOrNull { it.name.replace("_", "").equals(name.replace("_", ""), ignoreCase = true) }
+
     suspend fun clearScope() {
         mutableState.update { it.copy(titleId = 0, episodeId = 0, scopeName = "") }
         pages = 1

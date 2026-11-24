@@ -17,7 +17,7 @@ enum class CalendarFollows {
     LIBRARY,
 }
 
-enum class CalendarView {
+enum class CalendarLayout {
     AGENDA,
     MONTH,
 }
@@ -90,6 +90,7 @@ data class CalendarGroup(
     val caption: String,
     val album: String,
     val dot: EntryDot,
+    val dots: List<EntryDot>,
     val art: String?,
     val poster: String?,
     val following: Boolean,
@@ -417,6 +418,7 @@ object CalendarRules {
             caption = caption,
             album = lead.album,
             dot = dot,
+            dots = dots,
             art = art,
             poster = lead.poster.ifEmpty { null },
             following = lead.following,

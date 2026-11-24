@@ -765,7 +765,7 @@ private fun DecisionPanel(
                     },
                 button = stringResource(R.string.downloads_decide_import_button),
                 onDismiss = { confirm = null },
-            ) { viewModel.decide(c.d, DecideAction.IMPORT, false) }
+            ) { viewModel.decide(c.d, DecideAction.IMPORT_FILE, false) }
         }
         is DecisionConfirm.TurnDown ->
             ConfirmDialog(

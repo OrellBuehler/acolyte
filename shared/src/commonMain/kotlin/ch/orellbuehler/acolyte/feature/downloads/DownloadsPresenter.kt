@@ -56,7 +56,7 @@ enum class DecideAction(
     SEARCH("search"),
     TURN_DOWN("turn_down"),
     STOP("stop"),
-    IMPORT("import"),
+    IMPORT_FILE("import"),
 }
 
 enum class RemoveDoneLine {
@@ -163,6 +163,16 @@ class DownloadsPresenter internal constructor(
     fun setTracker(key: String) = setFilter { it.copy(tracker = key) }
 
     fun setSort(sort: SortOrder?) = setFilter { it.copy(sort = sort) }
+
+    fun setSortName(
+        key: String,
+        descending: Boolean,
+    ) = setSort(
+        SortKey.entries
+            .firstOrNull {
+                it.name.replace("_", "").equals(key.replace("_", ""), ignoreCase = true)
+            }?.let { SortOrder(it, descending) },
+    )
 
     fun clearFilters() = setFilter { it.copy(kind = KindFilter.ALL, network = NetworkFilter.ANY, tracker = "") }
 
@@ -1004,13 +1014,13 @@ class DownloadsPresenter internal constructor(
         pack: Boolean,
     ) {
         val key = if (pack) "pack-${decision.downloadId}" else "slot-${decision.slotId}"
-        val body = DecideBody(action.wire, pack, action == DecideAction.IMPORT && decision.hasCopy)
+        val body = DecideBody(action.wire, pack, action == DecideAction.IMPORT_FILE && decision.hasCopy)
         busy(key) { api.result(DownloadsEndpoints.decide, body, "id" to decision.slotId) }.onSuccess {
             when (action) {
                 DecideAction.SEARCH -> notice(NoticeKind.SEARCHING, text = DownloadRules.decisionName(decision))
                 DecideAction.TURN_DOWN -> notice(NoticeKind.TURNED_DOWN, text = DownloadRules.decisionName(decision))
                 DecideAction.STOP -> notice(NoticeKind.STOPPED, text = DownloadRules.decisionName(decision))
-                DecideAction.IMPORT -> notice(NoticeKind.IMPORTED, text = DownloadRules.decisionName(decision))
+                DecideAction.IMPORT_FILE -> notice(NoticeKind.IMPORTED, text = DownloadRules.decisionName(decision))
             }
             loadDecisions()
             reload(quiet = true)

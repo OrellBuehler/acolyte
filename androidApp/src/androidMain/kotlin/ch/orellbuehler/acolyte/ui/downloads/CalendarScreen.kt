@@ -70,11 +70,11 @@ import ch.orellbuehler.acolyte.AcolyteSdk
 import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.feature.downloads.CalendarFollows
 import ch.orellbuehler.acolyte.feature.downloads.CalendarGroup
+import ch.orellbuehler.acolyte.feature.downloads.CalendarLayout
 import ch.orellbuehler.acolyte.feature.downloads.CalendarNoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.CalendarRules
 import ch.orellbuehler.acolyte.feature.downloads.CalendarState
 import ch.orellbuehler.acolyte.feature.downloads.CalendarType
-import ch.orellbuehler.acolyte.feature.downloads.CalendarView
 import ch.orellbuehler.acolyte.feature.downloads.Day
 import ch.orellbuehler.acolyte.feature.downloads.EntryDot
 import ch.orellbuehler.acolyte.feature.downloads.EntryTag
@@ -194,8 +194,8 @@ fun CalendarScreen(
             title = stringResource(R.string.section_calendar),
             onBack = onBack,
             actions = {
-                val month = state.view == CalendarView.MONTH
-                IconButton(onClick = { viewModel.presenter.setView(if (month) CalendarView.AGENDA else CalendarView.MONTH) }) {
+                val month = state.view == CalendarLayout.MONTH
+                IconButton(onClick = { viewModel.presenter.setView(if (month) CalendarLayout.AGENDA else CalendarLayout.MONTH) }) {
                     Icon(
                         if (month) Icons.AutoMirrored.Rounded.ViewList else Icons.Rounded.CalendarMonth,
                         contentDescription =
@@ -287,7 +287,7 @@ private fun CalendarBody(
                 }
             }
         }
-        if (state.view == CalendarView.MONTH) {
+        if (state.view == CalendarLayout.MONTH) {
             item(key = "grid") { MonthGrid(state, viewModel.presenter::select) }
             val selected = state.selected
             if (selected != null) {

@@ -51,7 +51,7 @@ data class CalendarNotice(
 
 data class CalendarState(
     val status: LoadStatus = LoadStatus(),
-    val view: CalendarView = CalendarView.AGENDA,
+    val view: CalendarLayout = CalendarLayout.AGENDA,
     val month: Month = Month(1970, 1),
     val today: Day = Day(1970, 1, 1),
     val selected: Day? = null,
@@ -111,7 +111,7 @@ class CalendarPresenter internal constructor(
         loadMonth(mutableState.value.month, quiet = false)
     }
 
-    fun setView(view: CalendarView) {
+    fun setView(view: CalendarLayout) {
         mutableState.update { it.copy(view = view) }
     }
 

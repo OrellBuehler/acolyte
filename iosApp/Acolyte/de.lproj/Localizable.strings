@@ -2732,6 +2732,9 @@
 "downloads.add.submit" = "Hinzufügen";
 "downloads.add.not.link" = "Kein Link: %1$@";
 "downloads.add.empty" = "Füge mindestens einen Link hinzu.";
+"downloads.add.files" = "Torrent-Dateien wählen";
+"downloads.add.files.picked" = "Gewählte Dateien: %1$d";
+"downloads.add.files.dropped" = "Keine .torrent-Dateien, weggelassen: %1$d";
 "downloads.steer.one" = "Für diesen Torrent";
 "downloads.steer.many" = "Für %1$d Torrents";
 "downloads.seeding.title" = "Seed-Regeln";

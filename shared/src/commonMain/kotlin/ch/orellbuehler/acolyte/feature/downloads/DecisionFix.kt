@@ -223,6 +223,8 @@ object DecisionRules {
         return items.all { it.downloadId == a.downloadId && it.reason.trim() == r }
     }
 
+    fun groups(items: List<Decision>): List<DecisionGroup> = groupDecisions(items)
+
     fun plan(d: Decision): DecisionPlan {
         val fix = fix(d)
         val again = mayImportAgain(d)
