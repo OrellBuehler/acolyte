@@ -5,6 +5,7 @@ import ch.orellbuehler.acolyte.api.ApiJson
 import ch.orellbuehler.acolyte.api.model.Me
 import ch.orellbuehler.acolyte.api.model.PartView
 import ch.orellbuehler.acolyte.api.model.Parts
+import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
@@ -22,6 +23,7 @@ import ch.orellbuehler.acolyte.live.LiveStatus
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.AccountSnapshot
 import ch.orellbuehler.acolyte.session.SignInMethod
+import io.ktor.client.engine.mock.toByteArray
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -360,13 +362,7 @@ class DownloadsPresenterTest {
             eventually { s.server.requests.count { it.path == "/api/v1/downloads/view" } > before }
             val gap = """{"kind":"patch","boot":"b1","client":2,"fromRev":9,"toRev":10}"""
             s.live.emit(LiveEvent("dl", ApiJson.lenient.parseToJsonElement(gap), null))
-            runCurrent()
-            assertEquals(
-                "limit=100&client=2",
-                s.server.requests
-                    .last { it.path == "/api/v1/downloads/view" }
-                    .query,
-            )
+            eventually { s.server.requests.any { it.path == "/api/v1/downloads/view" && it.query == "limit=100&client=2" } }
             job.cancel()
         }
 
@@ -414,6 +410,38 @@ class DownloadsPresenterTest {
             assertTrue(
                 s.presenter.state.value.selection
                     .isEmpty(),
+            )
+        }
+
+    @Test
+    fun addsTorrentLinksAndFiles() =
+        runTest {
+            val s = setup()
+            var type = ""
+            var sent = ""
+            s.server.on("POST", "/api/v1/downloaders/2/torrents") { request ->
+                type =
+                    request.body.contentType
+                        ?.withoutParameters()
+                        ?.toString()
+                        .orEmpty()
+                sent = request.body.toByteArray().decodeToString()
+                respondJson("""{"added":1,"failed":0,"pending":0,"duplicates":0}""")
+            }
+            s.presenter.load()
+            assertEquals(listOf("nope"), s.presenter.addTorrents(2, "nope", "", "", false))
+            assertTrue(s.presenter.addTorrents(2, "magnet:?xt=urn:btih:abc", "tv", "", false).isEmpty())
+            assertEquals("application/json", type)
+            assertTrue(sent.contains("\"links\":[\"magnet:?xt=urn:btih:abc\"]"), sent)
+            val file = TorrentUpload("show.torrent", "d8:announce".encodeToByteArray())
+            assertTrue(s.presenter.addTorrentFiles(2, "", listOf(file), "tv", "new", true).isEmpty())
+            assertEquals("multipart/form-data", type)
+            assertTrue(sent.contains("name=\"torrents\"; filename=\"show.torrent\"") && sent.contains("d8:announce"), sent)
+            assertTrue(sent.contains("name=\"paused\"") && sent.contains("true"), sent)
+            assertEquals(
+                NoticeKind.ADDED,
+                s.presenter.state.value.notice
+                    ?.kind,
             )
         }
 

@@ -1,7 +1,10 @@
 package ch.orellbuehler.acolyte.api.model
 
+import ch.orellbuehler.acolyte.api.FormBody
+import ch.orellbuehler.acolyte.api.FormFile
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
@@ -344,11 +347,23 @@ data class SlowModeAnswer(
 )
 
 @Serializable
-data class AddTorrentsBody(
+internal data class AddTorrentsBody(
     val links: List<String>,
     val category: String,
     @SerialName("save_path") val savePath: String,
     val paused: Boolean,
+    @Transient val files: List<TorrentUpload> = emptyList(),
+) : FormBody {
+    override val formFields: List<Pair<String, String>>
+        get() = listOf("links" to links.joinToString("\n"), "category" to category, "save_path" to savePath, "paused" to paused.toString())
+
+    override val formFiles: List<FormFile>
+        get() = files.map { FormFile("torrents", it.name, "application/x-bittorrent", it.bytes) }
+}
+
+class TorrentUpload(
+    val name: String,
+    val bytes: ByteArray,
 )
 
 @Serializable

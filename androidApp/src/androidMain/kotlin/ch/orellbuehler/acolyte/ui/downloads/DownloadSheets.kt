@@ -1,5 +1,10 @@
 package ch.orellbuehler.acolyte.ui.downloads
 
+import android.content.ContentResolver
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,12 +46,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.R
+import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
@@ -310,12 +317,38 @@ internal fun AddTorrentsSheet(
     var savePath by remember { mutableStateOf("") }
     var paused by remember { mutableStateOf(false) }
     var bad by remember { mutableStateOf<List<String>>(emptyList()) }
+    var files by remember { mutableStateOf<List<TorrentUpload>>(emptyList()) }
+    var dropped by remember { mutableStateOf(0) }
+    val resolver = LocalContext.current.contentResolver
+    val picker =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
+            val picked = uris.mapNotNull { uri -> readUpload(resolver, uri) }
+            files = picked.filter { it.name.endsWith(".torrent", ignoreCase = true) }
+            dropped = picked.size - files.size + (uris.size - picked.size)
+            bad = emptyList()
+        }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(
             Modifier.padding(horizontal = Spacing.Screen).padding(bottom = Spacing.XLarge).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(Spacing.Medium),
         ) {
             Text(stringResource(R.string.downloads_add_title), style = MaterialTheme.typography.titleLarge)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
+                OutlinedButton(onClick = { picker.launch("*/*") }) { Text(stringResource(R.string.downloads_add_files)) }
+                if (files.isNotEmpty()) {
+                    Text(
+                        stringResource(R.string.downloads_add_files_picked, files.size),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            if (dropped > 0) {
+                Text(
+                    stringResource(R.string.downloads_add_files_dropped, dropped),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.acolyte.waitText,
+                )
+            }
             OutlinedTextField(
                 value = links,
                 onValueChange = {
@@ -371,7 +404,7 @@ internal fun AddTorrentsSheet(
                     enabled = target != null && !state.batchBusy,
                     onClick = {
                         val id = target?.id ?: return@Button
-                        viewModel.addTorrents(id, links, category, savePath, paused) { left ->
+                        viewModel.addTorrents(id, links, category, savePath, paused, files) { left ->
                             if (left.isEmpty()) onDismiss() else bad = left
                         }
                     },
@@ -380,6 +413,21 @@ internal fun AddTorrentsSheet(
         }
     }
 }
+
+private fun readUpload(
+    resolver: ContentResolver,
+    uri: Uri,
+): TorrentUpload? {
+    val name =
+        resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) cursor.getString(0) else null
+        } ?: uri.lastPathSegment ?: return null
+    val bytes = resolver.openInputStream(uri)?.use { it.readBytes() } ?: return null
+    if (bytes.size > MAX_TORRENT_BYTES) return null
+    return TorrentUpload(name, bytes)
+}
+
+private const val MAX_TORRENT_BYTES = 16 * 1024 * 1024
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -26,6 +26,7 @@ import ch.orellbuehler.acolyte.api.model.ShareLimitsBody
 import ch.orellbuehler.acolyte.api.model.SlowModeBody
 import ch.orellbuehler.acolyte.api.model.SpeedLimitBody
 import ch.orellbuehler.acolyte.api.model.TorrentSpeedBody
+import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.api.onFailure
 import ch.orellbuehler.acolyte.api.onSuccess
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -958,13 +959,23 @@ class DownloadsPresenter internal constructor(
         category: String,
         savePath: String,
         paused: Boolean,
+    ): List<String> = addTorrentFiles(downloaderId, text, emptyList(), category, savePath, paused)
+
+    suspend fun addTorrentFiles(
+        downloaderId: Long,
+        text: String,
+        files: List<TorrentUpload>,
+        category: String,
+        savePath: String,
+        paused: Boolean,
     ): List<String> {
         val (links, bad) = DownloadRules.splitLinks(text)
-        if (bad.isNotEmpty() || links.isEmpty()) return bad.ifEmpty { listOf("") }
+        if (bad.isNotEmpty() || (links.isEmpty() && files.isEmpty())) return bad.ifEmpty { listOf("") }
+        val torrents = files.filter { it.name.endsWith(".torrent", ignoreCase = true) && it.bytes.isNotEmpty() }.take(MAX_FILES)
         busy(BATCH) {
             api.result(
                 DownloadsEndpoints.addTorrents,
-                AddTorrentsBody(links, category.trim(), savePath.trim(), paused),
+                AddTorrentsBody(links, category.trim(), savePath.trim(), paused, torrents),
                 "id" to downloaderId,
             )
         }.onSuccess { outcome ->
@@ -1066,6 +1077,7 @@ class DownloadsPresenter internal constructor(
         const val OUTSIDE_PAGE = 200
         const val OUTSIDE_MAX = 5000
         const val BATCH = "batch"
+        const val MAX_FILES = 500
         val SINGLE =
             setOf(
                 DownloadAction.PAUSE,

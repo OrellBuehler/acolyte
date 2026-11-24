@@ -9,6 +9,8 @@ import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.accept
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
 import io.ktor.client.request.request
@@ -17,6 +19,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.content.TextContent
 import io.ktor.utils.io.readLine
@@ -167,7 +170,10 @@ internal class ApiClient(
                     method = endpoint.method
                     accept(ContentType.Application.Json)
                     authenticate(endpoint.isUnsafe)
-                    if (bodySerializer != null && body != null) {
+                    val form = body as? FormBody
+                    if (form != null && form.formFiles.isNotEmpty()) {
+                        setBody(multipart(form))
+                    } else if (bodySerializer != null && body != null) {
                         setBody(TextContent(json.encodeToString(bodySerializer, body), ContentType.Application.Json))
                     }
                 }
@@ -187,6 +193,23 @@ internal class ApiClient(
         }
         throw error
     }
+
+    private fun multipart(form: FormBody): MultiPartFormDataContent =
+        MultiPartFormDataContent(
+            formData {
+                form.formFields.forEach { (name, value) -> append(name, value) }
+                form.formFiles.forEach { file ->
+                    append(
+                        file.field,
+                        file.bytes,
+                        Headers.build {
+                            append(HttpHeaders.ContentType, file.type)
+                            append(HttpHeaders.ContentDisposition, "filename=\"${file.name.replace("\"", "")}\"")
+                        },
+                    )
+                }
+            },
+        )
 
     private suspend fun refreshCsrf() {
         val me = execute(AuthEndpoints.me, null, emptyMap(), retried = true)

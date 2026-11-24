@@ -3059,6 +3059,9 @@
     <string name="downloads_add_submit">Hinzufügen</string>
     <string name="downloads_add_not_link">Kein Link: %1$s</string>
     <string name="downloads_add_empty">Füge mindestens einen Link hinzu.</string>
+    <string name="downloads_add_files">Torrent-Dateien wählen</string>
+    <string name="downloads_add_files_picked">Gewählte Dateien: %1$d</string>
+    <string name="downloads_add_files_dropped">Keine .torrent-Dateien, weggelassen: %1$d</string>
     <string name="downloads_steer_one">Für diesen Torrent</string>
     <string name="downloads_steer_many">Für %1$d Torrents</string>
     <string name="downloads_seeding_title">Seed-Regeln</string>

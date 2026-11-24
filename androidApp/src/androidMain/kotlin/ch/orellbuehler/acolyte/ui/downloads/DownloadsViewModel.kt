@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ch.orellbuehler.acolyte.AcolyteSdk
 import ch.orellbuehler.acolyte.api.model.Decision
 import ch.orellbuehler.acolyte.api.model.DownloadRow
+import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailPresenter
@@ -102,9 +103,10 @@ class DownloadsViewModel(
         category: String,
         savePath: String,
         paused: Boolean,
+        files: List<TorrentUpload>,
         done: (List<String>) -> Unit,
     ) {
-        viewModelScope.launch { done(presenter.addTorrents(downloaderId, links, category, savePath, paused)) }
+        viewModelScope.launch { done(presenter.addTorrentFiles(downloaderId, links, files, category, savePath, paused)) }
     }
 
     fun shareLimits(
