@@ -289,6 +289,10 @@ data class TitleUsers(
 data class TitleUser(
     val id: Long = 0,
     val name: String = "",
+    val role: String = "",
+    val state: String = "",
+    val avatar: String? = null,
+    @SerialName("max_rating") val maxRating: String = "",
 )
 
 @Serializable

@@ -382,8 +382,20 @@ internal class ApiClient(
         const val COPY_BUFFER = 64 * 1024
 
         private val QUIET_401 =
-            listOf("login", "state", "setup", "media-server", "plex", "invites", "two-factor", "password", "oidc", "forward", "reauth")
-                .map { "/api/v1/auth/$it" }
+            listOf(
+                "login",
+                "state",
+                "setup",
+                "media-server",
+                "plex",
+                "invites",
+                "two-factor",
+                "password",
+                "oidc",
+                "forward",
+                "reauth",
+                "import",
+            ).map { "/api/v1/auth/$it" }
 
         fun isQuiet401(path: String): Boolean = QUIET_401.any { path.startsWith(it) }
     }
