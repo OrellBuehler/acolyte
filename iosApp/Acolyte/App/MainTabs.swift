@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainTabs: View {
     let account: AccountInfo
+    @Environment(AppModel.self) private var model
     @State private var selection: TabID
 
     init(account: AccountInfo) {
@@ -13,20 +14,18 @@ struct MainTabs: View {
         TabView(selection: $selection) {
             ForEach(account.tabs) { section in
                 Tab(section.title, systemImage: section.symbol, value: TabID.section(section)) {
-                    NavigationStack {
+                    RoutedStack(account: account) {
                         SectionScreen(section: section, account: account)
-                            .navigationDestination(for: SectionID.self) { SectionScreen(section: $0, account: account) }
-                            .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
                     }
                 }
+                .badge(section == .requests ? model.inbox.requestsBadge : 0)
             }
             Tab(account.moreTab.title, systemImage: account.moreTab.symbol, value: TabID.more) {
-                NavigationStack {
+                RoutedStack(account: account) {
                     MoreView(account: account)
-                        .navigationDestination(for: SectionID.self) { SectionScreen(section: $0, account: account) }
-                        .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
                 }
             }
+            .badge(!account.tabs.contains(.requests) && model.inbox.hasAttention ? model.inbox.requestsBadge : 0)
         }
     }
 }

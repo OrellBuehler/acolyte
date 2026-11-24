@@ -1,7 +1,7 @@
 package ch.orellbuehler.acolyte.ui.requests
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import ch.orellbuehler.acolyte.R
@@ -302,7 +302,7 @@ fun reportKindHint(kind: ReportKind): String =
 
 @Composable
 fun regionName(code: String): String {
-    val locale = LocalContext.current.resources.configuration.locales[0]
+    val locale = LocalConfiguration.current.locales[0]
     return runCatching {
         java.util.Locale
             .Builder()

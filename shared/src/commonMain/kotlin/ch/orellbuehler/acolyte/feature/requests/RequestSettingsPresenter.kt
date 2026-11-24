@@ -170,6 +170,10 @@ data class RequestSettingsState(
     fun ruleName(id: Long): String = rules.firstOrNull { it.id == id }?.name.orEmpty()
 
     val showFriends: Boolean get() = draft.plexWatchlists && draft.plexFriends
+
+    val regions: List<String> get() = STREAMING_REGIONS
+
+    val maxServices: Int get() = MAX_SERVICES
 }
 
 internal val LineKind.field: FolderField get() = if (this == LineKind.MOVIE) FolderField.MOVIE else FolderField.SHOW

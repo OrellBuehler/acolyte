@@ -6,8 +6,10 @@ import Observation
 final class AppModel {
     private(set) var session: SessionSnapshot = .restoring
     private(set) var live: LiveState = .off
+    private(set) var inbox: InboxInfo = .empty
 
     private let client = SDKClient.shared
+    @ObservationIgnored private let inboxDriver = SDKClient.shared.makeInbox()
     @ObservationIgnored private var started = false
     @ObservationIgnored private var lastRefresh = Date()
 
@@ -19,6 +21,7 @@ final class AppModel {
             group.addTask {
                 await client.watchSession { [weak self] value in
                     self?.session = value
+                    if case .signedIn = value { self?.refreshInbox() }
                 }
             }
             group.addTask {
@@ -29,6 +32,15 @@ final class AppModel {
             group.addTask {
                 await client.restore()
             }
+            let inboxDriver = self.inboxDriver
+            group.addTask {
+                await inboxDriver.watch { [weak self] value in
+                    self?.inbox = value
+                }
+            }
+            group.addTask {
+                await inboxDriver.poll()
+            }
         }
     }
 
@@ -37,6 +49,11 @@ final class AppModel {
         lastRefresh = Date()
         let client = self.client
         Task { await client.refresh() }
+    }
+
+    func refreshInbox() {
+        let inboxDriver = self.inboxDriver
+        Task { await inboxDriver.refresh() }
     }
 
     func signOut() {

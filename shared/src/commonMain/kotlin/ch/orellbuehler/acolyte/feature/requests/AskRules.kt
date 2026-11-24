@@ -351,6 +351,8 @@ fun askFailure(error: ApiError): AskFailure {
     }
 }
 
+val ApiError.failureKind: AskFailure get() = askFailure(this)
+
 internal fun parseMillis(iso: String): Long? =
     if (iso.isBlank()) {
         null

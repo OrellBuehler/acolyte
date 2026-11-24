@@ -150,6 +150,10 @@ fun listLink(list: OutsideList): String {
     }
 }
 
+val TraktDeviceCode.url: String get() = verificationUrl(this)
+
+val OutsideList.link: String get() = listLink(this)
+
 fun verificationUrl(code: TraktDeviceCode): String =
     code.verificationUrl.takeIf { it.startsWith("https://trakt.tv") } ?: "https://trakt.tv/activate"
 

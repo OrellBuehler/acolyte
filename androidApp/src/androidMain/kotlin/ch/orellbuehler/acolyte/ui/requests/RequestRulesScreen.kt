@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -473,7 +474,7 @@ private fun StreamingCard(
                 (if (region.isNotEmpty() && region !in STREAMING_REGIONS) listOf(region to region) else emptyList())
         PickerField(stringResource(R.string.requests_rules_country), regions, region, viewModel::setRegion)
         if (region.isEmpty()) {
-            val mine = Locale.getDefault().country
+            val mine = LocalConfiguration.current.locales[0].country
             if (mine in STREAMING_REGIONS) {
                 TextButton(onClick = { viewModel.setRegion(mine) }) { Text(stringResource(R.string.requests_rules_use_my_country)) }
             }

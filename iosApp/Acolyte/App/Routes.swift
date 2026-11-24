@@ -96,6 +96,8 @@ struct SectionScreen: View {
             LibraryStatsView()
         case .health:
             HealthView()
+        case .requests:
+            RequestsView(account: account)
         case .account:
             AccountView(account: account)
         default:
@@ -104,13 +106,11 @@ struct SectionScreen: View {
     }
 }
 
-enum Route: Hashable, Sendable {
+enum Route: Hashable, Sendable, Identifiable {
     case title(kind: String, tmdb: String)
     case libraryTitle(id: Int64, kind: String, tmdb: String)
     case person(id: String)
     case collection(id: String)
-    case ask(kind: String, tmdb: String)
-    case report(titleId: Int64)
     case libraryTools
     case libraryDeleted(titleId: Int64)
     case libraryCopies
@@ -120,6 +120,72 @@ enum Route: Hashable, Sendable {
     case libraryImport
     case libraryImportFiles(path: String)
     case settingsLibraryFolders
+    case ask(kind: String, tmdb: String, fourK: Bool = false)
+    case askMusic(artist: String, name: String = "", album: String = "", edition: String = "")
+    case reports
+    case reportProblem(titleId: Int64, name: String = "", season: Int = -1, itemId: Int64 = 0, albumId: Int64 = 0, versionId: Int64 = 0)
+    case settingsRequests
+    case settingsOutsideLists
+    case settingsNeverAdd
+
+    var id: Self { self }
+
+    var isSheet: Bool {
+        switch self {
+        case .ask, .askMusic, .reportProblem: true
+        default: false
+        }
+    }
+}
+
+@MainActor
+@Observable
+final class Router {
+    var path = NavigationPath()
+    var sheet: Route?
+
+    func open(_ route: Route) {
+        if route.isSheet {
+            sheet = route
+        } else {
+            sheet = nil
+            path.append(route)
+        }
+    }
+}
+
+struct OpenRouteAction: Sendable {
+    let action: @MainActor @Sendable (Route) -> Void
+
+    @MainActor
+    func callAsFunction(_ route: Route) {
+        action(route)
+    }
+}
+
+extension EnvironmentValues {
+    @Entry var openRoute = OpenRouteAction { _ in }
+}
+
+struct RoutedStack<Root: View>: View {
+    let account: AccountInfo
+    @ViewBuilder var root: () -> Root
+    @State private var router = Router()
+
+    var body: some View {
+        let current = router
+        let open = OpenRouteAction { current.open($0) }
+        NavigationStack(path: $router.path) {
+            root()
+                .navigationDestination(for: SectionID.self) { SectionScreen(section: $0, account: account) }
+                .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
+        }
+        .environment(\.openRoute, open)
+        .sheet(item: $router.sheet) { route in
+            RouteScreen(route: route, account: account)
+                .environment(\.openRoute, open)
+        }
+    }
 }
 
 struct RouteScreen: View {
@@ -136,8 +202,6 @@ struct RouteScreen: View {
             PlaceholderView(section: .explore)
         case .collection:
             PlaceholderView(section: .movies)
-        case .ask, .report:
-            PlaceholderView(section: .requests)
         case .libraryTools:
             LibraryToolsView()
         case let .libraryDeleted(titleId):
@@ -156,6 +220,20 @@ struct RouteScreen: View {
             LibraryFilesView(path: path)
         case .settingsLibraryFolders:
             LibraryFoldersView()
+        case let .ask(kind, tmdb, fourK):
+            AskSheetView(kind: kind, tmdb: tmdb, fourK: fourK)
+        case let .askMusic(artist, name, album, edition):
+            AskMusicView(artist: artist, name: name, album: album, edition: edition)
+        case .reports:
+            ReportsView()
+        case let .reportProblem(titleId, name, season, itemId, albumId, versionId):
+            ReportProblemView(titleId: titleId, name: name, season: season, itemId: itemId, albumId: albumId, versionId: versionId)
+        case .settingsRequests:
+            RequestRulesView()
+        case .settingsOutsideLists:
+            OutsideListsView()
+        case .settingsNeverAdd:
+            NeverAddView()
         }
     }
 }

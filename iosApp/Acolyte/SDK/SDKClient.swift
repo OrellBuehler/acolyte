@@ -99,6 +99,48 @@ final class SDKClient: @unchecked Sendable {
         TitleDriver(presenter: sdk.title(kind: kind, tmdb: tmdb, libraryId: libraryId, openLibrary: openLibrary), images: sdk.images)
     }
 
+    func makeInbox() -> InboxDriver {
+        InboxDriver(inbox: sdk.inbox)
+    }
+
+    func makeRequests() -> RequestsDriver {
+        RequestsDriver(presenter: sdk.requests())
+    }
+
+    func makeAskReview(_ askId: Int64) -> AskReviewDriver {
+        AskReviewDriver(presenter: sdk.askReview(askId: askId))
+    }
+
+    func makeAsk(kind: String, tmdb: String, fourK: Bool) -> AskDriver {
+        AskDriver(presenter: sdk.ask(kind: kind, tmdb: tmdb, fourK: fourK))
+    }
+
+    func makeAskMusic(artist: String, name: String, album: String, edition: String) -> AskMusicDriver {
+        AskMusicDriver(presenter: sdk.askMusic(artist: artist, name: name, album: album, edition: edition))
+    }
+
+    func makeReports() -> ReportsDriver {
+        ReportsDriver(presenter: sdk.reports())
+    }
+
+    func makeReportProblem(titleId: Int64, season: Int, itemId: Int64, albumId: Int64, versionId: Int64) -> ReportProblemDriver {
+        ReportProblemDriver(
+            presenter: sdk.reportProblem(titleId: titleId, season: Int32(season), itemId: itemId, albumId: albumId, versionId: versionId)
+        )
+    }
+
+    func makeRequestRules() -> RequestRulesDriver {
+        RequestRulesDriver(presenter: sdk.requestSettings())
+    }
+
+    func makeOutsideLists() -> OutsideListsDriver {
+        OutsideListsDriver(presenter: sdk.outsideLists())
+    }
+
+    func makeNeverAdd() -> NeverAddDriver {
+        NeverAddDriver(presenter: sdk.neverAdd())
+    }
+
     func imageRequest(_ source: String?, size: ImageSizeKind) -> ImageRequestInfo? {
         guard let text = sdk.images.url(source: source, size: Mapping.kotlinSize(size)), let url = URL(string: text) else {
             return nil
