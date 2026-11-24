@@ -112,10 +112,10 @@ enum class LibrarySort(
     internal val ascending: Boolean,
 ) {
     STATUS(true),
-    NAME(true),
+    TITLE(true),
     YEAR(false),
     SCORE(false),
-    RELEASE(false),
+    OUT(false),
     ADDED(false),
     SIZE(false),
     RUNTIME(false),
@@ -178,10 +178,10 @@ internal object LibraryLogic {
             LibraryKind.MOVIE to
                 listOf(
                     LibrarySort.STATUS,
-                    LibrarySort.NAME,
+                    LibrarySort.TITLE,
                     LibrarySort.YEAR,
                     LibrarySort.SCORE,
-                    LibrarySort.RELEASE,
+                    LibrarySort.OUT,
                     LibrarySort.ADDED,
                     LibrarySort.SIZE,
                     LibrarySort.RUNTIME,
@@ -190,7 +190,7 @@ internal object LibraryLogic {
             LibraryKind.SHOW to
                 listOf(
                     LibrarySort.STATUS,
-                    LibrarySort.NAME,
+                    LibrarySort.TITLE,
                     LibrarySort.NEXT,
                     LibrarySort.LAST,
                     LibrarySort.PROGRESS,
@@ -202,7 +202,7 @@ internal object LibraryLogic {
                     LibrarySort.RULES,
                 ),
             LibraryKind.ARTIST to
-                listOf(LibrarySort.STATUS, LibrarySort.NAME, LibrarySort.PROGRESS, LibrarySort.ADDED, LibrarySort.SIZE, LibrarySort.NEXT),
+                listOf(LibrarySort.STATUS, LibrarySort.TITLE, LibrarySort.PROGRESS, LibrarySort.ADDED, LibrarySort.SIZE, LibrarySort.NEXT),
         )
 
     fun defaultSort(kind: LibraryKind): Pair<LibrarySort, Boolean> =
@@ -480,7 +480,7 @@ internal object LibraryLogic {
         fun text(v: String) = v.takeIf { it.isNotEmpty() }?.let { SortValue.Text(it.lowercase()) }
         return when (key) {
             LibrarySort.STATUS -> number(state?.rank)
-            LibrarySort.NAME -> SortValue.Text(sortName(t.name))
+            LibrarySort.TITLE -> SortValue.Text(sortName(t.name))
             LibrarySort.YEAR -> number(t.year.takeIf { it > 0 })
             LibrarySort.ADDED -> date(t.addedAt)
             LibrarySort.SIZE -> number(t.sizeBytes)
@@ -491,7 +491,7 @@ internal object LibraryLogic {
                     else -> null
                 }
             LibrarySort.LAST -> date(t.show?.lastAirDate.orEmpty())
-            LibrarySort.RELEASE -> date(releaseDate(t))
+            LibrarySort.OUT -> date(releaseDate(t))
             LibrarySort.RUNTIME -> number(t.runtimeMinutes.takeIf { it > 0 })
             LibrarySort.NETWORK -> text(t.show?.network.orEmpty())
             LibrarySort.RULES -> text(t.pickRulesName)
@@ -529,7 +529,7 @@ internal object LibraryLogic {
     ): LibraryFact? =
         when (sort) {
             LibrarySort.SCORE -> score(t)?.let { LibraryFact(FactKind.SCORE, score = it) }
-            LibrarySort.RELEASE -> releaseFact(t, now)
+            LibrarySort.OUT -> releaseFact(t, now)
             LibrarySort.ADDED -> t.addedAt.takeIf { it.isNotEmpty() }?.let { LibraryFact(FactKind.ADDED, date = it) }
             LibrarySort.SIZE -> t.sizeBytes.takeIf { it > 0 }?.let { LibraryFact(FactKind.SIZE, number = it) }
             LibrarySort.RUNTIME -> t.runtimeMinutes.takeIf { it > 0 }?.let { LibraryFact(FactKind.RUNTIME, number = it.toLong()) }

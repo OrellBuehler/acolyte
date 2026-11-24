@@ -113,10 +113,10 @@ fun sortLabel(
     stringResource(
         when (sort) {
             LibrarySort.STATUS -> R.string.library_sort_status
-            LibrarySort.NAME -> R.string.library_sort_name
+            LibrarySort.TITLE -> R.string.library_sort_name
             LibrarySort.YEAR -> R.string.library_sort_year
             LibrarySort.SCORE -> R.string.library_sort_score
-            LibrarySort.RELEASE -> R.string.library_sort_release
+            LibrarySort.OUT -> R.string.library_sort_release
             LibrarySort.ADDED -> R.string.library_sort_added
             LibrarySort.SIZE -> R.string.library_sort_size
             LibrarySort.RUNTIME -> R.string.library_sort_runtime

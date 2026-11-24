@@ -103,7 +103,8 @@ fun LibraryReleasesScreen(
                     modifier = Modifier.weight(1f),
                     empty = {
                         val title = if (turnedDown) R.string.library_releases_empty_turned else R.string.library_releases_empty_held
-                        val hint = if (turnedDown) R.string.library_releases_empty_turned_hint else R.string.library_releases_empty_held_hint
+                        val hint =
+                            if (turnedDown) R.string.library_releases_empty_turned_hint else R.string.library_releases_empty_held_hint
                         EmptyView(
                             title = stringResource(title),
                             message = stringResource(hint),

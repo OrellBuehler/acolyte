@@ -161,14 +161,14 @@ class LibraryPresenterTest {
             server.library()
             val presenter = presenter(server)
             presenter.load()
-            presenter.setSort(LibrarySort.NAME)
+            presenter.setSort(LibrarySort.TITLE)
             assertFalse(presenter.state.value.descending)
             assertEquals(
                 listOf(2L, 1L, 3L),
                 presenter.state.value.items
                     .map { it.id },
             )
-            presenter.setSort(LibrarySort.NAME)
+            presenter.setSort(LibrarySort.TITLE)
             assertTrue(presenter.state.value.descending)
             assertEquals(
                 listOf(3L, 1L, 2L),

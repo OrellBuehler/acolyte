@@ -107,7 +107,8 @@ class LibraryDeletedPresenter internal constructor(
     }
 
     private fun rebuild() {
-        val show = mutableState.value.show
+        val both = files.any { it.replaced } && files.any { !it.replaced }
+        val show = if (both) mutableState.value.show else HeldShow.ALL
         val now = LibraryLogic.now()
         val shown =
             files.filter {
@@ -128,7 +129,8 @@ class LibraryDeletedPresenter internal constructor(
             it.copy(
                 rows = rows,
                 count = files.size,
-                hasBoth = files.any { f -> f.replaced } && files.any { f -> !f.replaced },
+                show = show,
+                hasBoth = both,
                 selectedCount = count,
                 allSelected = rows.isNotEmpty() && count == rows.size,
                 question = questions.firstOrNull(),

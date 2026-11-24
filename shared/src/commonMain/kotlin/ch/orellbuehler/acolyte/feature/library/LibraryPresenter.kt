@@ -894,7 +894,7 @@ class LibraryPresenter internal constructor(
                 moveOptions =
                     if (manage &&
                         kindFolders.size > 1 &&
-                        me?.handsOff != true
+                        !me.handsOff
                     ) {
                         kindFolders.map { MenuOption(it.id, it.label.ifEmpty { it.path }) }
                     } else {
