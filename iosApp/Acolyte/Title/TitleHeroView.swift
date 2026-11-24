@@ -121,6 +121,7 @@ private struct HeroActionsView: View {
     let info: TitleInfo
     let store: TitleStore
     @Environment(\.openURL) private var openURL
+    @Environment(\.openRoute) private var openRoute
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -145,7 +146,7 @@ private struct HeroActionsView: View {
                         .buttonStyle(.bordered)
                 }
                 if let offer = info.askOffer {
-                    NavigationLink(value: Route.ask(kind: info.kind, tmdb: info.tmdb)) {
+                    Button { openRoute(.ask(kind: info.kind, tmdb: info.tmdb)) } label: {
                         Text(askText(offer))
                     }
                     .buttonStyle(.borderedProminent)
@@ -153,7 +154,7 @@ private struct HeroActionsView: View {
                     .disabled(offer == .asked)
                 }
                 if let offer = info.fourKOffer {
-                    NavigationLink(value: Route.ask(kind: info.kind, tmdb: info.tmdb)) {
+                    Button { openRoute(.ask(kind: info.kind, tmdb: info.tmdb, fourK: true)) } label: {
                         Text(offer == .asked ? L10n.tr("title.requested.4k") : L10n.tr("title.request.4k"))
                     }
                     .buttonStyle(.bordered)

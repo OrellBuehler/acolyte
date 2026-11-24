@@ -119,6 +119,7 @@ data class TitleAsk(
     val mine: Boolean = false,
     val people: Int = 0,
     val seasons: List<Int> = emptyList(),
+    val albums: List<AskAlbum> = emptyList(),
 )
 
 @Serializable
@@ -296,17 +297,6 @@ data class TitleOutcomeSource(
 )
 
 @Serializable
-data class TitleAskLimit(
-    @SerialName("four_k") val fourK: TitleFourK = TitleFourK(),
-)
-
-@Serializable
-data class TitleFourK(
-    val movie: Boolean = false,
-    val show: Boolean = false,
-)
-
-@Serializable
 data class TitleUsers(
     val users: List<TitleUser> = emptyList(),
 )
@@ -324,16 +314,4 @@ internal data class HideBody(
     val name: String? = null,
     val genre: String? = null,
     @SerialName("user_id") val userId: Long? = null,
-)
-
-@Serializable
-internal data class AskBody(
-    val id: String,
-    val kind: String,
-    val follow: Boolean,
-)
-
-@Serializable
-data class TitleAskAnswer(
-    val already: Boolean = false,
 )

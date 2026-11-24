@@ -66,7 +66,6 @@ final class TitleStore {
     var sheet: TitleSheet?
     var confirm: TitleConfirm?
     var trailer: TrailerSourceInfo?
-    var reportRoute: Route?
     private(set) var trailerLoading = false
 
     let driver: TitleDriver

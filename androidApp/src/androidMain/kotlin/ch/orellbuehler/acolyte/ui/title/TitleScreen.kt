@@ -92,14 +92,18 @@ class TitleNav(
     fun ask(
         kind: String,
         tmdb: String,
+        fourK: Boolean = false,
     ) {
         before()
-        nav.navigate(Routes.ask(kind, tmdb))
+        nav.navigate(Routes.ask(kind, tmdb, fourK))
     }
 
-    fun report(titleId: Long) {
+    fun report(
+        titleId: Long,
+        name: String,
+    ) {
         before()
-        nav.navigate(Routes.report(titleId))
+        nav.navigate(Routes.reportProblem(titleId, name))
     }
 
     fun history() {

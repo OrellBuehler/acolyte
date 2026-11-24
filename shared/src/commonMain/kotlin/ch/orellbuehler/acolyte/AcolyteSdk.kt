@@ -15,6 +15,16 @@ import ch.orellbuehler.acolyte.feature.library.LibraryReleasesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
+import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
+import ch.orellbuehler.acolyte.feature.requests.AskPresenter
+import ch.orellbuehler.acolyte.feature.requests.AskReviewPresenter
+import ch.orellbuehler.acolyte.feature.requests.NeverAddPresenter
+import ch.orellbuehler.acolyte.feature.requests.OutsideListsPresenter
+import ch.orellbuehler.acolyte.feature.requests.ReportProblemPresenter
+import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
+import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
+import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
+import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -84,4 +94,41 @@ class AcolyteSdk internal constructor(
         libraryId: Long,
         openLibrary: Boolean,
     ): TitlePresenter = TitlePresenter(session.api, kind, tmdb, libraryId, openLibrary, session.account, deviceLanguage())
+
+    private val requestsScope: CoroutineScope = scope
+
+    val inbox: RequestsInbox = RequestsInbox(session.api) { session.account }
+
+    fun requests(): RequestsPresenter = RequestsPresenter(session.api, { session.account }, inbox, requestsScope)
+
+    fun askReview(askId: Long): AskReviewPresenter = AskReviewPresenter(session.api, { session.account }, askId)
+
+    fun ask(
+        kind: String,
+        tmdb: String,
+        fourK: Boolean,
+    ): AskPresenter = AskPresenter(session.api, inbox, kind, tmdb, fourK)
+
+    fun askMusic(
+        artist: String,
+        name: String,
+        album: String,
+        edition: String,
+    ): AskMusicPresenter = AskMusicPresenter(session.api, inbox, artist, name, album, edition)
+
+    fun reports(): ReportsPresenter = ReportsPresenter(session.api, { session.account }, inbox)
+
+    fun reportProblem(
+        titleId: Long,
+        season: Int,
+        itemId: Long,
+        albumId: Long,
+        versionId: Long,
+    ): ReportProblemPresenter = ReportProblemPresenter(session.api, titleId, season, itemId, albumId, versionId)
+
+    fun requestSettings(): RequestSettingsPresenter = RequestSettingsPresenter(session.api) { session.account }
+
+    fun outsideLists(): OutsideListsPresenter = OutsideListsPresenter(session.api) { session.account }
+
+    fun neverAdd(): NeverAddPresenter = NeverAddPresenter(session.api) { session.account }
 }

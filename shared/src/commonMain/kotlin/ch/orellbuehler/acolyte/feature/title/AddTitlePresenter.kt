@@ -5,14 +5,15 @@ import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
+import ch.orellbuehler.acolyte.api.RequestsEndpoints
 import ch.orellbuehler.acolyte.api.TitleEndpoints
 import ch.orellbuehler.acolyte.api.TitleSupportEndpoints
 import ch.orellbuehler.acolyte.api.model.AddMovieBody
 import ch.orellbuehler.acolyte.api.model.AddShowBody
-import ch.orellbuehler.acolyte.api.model.AskBody
 import ch.orellbuehler.acolyte.api.model.CheckPickBody
 import ch.orellbuehler.acolyte.api.model.LibraryFolder
 import ch.orellbuehler.acolyte.api.model.LookupShow
+import ch.orellbuehler.acolyte.api.model.NewAsk
 import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.model.TitleAddDefaults
@@ -338,7 +339,7 @@ class AddTitlePresenter internal constructor(
                             }
                     }
                 } else {
-                    when (val result = api.result(TitleSupportEndpoints.ask, AskBody(id = id, kind = "movie", follow = true))) {
+                    when (val result = api.result(RequestsEndpoints.make, NewAsk(id = id, kind = "movie"))) {
                         is ApiResult.Ok -> (if (result.value.already) BatchLine.ALREADY else BatchLine.DONE) to null
                         is ApiResult.Failed -> BatchLine.FAILED to result.error
                     }

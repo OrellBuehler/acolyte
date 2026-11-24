@@ -180,7 +180,8 @@ internal data object LibraryEndpoints : EndpointGroup() {
     val untidy = post("/api/v1/library-folders/{id}/tidy/undo", TidyResult.serializer(), Need.MANAGE_LIBRARY, Part.MEDIA)
     val lookupMovies = get("/api/v1/titles/lookup", MovieLookup.serializer(), Need.SIGNED_IN, Part.MOVIES, query = listOf("term", "year"))
     val lookupShows = get("/api/v1/shows/lookup", ShowLookup.serializer(), Need.SIGNED_IN, Part.SHOWS, query = listOf("term"))
-    val lookupArtists = get("/api/v1/artists/lookup", ArtistLookup.serializer(), Need.SIGNED_IN, Part.MUSIC, query = listOf("term"))
+    val lookupArtists =
+        get("/api/v1/artists/lookup", ArtistLookup.serializer(), Need.SIGNED_IN, Part.MUSIC, query = listOf("term", "albums"))
 
     val byHandScan =
         post("/api/v1/manual-import/scan", ByHandScanRequest.serializer(), ByHandScan.serializer(), Need.SETTINGS, Part.MEDIA)

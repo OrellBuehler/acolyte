@@ -1,12 +1,9 @@
 package ch.orellbuehler.acolyte.api
 
-import ch.orellbuehler.acolyte.api.model.AskBody
 import ch.orellbuehler.acolyte.api.model.HideBody
 import ch.orellbuehler.acolyte.api.model.OwnedDownload
 import ch.orellbuehler.acolyte.api.model.SubtitleTranslator
 import ch.orellbuehler.acolyte.api.model.TitleAddDefaults
-import ch.orellbuehler.acolyte.api.model.TitleAskAnswer
-import ch.orellbuehler.acolyte.api.model.TitleAskLimit
 import ch.orellbuehler.acolyte.api.model.TitleEvents
 import ch.orellbuehler.acolyte.api.model.TitleGateDefaults
 import ch.orellbuehler.acolyte.api.model.TitleHide
@@ -21,8 +18,6 @@ internal data object TitleSupportEndpoints : EndpointGroup() {
     val defaults = get("/api/v1/settings/title-defaults", TitleAddDefaults.serializer(), Need.MANAGE_LIBRARY, Part.MEDIA)
     val gate = get("/api/v1/settings/release-gate", TitleGateDefaults.serializer(), Need.MANAGE_LIBRARY, Part.MOVIES)
     val showDefaults = get("/api/v1/settings/shows", TitleShowDefaults.serializer(), Need.MANAGE_LIBRARY, Part.SHOWS)
-    val ask = post("/api/v1/asks", AskBody.serializer(), TitleAskAnswer.serializer(), Need.ASK, Part.WISHLIST)
-    val askLimit = get("/api/v1/asks/limit", TitleAskLimit.serializer(), Need.ASK, Part.WISHLIST)
     val users = get("/api/v1/users", TitleUsers.serializer(), Need.USERS, Part.CORE)
     val hide = post("/api/v1/hidden", HideBody.serializer(), TitleHide.serializer(), Need.USERS, Part.MEDIA)
     val unhide = delete("/api/v1/hidden/{id}", NoContent, Need.USERS, Part.MEDIA)

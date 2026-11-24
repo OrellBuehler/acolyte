@@ -17,6 +17,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 internal const val BASE = "https://media.example.com/holyarrs"
 
@@ -32,6 +34,8 @@ internal class FakeServer {
     private val routes = mutableMapOf<String, suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData>()
 
     val requests = mutableListOf<Recorded>()
+
+    private val recording = Mutex()
 
     fun on(
         method: String,
@@ -52,7 +56,7 @@ internal class FakeServer {
     fun engine(): MockEngine =
         MockEngine { request ->
             val path = request.url.encodedPath.removePrefix("/holyarrs")
-            requests +=
+            val recorded =
                 Recorded(
                     request.method.value,
                     path,
@@ -60,6 +64,7 @@ internal class FakeServer {
                     request.headers.entries().associate { it.key to it.value.joinToString(",") },
                     (request.body as? TextContent)?.text,
                 )
+            recording.withLock { requests += recorded }
             val handler = routes["${request.method.value} $path"]
             handler?.invoke(this, request) ?: respondJson("""{"error":"not found"}""", 404)
         }

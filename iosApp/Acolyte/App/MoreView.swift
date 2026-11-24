@@ -13,6 +13,7 @@ struct MoreView: View {
                         NavigationLink(value: section) {
                             row(section)
                         }
+                        .badge(section == .requests ? model.inbox.requestsBadge : 0)
                     }
                 } header: {
                     if let title = group.group.title {

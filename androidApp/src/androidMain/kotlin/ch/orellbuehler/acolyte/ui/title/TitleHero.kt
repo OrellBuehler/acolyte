@@ -306,7 +306,7 @@ private fun HeroActions(
         Button(onClick = { links.ask(state.kind, state.tmdb) }, enabled = offer != AskOffer.ASKED) { Text(label) }
     }
     state.fourKOffer?.let { offer ->
-        OutlinedButton(onClick = { links.ask(state.kind, state.tmdb) }, enabled = offer != AskOffer.ASKED) {
+        OutlinedButton(onClick = { links.ask(state.kind, state.tmdb, fourK = true) }, enabled = offer != AskOffer.ASKED) {
             Text(if (offer == AskOffer.ASKED) stringResource(R.string.title_requested_4k) else stringResource(R.string.title_request_4k))
         }
     }
@@ -429,7 +429,7 @@ private fun runAction(
         TitleAction.REFRESH -> viewModel.launch { presenter.refreshDetails() }
         TitleAction.HISTORY -> viewModel.open(TitleSheet.History)
         TitleAction.DELETE -> viewModel.openRemove()
-        TitleAction.REPORT -> links.report(state.ownedId)
+        TitleAction.REPORT -> links.report(state.ownedId, state.name)
         TitleAction.HIDE -> {
             viewModel.launch { presenter.loadUsers() }
             viewModel.open(TitleSheet.Hide)
