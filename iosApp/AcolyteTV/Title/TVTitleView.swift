@@ -18,10 +18,11 @@ struct TVTitleView: View {
         ZStack {
             Theme.background.ignoresSafeArea()
             if info.problem == TitleProblemKind.none, info.load.phase == .ready {
-                TVTitleBackdrop(info: info)
+                TVBackdropLayer(source: info.backdrop.isEmpty ? info.poster : info.backdrop)
             }
             content(info)
         }
+        .toolbarVisibility(.hidden, for: .tabBar)
         .fullScreenCover(item: trailerItem) { item in
             TVTrailerPlayerView(source: item.source, store: store)
         }
@@ -62,37 +63,6 @@ struct TVTitleView: View {
     }
 }
 
-struct TVTitleBackdrop: View {
-    let info: TitleInfo
-
-    var body: some View {
-        ZStack {
-            AuthImage(source: info.backdrop.isEmpty ? info.poster : info.backdrop, size: .hero) { Theme.background }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            LinearGradient(
-                stops: [
-                    .init(color: Theme.background.opacity(0.94), location: 0),
-                    .init(color: Theme.background.opacity(0.6), location: 0.5),
-                    .init(color: Theme.background.opacity(0.1), location: 1),
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            LinearGradient(
-                stops: [
-                    .init(color: Theme.background.opacity(0), location: 0.4),
-                    .init(color: Theme.background.opacity(0.92), location: 1),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-}
-
 private struct TVTitleHero: View {
     let info: TitleInfo
     let store: TitleStore
@@ -101,23 +71,24 @@ private struct TVTitleHero: View {
         VStack(alignment: .leading, spacing: 20) {
             Spacer(minLength: 0)
             titleView
-            if !info.tagline.isEmpty {
-                Text(info.tagline)
-                    .font(.callout.italic())
-                    .foregroundStyle(Theme.textMuted)
-                    .lineLimit(1)
-            }
+            chips
             let meta = metaLine
             if !meta.isEmpty {
                 Text(meta)
                     .font(.callout)
-                    .foregroundStyle(Theme.textMuted)
+                    .foregroundStyle(Theme.text)
                     .lineLimit(1)
             }
-            chips
+            if !info.tagline.isEmpty {
+                Text(info.tagline)
+                    .font(.callout.italic())
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+                    .frame(maxWidth: Theme.TV.readableWidth, alignment: .leading)
+            }
             if !info.overview.isEmpty {
                 Text(info.overview)
-                    .font(.callout)
+                    .font(.footnote)
                     .foregroundStyle(Theme.text)
                     .lineLimit(4)
                     .frame(maxWidth: Theme.TV.readableWidth, alignment: .leading)
@@ -189,22 +160,22 @@ private struct TVTitleActions: View {
     var body: some View {
         HStack(spacing: 24) {
             if let offer = info.askOffer {
-                TVActionButton(title: askText(offer), systemImage: offer == .asked ? "checkmark" : "plus", prominent: true) {
+                TVActionButton(title: askText(offer), systemImage: offer == .asked ? "checkmark" : "plus") {
                     navigator.open(.ask(kind: info.kind, tmdb: info.tmdb))
                 }
                 .disabled(offer == .asked)
+            }
+            if !info.trailerKey.isEmpty {
+                TVActionButton(title: L10n.tr("title.trailer"), systemImage: "play.rectangle") {
+                    store.playTrailer()
+                }
+                .disabled(store.trailerLoading)
             }
             if let offer = info.fourKOffer {
                 TVActionButton(title: offer == .asked ? L10n.tr("title.requested.4k") : L10n.tr("title.request.4k")) {
                     navigator.open(.ask(kind: info.kind, tmdb: info.tmdb, fourK: true))
                 }
                 .disabled(offer == .asked)
-            }
-            if !info.trailerKey.isEmpty {
-                TVActionButton(title: L10n.tr("title.trailer"), systemImage: "play.fill", prominent: info.askOffer == nil) {
-                    store.playTrailer()
-                }
-                .disabled(store.trailerLoading)
             }
             if info.access.followOn && info.hasTmdb {
                 TVActionButton(
@@ -216,6 +187,7 @@ private struct TVTitleActions: View {
                 .disabled(info.followBusy)
             }
         }
+        .focusSection()
     }
 
     private func askText(_ offer: AskOfferKind) -> String {

@@ -1,5 +1,21 @@
 import SwiftUI
 
+struct TVFocusKey {
+    let binding: FocusState<String?>.Binding
+    let id: String
+}
+
+extension View {
+    @ViewBuilder
+    func tvTrackFocus(_ key: TVFocusKey?) -> some View {
+        if let key {
+            focused(key.binding, equals: key.id)
+        } else {
+            self
+        }
+    }
+}
+
 struct TVArtPlaceholder: View {
     let name: String
 
@@ -81,15 +97,15 @@ struct TVStatusChip: View {
         HStack(spacing: 10) {
             Circle()
                 .fill(Theme.dotColor(tone))
-                .frame(width: 14, height: 14)
+                .frame(width: 12, height: 12)
             Text(text)
-                .font(.footnote.weight(.medium))
+                .font(.caption.weight(.semibold))
                 .foregroundStyle(onArt ? Theme.onArt : Theme.textColor(tone))
                 .lineLimit(1)
         }
-        .padding(.leading, 16)
-        .padding(.trailing, 20)
-        .frame(height: 44)
+        .padding(.leading, 14)
+        .padding(.trailing, 18)
+        .frame(height: 38)
         .background(onArt ? Theme.artScrim : Theme.surfaceRaised, in: Capsule())
     }
 }
@@ -130,6 +146,7 @@ struct TVChip: View {
             }
         }
         .buttonStyle(.bordered)
+        .buttonBorderShape(.capsule)
         .tint(selected ? Theme.accent : nil)
     }
 }
@@ -141,6 +158,7 @@ struct TVPosterCard: View {
     var mark: CardMarkInfo?
     var fresh: String?
     var progress: Double?
+    var focus: TVFocusKey?
     let action: () -> Void
 
     var body: some View {
@@ -162,6 +180,7 @@ struct TVPosterCard: View {
                     }
             }
             .buttonStyle(.card)
+            .tvTrackFocus(focus)
             .accessibilityLabel(title)
             TVCardText(title: title, subtitle: subtitle)
         }
@@ -182,9 +201,9 @@ struct TVActionButton: View {
 
     var body: some View {
         if prominent {
-            button.buttonStyle(.borderedProminent)
+            button.buttonStyle(.borderedProminent).buttonBorderShape(.capsule)
         } else {
-            button.buttonStyle(.bordered)
+            button.buttonStyle(.bordered).buttonBorderShape(.capsule)
         }
     }
 
@@ -209,6 +228,9 @@ struct TVBackdropCard: View {
     var mark: CardMarkInfo?
     var fresh: String?
     var progress: Double?
+    var badge: String?
+    var showsText = true
+    var focus: TVFocusKey?
     let action: () -> Void
 
     var body: some View {
@@ -227,8 +249,19 @@ struct TVBackdropCard: View {
                             }
                         }
                     }
-                    .overlay(alignment: .topTrailing) {
+                    .overlay(alignment: .bottomTrailing) {
                         if let mark { TVOwnedMark(mark: mark).padding(12) }
+                    }
+                    .overlay(alignment: .topLeading) {
+                        if let badge {
+                            Text(badge)
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(Theme.onAccent)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 4)
+                                .background(Theme.accentFill, in: Capsule())
+                                .padding(12)
+                        }
                     }
                     .overlay(alignment: .bottom) {
                         if let progress {
@@ -241,8 +274,11 @@ struct TVBackdropCard: View {
                     }
             }
             .buttonStyle(.card)
+            .tvTrackFocus(focus)
             .accessibilityLabel(title)
-            TVCardText(title: title, subtitle: subtitle)
+            if showsText {
+                TVCardText(title: title, subtitle: subtitle)
+            }
             if let chip {
                 TVStatusChip(text: chip.text, tone: chip.tone)
             }

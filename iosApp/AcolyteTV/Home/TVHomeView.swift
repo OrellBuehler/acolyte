@@ -2,58 +2,81 @@ import SwiftUI
 
 struct TVHomeView: View {
     @State private var store = HomeStore()
+    @State private var billboard: DiscoverCardInfo?
+    @State private var ambient: DiscoverCardInfo?
+    @FocusState private var focus: String?
     @Environment(\.scenePhase) private var scenePhase
     @Environment(TVNavigator.self) private var navigator
 
+    private static let featuredRow = "featured"
+
     var body: some View {
         let info = store.info
-        let hero = info.pictures.first
-        let rest = Array(info.pictures.dropFirst())
+        let featured = info.pictures
         let rows = TVHomeView.rows(info)
-        TVStatusContent(
-            load: info.load,
-            isEmpty: hero == nil && rows.isEmpty && info.comingUp.isEmpty,
-            reload: { await store.refresh() }
-        ) {
-            TVEmptyView()
-        } content: {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: Theme.TV.sectionGap) {
-                    TVGreeting(info: info)
-                    if let error = info.load.error {
-                        TVNoticeBanner(text: error.localized)
-                    }
-                    if let hero {
-                        TVHeroCard(picture: hero) { navigator.openCard(hero.card) }
-                    }
-                    if !rest.isEmpty {
-                        TVShelf(title: L10n.tr("tv.home.featured")) {
-                            ForEach(rest) { picture in
-                                TVBackdropCard(
-                                    title: picture.card.name,
-                                    subtitle: HomeText.picture(picture),
-                                    image: picture.card.wideImage,
-                                    logo: picture.card.logo,
-                                    mark: picture.card.mark
-                                ) { navigator.openCard(picture.card) }
+        let lookup = TVHomeView.lookup(featured: featured, rows: rows)
+        let first = featured.first?.card ?? rows.first?.row.cards.first
+        let shown = billboard ?? first
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            TVBackdropLayer(source: (ambient ?? shown)?.wideImage)
+            TVStatusContent(
+                load: info.load,
+                isEmpty: first == nil && info.comingUp.isEmpty,
+                reload: { await store.refresh() }
+            ) {
+                TVEmptyView()
+            } content: {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: Theme.TV.sectionGap) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            if let error = info.load.error {
+                                TVNoticeBanner(text: error.localized)
+                            }
+                            Spacer(minLength: 0)
+                            if let shown {
+                                TVBillboard(card: shown, label: featured.first { $0.card.id == shown.id }.map { HomeText.picture($0) })
+                                    .padding(.bottom, 20)
+                            }
+                            if !featured.isEmpty {
+                                TVShelf(title: L10n.tr("tv.home.featured")) {
+                                    ForEach(featured) { picture in
+                                        TVDiscoverCard(
+                                            card: picture.card,
+                                            wide: true,
+                                            badge: HomeText.picture(picture),
+                                            showsText: false,
+                                            focus: TVFocusKey(binding: $focus, id: TVFocusKey.id(row: TVHomeView.featuredRow, card: picture.card.id))
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                    ForEach(rows, id: \.row.id) { entry in
-                        TVCardRow(row: entry.row, title: entry.title, seeAll: seeAll(entry.row))
-                    }
-                    if !info.comingUp.isEmpty {
-                        TVShelf(title: L10n.tr("home.coming.up"), seeAll: calendarAction) {
-                            ForEach(info.comingUp) { up in
-                                TVBackdropCard(title: up.name, subtitle: [up.sub, HomeText.when(up)].filter { !$0.isEmpty }.joined(separator: " · "), image: up.image) {
-                                    if !up.tmdb.isEmpty { navigator.open(.title(kind: up.kind, tmdb: up.tmdb)) }
+                        .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height }
+                        ForEach(rows, id: \.row.id) { entry in
+                            TVCardRow(row: entry.row, title: entry.title, seeAll: seeAll(entry.row), focus: $focus)
+                        }
+                        if !info.comingUp.isEmpty {
+                            TVShelf(title: L10n.tr("home.coming.up"), seeAll: calendarAction) {
+                                ForEach(info.comingUp) { up in
+                                    TVBackdropCard(
+                                        title: up.name,
+                                        subtitle: [up.sub, HomeText.when(up)].filter { !$0.isEmpty }.joined(separator: " · "),
+                                        image: up.image
+                                    ) {
+                                        if !up.tmdb.isEmpty { navigator.open(.title(kind: up.kind, tmdb: up.tmdb)) }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                .padding(.vertical, Theme.TV.focusPad)
             }
+        }
+        .onChange(of: focus) { _, new in
+            guard let new, let card = lookup[new] else { return }
+            ambient = card
+            if new.hasPrefix(TVHomeView.featuredRow + "|") { billboard = card }
         }
         .task { await store.watch() }
         .task { await store.load() }
@@ -86,76 +109,68 @@ struct TVHomeView: View {
         }
         return result.filter { !$0.row.cards.isEmpty }
     }
-}
 
-private struct TVGreeting: View {
-    let info: HomeInfo
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            let word: String =
-                switch info.greeting {
-                case .morning: L10n.tr("home.good.morning")
-                case .afternoon: L10n.tr("home.good.afternoon")
-                case .evening: L10n.tr("home.good.evening")
-                }
-            Text(info.name.isEmpty ? word : L10n.format("home.greeting.name", word, info.name))
-                .font(.title2.bold())
-                .foregroundStyle(Theme.text)
-            if let news = HomeText.news(info.news) {
-                Text(news)
-                    .font(.callout)
-                    .foregroundStyle(Theme.textMuted)
-                    .lineLimit(2)
+    static func lookup(featured: [HomePictureInfo], rows: [Entry]) -> [String: DiscoverCardInfo] {
+        var result: [String: DiscoverCardInfo] = [:]
+        for picture in featured {
+            result[TVFocusKey.id(row: featuredRow, card: picture.card.id)] = picture.card
+        }
+        for entry in rows {
+            for card in entry.row.cards {
+                result[TVFocusKey.id(row: entry.row.id, card: card.id)] = card
             }
         }
+        return result
     }
 }
 
-private struct TVHeroCard: View {
-    let picture: HomePictureInfo
-    let action: () -> Void
+private struct TVBillboard: View {
+    let card: DiscoverCardInfo
+    let label: String?
 
     var body: some View {
-        let card = picture.card
-        Button(action: action) {
-            ZStack(alignment: .bottomLeading) {
-                Theme.surfaceRaised
-                AuthImage(source: card.backdrop ?? card.poster, size: .hero) { TVArtPlaceholder(name: card.name) }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                LinearGradient(colors: [.clear, Theme.artScrimStrong], startPoint: UnitPoint(x: 0.5, y: 0.35), endPoint: .bottom)
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(HomeText.picture(picture))
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Theme.onArt)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 6)
-                        .background(Theme.artScrim, in: Capsule())
-                    if let logo = card.logo {
-                        AuthImage(source: logo, size: .poster) {
-                            Text(card.name).font(.title2.bold()).foregroundStyle(Theme.onArt)
-                        }
-                        .scaledToFit()
-                        .frame(maxWidth: 420, maxHeight: 110, alignment: .leading)
-                    } else {
-                        Text(card.name)
-                            .font(.title2.bold())
-                            .foregroundStyle(Theme.onArt)
-                            .lineLimit(2)
-                    }
-                    if !card.subtitle.isEmpty {
-                        Text(DiscoverText.serverWords(card.subtitle))
-                            .font(.callout)
-                            .foregroundStyle(Theme.onArt.opacity(0.85))
-                            .lineLimit(1)
-                    }
-                }
-                .padding(40)
+        VStack(alignment: .leading, spacing: 16) {
+            if let label {
+                TVStatusChip(text: label, tone: .idle, onArt: true)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: Theme.TV.heroHeight)
+            if let logo = card.logo {
+                AuthImage(source: logo, size: .posterLarge) {
+                    Text(card.name).font(.title2.bold()).foregroundStyle(Theme.text)
+                }
+                .scaledToFit()
+                .frame(maxWidth: 520, maxHeight: 150, alignment: .leading)
+                .accessibilityLabel(card.name)
+            } else {
+                Text(card.name)
+                    .font(.title2.bold())
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(2)
+            }
+            let meta = metaLine
+            if !meta.isEmpty {
+                Text(meta)
+                    .font(.callout)
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(1)
+            }
+            if !card.overview.isEmpty {
+                Text(card.overview)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.text)
+                    .lineLimit(3)
+                    .frame(maxWidth: Theme.TV.readableWidth, alignment: .leading)
+            }
         }
-        .buttonStyle(.card)
-        .accessibilityLabel(card.name)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .id(card.id)
+        .transition(.opacity)
+        .animation(.easeInOut(duration: 0.3), value: card.id)
+    }
+
+    private var metaLine: String {
+        var parts = [DiscoverText.kind(card.kind)]
+        if card.year > 0 { parts.append(String(card.year)) }
+        parts.append(contentsOf: card.genres.prefix(3).map(DiscoverText.genre))
+        return parts.joined(separator: " · ")
     }
 }

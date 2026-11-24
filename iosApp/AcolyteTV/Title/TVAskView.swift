@@ -11,20 +11,19 @@ struct TVAskView: View {
     private var info: AskSheetInfo { store.info }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if let outcome = info.outcome {
-                    done(outcome)
-                } else {
-                    switch info.load.phase {
-                    case .loading: TVLoadingView()
-                    case .failed: TVErrorView(error: info.load.error ?? .unknown) { Task { await store.load() } }
-                    case .ready: form
-                    }
+        Group {
+            if let outcome = info.outcome {
+                done(outcome)
+            } else {
+                switch info.load.phase {
+                case .loading: TVLoadingView()
+                case .failed: TVErrorView(error: info.load.error ?? .unknown) { Task { await store.load() } }
+                case .ready: form
                 }
             }
-            .navigationTitle(L10n.format("requests.ask.title", RequestsWords.titleWithYear(info.name, info.year)))
         }
+        .padding(.horizontal, 20)
+        .background(Theme.background.opacity(0.97).ignoresSafeArea())
         .task { await store.watch() }
         .task { await store.load() }
     }
@@ -50,70 +49,90 @@ struct TVAskView: View {
     }
 
     private var form: some View {
-        Form {
-            Section {
-                Text(hint)
-                    .font(.callout)
-                    .foregroundStyle(Theme.textMuted)
-                if info.neverAdd {
-                    Text(L10n.tr("requests.error.never.add")).foregroundStyle(Theme.failText)
-                }
-            }
-            if info.isShow {
-                Section(L10n.tr("requests.ask.what")) {
-                    TVChoiceRow(title: L10n.tr("requests.mode.all"), hint: L10n.tr("requests.mode.all.hint"), selected: info.mode == .all) {
-                        store.setMode(.all)
-                    }
-                    TVChoiceRow(
-                        title: L10n.tr("requests.mode.choose"),
-                        hint: L10n.tr("requests.mode.choose.hint"),
-                        selected: info.mode == .choose,
-                        enabled: info.chooseAllowed
-                    ) { store.setMode(.choose) }
-                    TVChoiceRow(title: L10n.tr("requests.mode.future"), hint: L10n.tr("requests.mode.future.hint"), selected: info.mode == .future) {
-                        store.setMode(.future)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 36) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(L10n.format("requests.ask.title", RequestsWords.titleWithYear(info.name, info.year)))
+                        .font(.title2.bold())
+                        .foregroundStyle(Theme.text)
+                        .lineLimit(2)
+                    Text(hint)
+                        .font(.footnote)
+                        .foregroundStyle(Theme.textMuted)
+                        .frame(maxWidth: Theme.TV.readableWidth, alignment: .leading)
+                    if info.neverAdd {
+                        Text(L10n.tr("requests.error.never.add")).font(.footnote).foregroundStyle(Theme.failText)
                     }
                 }
-                if info.mode == .choose {
-                    Section {
-                        ForEach(info.seasons) { season in seasonRow(season) }
+                if info.isShow {
+                    HStack(alignment: .top, spacing: Theme.TV.gutter) {
+                        TVModeTile(
+                            symbol: "square.stack.3d.up",
+                            title: L10n.tr("requests.mode.all"),
+                            hint: L10n.tr("requests.mode.all.hint"),
+                            selected: info.mode == .all
+                        ) { store.setMode(.all) }
+                        TVModeTile(
+                            symbol: "checklist",
+                            title: L10n.tr("requests.mode.choose"),
+                            hint: L10n.tr("requests.mode.choose.hint"),
+                            selected: info.mode == .choose,
+                            enabled: info.chooseAllowed
+                        ) { store.setMode(.choose) }
+                        TVModeTile(
+                            symbol: "calendar.badge.clock",
+                            title: L10n.tr("requests.mode.future"),
+                            hint: L10n.tr("requests.mode.future.hint"),
+                            selected: info.mode == .future
+                        ) { store.setMode(.future) }
+                    }
+                    .focusSection()
+                    if info.mode == .choose {
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(info.seasons) { season in seasonRow(season) }
+                        }
+                        .focusSection()
                     }
                 }
-            }
-            if info.showsQuality {
-                Section(L10n.tr("requests.quality")) {
-                    ForEach(info.pills) { pill in
-                        TVChoiceRow(
-                            title: RequestsWords.quality(pill.line, pill.name),
-                            hint: pill.note == .plain ? nil : L10n.tr(pill.note == .inLibrary ? "requests.pill.in.library" : "requests.pill.requested"),
-                            selected: pill.key == info.selected,
-                            enabled: !pill.disabled
-                        ) { store.select(pill.key) }
+                if info.showsQuality {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L10n.tr("requests.quality")).font(.headline).foregroundStyle(Theme.text)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 20) {
+                                ForEach(info.pills) { pill in
+                                    TVChip(title: RequestsWords.quality(pill.line, pill.name), selected: pill.key == info.selected) {
+                                        store.select(pill.key)
+                                    }
+                                    .disabled(pill.disabled)
+                                }
+                            }
+                            .padding(.vertical, Theme.TV.focusPad)
+                        }
+                        .scrollClipDisabled()
+                        ForEach(info.alsoPills) { pill in
+                            Toggle(
+                                L10n.format("requests.also.ask", RequestsWords.quality(pill.line, pill.name)),
+                                isOn: Binding(get: { info.also.contains(pill.key) }, set: { _ in store.toggleAlso(pill.key) })
+                            )
+                        }
                     }
-                    ForEach(info.alsoPills) { pill in
-                        Toggle(
-                            L10n.format("requests.also.ask", RequestsWords.quality(pill.line, pill.name)),
-                            isOn: Binding(get: { info.also.contains(pill.key) }, set: { _ in store.toggleAlso(pill.key) })
-                        )
-                    }
+                    .focusSection()
                 }
-            }
-            Section {
                 Toggle(isOn: Binding(get: { info.follow }, set: { store.setFollow($0) })) {
                     VStack(alignment: .leading) {
                         Text(L10n.tr("requests.follow"))
                         Text(L10n.tr("requests.follow.hint")).font(.footnote).foregroundStyle(Theme.textMuted)
                     }
                 }
-            } footer: {
                 if let error = info.error {
-                    Text(RequestsWords.error(error)).foregroundStyle(Theme.failText)
+                    Text(RequestsWords.error(error)).font(.callout).foregroundStyle(Theme.failText)
                 }
-            }
-            Section {
-                Button(submitLabel) { store.submit() }
-                    .disabled(!info.canSubmit || info.busy)
-                Button(L10n.tr("common.cancel"), role: .cancel) { dismiss() }
+                HStack(spacing: 24) {
+                    TVActionButton(title: L10n.tr("common.cancel")) { dismiss() }
+                    TVActionButton(title: submitLabel, systemImage: "plus", prominent: true) { store.submit() }
+                        .disabled(!info.canSubmit || info.busy)
+                }
+                .focusSection()
             }
         }
     }
@@ -179,27 +198,41 @@ struct TVAskView: View {
     }
 }
 
-struct TVChoiceRow: View {
+struct TVModeTile: View {
+    let symbol: String
     let title: String
-    var hint: String?
+    let hint: String
     let selected: Bool
     var enabled = true
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .top, spacing: 16) {
-                Image(systemName: selected ? "largecircle.fill.circle" : "circle")
-                    .foregroundStyle(selected ? Theme.accentText : Theme.textMuted)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title).foregroundStyle(enabled ? Theme.text : Theme.textMuted)
-                    if let hint {
-                        Text(hint).font(.footnote).foregroundStyle(Theme.textMuted)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: symbol)
+                        .font(.system(size: 44))
+                    Spacer(minLength: 0)
+                    if selected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 36))
+                            .foregroundStyle(Theme.accentText)
                     }
                 }
-                Spacer(minLength: 0)
+                Text(title)
+                    .font(.callout.weight(.semibold))
+                    .foregroundStyle(enabled ? Theme.text : Theme.textMuted)
+                Text(hint)
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textMuted)
+                    .lineLimit(3)
             }
+            .padding(24)
+            .frame(width: 420, height: 250, alignment: .topLeading)
         }
+        .buttonStyle(.card)
         .disabled(!enabled)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }
