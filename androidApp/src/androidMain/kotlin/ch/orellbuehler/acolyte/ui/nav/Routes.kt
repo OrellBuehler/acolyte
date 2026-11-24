@@ -55,3 +55,51 @@ data object AccountRoute
 
 @Serializable
 data object MoreRoute
+
+@Serializable
+data class TitleRoute(
+    val kind: String,
+    val tmdb: String,
+)
+
+@Serializable
+data object LibraryToolsRoute
+
+@Serializable
+data class LibraryDeletedRoute(
+    val titleId: Long = 0,
+)
+
+@Serializable
+data object LibraryCopiesRoute
+
+@Serializable
+data class LibraryReleasesRoute(
+    val turnedDown: Boolean = false,
+)
+
+@Serializable
+data object LibrarySubtitlesRoute
+
+@Serializable
+data object LibraryRenameRoute
+
+@Serializable
+data object LibraryImportRoute
+
+@Serializable
+data class LibraryImportFilesRoute(
+    val path: String = "",
+)
+
+@Serializable
+data object SettingsLibraryFoldersRoute
+
+object Routes {
+    fun title(
+        kind: String,
+        tmdb: String,
+    ): Any = TitleRoute(kind, tmdb)
+
+    val settingsLibraryFolders: Any = SettingsLibraryFoldersRoute
+}

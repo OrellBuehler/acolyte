@@ -16,6 +16,7 @@ struct MainTabs: View {
                     NavigationStack {
                         SectionScreen(section: section, account: account)
                             .navigationDestination(for: SectionID.self) { SectionScreen(section: $0, account: account) }
+                            .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
                     }
                 }
             }
@@ -23,6 +24,7 @@ struct MainTabs: View {
                 NavigationStack {
                     MoreView(account: account)
                         .navigationDestination(for: SectionID.self) { SectionScreen(section: $0, account: account) }
+                        .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
                 }
             }
         }

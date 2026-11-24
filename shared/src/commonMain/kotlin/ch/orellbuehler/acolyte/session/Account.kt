@@ -6,11 +6,14 @@ import ch.orellbuehler.acolyte.api.model.Me
 import ch.orellbuehler.acolyte.api.model.MyProfile
 import ch.orellbuehler.acolyte.api.model.PartView
 import ch.orellbuehler.acolyte.api.model.Parts
+import ch.orellbuehler.acolyte.nav.LibraryTool
 import ch.orellbuehler.acolyte.nav.MoreGroup
 import ch.orellbuehler.acolyte.nav.MoreTab
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.nav.SectionGroup
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 enum class Role {
     OWNER,
@@ -48,6 +51,8 @@ data class Account(
     val mustSetUpTwoFactor: Boolean,
     val isKid: Boolean,
     val safeMode: Boolean,
+    val handsOff: Boolean = false,
+    val savedViews: Map<String, String> = emptyMap(),
 ) {
     fun can(need: Need): Boolean =
         when {
@@ -109,6 +114,22 @@ data class Account(
     fun groupOf(section: Section): SectionGroup =
         if (section == Section.DOWNLOADS && can(Need.MANAGE_LIBRARY)) SectionGroup.ACTIVITY else section.group
 
+    val managesLibrary: Boolean get() = can(Need.MANAGE_LIBRARY) && !isKid && !mustSetUpTwoFactor
+
+    val libraryTools: List<LibraryTool>
+        get() =
+            if (managesLibrary) {
+                LibraryTool.entries.filter {
+                    allows(
+                        it.need,
+                        it.part,
+                    ) &&
+                        !(it.touchesFiles && handsOff)
+                }
+            } else {
+                emptyList()
+            }
+
     private fun partOn(part: Part): Boolean = parts.firstOrNull { it.part == part.wire }?.on ?: true
 
     internal companion object {
@@ -141,6 +162,8 @@ data class Account(
                 mustSetUpTwoFactor = me.mustTwoFactor,
                 isKid = me.maxRating.isNotBlank(),
                 safeMode = me.safeMode || snapshot.parts.safeMode,
+                handsOff = me.handsOff,
+                savedViews = me.views.mapNotNull { (name, value) -> (value as? JsonPrimitive)?.contentOrNull?.let { name to it } }.toMap(),
             )
         }
     }

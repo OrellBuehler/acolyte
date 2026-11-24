@@ -2,6 +2,7 @@ package ch.orellbuehler.acolyte.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class AuthState(
@@ -52,6 +53,7 @@ data class Me(
     @SerialName("rating_country") val ratingCountry: String = "",
     @SerialName("hands_off") val handsOff: Boolean = false,
     @SerialName("setup_open") val setupOpen: Boolean = false,
+    val views: JsonObject = JsonObject(emptyMap()),
 )
 
 @Serializable

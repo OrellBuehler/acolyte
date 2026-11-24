@@ -134,4 +134,311 @@
     <string name="live_connecting">Connecting…</string>
     <string name="live_live">Connected</string>
     <string name="live_reconnecting">Reconnecting…</string>
+    <!-- library:start -->
+    <string name="library_kind_movie">Movies</string>
+    <string name="library_kind_show">TV shows</string>
+    <string name="library_kind_music">Music</string>
+    <plurals name="library_word_movie">
+        <item quantity="one">%1$d movie</item>
+        <item quantity="other">%1$d movies</item>
+    </plurals>
+    <plurals name="library_word_show">
+        <item quantity="one">%1$d TV show</item>
+        <item quantity="other">%1$d TV shows</item>
+    </plurals>
+    <string name="library_count_of">%1$d of %2$d</string>
+    <string name="library_search">Search</string>
+    <string name="library_search_movie">Search movies</string>
+    <string name="library_search_show">Search TV shows</string>
+    <string name="library_search_clear">Clear search</string>
+    <string name="library_search_failed">The server search did not answer. Names still match.</string>
+    <string name="library_sort_filter">Sort and filter</string>
+    <string name="library_select">Select</string>
+    <string name="library_select_stop">Stop selecting</string>
+    <string name="library_more">More options</string>
+    <string name="library_layout_grid">Show posters</string>
+    <string name="library_layout_list">Show a list</string>
+    <string name="library_deleted">Recently deleted</string>
+    <string name="library_deleted_count">Recently deleted (%1$d)</string>
+    <string name="library_tools">Library tools</string>
+    <string name="library_add_movie">Add a movie</string>
+    <string name="library_add_show">Add a TV show</string>
+    <string name="library_add_import">Import from a folder</string>
+    <string name="library_stats">Library stats</string>
+    <string name="library_open_music">Open Music</string>
+    <string name="library_empty_title">Nothing here yet</string>
+    <string name="library_empty_message">Titles you add show up here.</string>
+    <string name="library_empty_folders">Library folders</string>
+    <string name="library_nothing_for">Nothing for “%1$s”</string>
+    <string name="library_nothing_matches">Nothing matches</string>
+    <string name="library_clear_filters">Clear filters</string>
+    <string name="library_cannot_open">This title has no TMDB id, so the app cannot open it yet.</string>
+    <string name="library_watched">Watched</string>
+    <string name="library_watched_part">Watched %1$d of %2$d</string>
+    <string name="library_state_failed_n">Failed · %1$d</string>
+    <string name="library_state_failed_none">Failed, no reason recorded. Open the title for details.</string>
+    <string name="library_state_decision_none">Decision needed, no reason recorded. Open the title for details.</string>
+    <string name="library_state_file_not_found">Downloaded file not found</string>
+    <string name="library_state_stalled">Stalled · %1$d%%</string>
+    <string name="library_state_missing_file">Missing file</string>
+    <string name="library_state_missing">Missing</string>
+    <string name="library_state_missing_n">Missing · %1$d</string>
+    <string name="library_state_better">Better copy</string>
+    <string name="library_state_better_q">Better copy · %1$s</string>
+    <string name="library_state_better_n">Better copy · %1$d</string>
+    <string name="library_state_paused">Paused · %1$d%%</string>
+    <string name="library_state_downloading">Downloading · %1$d%%</string>
+    <string name="library_state_downloading_n">Downloading · %1$d</string>
+    <string name="library_state_importing">Importing</string>
+    <string name="library_state_queued">Queued</string>
+    <string name="library_state_searching">Searching</string>
+    <string name="library_state_waiting">Waiting</string>
+    <string name="library_state_upcoming">Upcoming</string>
+    <string name="library_state_upcoming_on">Upcoming · %1$s</string>
+    <string name="library_state_not_kept">Not kept</string>
+    <string name="library_state_not_kept_q">Not kept · %1$s</string>
+    <string name="library_state_specials">Specials only · %1$d</string>
+    <string name="library_state_declined">Declined</string>
+    <string name="library_state_in_library">In library</string>
+    <string name="library_state_in_library_q">In library · %1$s</string>
+    <string name="library_state_complete">Complete</string>
+    <string name="library_state_ended">Complete · ended</string>
+    <string name="library_fact_released">Out %1$s</string>
+    <string name="library_fact_home">Home release %1$s</string>
+    <string name="library_fact_in_cinemas">In cinemas %1$s</string>
+    <string name="library_fact_cinemas">Cinemas %1$s</string>
+    <string name="library_fact_release">Release %1$s</string>
+    <string name="library_fact_not_known">Release not known</string>
+    <string name="library_fact_episodes">%1$d/%2$d episodes</string>
+    <string name="library_fact_tracks">%1$d/%2$d tracks</string>
+    <string name="library_fact_next">Next episode %1$s</string>
+    <string name="library_fact_next_release">Next release %1$s</string>
+    <string name="library_fact_ended">Ended</string>
+    <string name="library_fact_last">Last aired %1$s</string>
+    <string name="library_fact_added">Added %1$s</string>
+    <string name="library_fact_runtime">%1$dh %2$dm</string>
+    <string name="library_fact_score">★ %1$s</string>
+    <string name="library_sort_title">Sort by</string>
+    <string name="library_sort_order">Order</string>
+    <string name="library_sort_ascending">Ascending</string>
+    <string name="library_sort_descending">Descending</string>
+    <string name="library_sort_status">Status</string>
+    <string name="library_sort_name">Name</string>
+    <string name="library_sort_year">Year</string>
+    <string name="library_sort_score">Score</string>
+    <string name="library_sort_release">Out</string>
+    <string name="library_sort_added">Added</string>
+    <string name="library_sort_size">Size</string>
+    <string name="library_sort_runtime">Runtime</string>
+    <string name="library_sort_rules">Quality</string>
+    <string name="library_sort_next">Next episode</string>
+    <string name="library_sort_last">Last aired</string>
+    <string name="library_sort_progress">Progress</string>
+    <string name="library_sort_network">Network</string>
+    <string name="library_group_series">Group by collection</string>
+    <string name="library_group_none">Not in a series</string>
+    <plurals name="library_group_count">
+        <item quantity="one">%1$d in the Library</item>
+        <item quantity="other">%1$d in the Library</item>
+    </plurals>
+    <string name="library_filter_title">Filter</string>
+    <string name="library_filter_all">All</string>
+    <string name="library_filter_missing">Missing</string>
+    <string name="library_filter_upcoming">Upcoming</string>
+    <string name="library_filter_better">Better copy</string>
+    <string name="library_filter_have">In library</string>
+    <string name="library_filter_kept_title">Keep up to date</string>
+    <string name="library_filter_kept_on">Kept</string>
+    <string name="library_filter_kept_off">Not kept</string>
+    <string name="library_filter_asker_title">Asked by</string>
+    <string name="library_filter_anyone">Anyone</string>
+    <string name="library_filter_me">Me</string>
+    <string name="library_filter_codec_title">Codec</string>
+    <string name="library_filter_subs_title">Subtitles</string>
+    <string name="library_filter_subs_missing">Missing</string>
+    <string name="library_filter_watched_title">Watched</string>
+    <string name="library_filter_watched_anyone">Watched by anyone</string>
+    <string name="library_filter_series_title">Collection</string>
+    <string name="library_filter_every_movie">Every movie</string>
+    <string name="library_chip_kept">Kept</string>
+    <string name="library_chip_not_kept">Not kept</string>
+    <string name="library_chip_asked_me">Asked by me</string>
+    <string name="library_chip_asked_by">Asked by %1$s</string>
+    <string name="library_chip_series">Collection: %1$s</string>
+    <string name="library_chip_subs">Missing subtitles</string>
+    <string name="library_chip_watched">Watched by anyone</string>
+    <string name="library_chip_search">Search: %1$s</string>
+    <string name="library_chip_grouped">Grouped by collection</string>
+    <string name="library_chip_remove">Remove %1$s</string>
+    <string name="library_saved_title">Saved filters</string>
+    <string name="library_saved_save">Save this filter</string>
+    <string name="library_saved_name">Name</string>
+    <string name="library_saved_delete">Delete %1$s</string>
+    <string name="library_codec_unknown">Unknown</string>
+    <string name="library_search_subtitles">Search subtitles</string>
+    <string name="library_search_missing_movie">Search all missing movies</string>
+    <string name="library_search_missing_show">Search all missing shows</string>
+    <plurals name="library_search_missing_title">
+        <item quantity="one">Search for %1$d missing title?</item>
+        <item quantity="other">Search for %1$d missing titles?</item>
+    </plurals>
+    <string name="library_search_missing_note">Kept titles only, a few at a time. Progress shows on Home.</string>
+    <plurals name="library_selected">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="library_select_all">Select all</string>
+    <string name="library_select_none">Select none</string>
+    <string name="library_actions">Actions for the selected titles</string>
+    <string name="library_action_search">Search now</string>
+    <string name="library_action_refresh">Refresh</string>
+    <string name="library_action_keep">Keep up to date</string>
+    <string name="library_action_unkeep">Stop keeping</string>
+    <string name="library_action_quality">Quality</string>
+    <string name="library_action_audio">Audio languages</string>
+    <string name="library_action_move">Move to</string>
+    <string name="library_action_copies">Find another copy</string>
+    <string name="library_action_remove">Remove</string>
+    <plurals name="library_audio_title">
+        <item quantity="one">Audio languages for %1$d title</item>
+        <item quantity="other">Audio languages for %1$d titles</item>
+    </plurals>
+    <string name="library_audio_field">Language codes</string>
+    <string name="library_audio_hint">Like it, en. The main copy of each movie or show then needs this audio. Empty takes any audio.</string>
+    <string name="library_audio_set">Set audio</string>
+    <plurals name="library_remove_title">
+        <item quantity="one">Remove %1$d title?</item>
+        <item quantity="other">Remove %1$d titles?</item>
+    </plurals>
+    <string name="library_remove_text">They leave the Library. Files stay on disk. To also delete files, open the title and delete it there.</string>
+    <plurals name="library_copies_title">
+        <item quantity="one">Find another copy of %1$d movie?</item>
+        <item quantity="other">Find another copy of %1$d movies?</item>
+    </plurals>
+    <plurals name="library_copies_note">
+        <item quantity="one">%1$d search at each movie’s Quality. Nothing downloads on its own.</item>
+        <item quantity="other">%1$d searches at each movie’s Quality. Nothing downloads on its own.</item>
+    </plurals>
+    <string name="library_copy_line">%1$s · %2$s</string>
+    <plurals name="library_notice_kept">
+        <item quantity="one">%1$d title kept up to date</item>
+        <item quantity="other">%1$d titles kept up to date</item>
+    </plurals>
+    <plurals name="library_notice_unkept">
+        <item quantity="one">%1$d title no longer kept up to date</item>
+        <item quantity="other">%1$d titles no longer kept up to date</item>
+    </plurals>
+    <plurals name="library_notice_rules">
+        <item quantity="one">%1$d title set to %2$s</item>
+        <item quantity="other">%1$d titles set to %2$s</item>
+    </plurals>
+    <plurals name="library_notice_audio">
+        <item quantity="one">Audio languages set on %1$d title</item>
+        <item quantity="other">Audio languages set on %1$d titles</item>
+    </plurals>
+    <plurals name="library_notice_searching">
+        <item quantity="one">%1$d title being searched for</item>
+        <item quantity="other">%1$d titles being searched for</item>
+    </plurals>
+    <plurals name="library_notice_refreshing">
+        <item quantity="one">Refreshing %1$d title</item>
+        <item quantity="other">Refreshing %1$d titles</item>
+    </plurals>
+    <plurals name="library_notice_moving">
+        <item quantity="one">%1$d title being moved to %2$s</item>
+        <item quantity="other">%1$d titles being moved to %2$s</item>
+    </plurals>
+    <plurals name="library_notice_removed">
+        <item quantity="one">%1$d title removed. Files stay on disk.</item>
+        <item quantity="other">%1$d titles removed. Files stay on disk.</item>
+    </plurals>
+    <plurals name="library_notice_copies">
+        <item quantity="one">Searching for %1$d copy</item>
+        <item quantity="other">Searching for %1$d copies</item>
+    </plurals>
+    <plurals name="library_notice_missing">
+        <item quantity="one">Searching for %1$d missing title</item>
+        <item quantity="other">Searching for %1$d missing titles</item>
+    </plurals>
+    <plurals name="library_notice_subtitles">
+        <item quantity="one">Searching subtitles for %1$d file</item>
+        <item quantity="other">Searching subtitles for %1$d files</item>
+    </plurals>
+    <string name="library_notice_filter_saved">%1$s saved</string>
+    <string name="library_notice_partly">%1$d of %2$d titles changed. %3$d couldn’t be changed.</string>
+    <plurals name="library_notice_restored">
+        <item quantity="one">%1$d file restored</item>
+        <item quantity="other">%1$d files restored</item>
+    </plurals>
+    <string name="library_notice_swapped">Swapped back to %1$s</string>
+    <string name="library_notice_restore_failed">Couldn’t restore %1$s</string>
+    <string name="library_notice_taken_off">Taken off the list</string>
+    <plurals name="library_notice_cleared">
+        <item quantity="one">%1$d release taken off the list</item>
+        <item quantity="other">%1$d releases taken off the list</item>
+    </plurals>
+    <plurals name="library_notice_renamed">
+        <item quantity="one">%1$d file renamed</item>
+        <item quantity="other">%1$d files renamed</item>
+    </plurals>
+    <plurals name="library_notice_adopted">
+        <item quantity="one">%1$d folder adopted. No file was moved.</item>
+        <item quantity="other">%1$d folders adopted. No file was moved.</item>
+    </plurals>
+    <plurals name="library_notice_tidied">
+        <item quantity="one">%1$d file moved</item>
+        <item quantity="other">%1$d files moved</item>
+    </plurals>
+    <plurals name="library_notice_untidied">
+        <item quantity="one">%1$d file put back</item>
+        <item quantity="other">%1$d files put back</item>
+    </plurals>
+    <string name="library_notice_flat">This folder now keeps movies as files</string>
+    <plurals name="library_notice_imported">
+        <item quantity="one">%1$d file imported</item>
+        <item quantity="other">%1$d files imported</item>
+    </plurals>
+    <string name="library_notice_folder_added">Library folder added</string>
+    <string name="library_notice_folder_checked">Folder checked</string>
+    <string name="library_notice_folder_removed">Library folder removed</string>
+    <string name="library_notice_path_changed">Path changed</string>
+    <string name="library_notice_import_folders">Import folders saved</string>
+    <string name="library_notice_side_files">Subtitle files saved</string>
+    <string name="library_notice_hands_off_on">Hands-off mode is on</string>
+    <string name="library_notice_hands_off_off">Hands-off mode is off</string>
+    <string name="library_notice_title_deleted">%1$s deleted</string>
+    <string name="library_notice_folder_missing">HolyArrs can’t see this folder. It only sees folders mounted into its container: add a volume for it, then use the path inside the container.</string>
+    <string name="library_server_says">Server: %1$s</string>
+    <string name="library_cancel">Cancel</string>
+    <string name="library_close">Close</string>
+    <string name="library_save">Save</string>
+    <string name="library_start">Start</string>
+    <string name="library_retry">Try again</string>
+    <string name="library_previous">Previous</string>
+    <string name="library_next">Next</string>
+    <string name="library_page">%1$d–%2$d of %3$d</string>
+    <string name="library_open">Open</string>
+    <string name="library_rename_changed">Files changed, so nothing was renamed. Check the new preview and try again.</string>
+    <string name="library_sort_next_release">Next release</string>
+    <string name="library_grid_tool_stats">Library stats</string>
+    <string name="library_grid_tool_stats_about">What your files are and who watched what</string>
+    <string name="library_grid_tool_deleted">Recently deleted</string>
+    <string name="library_grid_tool_deleted_about">Restore files that wait before they are erased</string>
+    <string name="library_grid_tool_copies">Video codecs</string>
+    <string name="library_grid_tool_copies_about">Find old codecs and search for better copies</string>
+    <string name="library_grid_tool_held">Held releases</string>
+    <string name="library_grid_tool_held_about">Releases waiting out a Pick rule delay</string>
+    <string name="library_grid_tool_turned_down">Turned-down releases</string>
+    <string name="library_grid_tool_turned_down_about">Releases that are never picked again</string>
+    <string name="library_grid_tool_missing_subtitles">Missing subtitles</string>
+    <string name="library_grid_tool_missing_subtitles_about">Files missing a wished subtitle language</string>
+    <string name="library_grid_tool_rename">Rename files</string>
+    <string name="library_grid_tool_rename_about">Bring every file name in line with your naming settings</string>
+    <string name="library_grid_tool_import">Import a library</string>
+    <string name="library_grid_tool_import_about">Adopt folders that already exist in a Library folder</string>
+    <string name="library_grid_tool_import_files">Import files by hand</string>
+    <string name="library_grid_tool_import_files_about">Pick files on the server and import them into their titles</string>
+    <string name="library_grid_tool_folders">Library folders</string>
+    <string name="library_grid_tool_folders_about">Where your movies, shows and music live</string>
+    <!-- library:end -->
 </resources>
