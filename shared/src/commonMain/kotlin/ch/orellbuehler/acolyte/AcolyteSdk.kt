@@ -59,6 +59,7 @@ import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookMetadataPresent
 import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServersPresenter
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsAiPresenter
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiPresenter
+import ch.orellbuehler.acolyte.feature.settings.status.SettingsHealthChecksPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -89,7 +90,7 @@ class AcolyteSdk internal constructor(
 
     fun signIn(): SignInFlow = SignInFlow(session)
 
-    fun health(): HealthPresenter = HealthPresenter(session.api)
+    fun health(): HealthPresenter = HealthPresenter(session.api, { session.account })
 
     private val libraryPrefs = LibraryPrefs(store)
 
@@ -243,4 +244,5 @@ class AcolyteSdk internal constructor(
         SettingsAiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
 
     fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
+    fun settingsHealthChecks(): SettingsHealthChecksPresenter = SettingsHealthChecksPresenter(session.api) { session.account }
 }

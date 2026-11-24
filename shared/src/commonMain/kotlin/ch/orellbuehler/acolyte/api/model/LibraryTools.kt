@@ -261,6 +261,9 @@ data class JobView(
     @SerialName("ProgressNote") val progressNote: String? = null,
     @SerialName("Result") val result: JsonObject? = null,
     @SerialName("Error") val error: JobError? = null,
+    @SerialName("Kind") val kind: String = "",
+    @SerialName("StartedAt") val startedAt: String? = null,
+    @SerialName("EndedAt") val endedAt: String? = null,
 ) {
     val finished: Boolean get() = state == "done" || state == "failed" || state == "cancelled"
 }

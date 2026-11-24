@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class HealthChecks(
     val checks: List<HealthCheck> = emptyList(),
+    val worst: String = "",
+    val sync: List<SettingsStatusSyncTrouble>? = null,
 )
 
 @Serializable

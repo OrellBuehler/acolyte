@@ -28,6 +28,13 @@ data class MyProfile(
 @Serializable
 data class About(
     val version: String = "",
+    val go: String = "",
+    val os: String = "",
     val docker: Boolean = false,
+    val sqlite: String = "",
+    val migration: Int = 0,
+    @SerialName("config_dir") val configDir: String = "",
+    @SerialName("start_dir") val startDir: String = "",
+    @SerialName("uptime_s") val uptimeSeconds: Long = 0,
     @SerialName("started_at") val startedAt: String = "",
 )
