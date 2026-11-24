@@ -200,6 +200,36 @@ final class SDKClient: @unchecked Sendable {
         return code.count == 2 ? code : "US"
     }
 
+    func makeDownloads() -> DownloadsDriver {
+        DownloadsDriver(presenter: sdk.downloads())
+    }
+
+    func makeDownloadDetail(list: DownloadsDriver, key: String) -> DownloadDetailDriver? {
+        guard let row = list.row(for: key) else { return nil }
+        return DownloadDetailDriver(presenter: sdk.downloadDetail(row: row), key: key, list: list)
+    }
+
+    func makeHistory(titleId: Int64, episodeId: Int64) -> HistoryDriver {
+        HistoryDriver(presenter: sdk.history(titleId: titleId, episodeId: episodeId))
+    }
+
+    func makeCalendar() -> CalendarDriver {
+        CalendarDriver(presenter: sdk.calendar())
+    }
+
+    func makeDownloadBadges() -> DownloadBadgesDriver {
+        DownloadBadgesDriver(badges: sdk.downloadBadges)
+    }
+
+    func reauth(password: String, code: String) async -> Bool {
+        do {
+            let failure = try await sdk.session.reauth(password: password, code: code.isEmpty ? nil : code)
+            return failure == nil
+        } catch {
+            return false
+        }
+    }
+
     func imageRequest(_ source: String?, size: ImageSizeKind) -> ImageRequestInfo? {
         guard let text = sdk.images.url(source: source, size: Mapping.kotlinSize(size)), let url = URL(string: text) else {
             return nil

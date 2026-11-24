@@ -108,6 +108,12 @@ struct SectionScreen: View {
             RequestsView(account: account)
         case .account:
             AccountView(account: account)
+        case .downloads:
+            DownloadsView(show: "", open: "")
+        case .calendar:
+            CalendarView()
+        case .history:
+            HistoryView(titleId: 0, episodeId: 0)
         default:
             PlaceholderView(section: section)
         }
@@ -128,6 +134,9 @@ enum Route: Hashable, Sendable, Identifiable {
     case libraryImport
     case libraryImportFiles(path: String)
     case settingsLibraryFolders
+    case libraryTab(id: Int64, kind: String, tmdb: String)
+    case downloads(show: String, open: String)
+    case history(titleId: Int64, episodeId: Int64)
     case ask(kind: String, tmdb: String, fourK: Bool = false)
     case askMusic(artist: String, name: String = "", album: String = "", edition: String = "")
     case reports
@@ -246,6 +255,12 @@ struct RouteScreen: View {
             LibraryFilesView(path: path)
         case .settingsLibraryFolders:
             LibraryFoldersView()
+        case let .libraryTab(id, kind, tmdb):
+            TitleView(kind: kind, tmdb: tmdb, libraryId: id, openLibrary: true)
+        case let .downloads(show, open):
+            DownloadsView(show: show, open: open)
+        case let .history(titleId, episodeId):
+            HistoryView(titleId: titleId, episodeId: episodeId)
         case let .ask(kind, tmdb, fourK):
             AskSheetView(kind: kind, tmdb: tmdb, fourK: fourK)
         case let .askMusic(artist, name, album, edition):

@@ -1,5 +1,6 @@
 package ch.orellbuehler.acolyte.ui.nav
 
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -62,6 +63,18 @@ data class TitleRoute(
     val tmdb: String,
     val libraryId: Long = 0,
     val tab: String = "",
+)
+
+@Serializable
+data class DownloadsFocusRoute(
+    val show: String = "",
+    val open: String = "",
+)
+
+@Serializable
+data class HistoryScopeRoute(
+    val titleId: Long = 0,
+    val episodeId: Long = 0,
 )
 
 @Serializable
@@ -172,6 +185,19 @@ object Routes {
     ): TitleRoute = TitleRoute(kind, tmdb)
 
     fun libraryTitle(id: Long): TitleRoute = TitleRoute("", "", id)
+
+    fun downloadTitle(link: DownloadTitleLink): Any =
+        TitleRoute(link.kind, link.tmdb, link.libraryId, if (link.openLibrary) "library" else "")
+
+    fun downloads(
+        show: String = "",
+        open: String = "",
+    ): Any = DownloadsFocusRoute(show, open)
+
+    fun history(
+        titleId: Long,
+        episodeId: Long = 0,
+    ): Any = HistoryScopeRoute(titleId, episodeId)
 
     fun person(id: String): PersonRoute = PersonRoute(id)
 

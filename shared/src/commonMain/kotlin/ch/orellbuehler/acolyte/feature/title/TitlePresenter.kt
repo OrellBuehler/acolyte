@@ -265,7 +265,7 @@ class TitlePresenter internal constructor(
     private suspend fun loadEvents(id: Long) {
         if (!current.access.manage) return
         api.result(TitleSupportEndpoints.events, "title" to id, "limit" to 30).onSuccess { v ->
-            mutableState.update { it.copy(events = v.events) }
+            mutableState.update { it.copy(events = v.events.map { e -> e.toTitleEvent() }) }
         }
     }
 

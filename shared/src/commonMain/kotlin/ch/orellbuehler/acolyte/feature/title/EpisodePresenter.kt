@@ -78,7 +78,15 @@ class EpisodePresenter internal constructor(
             }
             if (mutableState.value.manage) {
                 launch {
-                    val events = api.result(TitleSupportEndpoints.events, "episode" to e.id, "limit" to 20).valueOrNull()?.events
+                    val events =
+                        api
+                            .result(
+                                TitleSupportEndpoints.events,
+                                "episode" to e.id,
+                                "limit" to 20,
+                            ).valueOrNull()
+                            ?.events
+                            ?.map { it.toTitleEvent() }
                     mutableState.update {
                         it.copy(events = events.orEmpty().filter { ev -> ev.kind !in TitleState.routineKinds }, eventsLoaded = true)
                     }

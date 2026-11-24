@@ -274,8 +274,8 @@ internal data class SearchBody(
     @SerialName("item_id") val itemId: Long? = null,
     val season: Int? = null,
     @SerialName("version_id") val versionId: Long? = null,
-    val choose: Boolean? = null,
     @SerialName("album_id") val albumId: Long? = null,
+    val choose: Boolean? = null,
 )
 
 @Serializable
@@ -343,12 +343,6 @@ data class TitleCreditPerson(
     val id: String = "",
     val name: String = "",
     val profile: String = "",
-)
-
-@Serializable
-data class TitleEvents(
-    val events: List<TitleEvent> = emptyList(),
-    val total: Int = 0,
 )
 
 @Serializable

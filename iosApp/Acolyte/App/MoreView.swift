@@ -4,9 +4,23 @@ struct MoreView: View {
     let account: AccountInfo
     @Environment(AppModel.self) private var model
     @State private var confirmSignOut = false
+    @State private var badges = DownloadBadgesStore()
+
+    private var showsDownloads: Bool {
+        account.tabs.contains(.downloads) || account.moreGroups.contains { $0.sections.contains(.downloads) }
+    }
 
     var body: some View {
         List {
+            if badges.badge.decide > 0 && showsDownloads {
+                Section {
+                    NavigationLink(value: Route.downloads(show: "problems.decide", open: "")) {
+                        Text(L10n.format("downloads.badge.decide", badges.badge.decide))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Theme.failText)
+                    }
+                }
+            }
             ForEach(account.moreGroups) { group in
                 Section {
                     ForEach(group.sections) { section in
@@ -28,6 +42,8 @@ struct MoreView: View {
             }
         }
         .navigationTitle(account.moreTab.title)
+        .task { await badges.watch() }
+        .task { await badges.follow() }
         .confirmationDialog(L10n.tr("account.sign.out.title"), isPresented: $confirmSignOut, titleVisibility: .visible) {
             Button(L10n.tr("account.sign.out"), role: .destructive) { model.signOut() }
         } message: {
@@ -48,8 +64,41 @@ struct MoreView: View {
             } icon: {
                 Image(systemName: section.symbol)
             }
+        } else if section == .downloads {
+            HStack {
+                Label(section.title, systemImage: section.symbol)
+                Spacer(minLength: Theme.Spacing.small)
+                DownloadsBadgeLabel(badge: badges.badge)
+            }
         } else {
             Label(section.title, systemImage: section.symbol)
+        }
+    }
+}
+
+private struct DownloadsBadgeLabel: View {
+    let badge: DownloadsBadgeInfo
+
+    var body: some View {
+        switch badge.kind {
+        case .active:
+            HStack(spacing: Theme.Spacing.xSmall) {
+                ProgressView(value: Double(min(max(badge.percent, 0), 100)) / 100)
+                    .progressViewStyle(.circular)
+                    .tint(Theme.accent)
+                    .frame(width: 16, height: 16)
+                Text(L10n.format("downloads.badge.active", badge.active, badge.percent))
+                    .font(.caption)
+                    .foregroundStyle(Theme.textMuted)
+                    .lineLimit(1)
+            }
+        case .decide:
+            Text(L10n.format("downloads.badge.decide", badge.decide))
+                .font(.caption)
+                .foregroundStyle(Theme.failText)
+                .lineLimit(1)
+        case .none:
+            EmptyView()
         }
     }
 }
