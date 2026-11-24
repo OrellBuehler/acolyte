@@ -6,7 +6,6 @@ import ch.orellbuehler.acolyte.api.model.SettingsStatusActiveJobs
 import ch.orellbuehler.acolyte.api.model.SettingsStatusDisks
 import ch.orellbuehler.acolyte.api.model.SettingsStatusInstall
 import ch.orellbuehler.acolyte.api.model.SettingsStatusModeChange
-import ch.orellbuehler.acolyte.api.model.SettingsStatusTest
 import ch.orellbuehler.acolyte.api.model.SettingsUpdateInfo
 
 internal data object SettingsStatusEndpoints : EndpointGroup() {
@@ -26,6 +25,4 @@ internal data object SettingsStatusEndpoints : EndpointGroup() {
             SettingsHealthChecksSettings.serializer(),
             Need.SETTINGS,
         )
-    val testSource = post("/api/v1/sources/{id}/test", SettingsStatusTest.serializer(), Need.SETTINGS)
-    val testDownloader = post("/api/v1/downloaders/{id}/test", SettingsStatusTest.serializer(), Need.SETTINGS)
 }

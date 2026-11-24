@@ -5,6 +5,7 @@ import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AppEndpoints
+import ch.orellbuehler.acolyte.api.DownloadersEndpoints
 import ch.orellbuehler.acolyte.api.HealthEndpoints
 import ch.orellbuehler.acolyte.api.HomeEndpoints
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
@@ -14,6 +15,7 @@ import ch.orellbuehler.acolyte.api.SettingsLookEndpoints
 import ch.orellbuehler.acolyte.api.SettingsServerEndpoints
 import ch.orellbuehler.acolyte.api.SettingsSharedEndpoints
 import ch.orellbuehler.acolyte.api.SettingsStatusEndpoints
+import ch.orellbuehler.acolyte.api.SourcesEndpoints
 import ch.orellbuehler.acolyte.api.TransferredFile
 import ch.orellbuehler.acolyte.api.model.About
 import ch.orellbuehler.acolyte.api.model.HealthCheck
@@ -423,8 +425,22 @@ class HealthPresenter internal constructor(
             when (check.kind) {
                 SettingsStatusCheckKind.JOB -> runJob(row, check.job)
                 SettingsStatusCheckKind.CHECKS -> runRowChecks(row)
-                SettingsStatusCheckKind.SOURCE -> testLinked(row, api.result(SettingsStatusEndpoints.testSource, "id" to check.id))
-                SettingsStatusCheckKind.DOWNLOADER -> testLinked(row, api.result(SettingsStatusEndpoints.testDownloader, "id" to check.id))
+                SettingsStatusCheckKind.SOURCE ->
+                    testLinked(
+                        row,
+                        api.result(SourcesEndpoints.test, "id" to check.id).mapTest {
+                            it.ok to
+                                it.text
+                        },
+                    )
+                SettingsStatusCheckKind.DOWNLOADER ->
+                    testLinked(
+                        row,
+                        api.result(DownloadersEndpoints.test, null, "id" to check.id).mapTest {
+                            it.ok to
+                                it.text
+                        },
+                    )
             }
         } finally {
             end(key)
@@ -458,6 +474,12 @@ class HealthPresenter internal constructor(
             is ApiResult.Failed -> notice(SettingsStatusNoticeKind.ROW_CANT_CHECK, row, error = result.error)
         }
     }
+
+    private fun <T> ApiResult<T>.mapTest(read: (T) -> Pair<Boolean, String>): ApiResult<SettingsStatusTest> =
+        when (this) {
+            is ApiResult.Ok -> read(value).let { ApiResult.Ok(SettingsStatusTest(it.first, it.second)) }
+            is ApiResult.Failed -> this
+        }
 
     private suspend fun testLinked(
         row: SettingsStatusRow,
