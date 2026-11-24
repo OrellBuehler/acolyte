@@ -157,25 +157,6 @@ struct PlaceholderInfo: Hashable, Sendable {
     let hue: Double
 }
 
-struct HealthCheckInfo: Identifiable, Hashable, Sendable {
-    let id: Int64
-    let subject: String
-    let message: String
-    let since: Date?
-    let tone: ToneKind
-}
-
-struct HealthInfo: Hashable, Sendable {
-    let load: LoadInfo
-    let checks: [HealthCheckInfo]
-    let overall: ToneKind
-    let running: Bool
-    let actionError: ErrorInfo?
-    let isEmpty: Bool
-
-    static let initial = HealthInfo(load: .loading, checks: [], overall: .idle, running: false, actionError: nil, isEmpty: false)
-}
-
 enum SignInStepKind: String, Hashable, Sendable {
     case server
     case credentials

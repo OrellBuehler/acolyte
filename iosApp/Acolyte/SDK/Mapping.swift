@@ -69,25 +69,6 @@ enum Mapping {
         ToneKind(rawValue: key(t)) ?? .idle
     }
 
-    static func health(_ s: HealthState) -> HealthInfo {
-        HealthInfo(
-            load: load(s.status),
-            checks: s.checks.map { check in
-                HealthCheckInfo(
-                    id: check.id,
-                    subject: check.subject,
-                    message: check.message,
-                    since: Format.date(iso: check.since),
-                    tone: tone(check.tone)
-                )
-            },
-            overall: tone(s.overall),
-            running: s.running,
-            actionError: error(s.actionError),
-            isEmpty: s.isEmpty
-        )
-    }
-
     static func signIn(_ s: SignInState) -> SignInInfo {
         SignInInfo(
             step: SignInStepKind(rawValue: key(s.step)) ?? .server,

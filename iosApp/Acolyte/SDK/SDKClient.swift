@@ -247,4 +247,8 @@ final class SDKClient: @unchecked Sendable {
     func placeholder(_ name: String) -> PlaceholderInfo {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
+
+    func makeHealthChecks() -> HealthChecksDriver {
+        HealthChecksDriver(presenter: sdk.settingsHealthChecks())
+    }
 }
