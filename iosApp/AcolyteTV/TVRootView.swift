@@ -46,14 +46,16 @@ struct TVBrandMark: View {
 
 struct TVMainTabs: View {
     let account: AccountInfo
+    @State private var tabs = TVTabSelection(.home)
 
     var body: some View {
-        TabView {
-            Tab(L10n.tr("tv.tab.home"), systemImage: "house") {
-                TVHomeView()
-            }
-            Tab(L10n.tr("tv.tab.settings"), systemImage: "gearshape") {
-                TVSettingsView(account: account)
+        TabView(selection: Binding(get: { tabs.value }, set: { tabs.value = $0 })) {
+            ForEach(TVSections.tabs(for: account)) { section in
+                Tab(section.title, systemImage: section.symbol, value: section) {
+                    TVTabHost(account: account, tabs: tabs) {
+                        TVSectionScreen(section: section, account: account)
+                    }
+                }
             }
         }
     }

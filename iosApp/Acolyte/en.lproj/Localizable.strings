@@ -6886,3 +6886,13 @@
 "tv.settings.account" = "Signed in as";
 "tv.settings.sign.out" = "Sign out";
 "tv.signin.unsupported" = "This step is not available on Apple TV yet. Go back, or finish it in the app on your phone.";
+"tv.reload" = "Reload";
+"tv.home.featured" = "Featured";
+"tv.phone.title" = "Open this on your phone";
+"tv.phone.body" = "%1$@ is not available on Apple TV yet. Open the Acolyte app on your phone to use it.";
+"tv.phone.what.person" = "Person pages";
+"tv.phone.what.collection" = "Collections";
+"tv.phone.what.reports" = "Reports";
+"tv.phone.what.other" = "This screen";
+"tv.placeholder.body" = "%1$@ is coming to Apple TV soon. Use the app on your phone for now.";
+"tv.trailer.unavailable" = "This trailer cannot be played on Apple TV.";
