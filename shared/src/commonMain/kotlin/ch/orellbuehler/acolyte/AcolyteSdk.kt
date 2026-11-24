@@ -6,6 +6,8 @@ import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
 import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderRulesPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloadersPresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseViewPresenter
@@ -223,4 +225,8 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsDownloaders(): SettingsDownloadersPresenter = SettingsDownloadersPresenter(session.api) { session.account }
+
+    fun settingsDownloaderRules(): SettingsDownloaderRulesPresenter = SettingsDownloaderRulesPresenter(session.api) { session.account }
 }

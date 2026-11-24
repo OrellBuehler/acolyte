@@ -557,8 +557,26 @@ data class DownloaderInfo(
     val name: String = "",
     val protocol: String = "",
     val kind: String = "",
+    val url: String = "",
+    val username: String = "",
+    val secret: String = "",
     val writable: Boolean = false,
+    @SerialName("writable_locked") val writableLocked: Boolean = false,
     val category: String = "",
+    @SerialName("category_movies") val categoryMovies: String = "",
+    @SerialName("category_shows") val categoryShows: String = "",
+    @SerialName("category_music") val categoryMusic: String = "",
+    val priority: Int = 1,
+    @SerialName("path_map") val pathMap: List<SettingsDownloaderPath> = emptyList(),
+    @SerialName("allow_local_network") val allowLocalNetwork: Boolean = false,
+    @SerialName("clear_finished") val clearFinished: Boolean = true,
+    @SerialName("after_seeding") val afterSeeding: SettingsDownloaderSeeding = SettingsDownloaderSeeding(),
+    @SerialName("category_after_import") val categoryAfterImport: String = "",
+    @SerialName("own_only") val ownOnly: Boolean = false,
+    val tags: List<String> = emptyList(),
+    val health: SettingsDownloaderHealthView = SettingsDownloaderHealthView(),
+    @SerialName("checked_at") val checkedAt: String = "",
+    @SerialName("active_downloads") val activeDownloads: Int = 0,
 )
 
 @Serializable
@@ -568,9 +586,21 @@ data class DownloaderList(
 
 @Serializable
 data class DownloaderSettings(
+    @SerialName("stalled_after_hours") val stalledAfterHours: Double = 6.0,
+    @SerialName("stalled_act_hours") val stalledActHours: Double = 24.0,
+    @SerialName("remove_failed") val removeFailed: Boolean = true,
+    @SerialName("fail_dangerous") val failDangerous: Boolean = true,
+    @SerialName("replace_vanished") val replaceVanished: Boolean = true,
+    @SerialName("grab_spacing_seconds") val grabSpacingSeconds: Double = 2.0,
+    @SerialName("try_next_downloader") val tryNextDownloader: Boolean = true,
     @SerialName("remove_delete_files") val removeDeleteFiles: Boolean = true,
     @SerialName("remove_turn_down") val removeTurnDown: Boolean = false,
     @SerialName("remove_search_again") val removeSearchAgain: Boolean = true,
+    @SerialName("downloads_sab_outside") val downloadsSabOutside: Boolean = true,
+    @SerialName("downloads_auto_add") val downloadsAutoAdd: Boolean = false,
+    @SerialName("dead_metadata_minutes") val deadMetadataMinutes: Double = 0.0,
+    @SerialName("crawl_kbps") val crawlKbps: Double = 0.0,
+    @SerialName("crawl_hours") val crawlHours: Double = 0.0,
 )
 
 @Serializable

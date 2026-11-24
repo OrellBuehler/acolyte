@@ -3,6 +3,8 @@ package ch.orellbuehler.acolyte.contract
 internal object KnownSpecGaps {
     private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
+    private const val DOWNLOADER_INPUT = "Go downloads.Input (downloader_settings.go) takes more fields than the spec lists"
+    private const val DOWNLOADER_SETTINGS = "Go downloads.DownloaderSettings (routes_downloaders.go) has fields the spec lacks"
     private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
 
     val problems: Map<String, String> =
@@ -220,6 +222,33 @@ internal object KnownSpecGaps {
             "GET /api/v1/events: query parameter 'feed' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go hides feed checks with feed=0",
+            "POST /api/v1/downloaders body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "PUT /api/v1/downloaders/{id} body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+            "POST /api/v1/downloaders/{id}/test: sends a body but the spec takes none" to
+                "an optional DownloaderInput body tests typed values without saving (typed_check.go)",
+            "POST /api/v1/downloaders/{id}/category: sends a body but the spec takes none" to
+                "the handler requires {name} (routes_category.go)",
+            "PUT /api/v1/settings/downloaders body.downloads_sab_outside: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+            "PUT /api/v1/settings/downloaders body.downloads_auto_add: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+            "PUT /api/v1/settings/downloaders body.dead_metadata_minutes: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+            "PUT /api/v1/settings/downloaders body.crawl_kbps: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+            "PUT /api/v1/settings/downloaders body.crawl_hours: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
         )
 
     val liveSkips: Map<String, String> =
