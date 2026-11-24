@@ -4483,12 +4483,6 @@
     <string name="acq_mv_gone">Ein gewählter Lesedurchgang ist weg. Wähl neu.</string>
     <string name="acq_mv_gone_back">Zurück zu Deine Apps lesen</string>
     <string name="acq_mv_safe_mode">HolyArrs wurde im abgesicherten Modus gestartet. Starte es normal neu, um zu importieren oder rückgängig zu machen.</string>
-    <string name="acq_mv_no_password">Deine Anmeldung hat kein Passwort zum Bestätigen. Lege im Web ein Passwort fest und versuche es dann erneut.</string>
-    <string name="acq_mv_password_title">Passwort bestätigen</string>
-    <string name="acq_mv_password_text">Für den Start eines Imports brauchst du eine frische Passwortprüfung. Danach geht es mit deinen Auswahlen weiter.</string>
-    <string name="acq_mv_password_label">Passwort</string>
-    <string name="acq_mv_code_label">Zwei-Faktor- oder Backup-Code</string>
-    <string name="acq_mv_password_confirm">Bestätigen</string>
     <string name="acq_mv_gate_turn_on_read">Schalte mindestens ein Lesen ein.</string>
     <string name="acq_mv_gate_updating">Aktualisiert …</string>
     <string name="acq_mv_gate_fix_folder">Korrigiere den oben markierten Ordner.</string>
@@ -5089,7 +5083,6 @@
     <string name="acq_src_bridge_current_keys">Oder gib deine aktuellen Schlüssel ein:</string>
     <string name="acq_src_bridge_tv_key">Serien-Schlüssel (Sonarr-Seite)</string>
     <string name="acq_src_bridge_movie_key">Film-Schlüssel (Radarr-Seite)</string>
-    <string name="acq_src_bridge_set_password">Lege ein HolyArrs-Passwort fest, um Prowlarr zu verbinden.</string>
     <string name="acq_src_bridge_made_keys">Neue arr-Schlüssel</string>
     <string name="acq_src_bridge_made_keys_text">Apps, die die alten Schlüssel verwendet haben, etwa Seerr, brauchen diese. Sie werden nur einmal angezeigt.</string>
     <string name="acq_src_bridge_unlink_title">%1$s trennen?</string>
@@ -5103,10 +5096,6 @@
     <string name="acq_src_bridge_up_to_date">Schon auf dem neuesten Stand</string>
     <string name="acq_src_bridge_syncing_again">%1$s gleicht erneut ab</string>
     <string name="acq_src_bridge_sync_failed">Abgleich nicht möglich</string>
-    <string name="acq_src_reauth_text">Für einen Schlüssel brauchen wir dein Passwort noch einmal.</string>
-    <string name="acq_src_reauth_password">Passwort</string>
-    <string name="acq_src_reauth_code">Code (falls du Zwei-Faktor nutzt)</string>
-    <string name="acq_src_reauth_confirm">Bestätigen</string>
     <string name="acq_src_health_title">Zustand von %1$s</string>
     <string name="acq_src_health_subtitle">%1$s · %2$s · Priorität %3$d · %4$s</string>
     <string name="acq_src_health_state">Status</string>

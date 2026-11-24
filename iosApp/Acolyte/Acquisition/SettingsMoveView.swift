@@ -58,6 +58,7 @@ struct SettingsMoveView: View {
         .task { await store.watch() }
         .task { await store.load() }
         .task { await store.followLive() }
+        .reauthSheet(store.reauth, enabled: !othersPresented)
         .sheet(item: $readRequest, onDismiss: { if !info.sheet.reading { store.resetSheet() } }) { request in
             MoveReadSheet(store: store, request: request, serverHost: serverHost)
         }
@@ -72,9 +73,6 @@ struct SettingsMoveView: View {
         }
         .sheet(isPresented: beforeBinding) {
             MoveBeforeSheet(store: store, onShow: { listing = $0 })
-        }
-        .sheet(isPresented: passwordBinding) {
-            MovePasswordSheet(store: store)
         }
         .sheet(item: shareBinding) { file in
             MoveShareSheet(url: file.url)
@@ -102,6 +100,10 @@ struct SettingsMoveView: View {
         }
     }
 
+    private var othersPresented: Bool {
+        readRequest != nil || listing != nil || keysRequest != nil || showNotMoved || info.dialog == .before || store.shareFile != nil
+    }
+
     private var shareBinding: Binding<MoveShareFile?> {
         Binding(get: { store.shareFile }, set: { store.shareFile = $0 })
     }
@@ -112,10 +114,6 @@ struct SettingsMoveView: View {
 
     private var beforeBinding: Binding<Bool> {
         Binding(get: { info.dialog == .before }, set: { if !$0 && info.dialog == .before { store.closeDialog() } })
-    }
-
-    private var passwordBinding: Binding<Bool> {
-        Binding(get: { info.needsPassword }, set: { if !$0 && info.needsPassword { store.cancelPassword() } })
     }
 
     private var confirmBinding: Binding<Bool> {

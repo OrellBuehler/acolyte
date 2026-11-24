@@ -4486,12 +4486,6 @@
     <string name="acq_mv_gone">A read you picked is gone. Pick again.</string>
     <string name="acq_mv_gone_back">Back to Read your apps</string>
     <string name="acq_mv_safe_mode">HolyArrs started in safe mode. Restart it normally to import or undo.</string>
-    <string name="acq_mv_no_password">Your sign-in has no password to confirm. Set a password in the web app, then try again.</string>
-    <string name="acq_mv_password_title">Confirm your password</string>
-    <string name="acq_mv_password_text">Starting an import needs a fresh password check. It then goes on with your choices.</string>
-    <string name="acq_mv_password_label">Password</string>
-    <string name="acq_mv_code_label">Two-factor or backup code</string>
-    <string name="acq_mv_password_confirm">Confirm</string>
     <string name="acq_mv_gate_turn_on_read">Turn on at least one read.</string>
     <string name="acq_mv_gate_updating">Updating…</string>
     <string name="acq_mv_gate_fix_folder">Fix the folder marked above.</string>
@@ -5092,7 +5086,6 @@
     <string name="acq_src_bridge_current_keys">Or enter your current keys:</string>
     <string name="acq_src_bridge_tv_key">TV shows key (Sonarr side)</string>
     <string name="acq_src_bridge_movie_key">Movies key (Radarr side)</string>
-    <string name="acq_src_bridge_set_password">Set a HolyArrs password to connect Prowlarr.</string>
     <string name="acq_src_bridge_made_keys">New arr keys</string>
     <string name="acq_src_bridge_made_keys_text">Apps that used the old keys, like Seerr, need these. They are shown only once.</string>
     <string name="acq_src_bridge_unlink_title">Unlink %1$s?</string>
@@ -5106,10 +5099,6 @@
     <string name="acq_src_bridge_up_to_date">Already up to date</string>
     <string name="acq_src_bridge_syncing_again">%1$s syncing again</string>
     <string name="acq_src_bridge_sync_failed">Couldn\'t sync</string>
-    <string name="acq_src_reauth_text">Making a key needs your password again.</string>
-    <string name="acq_src_reauth_password">Password</string>
-    <string name="acq_src_reauth_code">Code (if you use two-factor)</string>
-    <string name="acq_src_reauth_confirm">Confirm</string>
     <string name="acq_src_health_title">%1$s health</string>
     <string name="acq_src_health_subtitle">%1$s · %2$s · priority %3$d · %4$s</string>
     <string name="acq_src_health_state">State</string>

@@ -14,8 +14,7 @@ extension Mapping {
         guard let problem else { return nil }
         return MoveProblemInfo(
             error: error(problem.error) ?? .unknown,
-            reach: MoveReachKind(rawValue: key(problem.reach)) ?? .other,
-            noPassword: problem.noPassword
+            reach: MoveReachKind(rawValue: key(problem.reach)) ?? .other
         )
     }
 
@@ -280,9 +279,6 @@ extension Mapping {
             problem: moveProblem(s.problem),
             gone: s.gone,
             notices: s.notices.map { moveNotice($0) },
-            needsPassword: s.needsPassword,
-            passwordBusy: s.passwordBusy,
-            passwordError: error(s.passwordError),
             readingKind: s.readingKind,
             canStart: s.canStart
         )

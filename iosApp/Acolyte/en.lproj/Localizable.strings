@@ -4141,12 +4141,6 @@
 "acq.mv.gone" = "A read you picked is gone. Pick again.";
 "acq.mv.gone.back" = "Back to Read your apps";
 "acq.mv.safe.mode" = "HolyArrs started in safe mode. Restart it normally to import or undo.";
-"acq.mv.no.password" = "Your sign-in has no password to confirm. Set a password in the web app, then try again.";
-"acq.mv.password.title" = "Confirm your password";
-"acq.mv.password.text" = "Starting an import needs a fresh password check. It then goes on with your choices.";
-"acq.mv.password.label" = "Password";
-"acq.mv.code.label" = "Two-factor or backup code";
-"acq.mv.password.confirm" = "Confirm";
 "acq.mv.gate.turn.on.read" = "Turn on at least one read.";
 "acq.mv.gate.updating" = "Updating…";
 "acq.mv.gate.fix.folder" = "Fix the folder marked above.";
@@ -4679,7 +4673,6 @@
 "acq.src.bridge.current.keys" = "Or enter your current keys:";
 "acq.src.bridge.tv.key" = "TV shows key (Sonarr side)";
 "acq.src.bridge.movie.key" = "Movies key (Radarr side)";
-"acq.src.bridge.set.password" = "Set a HolyArrs password to connect Prowlarr.";
 "acq.src.bridge.made.keys" = "New arr keys";
 "acq.src.bridge.made.keys.text" = "Apps that used the old keys, like Seerr, need these. They are shown only once.";
 "acq.src.bridge.unlink.title" = "Unlink %1$@?";
@@ -4693,10 +4686,6 @@
 "acq.src.bridge.up.to.date" = "Already up to date";
 "acq.src.bridge.syncing.again" = "%1$@ syncing again";
 "acq.src.bridge.sync.failed" = "Couldn't sync";
-"acq.src.reauth.text" = "Making a key needs your password again.";
-"acq.src.reauth.password" = "Password";
-"acq.src.reauth.code" = "Code (if you use two-factor)";
-"acq.src.reauth.confirm" = "Confirm";
 "acq.src.health.title" = "%1$@ health";
 "acq.src.health.subtitle" = "%1$@ · %2$@ · priority %3$d · %4$@";
 "acq.src.health.state" = "State";

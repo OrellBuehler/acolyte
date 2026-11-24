@@ -257,7 +257,6 @@ struct MoveProgressInfo: Hashable, Sendable {
 struct MoveProblemInfo: Hashable, Sendable {
     let error: ErrorInfo
     let reach: MoveReachKind
-    let noPassword: Bool
 }
 
 struct MoveNoticeInfo: Hashable, Sendable, Identifiable {
@@ -543,9 +542,6 @@ struct MoveInfo: Hashable, Sendable {
     var problem: MoveProblemInfo?
     var gone = false
     var notices: [MoveNoticeInfo] = []
-    var needsPassword = false
-    var passwordBusy = false
-    var passwordError: ErrorInfo?
     var readingKind = ""
     var canStart = false
 

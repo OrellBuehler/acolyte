@@ -72,6 +72,8 @@ class BridgeViewModel(
 ) : ViewModel() {
     private val presenter = sdk.settingsBridges()
 
+    val reauth = presenter.reauth
+
     val state: StateFlow<SettingsBridgeState> = presenter.state
 
     init {
@@ -95,15 +97,6 @@ class BridgeViewModel(
     fun link(draft: SettingsBridgeDraft) {
         viewModelScope.launch { presenter.link(draft) }
     }
-
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
 
     fun sync(id: Long) {
         viewModelScope.launch { presenter.sync(id) }

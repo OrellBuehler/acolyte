@@ -220,11 +220,7 @@ extension Mapping {
             urlError: f.urlError,
             keyError: f.keyError,
             callbackError: f.callbackError,
-            keysNeeded: f.keysNeeded,
-            needsReauth: f.needsReauth,
-            canReauth: f.canReauth,
-            reauthBusy: f.reauthBusy,
-            reauthError: error(f.reauthError)
+            keysNeeded: f.keysNeeded
         )
     }
 

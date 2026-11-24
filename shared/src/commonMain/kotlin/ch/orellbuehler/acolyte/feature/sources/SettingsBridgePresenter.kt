@@ -2,7 +2,6 @@ package ch.orellbuehler.acolyte.feature.sources
 
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
-import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiJson
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.SourcesEndpoints
@@ -10,9 +9,9 @@ import ch.orellbuehler.acolyte.api.model.SettingsBridge
 import ch.orellbuehler.acolyte.api.model.SettingsBridgeBody
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.feature.acquisition.mayEditAcquisition
 import ch.orellbuehler.acolyte.session.Account
-import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,10 +78,6 @@ data class SettingsBridgeFormState(
     val keyError: String = "",
     val callbackError: String = "",
     val keysNeeded: List<String> = emptyList(),
-    val needsReauth: Boolean = false,
-    val canReauth: Boolean = true,
-    val reauthBusy: Boolean = false,
-    val reauthError: ApiError? = null,
 ) {
     val busy: Boolean get() = testing || connecting
 
@@ -111,12 +106,11 @@ data class SettingsBridgeState(
 class SettingsBridgePresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    private val reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsBridgeState())
     private val lock = Mutex()
     private var seq = 0
-    private var pending: Pair<Boolean, SettingsBridgeDraft>? = null
 
     val state: StateFlow<SettingsBridgeState> = mutableState.asStateFlow()
 
@@ -177,17 +171,10 @@ class SettingsBridgePresenter internal constructor(
     }
 
     private fun open(draft: SettingsBridgeDraft) {
-        pending = null
-        mutableState.update {
-            it.copy(
-                form = SettingsBridgeFormState(initial = draft, canReauth = account()?.method != SignInMethod.MEDIA_SERVER),
-                formToken = it.formToken + 1,
-            )
-        }
+        mutableState.update { it.copy(form = SettingsBridgeFormState(initial = draft), formToken = it.formToken + 1) }
     }
 
     fun cancelForm() {
-        pending = null
         mutableState.update { it.copy(form = null) }
     }
 
@@ -199,7 +186,7 @@ class SettingsBridgePresenter internal constructor(
         val current = mutableState.value.form ?: return
         if (current.busy || !draft.canSubmit) return
         form { it.cleared().copy(testing = true) }
-        when (val result = api.result(SourcesEndpoints.testBridge, draft.body())) {
+        when (val result = reauth.guard { api.result(SourcesEndpoints.testBridge, draft.body()) }) {
             is ApiResult.Ok -> {
                 val answer = result.value
                 val have =
@@ -217,7 +204,7 @@ class SettingsBridgePresenter internal constructor(
                     )
                 form { it.copy(testing = false, result = shown, keysNeeded = have) }
             }
-            is ApiResult.Failed -> failed(result.error, test = true, draft = draft)
+            is ApiResult.Failed -> failed(result.error)
         }
     }
 
@@ -225,13 +212,12 @@ class SettingsBridgePresenter internal constructor(
         val current = mutableState.value.form ?: return false
         if (current.busy || !draft.canSubmit) return false
         form { it.cleared().copy(connecting = true) }
-        return when (val result = api.result(SourcesEndpoints.linkBridge, draft.body())) {
+        return when (val result = reauth.guard { api.result(SourcesEndpoints.linkBridge, draft.body()) }) {
             is ApiResult.Ok -> {
                 val linked = result.value
                 if (draft.editingId != 0L && linked.id != draft.editingId) {
                     api.result(SourcesEndpoints.unlinkBridge, "id" to draft.editingId, "keep_sources" to null)
                 }
-                pending = null
                 notice(
                     SettingsSourcesNoticeKind.BRIDGE_CONNECTED,
                     name = linked.kind.replaceFirstChar { it.uppercase() },
@@ -243,22 +229,13 @@ class SettingsBridgePresenter internal constructor(
                 true
             }
             is ApiResult.Failed -> {
-                failed(result.error, test = false, draft = draft)
+                failed(result.error)
                 false
             }
         }
     }
 
-    private fun failed(
-        error: ApiError,
-        test: Boolean,
-        draft: SettingsBridgeDraft,
-    ) {
-        if (error.code == ApiErrorCode.REAUTH) {
-            pending = test to draft
-            form { it.copy(testing = false, connecting = false, needsReauth = true, reauthError = null, reauthBusy = false) }
-            return
-        }
+    private fun failed(error: ApiError) {
         val parsed = parse(error)
         val sides = if (parsed.need == "keys") parsed.sides else emptyList()
         form {
@@ -272,27 +249,6 @@ class SettingsBridgePresenter internal constructor(
                 else -> base.copy(error = error)
             }
         }
-    }
-
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        val (isTest, draft) = pending ?: return
-        form { it.copy(reauthBusy = true, reauthError = null) }
-        val error = reauth(password, code.trim().ifEmpty { null })
-        if (error != null) {
-            form { it.copy(reauthBusy = false, reauthError = error) }
-            return
-        }
-        form { it.copy(needsReauth = false, reauthBusy = false) }
-        pending = null
-        if (isTest) test(draft) else link(draft)
-    }
-
-    fun cancelReauth() {
-        pending = null
-        form { it.copy(needsReauth = false, reauthError = null, reauthBusy = false) }
     }
 
     suspend fun sync(id: Long) {

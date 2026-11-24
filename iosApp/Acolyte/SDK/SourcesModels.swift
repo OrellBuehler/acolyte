@@ -299,10 +299,6 @@ struct BridgeFormInfo: Hashable, Sendable {
     let keyError: String
     let callbackError: String
     let keysNeeded: [String]
-    let needsReauth: Bool
-    let canReauth: Bool
-    let reauthBusy: Bool
-    let reauthError: ErrorInfo?
 
     var busy: Bool { testing || connecting }
 }

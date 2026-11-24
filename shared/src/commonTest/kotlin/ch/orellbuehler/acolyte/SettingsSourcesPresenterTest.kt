@@ -8,6 +8,7 @@ import ch.orellbuehler.acolyte.api.SessionCookies
 import ch.orellbuehler.acolyte.api.model.PartView
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgeDraft
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCause
@@ -21,7 +22,9 @@ import ch.orellbuehler.acolyte.feature.sources.SettingsSourcesPresenter
 import ch.orellbuehler.acolyte.live.LiveEvent
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.Role
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -370,7 +373,7 @@ class SettingsSourcesPresenterTest {
         server: FakeServer,
         account: Account = owner,
         reauth: suspend (String, String?) -> ch.orellbuehler.acolyte.api.ApiError? = { _, _ -> null },
-    ) = SettingsBridgePresenter(server.api(), { account }, reauth)
+    ) = SettingsBridgePresenter(server.api(), { account }, ReauthGate(reauth, { account }))
 
     @Test
     fun bridgeTestAndLinkJackett() =
@@ -426,15 +429,15 @@ class SettingsSourcesPresenterTest {
             presenter.startConnect("prowlarr")
             val draft = SettingsBridgeDraft(kind = "prowlarr", url = "http://p:9696", key = "k", callbackUrl = "http://holy:6262")
             assertFalse(presenter.link(draft))
-            var form = presenter.state.value.form
+            val form = presenter.state.value.form
             assertEquals(listOf("sonarr", "radarr"), form?.keysNeeded)
             assertTrue(form?.needsSonarrKey == true)
             assertEquals(ApiErrorCode.CONFLICT, form?.error?.code)
             val again = draft.copy(newKeys = true)
-            assertFalse(presenter.link(again))
-            form = presenter.state.value.form
-            assertTrue(form?.needsReauth == true)
-            presenter.confirmReauth("secret", "")
+            val job = async { presenter.link(again) }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.confirm("secret", "")
+            assertTrue(job.await())
             assertEquals("secret", reauthed)
             val s = presenter.state.value
             assertNull(s.form)

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -38,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ch.orellbuehler.acolyte.R
@@ -387,49 +384,5 @@ fun MoveUndoDialog(
             ) { Text(stringResource(R.string.acq_mv_undo_confirm), color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = { TextButton(onClick = viewModel::closeDialog) { Text(stringResource(R.string.acq_mv_cancel)) } },
-    )
-}
-
-@Composable
-fun MovePasswordDialog(
-    state: SettingsMoveState,
-    viewModel: MoveViewModel,
-) {
-    var password by remember { mutableStateOf("") }
-    var code by remember { mutableStateOf("") }
-    AlertDialog(
-        onDismissRequest = viewModel::cancelPassword,
-        title = { Text(stringResource(R.string.acq_mv_password_title)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                Text(stringResource(R.string.acq_mv_password_text))
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.acq_mv_password_label)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true,
-                )
-                OutlinedTextField(
-                    value = code,
-                    onValueChange = { code = it.take(32) },
-                    label = { Text(stringResource(R.string.acq_mv_code_label)) },
-                    singleLine = true,
-                )
-                state.passwordError?.let {
-                    FailText(
-                        ch.orellbuehler.acolyte.ui.components
-                            .errorText(it),
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { viewModel.confirmPassword(password, code) }, enabled = password.isNotEmpty() && !state.passwordBusy) {
-                Text(stringResource(R.string.acq_mv_password_confirm))
-            }
-        },
-        dismissButton = { TextButton(onClick = viewModel::cancelPassword) { Text(stringResource(R.string.acq_mv_cancel)) } },
     )
 }

@@ -102,8 +102,6 @@ struct BridgeFormSheet: View {
     let store: BridgeStore
     @State private var draft: BridgeDraftInfo
     @State private var callbackOpen = false
-    @State private var password = ""
-    @State private var code = ""
 
     init(target: BridgeFormTarget, store: BridgeStore) {
         self.target = target
@@ -122,7 +120,6 @@ struct BridgeFormSheet: View {
                     if let error = form.error {
                         Section { Text(error.sourceText).foregroundStyle(Theme.failText) }
                     }
-                    if form.needsReauth { reauth(form) }
                 }
             }
             .navigationTitle(L10n.tr("acq.src.bridge.title"))
@@ -140,6 +137,7 @@ struct BridgeFormSheet: View {
                         .disabled(!draft.canSubmit || (form?.busy ?? true))
                 }
             }
+            .reauthSheet(store.reauth)
         }
     }
 
@@ -242,30 +240,6 @@ struct BridgeFormSheet: View {
                 Text(result.sites.joined(separator: ", ") + (result.siteCount > result.sites.count ? "…" : ""))
                     .font(.footnote)
                     .foregroundStyle(Theme.textMuted)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func reauth(_ form: BridgeFormInfo) -> some View {
-        Section {
-            if form.canReauth {
-                Text(L10n.tr("acq.src.reauth.text")).font(.footnote).foregroundStyle(Theme.textMuted)
-                SecureField(L10n.tr("acq.src.reauth.password"), text: $password)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                TextField(L10n.tr("acq.src.reauth.code"), text: $code)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .keyboardType(.numbersAndPunctuation)
-                if let error = form.reauthError {
-                    Text(error.localized).font(.footnote).foregroundStyle(Theme.failText)
-                }
-                Button(L10n.tr("acq.src.reauth.confirm")) { store.confirmReauth(password, code) }
-                    .disabled(password.isEmpty || form.reauthBusy)
-                Button(L10n.tr("acq.src.cancel"), role: .cancel) { store.cancelReauth() }
-            } else {
-                NoticeBanner(text: L10n.tr("acq.src.bridge.set.password"))
             }
         }
     }

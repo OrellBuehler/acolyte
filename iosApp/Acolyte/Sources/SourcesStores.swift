@@ -73,7 +73,15 @@ final class SourcesStore {
 final class BridgeStore {
     private(set) var info: BridgesInfo = .initial
 
-    private let driver = SDKClient.shared.makeBridges()
+    let reauth: ReauthStore
+
+    private let driver: BridgeDriver
+
+    init() {
+        let driver = SDKClient.shared.makeBridges()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -100,13 +108,6 @@ final class BridgeStore {
         let driver = self.driver
         Task { await driver.link(draft) }
     }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 
     func sync(_ id: Int64) {
         let driver = self.driver

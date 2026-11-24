@@ -187,7 +187,6 @@ enum MoveWords {
     }
 
     static func problem(_ problem: MoveProblemInfo) -> String {
-        if problem.noPassword { return L10n.tr("acq.mv.no.password") }
         if problem.error.kind == .conflict && problem.error.message.lowercased().contains("safe mode") {
             return L10n.tr("acq.mv.safe.mode")
         }

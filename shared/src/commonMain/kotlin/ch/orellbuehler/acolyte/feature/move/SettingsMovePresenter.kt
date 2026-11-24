@@ -17,10 +17,10 @@ import ch.orellbuehler.acolyte.api.model.MoveReadAnswer
 import ch.orellbuehler.acolyte.api.model.MoveReadLinked
 import ch.orellbuehler.acolyte.api.model.MoveSource
 import ch.orellbuehler.acolyte.feature.Phase
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
 import ch.orellbuehler.acolyte.feature.acquisition.mayOpen
 import ch.orellbuehler.acolyte.session.Account
-import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -53,7 +53,7 @@ private data class CheckRequest(
 class SettingsMovePresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    private val reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsMoveState())
     private val requests = MutableSharedFlow<CheckRequest>(extraBufferCapacity = 16)
@@ -762,7 +762,7 @@ class SettingsMovePresenter internal constructor(
         if (s.starting || s.dry == null || s.stale) return
         commit { it.copy(starting = true, problem = null) }
         var recheck = false
-        when (val r = api.result(MoveEndpoints.start, body(s, s.planHash))) {
+        when (val r = reauth.guard { api.result(MoveEndpoints.start, body(s, s.planHash)) }) {
             is ApiResult.Ok -> {
                 val m = r.value.move
                 commit { st ->
@@ -775,8 +775,6 @@ class SettingsMovePresenter internal constructor(
                         step = SettingsMoveStep.RUN,
                         dialog = MoveDialog.NONE,
                         followId = if (m.running) m.id else 0,
-                        needsPassword = false,
-                        passwordError = null,
                     )
                 }
                 if (!m.running) finished(m)
@@ -785,12 +783,6 @@ class SettingsMovePresenter internal constructor(
                 val error = r.error
                 val text = error.message
                 when {
-                    error.code == ApiErrorCode.REAUTH ->
-                        if (account()?.method == SignInMethod.PASSWORD) {
-                            commit { it.copy(needsPassword = true, passwordError = null, dialog = MoveDialog.NONE) }
-                        } else {
-                            commit { it.copy(problem = MoveProblem(error, noPassword = true), dialog = MoveDialog.NONE) }
-                        }
                     error.code == ApiErrorCode.CONFLICT && text.contains("safe mode", ignoreCase = true) ->
                         commit { it.copy(safeModeHit = true, problem = problem(error), dialog = MoveDialog.NONE) }
                     error.code == ApiErrorCode.CONFLICT && text.contains("changed", ignoreCase = true) -> {
@@ -805,23 +797,6 @@ class SettingsMovePresenter internal constructor(
         commit { it.copy(starting = false) }
         if (recheck) importNow()
     }
-
-    suspend fun confirmPassword(
-        password: String,
-        code: String,
-    ) {
-        if (!inner.needsPassword) return
-        commit { it.copy(passwordBusy = true, passwordError = null) }
-        val error = reauth(password, code.trim().ifEmpty { null })
-        if (error != null) {
-            commit { it.copy(passwordBusy = false, passwordError = error) }
-            return
-        }
-        commit { it.copy(passwordBusy = false, needsPassword = false) }
-        start()
-    }
-
-    fun cancelPassword() = commit { it.copy(needsPassword = false, passwordError = null, passwordBusy = false) }
 
     suspend fun openMove(id: Long) {
         commit { it.copy(problem = null) }
@@ -849,7 +824,7 @@ class SettingsMovePresenter internal constructor(
     suspend fun undo() {
         val m = inner.current ?: return
         commit { it.copy(dialog = MoveDialog.NONE, problem = null) }
-        when (val r = api.result(MoveEndpoints.undo, "id" to m.id)) {
+        when (val r = reauth.guard { api.result(MoveEndpoints.undo, "id" to m.id) }) {
             is ApiResult.Ok ->
                 commit { s ->
                     s.copy(current = r.value.move, progress = 0.0, progressNote = "", lost = false, followId = m.id)

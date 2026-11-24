@@ -235,7 +235,6 @@ fun movePathProblemText(problem: MovePathProblem): String =
 
 @Composable
 fun moveProblemText(problem: MoveProblem): String {
-    if (problem.noPassword) return stringResource(R.string.acq_mv_no_password)
     val error = problem.error
     if (error.code == ApiErrorCode.CONFLICT && error.message.contains("safe mode", ignoreCase = true)) {
         return stringResource(R.string.acq_mv_safe_mode)

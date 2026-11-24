@@ -4141,12 +4141,6 @@
 "acq.mv.gone" = "Ein gewählter Lesedurchgang ist weg. Wähl neu.";
 "acq.mv.gone.back" = "Zurück zu Deine Apps lesen";
 "acq.mv.safe.mode" = "HolyArrs wurde im abgesicherten Modus gestartet. Starte es normal neu, um zu importieren oder rückgängig zu machen.";
-"acq.mv.no.password" = "Deine Anmeldung hat kein Passwort zum Bestätigen. Lege im Web ein Passwort fest und versuche es dann erneut.";
-"acq.mv.password.title" = "Passwort bestätigen";
-"acq.mv.password.text" = "Für den Start eines Imports brauchst du eine frische Passwortprüfung. Danach geht es mit deinen Auswahlen weiter.";
-"acq.mv.password.label" = "Passwort";
-"acq.mv.code.label" = "Zwei-Faktor- oder Backup-Code";
-"acq.mv.password.confirm" = "Bestätigen";
 "acq.mv.gate.turn.on.read" = "Schalte mindestens ein Lesen ein.";
 "acq.mv.gate.updating" = "Aktualisiert …";
 "acq.mv.gate.fix.folder" = "Korrigiere den oben markierten Ordner.";
@@ -4679,7 +4673,6 @@
 "acq.src.bridge.current.keys" = "Oder gib deine aktuellen Schlüssel ein:";
 "acq.src.bridge.tv.key" = "Serien-Schlüssel (Sonarr-Seite)";
 "acq.src.bridge.movie.key" = "Film-Schlüssel (Radarr-Seite)";
-"acq.src.bridge.set.password" = "Lege ein HolyArrs-Passwort fest, um Prowlarr zu verbinden.";
 "acq.src.bridge.made.keys" = "Neue arr-Schlüssel";
 "acq.src.bridge.made.keys.text" = "Apps, die die alten Schlüssel verwendet haben, etwa Seerr, brauchen diese. Sie werden nur einmal angezeigt.";
 "acq.src.bridge.unlink.title" = "%1$@ trennen?";
@@ -4693,10 +4686,6 @@
 "acq.src.bridge.up.to.date" = "Schon auf dem neuesten Stand";
 "acq.src.bridge.syncing.again" = "%1$@ gleicht erneut ab";
 "acq.src.bridge.sync.failed" = "Abgleich nicht möglich";
-"acq.src.reauth.text" = "Für einen Schlüssel brauchen wir dein Passwort noch einmal.";
-"acq.src.reauth.password" = "Passwort";
-"acq.src.reauth.code" = "Code (falls du Zwei-Faktor nutzt)";
-"acq.src.reauth.confirm" = "Bestätigen";
 "acq.src.health.title" = "Zustand von %1$@";
 "acq.src.health.subtitle" = "%1$@ · %2$@ · Priorität %3$d · %4$@";
 "acq.src.health.state" = "Status";

@@ -53,7 +53,6 @@ enum class MoveNoticeKind {
 data class MoveProblem(
     val error: ApiError,
     val reach: MoveReachFailure = MoveReachFailure.OTHER,
-    val noPassword: Boolean = false,
 )
 
 data class MoveNotice(
@@ -390,9 +389,6 @@ data class SettingsMoveState(
     val problem: MoveProblem? = null,
     val gone: Boolean = false,
     val notices: List<MoveNotice> = emptyList(),
-    val needsPassword: Boolean = false,
-    val passwordBusy: Boolean = false,
-    val passwordError: ApiError? = null,
     val readingKind: String = "",
     val canStart: Boolean = false,
     internal val holder: MoveHolder = MoveHolder(MoveInner()),

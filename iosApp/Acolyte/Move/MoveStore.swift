@@ -8,6 +8,7 @@ final class MoveStore {
     var shareFile: MoveShareFile?
 
     let apps: [MoveAppInfo]
+    let reauth: ReauthStore
 
     private let driver: SettingsMoveDriver
     private var readTask: Task<Void, Never>?
@@ -16,6 +17,7 @@ final class MoveStore {
         let driver = SDKClient.shared.makeSettingsMove()
         self.driver = driver
         apps = driver.apps()
+        reauth = ReauthStore(driver: driver.reauth)
     }
 
     func placeholder(_ kind: String) -> String { driver.placeholder(kind) }
@@ -126,13 +128,6 @@ final class MoveStore {
         let driver = self.driver
         Task { await driver.undo() }
     }
-
-    func confirmPassword(password: String, code: String) {
-        let driver = self.driver
-        Task { await driver.confirmPassword(password: password, code: code) }
-    }
-
-    func cancelPassword() { driver.cancelPassword() }
 
     func done() {
         let driver = self.driver

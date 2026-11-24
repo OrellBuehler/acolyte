@@ -19,6 +19,8 @@ class MoveViewModel(
     sdk: AcolyteSdk,
 ) : ViewModel() {
     private val presenter = sdk.settingsMove()
+
+    val reauth = presenter.reauth
     private var readJob: Job? = null
 
     val state: StateFlow<SettingsMoveState> = presenter.state
@@ -146,15 +148,6 @@ class MoveViewModel(
     fun undo() {
         viewModelScope.launch { presenter.undo() }
     }
-
-    fun confirmPassword(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmPassword(password, code) }
-    }
-
-    fun cancelPassword() = presenter.cancelPassword()
 
     fun done() {
         viewModelScope.launch { presenter.done() }

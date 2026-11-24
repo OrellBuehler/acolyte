@@ -141,10 +141,7 @@ class AcolyteSdk internal constructor(
             { session.refresh() },
         )
 
-    fun settingsMove(): SettingsMovePresenter =
-        SettingsMovePresenter(session.api, {
-            session.account
-        }, { password, code -> session.reauth(password, code) })
+    fun settingsMove(): SettingsMovePresenter = SettingsMovePresenter(session.api, { session.account }, reauthGate())
 
     fun title(
         kind: String,
@@ -186,8 +183,7 @@ class AcolyteSdk internal constructor(
 
     fun settingsSources(): SettingsSourcesPresenter = SettingsSourcesPresenter(session.api) { session.account }
 
-    fun settingsBridges(): SettingsBridgePresenter =
-        SettingsBridgePresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsBridges(): SettingsBridgePresenter = SettingsBridgePresenter(session.api, { session.account }, reauthGate())
 
     fun settingsSourceCheck(): SettingsSourceCheckPresenter = SettingsSourceCheckPresenter(session.api)
 

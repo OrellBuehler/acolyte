@@ -86,11 +86,14 @@ final class SourcesDriver: @unchecked Sendable {
     }
 }
 
-final class BridgeDriver: @unchecked Sendable {
+final class BridgeDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsBridgePresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsBridgePresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (BridgesInfo) -> Void) async {
@@ -121,12 +124,6 @@ final class BridgeDriver: @unchecked Sendable {
     func link(_ draft: BridgeDraftInfo) async {
         do { _ = try await presenter.link(draft: Mapping.kotlinBridgeDraft(draft)) } catch {}
     }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() { presenter.cancelReauth() }
 
     func sync(_ id: Int64) async {
         do { try await presenter.sync(id: id) } catch {}

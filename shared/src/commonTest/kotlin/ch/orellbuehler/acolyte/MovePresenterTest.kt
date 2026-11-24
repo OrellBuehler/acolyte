@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.ApiErrorCode
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.feature.move.MoveBadge
 import ch.orellbuehler.acolyte.feature.move.MoveDialog
 import ch.orellbuehler.acolyte.feature.move.MoveItemRow
@@ -20,6 +21,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -72,7 +75,7 @@ class MovePresenterTest {
         server: FakeServer,
         role: Role = Role.OWNER,
         reauth: suspend (String, String?) -> ch.orellbuehler.acolyte.api.ApiError? = { _, _ -> null },
-    ) = SettingsMovePresenter(server.api(), { testAccount(role, emptyList()) }, reauth)
+    ) = SettingsMovePresenter(server.api(), { testAccount(role, emptyList()) }, ReauthGate(reauth, { testAccount(role, emptyList()) }))
 
     private fun baseServer(): FakeServer {
         val server = FakeServer()
@@ -501,12 +504,13 @@ class MovePresenterTest {
             presenter.enter(SettingsMoveStep.CHOOSE)
             presenter.runPlan()
             presenter.importNow()
-            presenter.start()
-            assertTrue(presenter.state.value.needsPassword)
+            val job = async { presenter.start() }
+            presenter.reauth.state.first { it.visible }
             assertNull(presenter.state.value.problem)
-            presenter.confirmPassword("secret", "")
+            presenter.reauth.confirm("secret", "")
+            job.await()
             assertEquals("secret/null", asked)
-            assertFalse(presenter.state.value.needsPassword)
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(
                 8L,
                 presenter.state.value.run

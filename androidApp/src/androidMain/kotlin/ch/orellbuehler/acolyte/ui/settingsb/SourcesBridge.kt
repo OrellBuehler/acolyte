@@ -42,7 +42,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsBridge
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgeDraft
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgeFormState
-import ch.orellbuehler.acolyte.ui.components.NoticeBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.errorText
 import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.requests.FailText
@@ -55,6 +55,7 @@ private fun bridgeName(kind: String): String = kind.replaceFirstChar { it.upperc
 @Composable
 fun BridgeCard(model: BridgeViewModel) {
     val state by model.state.collectAsStateWithLifecycle()
+    ReauthSheet(model.reauth)
     var unlinking by remember { mutableStateOf<SettingsBridge?>(null) }
     SettingsCard(
         title = stringResource(R.string.acq_src_bridge_title),
@@ -168,8 +169,6 @@ private fun BridgeForm(
 ) {
     var draft by remember(token) { mutableStateOf(form.initial) }
     var callbackOpen by remember(token) { mutableStateOf(false) }
-    var code by remember(token) { mutableStateOf("") }
-    var password by remember(token) { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.Medium)) {
         Text(stringResource(R.string.acq_src_bridge_app), style = MaterialTheme.typography.titleSmall)
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -256,28 +255,6 @@ private fun BridgeForm(
         }
         form.error?.let { FailText(sourceErrorText(it)) }
         BridgeResult(form, draft.kind)
-        if (form.needsReauth) {
-            if (form.canReauth) {
-                Text(stringResource(R.string.acq_src_reauth_text), style = MaterialTheme.typography.bodyMedium)
-                BridgeField(
-                    label = stringResource(R.string.acq_src_reauth_password),
-                    value = password,
-                    onChange = { password = it },
-                    password = true,
-                )
-                BridgeField(label = stringResource(R.string.acq_src_reauth_code), value = code, onChange = { code = it.take(32) })
-                form.reauthError?.let { FailText(errorText(it)) }
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                    Button(
-                        onClick = { model.confirmReauth(password, code) },
-                        enabled = password.isNotEmpty() && !form.reauthBusy,
-                    ) { Text(stringResource(R.string.acq_src_reauth_confirm)) }
-                    OutlinedButton(onClick = model::cancelReauth) { Text(stringResource(R.string.acq_src_cancel)) }
-                }
-            } else {
-                NoticeBanner(stringResource(R.string.acq_src_bridge_set_password))
-            }
-        }
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small), modifier = Modifier.fillMaxWidth()) {
             OutlinedButton(onClick = { model.test(draft) }, enabled = draft.canSubmit && !form.busy) {
                 Text(stringResource(if (form.testing) R.string.acq_src_testing else R.string.acq_src_bridge_test))

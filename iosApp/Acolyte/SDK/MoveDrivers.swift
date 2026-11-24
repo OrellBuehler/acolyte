@@ -1,11 +1,14 @@
 @preconcurrency import shared
 import Foundation
 
-final class SettingsMoveDriver: @unchecked Sendable {
+final class SettingsMoveDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsMovePresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsMovePresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func apps() -> [MoveAppInfo] {
@@ -155,14 +158,6 @@ final class SettingsMoveDriver: @unchecked Sendable {
 
     func undo() async {
         do { try await presenter.undo() } catch {}
-    }
-
-    func confirmPassword(password: String, code: String) async {
-        do { try await presenter.confirmPassword(password: password, code: code) } catch {}
-    }
-
-    func cancelPassword() {
-        presenter.cancelPassword()
     }
 
     func done() async {

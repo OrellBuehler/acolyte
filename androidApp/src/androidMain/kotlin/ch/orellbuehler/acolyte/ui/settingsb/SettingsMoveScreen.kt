@@ -56,6 +56,7 @@ import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.MessageView
 import ch.orellbuehler.acolyte.ui.components.NoticeBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.nav.Routes
@@ -200,7 +201,7 @@ fun SettingsMoveScreen(
         MoveDialog.UNDO -> MoveUndoDialog(state, viewModel)
         MoveDialog.NONE -> Unit
     }
-    if (state.needsPassword) MovePasswordDialog(state, viewModel)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable
