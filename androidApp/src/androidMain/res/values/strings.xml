@@ -3486,4 +3486,18 @@
     <string name="downloads_calendar_go_movie">Go to movie</string>
     <string name="downloads_calendar_no_description">No description yet.</string>
     <string name="downloads_calendar_followed_by">Followed by %1$s</string>
+    <string name="acq_page_sources">Sources</string>
+    <string name="acq_page_downloaders">Downloaders</string>
+    <string name="acq_page_quality">Quality</string>
+    <string name="acq_page_naming">Naming and files</string>
+    <string name="acq_page_subtitles">Subtitles</string>
+    <string name="acq_page_search">Search</string>
+    <string name="acq_page_move">Import from other apps</string>
+    <string name="acq_hint_sources">Feeds HolyArrs asks for Releases</string>
+    <string name="acq_hint_downloaders">Torrent and Usenet apps</string>
+    <string name="acq_hint_quality">Which Release to take</string>
+    <string name="acq_hint_naming">File names and free space</string>
+    <string name="acq_hint_subtitles">Languages and Subtitle sites</string>
+    <string name="acq_hint_search">When and how HolyArrs searches</string>
+    <string name="acq_hint_move">Copies titles and settings from old apps</string>
 </resources>

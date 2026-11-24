@@ -114,6 +114,8 @@ struct SectionScreen: View {
             CalendarView()
         case .history:
             HistoryView(titleId: 0, episodeId: 0)
+        case .settings:
+            AcquisitionPagesView()
         default:
             PlaceholderView(section: section)
         }
@@ -134,6 +136,15 @@ enum Route: Hashable, Sendable, Identifiable {
     case libraryImport
     case libraryImportFiles(path: String)
     case settingsLibraryFolders
+    case settingsSources
+    case settingsSourceHealth(id: Int64)
+    case settingsDownloaders
+    case settingsPickRules
+    case settingsPickRuleEdit(id: Int64, from: Int64)
+    case settingsNaming
+    case settingsSubtitles
+    case settingsSearch
+    case settingsMove
     case libraryTab(id: Int64, kind: String, tmdb: String)
     case downloads(show: String, open: String)
     case history(titleId: Int64, episodeId: Int64)
@@ -255,6 +266,24 @@ struct RouteScreen: View {
             LibraryFilesView(path: path)
         case .settingsLibraryFolders:
             LibraryFoldersView()
+        case .settingsSources:
+            SettingsSourcesView(account: resolved)
+        case let .settingsSourceHealth(id):
+            SettingsSourceHealthView(id: id, account: resolved)
+        case .settingsDownloaders:
+            SettingsDownloadersView(account: resolved)
+        case .settingsPickRules:
+            SettingsPickRulesView(account: resolved)
+        case let .settingsPickRuleEdit(id, from):
+            SettingsPickRuleEditView(id: id, from: from, account: resolved)
+        case .settingsNaming:
+            SettingsNamingView(account: resolved)
+        case .settingsSubtitles:
+            SettingsSubtitlesView(account: resolved)
+        case .settingsSearch:
+            SettingsSearchView(account: resolved)
+        case .settingsMove:
+            SettingsMoveView(account: resolved)
         case let .libraryTab(id, kind, tmdb):
             TitleView(kind: kind, tmdb: tmdb, libraryId: id, openLibrary: true)
         case let .downloads(show, open):

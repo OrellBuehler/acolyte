@@ -59,6 +59,10 @@ final class SDKClient: @unchecked Sendable {
         sdk.libraryTools().compactMap { LibraryToolID(rawValue: Mapping.key($0)) }
     }
 
+    func acquisitionPages() -> [AcquisitionPageID] {
+        sdk.acquisitionPages().compactMap { AcquisitionPageID(rawValue: Mapping.key($0)) }
+    }
+
     func makeLibraryStats() -> LibraryStatsDriver {
         LibraryStatsDriver(presenter: sdk.libraryStats())
     }

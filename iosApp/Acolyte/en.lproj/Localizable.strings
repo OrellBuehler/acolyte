@@ -3157,3 +3157,17 @@
 "downloads.calendar.go.movie" = "Go to movie";
 "downloads.calendar.no.description" = "No description yet.";
 "downloads.calendar.followed.by" = "Followed by %1$@";
+"acq.page.sources" = "Sources";
+"acq.page.downloaders" = "Downloaders";
+"acq.page.quality" = "Quality";
+"acq.page.naming" = "Naming and files";
+"acq.page.subtitles" = "Subtitles";
+"acq.page.search" = "Search";
+"acq.page.move" = "Import from other apps";
+"acq.hint.sources" = "Feeds HolyArrs asks for Releases";
+"acq.hint.downloaders" = "Torrent and Usenet apps";
+"acq.hint.quality" = "Which Release to take";
+"acq.hint.naming" = "File names and free space";
+"acq.hint.subtitles" = "Languages and Subtitle sites";
+"acq.hint.search" = "When and how HolyArrs searches";
+"acq.hint.move" = "Copies titles and settings from old apps";

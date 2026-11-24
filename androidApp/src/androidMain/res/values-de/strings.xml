@@ -3484,4 +3484,18 @@
     <string name="downloads_calendar_go_movie">Zum Film</string>
     <string name="downloads_calendar_no_description">Noch keine Beschreibung.</string>
     <string name="downloads_calendar_followed_by">Verfolgt von %1$s</string>
+    <string name="acq_page_sources">Quellen</string>
+    <string name="acq_page_downloaders">Downloader</string>
+    <string name="acq_page_quality">Qualität</string>
+    <string name="acq_page_naming">Benennung und Dateien</string>
+    <string name="acq_page_subtitles">Untertitel</string>
+    <string name="acq_page_search">Suche</string>
+    <string name="acq_page_move">Von anderen Apps importieren</string>
+    <string name="acq_hint_sources">Feeds, bei denen HolyArrs Releases sucht</string>
+    <string name="acq_hint_downloaders">Torrent- und Usenet-Apps</string>
+    <string name="acq_hint_quality">Welches Release genommen wird</string>
+    <string name="acq_hint_naming">Dateinamen und freier Platz</string>
+    <string name="acq_hint_subtitles">Sprachen und Untertitel-Seiten</string>
+    <string name="acq_hint_search">Wann und wie HolyArrs sucht</string>
+    <string name="acq_hint_move">Übernimmt Titel und Einstellungen aus alten Apps</string>
 </resources>

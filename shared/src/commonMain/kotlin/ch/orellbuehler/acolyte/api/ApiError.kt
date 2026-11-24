@@ -26,6 +26,7 @@ data class ApiError(
     val serverCode: String = "",
     val part: String = "",
     val text: String = "",
+    val body: String = "",
 )
 
 internal class ApiException(
@@ -62,6 +63,7 @@ internal fun errorForStatus(
     serverCode: String = "",
     part: String = "",
     text: String = "",
+    body: String = "",
 ): ApiError {
     val code =
         when {
@@ -77,7 +79,7 @@ internal fun errorForStatus(
             status >= 500 -> ApiErrorCode.SERVER
             else -> ApiErrorCode.UNKNOWN
         }
-    return ApiError(code, status, message, retryAfter, serverCode, part, text)
+    return ApiError(code, status, message, retryAfter, serverCode, part, text, body)
 }
 
 internal fun errorForThrowable(e: Throwable): ApiError {

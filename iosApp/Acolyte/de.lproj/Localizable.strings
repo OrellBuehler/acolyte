@@ -3157,3 +3157,17 @@
 "downloads.calendar.go.movie" = "Zum Film";
 "downloads.calendar.no.description" = "Noch keine Beschreibung.";
 "downloads.calendar.followed.by" = "Verfolgt von %1$@";
+"acq.page.sources" = "Quellen";
+"acq.page.downloaders" = "Downloader";
+"acq.page.quality" = "Qualität";
+"acq.page.naming" = "Benennung und Dateien";
+"acq.page.subtitles" = "Untertitel";
+"acq.page.search" = "Suche";
+"acq.page.move" = "Von anderen Apps importieren";
+"acq.hint.sources" = "Feeds, bei denen HolyArrs Releases sucht";
+"acq.hint.downloaders" = "Torrent- und Usenet-Apps";
+"acq.hint.quality" = "Welches Release genommen wird";
+"acq.hint.naming" = "Dateinamen und freier Platz";
+"acq.hint.subtitles" = "Sprachen und Untertitel-Seiten";
+"acq.hint.search" = "Wann und wie HolyArrs sucht";
+"acq.hint.move" = "Übernimmt Titel und Einstellungen aus alten Apps";

@@ -243,7 +243,7 @@ internal class ApiClient(
         val message = field("error").ifEmpty { text.take(200) }
         if (status == 401 && credentials.isSignedIn && !isQuiet401(path)) onUnauthorized()
         val retryAfter = response.headers[HttpHeaders.RetryAfter]?.trim()?.toIntOrNull()
-        return ApiException(errorForStatus(status, message, retryAfter, field("code"), field("part"), field("text")))
+        return ApiException(errorForStatus(status, message, retryAfter, field("code"), field("part"), field("text"), text.take(BODY_LIMIT)))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -267,6 +267,7 @@ internal class ApiClient(
         const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
         const val LIVE_PATH = "/live"
         const val LIVE_IDLE_MILLIS = 45_000L
+        private const val BODY_LIMIT = 4_000
 
         private val QUIET_401 =
             listOf("login", "state", "setup", "media-server", "plex", "invites", "two-factor", "password", "oidc", "forward", "reauth")

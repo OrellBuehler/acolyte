@@ -4,6 +4,8 @@ import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
+import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
+import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseViewPresenter
@@ -88,6 +90,8 @@ class AcolyteSdk internal constructor(
     fun library(kind: LibraryKind?): LibraryPresenter = LibraryPresenter(session.api, { session.account }, libraryPrefs, kind)
 
     fun libraryTools(): List<LibraryTool> = session.account?.libraryTools.orEmpty()
+
+    fun acquisitionPages(): List<AcquisitionPage> = session.account?.acquisitionPages().orEmpty()
 
     fun libraryStats(): LibraryStatsPresenter = LibraryStatsPresenter(session.api) { session.account }
 
