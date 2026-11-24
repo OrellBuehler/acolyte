@@ -59,17 +59,6 @@ data class EventsPage(
 )
 
 @Serializable
-data class SourceRef(
-    val id: Long = 0,
-    val name: String = "",
-)
-
-@Serializable
-data class SourceList(
-    val sources: List<SourceRef> = emptyList(),
-)
-
-@Serializable
 data class CalendarFollower(
     val id: Long = 0,
     val name: String = "",

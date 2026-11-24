@@ -4,6 +4,9 @@ internal object KnownSpecGaps {
     private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
     private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
+    private const val NAMING_SETTINGS = "Go NamingSettings has 34 fields; the spec lists 27 (part colon, illegal, rename, language)"
+    private const val DOWNLOADER_INPUT = "Go downloads.Input (downloader_settings.go) takes more fields than the spec lists"
+    private const val DOWNLOADER_SETTINGS = "Go downloads.DownloaderSettings (routes_downloaders.go) has fields the spec lacks"
 
     val problems: Map<String, String> =
         AccountSpecGaps.problems +
@@ -243,10 +246,116 @@ internal object KnownSpecGaps {
                 "GET /api/v1/events: query parameter 'feed' is not in the spec " +
                     "(it has [title, episode, album, kind, from, to, limit, offset])" to
                     "history_events.go hides feed checks with feed=0",
+                "PUT /api/v1/settings/naming body.show_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/pick-rules/{id}/trash: sends a body but the spec takes none" to
+                    "downloads/routes_trash.go decodes {app, profile_id}; the spec has no request body",
+                "GET /api/v1/trash/profiles: query parameter 'app' is not in the spec (it has [])" to
+                    "the handler needs app=sonarr|radarr (400 without it); the spec lists no parameters",
+                "POST /api/v1/downloaders body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders/{id}/test: sends a body but the spec takes none" to
+                    "an optional DownloaderInput body tests typed values without saving (typed_check.go)",
+                "POST /api/v1/downloaders/{id}/category: sends a body but the spec takes none" to
+                    "the handler requires {name} (routes_category.go)",
+                "PUT /api/v1/settings/downloaders body.downloads_sab_outside: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.downloads_auto_add: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.dead_metadata_minutes: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.crawl_kbps: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.crawl_hours: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "POST /api/v1/migrate/probe body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/probe body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/read body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/read body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/linked body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/linked body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/find: sends a body but the spec takes none" to
+                    "FindInput in internal/migrate/routes_find.go takes host, addresses and kinds",
+                "POST /api/v1/migrate/plan body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/downloaders: sends a body but the spec takes none" to
+                    "bringDownloaders in internal/migrate/routes_move.go reads {snapshots}",
+                "POST /api/v1/sources body.site: sent by the model but not in the spec" to
+                    "built-in site of a site-format Source (sources.Input.Site)",
+                "POST /api/v1/sources body.site_user: sent by the model but not in the spec" to
+                    "IPTorrents user id (sources.Input.SiteUser)",
+                "POST /api/v1/sources body.site_login: sent by the model but not in the spec" to
+                    "passkey or cookie sign-in (sources.Input.SiteLogin)",
+                "POST /api/v1/sources body.site_agent: sent by the model but not in the spec" to
+                    "browser user agent for the cookie (sources.Input.SiteAgent)",
+                "POST /api/v1/sources body.downloader_id: sent by the model but not in the spec" to
+                    "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+                "PUT /api/v1/sources/{id} body.site: sent by the model but not in the spec" to
+                    "built-in site of a site-format Source (sources.Input.Site)",
+                "PUT /api/v1/sources/{id} body.site_user: sent by the model but not in the spec" to
+                    "IPTorrents user id (sources.Input.SiteUser)",
+                "PUT /api/v1/sources/{id} body.site_login: sent by the model but not in the spec" to
+                    "passkey or cookie sign-in (sources.Input.SiteLogin)",
+                "PUT /api/v1/sources/{id} body.site_agent: sent by the model but not in the spec" to
+                    "browser user agent for the cookie (sources.Input.SiteAgent)",
+                "PUT /api/v1/sources/{id} body.downloader_id: sent by the model but not in the spec" to
+                    "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+                "POST /api/v1/sources/check: sends a body but the spec takes none" to
+                    "routes_check.go reads {query, kind}; both are optional",
             )
 
     val liveSkips: Map<String, String> =
         mapOf(
+            "GET /api/v1/trash/profiles" to "needs ?app=, which the spec does not list; also reads the TRaSH Guides site",
             "GET /api/v1/watch-services" to
                 "needs ?region=, which the spec does not list as a parameter (the handler answers 400 without it)",
             "GET /api/v1/explore/tail" to "needs type and page; the spec lists no query parameters",

@@ -59,6 +59,10 @@ final class SDKClient: @unchecked Sendable {
         sdk.libraryTools().compactMap { LibraryToolID(rawValue: Mapping.key($0)) }
     }
 
+    func acquisitionPages() -> [AcquisitionPageID] {
+        sdk.acquisitionPages().compactMap { AcquisitionPageID(rawValue: Mapping.key($0)) }
+    }
+
     func makeLibraryStats() -> LibraryStatsDriver {
         LibraryStatsDriver(presenter: sdk.libraryStats())
     }
@@ -93,6 +97,10 @@ final class SDKClient: @unchecked Sendable {
 
     func makeLibraryFolders() -> LibraryFoldersDriver {
         LibraryFoldersDriver(presenter: sdk.libraryFolders())
+    }
+
+    func makeSettingsMove() -> SettingsMoveDriver {
+        SettingsMoveDriver(presenter: sdk.settingsMove())
     }
 
     func makeTitle(kind: String, tmdb: String, libraryId: Int64, openLibrary: Bool) -> TitleDriver {
@@ -133,12 +141,48 @@ final class SDKClient: @unchecked Sendable {
         RequestRulesDriver(presenter: sdk.requestSettings())
     }
 
+    func makeSubtitleSettings() -> SubtitleSettingsDriver {
+        SubtitleSettingsDriver(presenter: sdk.settingsSubtitles())
+    }
+
+    func makeSettingsPickRules() -> QualityListDriver {
+        QualityListDriver(presenter: sdk.settingsPickRules())
+    }
+
+    func makeSettingsPickRuleEdit(id: Int64, from: Int64) -> QualityEditDriver {
+        QualityEditDriver(presenter: sdk.settingsPickRuleEdit(id: id, from: from))
+    }
+
     func makeOutsideLists() -> OutsideListsDriver {
         OutsideListsDriver(presenter: sdk.outsideLists())
     }
 
     func makeNeverAdd() -> NeverAddDriver {
         NeverAddDriver(presenter: sdk.neverAdd())
+    }
+
+    func makeNaming() -> NamingDriver {
+        NamingDriver(presenter: sdk.settingsNaming())
+    }
+
+    func makeSearchSettings() -> SearchSettingsDriver {
+        SearchSettingsDriver(presenter: sdk.settingsSearch())
+    }
+
+    func makeSources() -> SourcesDriver {
+        SourcesDriver(presenter: sdk.settingsSources())
+    }
+
+    func makeBridges() -> BridgeDriver {
+        BridgeDriver(presenter: sdk.settingsBridges())
+    }
+
+    func makeSourceCheck() -> SourceCheckDriver {
+        SourceCheckDriver(presenter: sdk.settingsSourceCheck())
+    }
+
+    func makeSourceHealth(_ id: Int64) -> SourceHealthDriver {
+        SourceHealthDriver(presenter: sdk.settingsSourceHealth(id: id))
     }
 
     func makeHome() -> HomeDriver {
@@ -219,6 +263,14 @@ final class SDKClient: @unchecked Sendable {
 
     func makeDownloadBadges() -> DownloadBadgesDriver {
         DownloadBadgesDriver(badges: sdk.downloadBadges)
+    }
+
+    func makeDownloaders() -> DownloadersDriver {
+        DownloadersDriver(presenter: sdk.settingsDownloaders())
+    }
+
+    func makeDownloaderRules() -> DownloaderRulesDriver {
+        DownloaderRulesDriver(presenter: sdk.settingsDownloaderRules())
     }
 
     func makeReauth() -> ReauthDriver {

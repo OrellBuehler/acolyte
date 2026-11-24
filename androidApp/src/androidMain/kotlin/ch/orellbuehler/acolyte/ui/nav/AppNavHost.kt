@@ -57,8 +57,17 @@ import ch.orellbuehler.acolyte.ui.requests.ReportProblemSheet
 import ch.orellbuehler.acolyte.ui.requests.ReportsScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestRulesScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
+import ch.orellbuehler.acolyte.ui.settingsb.AcquisitionPagesScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsDownloadersScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsMoveScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsNamingScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsPickRuleEditScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsPickRulesScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsSearchScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsSourceHealthScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsSourcesScreen
+import ch.orellbuehler.acolyte.ui.settingsb.SettingsSubtitlesScreen
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
-import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
 import ch.orellbuehler.acolyte.ui.title.TitleScreen
 
 @Composable
@@ -144,7 +153,7 @@ fun AppNavHost(
         composable<AccountAlertsRoute> { AlertsScreen(pop) }
         composable<AccountDevicesRoute> { DevicesScreen(null, stringResource(R.string.myaccount_devices), pop) }
         composable<AiConnectRoute> { AiConnectScreen(pop) }
-        composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
+        composable<SettingsRoute> { AcquisitionPagesScreen(account, back(Section.SETTINGS), open) }
         composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT), onOpen = open) }
         dialog<AskRoute> { entry ->
             val route = entry.toRoute<AskRoute>()
@@ -183,6 +192,18 @@ fun AppNavHost(
         composable<LibraryImportRoute> { LibraryImportScreen(pop, open) }
         composable<LibraryImportFilesRoute> { LibraryFilesScreen(it.toRoute<LibraryImportFilesRoute>().path, pop) }
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
+        composable<SettingsSourcesRoute> { SettingsSourcesScreen(account, pop, open) }
+        composable<SettingsSourceHealthRoute> { SettingsSourceHealthScreen(it.toRoute<SettingsSourceHealthRoute>().id, account, pop) }
+        composable<SettingsDownloadersRoute> { SettingsDownloadersScreen(account, pop, open) }
+        composable<SettingsPickRulesRoute> { SettingsPickRulesScreen(account, pop, open) }
+        composable<SettingsPickRuleEditRoute> {
+            val route = it.toRoute<SettingsPickRuleEditRoute>()
+            SettingsPickRuleEditScreen(route.id, route.from, account, pop, open)
+        }
+        composable<SettingsNamingRoute> { SettingsNamingScreen(account, pop) }
+        composable<SettingsSubtitlesRoute> { SettingsSubtitlesScreen(account, pop) }
+        composable<SettingsSearchRoute> { SettingsSearchScreen(account, pop) }
+        composable<SettingsMoveRoute> { SettingsMoveScreen(account, pop, open) }
         composable<MusicArtistRoute> { MusicArtistScreen(it.toRoute<MusicArtistRoute>().mbid, music, pop) }
         composable<MusicAlbumRoute> {
             val route = it.toRoute<MusicAlbumRoute>()

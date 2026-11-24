@@ -51,6 +51,10 @@ data class RestoreResult(
 @Serializable
 data class FileSettings(
     @SerialName("holding_days") val holdingDays: Int = 0,
+    @SerialName("min_free_mb") val minFreeMb: Int = 0,
+    @SerialName("skip_free_space_check") val skipFreeSpaceCheck: Boolean = false,
+    @SerialName("unkeep_deleted_movies") val unkeepDeletedMovies: Boolean = false,
+    @SerialName("unkeep_deleted_episodes") val unkeepDeletedEpisodes: Boolean = false,
 )
 
 @Serializable

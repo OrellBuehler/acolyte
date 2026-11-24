@@ -103,6 +103,31 @@ internal class ApiClient(
         vararg params: Pair<String, Any?>,
     ): ApiResult<R> = capture { execute(endpoint, body, params.toMap(), retried = false) }
 
+    suspend fun text(
+        endpoint: Endpoint<Unit, *>,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<String> =
+        capture {
+            val url = endpoint.url(baseUrl, params.toMap())
+            val response: HttpResponse
+            val text: String
+            try {
+                response =
+                    http.request(url) {
+                        method = endpoint.method
+                        accept(ContentType.Any)
+                        authenticate(false)
+                    }
+                text = response.bodyAsText()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                throw ApiException(errorForThrowable(e), e)
+            }
+            if (response.status.value !in 200..299) throw failure(response, text, endpoint.path)
+            text
+        }
+
     fun imageHeaders(): Map<String, String> {
         credentials.apiKey?.let { return mapOf(API_KEY_HEADER to it) }
         return credentials.cookies.headerValue()?.let { mapOf(HttpHeaders.Cookie to it) } ?: emptyMap()
@@ -171,6 +196,12 @@ internal class ApiClient(
                     method = endpoint.method
                     accept(ContentType.Application.Json)
                     authenticate(endpoint.isUnsafe)
+                    LONG_CALLS[endpoint.path]?.let { ms ->
+                        timeout {
+                            requestTimeoutMillis = ms
+                            socketTimeoutMillis = ms
+                        }
+                    }
                     val form = body as? FormBody
                     val raw = body as? RawBody
                     if (raw != null) {
@@ -247,7 +278,7 @@ internal class ApiClient(
         val message = field("error").ifEmpty { text.take(200) }
         if (status == 401 && credentials.isSignedIn && !isQuiet401(path)) onUnauthorized()
         val retryAfter = response.headers[HttpHeaders.RetryAfter]?.trim()?.toIntOrNull()
-        return ApiException(errorForStatus(status, message, retryAfter, field("code"), field("part"), field("text")))
+        return ApiException(errorForStatus(status, message, retryAfter, field("code"), field("part"), field("text"), text.take(BODY_LIMIT)))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -271,6 +302,15 @@ internal class ApiClient(
         const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
         const val LIVE_PATH = "/live"
         const val LIVE_IDLE_MILLIS = 45_000L
+        private const val BODY_LIMIT = 4_000
+
+        private val LONG_CALLS =
+            mapOf(
+                "/api/v1/migrate/read" to 330_000L,
+                "/api/v1/migrate/linked" to 330_000L,
+                "/api/v1/migrate/probe" to 90_000L,
+                "/api/v1/migrate/find" to 60_000L,
+            )
 
         private val QUIET_401 =
             listOf("login", "state", "setup", "media-server", "plex", "invites", "two-factor", "password", "oidc", "forward", "reauth")

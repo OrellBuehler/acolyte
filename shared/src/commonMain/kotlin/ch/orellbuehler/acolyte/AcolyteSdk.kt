@@ -13,6 +13,13 @@ import ch.orellbuehler.acolyte.feature.account.AccountWizardPresenter
 import ch.orellbuehler.acolyte.feature.account.AiConnectPresenter
 import ch.orellbuehler.acolyte.feature.account.PeoplePresenter
 import ch.orellbuehler.acolyte.feature.account.ReauthGate
+import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsNamingPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSearchPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSubtitlePresenter
+import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderRulesPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloadersPresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseViewPresenter
@@ -50,6 +57,7 @@ import ch.orellbuehler.acolyte.feature.library.LibraryReleasesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
+import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
 import ch.orellbuehler.acolyte.feature.music.MusicAccess
 import ch.orellbuehler.acolyte.feature.music.MusicAddPresenter
 import ch.orellbuehler.acolyte.feature.music.MusicAlbumPresenter
@@ -63,6 +71,8 @@ import ch.orellbuehler.acolyte.feature.music.MusicRowsPresenter
 import ch.orellbuehler.acolyte.feature.music.MusicSearchPresenter
 import ch.orellbuehler.acolyte.feature.music.MusicSettingsPresenter
 import ch.orellbuehler.acolyte.feature.music.MusicUnmatchedPresenter
+import ch.orellbuehler.acolyte.feature.quality.SettingsPickRuleEditPresenter
+import ch.orellbuehler.acolyte.feature.quality.SettingsPickRulesPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskReviewPresenter
@@ -73,6 +83,10 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceHealthPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourcesPresenter
 import ch.orellbuehler.acolyte.feature.title.RemovePresenter
 import ch.orellbuehler.acolyte.feature.title.RenamePresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
@@ -115,6 +129,8 @@ class AcolyteSdk internal constructor(
 
     fun libraryTools(): List<LibraryTool> = session.account?.libraryTools.orEmpty()
 
+    fun acquisitionPages(): List<AcquisitionPage> = session.account?.acquisitionPages().orEmpty()
+
     fun libraryStats(): LibraryStatsPresenter = LibraryStatsPresenter(session.api) { session.account }
 
     fun libraryCopies(): LibraryCopiesPresenter = LibraryCopiesPresenter(session.api)
@@ -139,6 +155,8 @@ class AcolyteSdk internal constructor(
             { password, code -> session.reauth(password, code) },
             { session.refresh() },
         )
+
+    fun settingsMove(): SettingsMovePresenter = SettingsMovePresenter(session.api, { session.account }, reauthGate())
 
     fun title(
         kind: String,
@@ -177,6 +195,14 @@ class AcolyteSdk internal constructor(
         albumId: Long,
         versionId: Long,
     ): ReportProblemPresenter = ReportProblemPresenter(session.api, titleId, season, itemId, albumId, versionId)
+
+    fun settingsSources(): SettingsSourcesPresenter = SettingsSourcesPresenter(session.api) { session.account }
+
+    fun settingsBridges(): SettingsBridgePresenter = SettingsBridgePresenter(session.api, { session.account }, reauthGate())
+
+    fun settingsSourceCheck(): SettingsSourceCheckPresenter = SettingsSourceCheckPresenter(session.api)
+
+    fun settingsSourceHealth(id: Long): SettingsSourceHealthPresenter = SettingsSourceHealthPresenter(session.api, { session.account }, id)
 
     fun requestSettings(): RequestSettingsPresenter = RequestSettingsPresenter(session.api) { session.account }
 
@@ -244,7 +270,24 @@ class AcolyteSdk internal constructor(
         episodeId: Long,
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
+    fun settingsPickRules(): SettingsPickRulesPresenter = SettingsPickRulesPresenter(session.api) { session.account }
+
+    fun settingsPickRuleEdit(
+        id: Long,
+        from: Long,
+    ): SettingsPickRuleEditPresenter = SettingsPickRuleEditPresenter(session.api, { session.account }, id, from)
+
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsSubtitles(): SettingsSubtitlePresenter = SettingsSubtitlePresenter(session.api) { session.account }
+
+    fun settingsNaming(): SettingsNamingPresenter = SettingsNamingPresenter(session.api) { session.account }
+
+    fun settingsSearch(): SettingsSearchPresenter = SettingsSearchPresenter(session.api) { session.account }
+
+    fun settingsDownloaders(): SettingsDownloadersPresenter = SettingsDownloadersPresenter(session.api) { session.account }
+
+    fun settingsDownloaderRules(): SettingsDownloaderRulesPresenter = SettingsDownloaderRulesPresenter(session.api) { session.account }
 
     fun reauthGate(): ReauthGate = ReauthGate({ password, code -> session.reauth(password, code) }, { session.account })
 
