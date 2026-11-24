@@ -16,6 +16,41 @@ extension View {
     }
 }
 
+struct TVMenuAction: Identifiable {
+    let id: String
+    let title: String
+    let systemImage: String
+    let action: () -> Void
+}
+
+extension View {
+    @ViewBuilder
+    func tvMenu(_ actions: [TVMenuAction]) -> some View {
+        if actions.isEmpty {
+            self
+        } else {
+            contextMenu {
+                ForEach(actions) { item in
+                    Button(item.title, systemImage: item.systemImage, action: item.action)
+                }
+            }
+        }
+    }
+}
+
+struct TVBadgeLabel: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(Theme.onAccent)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 4)
+            .background(Theme.accentFill, in: Capsule())
+    }
+}
+
 struct TVArtPlaceholder: View {
     let name: String
 
@@ -158,6 +193,8 @@ struct TVPosterCard: View {
     var mark: CardMarkInfo?
     var fresh: String?
     var progress: Double?
+    var badge: String?
+    var menu: [TVMenuAction] = []
     var focus: TVFocusKey?
     let action: () -> Void
 
@@ -168,6 +205,9 @@ struct TVPosterCard: View {
                     .frame(width: Theme.TV.posterWidth, height: Theme.TV.posterHeight)
                     .overlay(alignment: .topTrailing) {
                         if let mark { TVOwnedMark(mark: mark).padding(12) }
+                    }
+                    .overlay(alignment: .topLeading) {
+                        if let badge { TVBadgeLabel(text: badge).padding(12) }
                     }
                     .overlay(alignment: .bottom) {
                         if let progress {
@@ -180,6 +220,7 @@ struct TVPosterCard: View {
                     }
             }
             .buttonStyle(.card)
+            .tvMenu(menu)
             .tvTrackFocus(focus)
             .accessibilityLabel(title)
             TVCardText(title: title, subtitle: subtitle)
@@ -229,6 +270,7 @@ struct TVBackdropCard: View {
     var fresh: String?
     var progress: Double?
     var badge: String?
+    var menu: [TVMenuAction] = []
     var showsText = true
     var focus: TVFocusKey?
     let action: () -> Void
@@ -253,15 +295,7 @@ struct TVBackdropCard: View {
                         if let mark { TVOwnedMark(mark: mark).padding(12) }
                     }
                     .overlay(alignment: .topLeading) {
-                        if let badge {
-                            Text(badge)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(Theme.onAccent)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 4)
-                                .background(Theme.accentFill, in: Capsule())
-                                .padding(12)
-                        }
+                        if let badge { TVBadgeLabel(text: badge).padding(12) }
                     }
                     .overlay(alignment: .bottom) {
                         if let progress {
@@ -274,6 +308,7 @@ struct TVBackdropCard: View {
                     }
             }
             .buttonStyle(.card)
+            .tvMenu(menu)
             .tvTrackFocus(focus)
             .accessibilityLabel(title)
             if showsText {
