@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -149,6 +148,10 @@ object LibraryFormat {
                 DateUtils.MINUTE_IN_MILLIS,
             ).toString()
     }
+
+    fun score(value: Double): String = String.format(Locale.getDefault(), "%.1f", value)
+
+    fun fileNameOf(path: String): String = path.substringAfterLast('/').substringAfterLast('\\')
 
     fun codec(id: String): String =
         when (id) {
@@ -383,6 +386,3 @@ fun MutedText(
 fun Centered(content: @Composable BoxScope.() -> Unit) {
     Box(Modifier.fillMaxWidth().padding(Spacing.Large), contentAlignment = Alignment.Center, content = content)
 }
-
-@Composable
-fun rememberContextLocale(): Locale = LocalContext.current.resources.configuration.locales[0]

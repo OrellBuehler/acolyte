@@ -12,7 +12,6 @@ import ch.orellbuehler.acolyte.feature.library.LibStateKey
 import ch.orellbuehler.acolyte.feature.library.LibraryFact
 import ch.orellbuehler.acolyte.feature.library.LibraryKind
 import ch.orellbuehler.acolyte.feature.library.LibrarySort
-import java.util.Locale
 
 @Composable
 fun stateLabel(state: LibState): String =
@@ -100,7 +99,7 @@ fun factText(fact: LibraryFact): String {
         FactKind.ADDED -> stringResource(R.string.library_fact_added, day)
         FactKind.SIZE -> LibraryFormat.bytes(fact.number)
         FactKind.RUNTIME -> stringResource(R.string.library_fact_runtime, (fact.number / 60).toInt(), (fact.number % 60).toInt())
-        FactKind.SCORE -> stringResource(R.string.library_fact_score, String.format(Locale.getDefault(), "%.1f", fact.score))
+        FactKind.SCORE -> stringResource(R.string.library_fact_score, LibraryFormat.score(fact.score))
         FactKind.YEAR -> fact.number.toString()
         FactKind.NETWORK, FactKind.QUALITY -> fact.text
     }
