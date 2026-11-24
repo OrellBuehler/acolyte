@@ -201,6 +201,7 @@ final class SearchStore {
             case .movie: await driver.loadBrowse(.movies)
             case .show: await driver.loadBrowse(.shows)
             case .all: await driver.loadBrowse(.all)
+            case .music: break
             }
         }
     }
@@ -238,6 +239,7 @@ final class SearchStore {
         case .movie: await driver.loadBrowse(.movies)
         case .show: await driver.loadBrowse(.shows)
         case .all: await driver.loadBrowse(.all)
+        case .music: break
         }
     }
 }

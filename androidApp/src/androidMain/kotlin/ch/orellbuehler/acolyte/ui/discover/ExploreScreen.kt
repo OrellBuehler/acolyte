@@ -35,6 +35,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -71,6 +72,8 @@ import ch.orellbuehler.acolyte.ui.components.MessageView
 import ch.orellbuehler.acolyte.ui.components.NoticeBanner
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
+import ch.orellbuehler.acolyte.ui.music.MusicExploreContent
+import ch.orellbuehler.acolyte.ui.music.MusicNav
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -134,6 +137,7 @@ fun deviceRegion(): String = Locale.getDefault().country.takeIf { it.length == 2
 @Composable
 fun ExploreScreen(
     nav: DiscoverNav,
+    music: MusicNav,
     onBack: (() -> Unit)?,
 ) {
     val sdk = LocalSdk.current
@@ -149,6 +153,8 @@ fun ExploreScreen(
     }
     var menu by remember { mutableStateOf(false) }
     var resetMessage by remember { mutableStateOf<String?>(null) }
+    val showMusic = remember(sdk) { sdk.musicAccess().show }
+    var musicTab by rememberSaveable { mutableStateOf(false) }
 
     ScreenScaffold(
         title = stringResource(R.string.section_explore),
@@ -188,6 +194,25 @@ fun ExploreScreen(
             }
         },
     ) { padding ->
+        if (musicTab && showMusic) {
+            MusicExploreContent(
+                nav = music,
+                typeBar = {
+                    TypeBar(
+                        state.type,
+                        { type ->
+                            musicTab = false
+                            viewModel.select(type)
+                        },
+                        onGenre = null,
+                        musicShown = true,
+                        musicSelected = true,
+                    )
+                },
+                modifier = Modifier.padding(padding),
+            )
+            return@ScreenScaffold
+        }
         CardHost(
             nav = nav,
             canHide = state.canHide,
@@ -210,7 +235,7 @@ fun ExploreScreen(
                     )
                 },
             ) {
-                ExploreList(state, events, nav, viewModel, resetMessage)
+                ExploreList(state, events, nav, viewModel, resetMessage, showMusic) { musicTab = true }
             }
         }
     }
@@ -223,11 +248,21 @@ private fun ExploreList(
     nav: DiscoverNav,
     viewModel: ExploreViewModel,
     notice: String?,
+    musicShown: Boolean,
+    onMusic: () -> Unit,
 ) {
     val list = rememberLazyListState()
     LoadMoreEffect(list, state.more && !state.loadingMore) { viewModel.loadMore() }
     LazyColumn(state = list, contentPadding = PaddingValues(bottom = Spacing.XLarge)) {
-        item(key = "types") { TypeBar(state.type, viewModel::select, onGenre = { nav.openGenre(state.type, it) }) }
+        item(key = "types") {
+            TypeBar(
+                state.type,
+                viewModel::select,
+                onGenre = { nav.openGenre(state.type, it) },
+                musicShown = musicShown,
+                onMusic = onMusic,
+            )
+        }
         state.status.error?.let { item(key = "error") { ErrorBanner(it) } }
         notice?.let { item(key = "notice") { NoticeBanner(it) } }
         if (state.sourceOff) item(key = "off") { NoticeBanner(stringResource(R.string.discover_source_off)) }
@@ -324,40 +359,66 @@ fun TypeBar(
     type: ExploreType,
     onSelect: (ExploreType) -> Unit,
     onGenre: ((Int) -> Unit)?,
+    musicShown: Boolean = false,
+    musicSelected: Boolean = false,
+    onMusic: () -> Unit = {},
 ) {
-    var open by remember { mutableStateOf(false) }
-    Row(
-        Modifier.fillMaxWidth().padding(horizontal = Spacing.Screen, vertical = Spacing.Small),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
-    ) {
-        SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
-            ExploreType.entries.forEachIndexed { index, entry ->
-                SegmentedButton(
-                    selected = entry == type,
-                    onClick = { onSelect(entry) },
-                    shape = SegmentedButtonDefaults.itemShape(index, ExploreType.entries.size),
-                    label = { Text(typeText(entry), maxLines = 1) },
-                )
+    val genres = onGenre != null && type != ExploreType.ALL
+    val total = ExploreType.entries.size + if (musicShown) 1 else 0
+    Column {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = Spacing.Screen, vertical = Spacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
+        ) {
+            SingleChoiceSegmentedButtonRow(Modifier.weight(1f)) {
+                ExploreType.entries.forEachIndexed { index, entry ->
+                    SegmentedButton(
+                        selected = entry == type && !musicSelected,
+                        onClick = { onSelect(entry) },
+                        shape = SegmentedButtonDefaults.itemShape(index, total),
+                        label = { Text(typeText(entry), maxLines = 1) },
+                    )
+                }
+                if (musicShown) {
+                    SegmentedButton(
+                        selected = musicSelected,
+                        onClick = onMusic,
+                        shape = SegmentedButtonDefaults.itemShape(total - 1, total),
+                        label = { Text(stringResource(R.string.section_music), maxLines = 1) },
+                    )
+                }
+            }
+            if (genres && !musicShown && onGenre != null) GenresMenu(type, onGenre)
+        }
+        if (genres && musicShown && onGenre != null) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.Screen), horizontalArrangement = Arrangement.End) {
+                GenresMenu(type, onGenre)
             }
         }
-        if (onGenre != null && type != ExploreType.ALL) {
-            Column {
-                OutlinedButton(onClick = { open = true }, contentPadding = PaddingValues(horizontal = Spacing.Medium)) {
-                    Text(stringResource(R.string.discover_genres))
-                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
-                }
-                DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                    Genres.of(type).forEach { genre ->
-                        DropdownMenuItem(
-                            text = { Text(genreText(genre.name)) },
-                            onClick = {
-                                open = false
-                                onGenre(genre.id)
-                            },
-                        )
-                    }
-                }
+    }
+}
+
+@Composable
+private fun GenresMenu(
+    type: ExploreType,
+    onGenre: (Int) -> Unit,
+) {
+    var open by remember { mutableStateOf(false) }
+    Column {
+        OutlinedButton(onClick = { open = true }, contentPadding = PaddingValues(horizontal = Spacing.Medium)) {
+            Text(stringResource(R.string.discover_genres))
+            Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            Genres.of(type).forEach { genre ->
+                DropdownMenuItem(
+                    text = { Text(genreText(genre.name)) },
+                    onClick = {
+                        open = false
+                        onGenre(genre.id)
+                    },
+                )
             }
         }
     }

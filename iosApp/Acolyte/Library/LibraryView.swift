@@ -54,7 +54,12 @@ struct LibraryView: View {
             content
         }
         .safeAreaInset(edge: .top, spacing: 0) {
-            LibraryGridHeader(info: info, selection: $kindSelection)
+            VStack(spacing: 0) {
+                LibraryGridHeader(info: info, selection: $kindSelection)
+                if info.kind == .artist, info.canManage {
+                    MusicUnmatchedNote().background(Theme.background)
+                }
+            }
         }
         .navigationTitle(LibraryText.kind(info.kind))
         .navigationBarTitleDisplayMode(.inline)

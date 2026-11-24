@@ -4,9 +4,31 @@ struct PopularView: View {
     let account: AccountInfo
     @State private var store = PopularStore()
     @State private var host = CardHost()
+    @State private var musicTab = false
     @Environment(Navigator.self) private var navigator
 
+    private var musicShown: Bool { SDKClient.shared.musicAccess().show }
+
     var body: some View {
+        if musicTab, musicShown {
+            MusicNewContent {
+                TypePicker(
+                    type: store.info.type,
+                    select: { type in
+                        musicTab = false
+                        store.select(type)
+                    },
+                    musicShown: true,
+                    musicSelected: true
+                )
+            }
+            .navigationTitle(SectionID.popular.title)
+        } else {
+            popularScreen
+        }
+    }
+
+    private var popularScreen: some View {
         StatusContent(load: store.info.load, isEmpty: store.info.isEmpty, reload: { await store.refresh() }) {
             ContentUnavailableView {
                 Label(L10n.tr("discover.popular.building.title"), systemImage: "sparkles")
@@ -19,7 +41,12 @@ struct PopularView: View {
         } content: {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                    TypePicker(type: store.info.type, select: { store.select($0) })
+                    TypePicker(
+                        type: store.info.type,
+                        select: { store.select($0) },
+                        musicShown: musicShown,
+                        onMusic: { musicTab = true }
+                    )
                     if let error = store.info.load.error {
                         NoticeBanner(text: error.localized).padding(.horizontal, Theme.Spacing.screen)
                     }

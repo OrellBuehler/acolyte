@@ -301,6 +301,13 @@ struct LibraryGridItemLink<Content: View>: View {
                 content()
             }
             .buttonStyle(.plain)
+        } else if item.kind == .artist {
+            NavigationLink(value: Route.musicLibraryArtist(titleId: item.id, tab: "")) {
+                content()
+            }
+            .contextMenu {
+                selectMenu(canManage: info.canManage)
+            }
         } else if item.canOpen {
             NavigationLink(value: Route.title(kind: item.kind.rawValue, tmdb: item.tmdb)) {
                 content()

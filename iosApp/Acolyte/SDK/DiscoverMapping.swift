@@ -42,6 +42,7 @@ extension Mapping {
         case .people: SearchScope.people
         case .movie: SearchScope.movie
         case .show: SearchScope.show
+        case .music: SearchScope.music
         }
     }
 

@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte.ui.discover
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -82,6 +84,10 @@ import ch.orellbuehler.acolyte.feature.discover.Suggestion
 import ch.orellbuehler.acolyte.feature.discover.Understood
 import ch.orellbuehler.acolyte.feature.discover.browseLink
 import ch.orellbuehler.acolyte.feature.discover.tileHue
+import ch.orellbuehler.acolyte.feature.music.MusicBrowsePresenter
+import ch.orellbuehler.acolyte.feature.music.MusicBrowseState
+import ch.orellbuehler.acolyte.feature.music.MusicSearchPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicSearchState
 import ch.orellbuehler.acolyte.image.ImageSize
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.ui.LocalSdk
@@ -95,6 +101,8 @@ import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.SectionHeader
 import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.components.StatusChip
+import ch.orellbuehler.acolyte.ui.music.MusicNav
+import ch.orellbuehler.acolyte.ui.music.musicSearchItems
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -106,10 +114,14 @@ class SearchViewModel(
     private val search = sdk.search()
     private val browse = sdk.browse()
     private val people = sdk.peopleBrowse()
+    private val musicBrowse: MusicBrowsePresenter = sdk.musicBrowse("global")
+    private val musicSearch: MusicSearchPresenter = sdk.musicSearch()
 
     val state: StateFlow<SearchState> = search.state
     val browseState: StateFlow<BrowseGridState> = browse.state
     val peopleState: StateFlow<PeopleBrowseState> = people.state
+    val musicBrowseState: StateFlow<MusicBrowseState> = musicBrowse.state
+    val musicSearchState: StateFlow<MusicSearchState> = musicSearch.state
 
     init {
         search.load()
@@ -135,6 +147,7 @@ class SearchViewModel(
         search.type(text)
         search.remember(text)
         viewModelScope.launch { search.search(text) }
+        if (search.state.value.scope == SearchScope.MUSIC) viewModelScope.launch { musicSearch.search(text) }
     }
 
     fun loadSection(id: String) {
@@ -143,7 +156,11 @@ class SearchViewModel(
 
     fun refreshBrowse() {
         viewModelScope.launch {
-            if (search.state.value.scope == SearchScope.PEOPLE) people.refresh() else browse.refresh()
+            when (search.state.value.scope) {
+                SearchScope.PEOPLE -> people.refresh()
+                SearchScope.MUSIC -> musicBrowse.refresh()
+                else -> browse.refresh()
+            }
         }
     }
 
@@ -166,6 +183,7 @@ class SearchViewModel(
                 SearchScope.MOVIE -> browse.load(ExploreType.MOVIES)
                 SearchScope.SHOW -> browse.load(ExploreType.SHOWS)
                 SearchScope.ALL -> browse.load(ExploreType.ALL)
+                SearchScope.MUSIC -> musicBrowse.load()
             }
         }
     }
@@ -174,6 +192,7 @@ class SearchViewModel(
 @Composable
 fun SearchScreen(
     nav: DiscoverNav,
+    music: MusicNav,
     onBack: (() -> Unit)?,
 ) {
     val sdk = LocalSdk.current
@@ -181,6 +200,8 @@ fun SearchScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val browse by viewModel.browseState.collectAsStateWithLifecycle()
     val people by viewModel.peopleState.collectAsStateWithLifecycle()
+    val musicBrowse by viewModel.musicBrowseState.collectAsStateWithLifecycle()
+    val musicSearch by viewModel.musicSearchState.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(viewModel, lifecycle) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -211,7 +232,19 @@ fun SearchScreen(
                         value = state.query,
                         onValueChange = viewModel::type,
                         singleLine = true,
-                        placeholder = { Text(stringResource(R.string.discover_search_placeholder)) },
+                        placeholder = {
+                            Text(
+                                stringResource(
+                                    if (state.scope ==
+                                        SearchScope.MUSIC
+                                    ) {
+                                        R.string.music_search_placeholder
+                                    } else {
+                                        R.string.discover_search_placeholder
+                                    },
+                                ),
+                            )
+                        },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         trailingIcon = {
                             if (state.query.isNotEmpty()) {
@@ -236,7 +269,9 @@ fun SearchScreen(
                 if (state.scopes.size > 2) {
                     item(key = "scopes") { ScopeBar(state.scopes, state.scope, viewModel::selectScope) }
                 }
-                if (state.query.isNotBlank()) {
+                if (state.scope == SearchScope.MUSIC) {
+                    musicSearchItems(state.query, musicBrowse, musicSearch, music)
+                } else if (state.query.isNotBlank()) {
                     item(key = "only") {
                         Row(
                             Modifier.padding(horizontal = Spacing.Screen),
@@ -301,6 +336,7 @@ private fun scopeText(scope: SearchScope): String =
             SearchScope.PEOPLE -> R.string.discover_scope_people
             SearchScope.MOVIE -> R.string.discover_type_movies
             SearchScope.SHOW -> R.string.discover_type_shows
+            SearchScope.MUSIC -> R.string.section_music
         },
     )
 
@@ -310,7 +346,8 @@ private fun ScopeBar(
     selected: SearchScope,
     onSelect: (SearchScope) -> Unit,
 ) {
-    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = Spacing.Screen, vertical = Spacing.Small)) {
+    val width = if (scopes.size > 4) Modifier.horizontalScroll(rememberScrollState()) else Modifier.fillMaxWidth()
+    SingleChoiceSegmentedButtonRow(width.padding(horizontal = Spacing.Screen, vertical = Spacing.Small)) {
         scopes.forEachIndexed { index, scope ->
             SegmentedButton(
                 selected = scope == selected,
