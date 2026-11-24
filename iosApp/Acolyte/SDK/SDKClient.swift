@@ -165,6 +165,20 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSearchSettings() -> SearchSettingsDriver {
         SearchSettingsDriver(presenter: sdk.settingsSearch())
+    func makeSources() -> SourcesDriver {
+        SourcesDriver(presenter: sdk.settingsSources())
+    }
+
+    func makeBridges() -> BridgeDriver {
+        BridgeDriver(presenter: sdk.settingsBridges())
+    }
+
+    func makeSourceCheck() -> SourceCheckDriver {
+        SourceCheckDriver(presenter: sdk.settingsSourceCheck())
+    }
+
+    func makeSourceHealth(_ id: Int64) -> SourceHealthDriver {
+        SourceHealthDriver(presenter: sdk.settingsSourceHealth(id: id))
     }
 
     func makeHome() -> HomeDriver {
