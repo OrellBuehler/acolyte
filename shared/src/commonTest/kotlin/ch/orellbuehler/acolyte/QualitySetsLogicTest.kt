@@ -39,6 +39,12 @@ internal const val SERVER_BODY =
         "equal_steps":[["1080p_web","1080p_bluray"]],
         "synced":{"from":"trash","app":"radarr","profile_id":"p1","name":"HD","at":"2026-01-02T03:04:05Z"},"future_key":{"a":1}}"""
 
+internal const val STANDARD_BODY =
+    """{"steps":[{"quality":"cam","allowed":false},{"quality":"telesync","allowed":false},{"quality":"sd_tv","allowed":false},{"quality":"sd_dvd","allowed":false},{"quality":"720p_tv","allowed":true},{"quality":"720p_web","allowed":true},{"quality":"720p_bluray","allowed":true},{"quality":"1080p_tv","allowed":true},{"quality":"1080p_web","allowed":true},{"quality":"1080p_bluray","allowed":true},{"quality":"1080p_remux","allowed":false},{"quality":"2160p_web","allowed":false},{"quality":"2160p_bluray","allowed":false},{"quality":"2160p_remux","allowed":false}],"good_enough_at":"1080p_web","traits":[{"trait":"hevc","points":10},{"trait":"ddp_audio","points":5},{"trait":"web_dl","points":5},{"trait":"upscaled","points":-50},{"trait":"dubbed_only","points":-30}],"must_have":[],"never":["sample","executable","password_protected","disc_image","hardcoded_subs","3d","cam","telesync"],"min_points":0,"size_limits":{"*":{"min":8947848,"max":107374182,"per_minute":true}},"protocol":{"prefer":"either","wait_minutes_torrent":0,"wait_minutes_usenet":0,"skip_wait_at_good_enough":false},"language":{"wanted":[],"original_ok":true},"order":"quality_then_points","upgrade_min_points":10,"proper_policy":{"mode":"take_any"}}"""
+
+internal const val MUSIC_BODY =
+    """{"steps":[{"quality":"lossy_low","allowed":false},{"quality":"lossy_mid","allowed":false},{"quality":"lossy_high","allowed":true},{"quality":"lossless","allowed":true},{"quality":"lossless_hires","allowed":true}],"good_enough_at":"lossless","traits":[{"trait":"cd_source","points":10},{"trait":"log_cue","points":5},{"trait":"web_source","points":5},{"trait":"vinyl_source","points":-10}],"must_have":[],"never":["sample","executable","password_protected","single_image","lossy_transcode"],"min_points":-10,"size_limits":{"lossless":{"min":3145728,"max":15728640,"per_minute":true},"lossless_hires":{"min":6291456,"max":83886080,"per_minute":true},"lossy_high":{"min":1258291,"max":3670016,"per_minute":true},"lossy_low":{"min":314572,"max":1572864,"per_minute":true},"lossy_mid":{"min":1048576,"max":2621440,"per_minute":true}},"protocol":{"prefer":"either","wait_minutes_torrent":0,"wait_minutes_usenet":0,"skip_wait_at_good_enough":false},"language":{"wanted":[],"original_ok":true},"order":"quality_then_points","upgrade_min_points":10,"proper_policy":{"mode":"take_any"}}"""
+
 private fun parse(text: String): JsonObject = ApiJson.lenient.parseToJsonElement(text).jsonObject
 
 private fun formOf(
@@ -50,6 +56,23 @@ private fun formOf(
 }
 
 class QualitySetsLogicTest {
+    @Test
+    fun readyMadeBodiesFromARealServerRoundTripUnchanged() {
+        for ((text, kinds) in listOf(STANDARD_BODY to listOf("movie", "show"), MUSIC_BODY to listOf("music"))) {
+            assertEquals(parse(text), formOf(text, kinds).toBody().toJson())
+        }
+        val music = formOf(MUSIC_BODY, listOf("music"))
+        assertEquals(5, music.stepSizes.size)
+        assertEquals(listOf("lossy_low", "lossy_mid", "lossy_high", "lossless", "lossless_hires"), music.stepSizes.map { it.step })
+        assertEquals("", music.sizeMin)
+        assertEquals("0.18", music.stepSizes.first { it.step == "lossless" }.min)
+        val edited = music.copy(stepSizes = music.stepSizes.map { if (it.step == "lossless") it.copy(max = "1") else it }).toBody()
+        assertEquals(bytesPerMinute(1.0), edited.sizeLimits.getValue("lossless").max)
+        assertEquals(1258291L, edited.sizeLimits.getValue("lossy_high").min)
+        assertTrue(checkPickRuleBody("Lossless first", listOf("music"), music.toBody(), emptySet()).isEmpty())
+        assertTrue(checkPickRuleBody("Standard", listOf("movie", "show"), formOf(STANDARD_BODY).toBody(), emptySet()).isEmpty())
+    }
+
     @Test
     fun blankBodyMatchesTheWebDefaults() {
         val json = PickBody.blank("movie").toJson()
