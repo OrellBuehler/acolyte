@@ -67,6 +67,7 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisApp
 import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerAlertsPresenter
 import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerBackupsPresenter
 import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerLogsPresenter
+import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -280,4 +281,6 @@ class AcolyteSdk internal constructor(
 
     fun settingsLogs(): SettingsServerLogsPresenter =
         SettingsServerLogsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsSignIn(): SettingsSignInPresenter =
+        SettingsSignInPresenter(session.api, { session.account }) { password, code -> session.reauth(password, code) }
 }

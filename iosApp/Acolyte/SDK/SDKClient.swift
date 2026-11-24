@@ -298,5 +298,7 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsLogs() -> SettingsServerLogsDriver {
         SettingsServerLogsDriver(presenter: sdk.settingsLogs())
+    func makeSettingsSignIn() -> SettingsSignInDriver {
+        SettingsSignInDriver(presenter: sdk.settingsSignIn())
     }
 }
