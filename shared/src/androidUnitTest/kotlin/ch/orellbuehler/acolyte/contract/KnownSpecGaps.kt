@@ -184,6 +184,42 @@ internal object KnownSpecGaps {
                 "the Go handler reads this query parameter; the spec lists none",
             "GET /api/v1/people/{id}: query parameter 'sort' is not in the spec (it has [role, page, page_size])" to
                 "the Go handler reads sort (oldest, newest, popular); the spec lists only role, page and page_size",
+            "GET /api/v1/downloads/view: query parameter 'client' is not in the spec (it has [limit])" to
+                "routes_downloads.go reads client to reread one Downloader after a push gap",
+            "GET /api/v1/downloads/view: query parameter 'outside_limit' is not in the spec (it has [limit])" to
+                "routes_downloads.go pages outside torrents with outside_limit",
+            "GET /api/v1/downloads/view: query parameter 'cursor' is not in the spec (it has [limit])" to
+                "routes_downloads.go pages outside torrents with cursor",
+            "POST /api/v1/downloaders/{id}/items/{hash}/priority: sends a body but the spec takes none" to
+                "handler decodes {priority} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
+                "handler decodes {urls} (routes_manage.go)",
+            "PUT /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
+                "handler decodes {ref, url, tier} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/items/{hash}/trackers/remove: sends a body but the spec takes none" to
+                "handler decodes {refs} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/bulk: sends a body but the spec takes none" to
+                "handler decodes {action, hashes, delete_files} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/share-limits: sends a body but the spec takes none" to
+                "handler decodes the seeding rules body (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/location: sends a body but the spec takes none" to
+                "handler decodes {hashes, category, folder} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/speed-limits: sends a body but the spec takes none" to
+                "handler decodes {hashes, down, up} (routes_manage.go)",
+            "POST /api/v1/downloaders/{id}/slow-mode: sends a body but the spec takes none" to
+                "handler decodes {on} (routes_control.go)",
+            "POST /api/v1/downloaders/{id}/torrents: sends a body but the spec takes none" to
+                "handler takes JSON {links, category, save_path, paused} or multipart",
+            "POST /api/v1/needs-decision/{id}/decide body.replace: sent by the model but not in the spec" to
+                "the spec lists search, turn_down and stop; the handler also takes import with replace",
+            "POST /api/v1/downloads/matches/{id}/pick: sends a body but the spec takes none" to
+                "handler decodes {candidate} | {not_media} | {skip} (routes_match.go)",
+            "GET /api/v1/events: query parameter 'source' is not in the spec " +
+                "(it has [title, episode, album, kind, from, to, limit, offset])" to
+                "history_events.go filters by Source id",
+            "GET /api/v1/events: query parameter 'feed' is not in the spec " +
+                "(it has [title, episode, album, kind, from, to, limit, offset])" to
+                "history_events.go hides feed checks with feed=0",
         )
 
     val liveSkips: Map<String, String> =

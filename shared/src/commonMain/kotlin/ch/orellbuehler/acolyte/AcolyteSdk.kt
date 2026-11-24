@@ -1,6 +1,8 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.deviceLanguage
+import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
@@ -19,6 +21,11 @@ import ch.orellbuehler.acolyte.feature.discover.PersonPresenter
 import ch.orellbuehler.acolyte.feature.discover.PopularPresenter
 import ch.orellbuehler.acolyte.feature.discover.SearchPresenter
 import ch.orellbuehler.acolyte.feature.discover.SeriesPresenter
+import ch.orellbuehler.acolyte.feature.downloads.CalendarPresenter
+import ch.orellbuehler.acolyte.feature.downloads.DownloadBadges
+import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailPresenter
+import ch.orellbuehler.acolyte.feature.downloads.DownloadsPresenter
+import ch.orellbuehler.acolyte.feature.downloads.HistoryPresenter
 import ch.orellbuehler.acolyte.feature.health.HealthPresenter
 import ch.orellbuehler.acolyte.feature.home.HomePresenter
 import ch.orellbuehler.acolyte.feature.home.localToday
@@ -193,4 +200,23 @@ class AcolyteSdk internal constructor(
     ): HideSheetPresenter = HideSheetPresenter(session.api, { session.account }, tmdb, kind, name, genres)
 
     fun exploreStats(): ExploreStatsPresenter = ExploreStatsPresenter(session.api) { session.account }
+
+    val downloadBadges: DownloadBadges by lazy { DownloadBadges(session.api, { session.account }) }
+
+    fun downloads(): DownloadsPresenter = DownloadsPresenter(session.api, session.liveStatus, downloadBadges, { session.account })
+
+    fun downloadDetail(row: DownloadRow): DownloadDetailPresenter =
+        DownloadDetailPresenter(
+            session.api,
+            row,
+            session.account?.can(Need.MANAGE_LIBRARY) == true,
+            session.account?.can(Need.SETTINGS) == true,
+        )
+
+    fun history(
+        titleId: Long,
+        episodeId: Long,
+    ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
+
+    fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
 }
