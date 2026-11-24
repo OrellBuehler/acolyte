@@ -237,6 +237,26 @@ final class SDKClient: @unchecked Sendable {
         AccountWizardDriver(wizard: sdk.accountWizard(), security: sdk.accountSecurity())
     }
 
+    func makeAccountProfile() -> MyProfileDriver {
+        MyProfileDriver(presenter: sdk.accountProfile())
+    }
+
+    func makeAccountSecurity() -> MySecurityDriver {
+        MySecurityDriver(presenter: sdk.accountSecurity())
+    }
+
+    func makeAccountDevices(userId: Int64?) -> MyDevicesDriver {
+        MyDevicesDriver(presenter: sdk.accountDevices(userId: userId.map { KotlinLong(value: $0) }))
+    }
+
+    func makePeople() -> PeopleDriver {
+        PeopleDriver(presenter: sdk.people())
+    }
+
+    func makeAiConnect(_ link: String) -> AiConnectDriver {
+        AiConnectDriver(presenter: sdk.aiConnect(link: link))
+    }
+
     func cleanName(_ raw: String) -> String {
         AccountRules.shared.cleanName(raw: raw)
     }

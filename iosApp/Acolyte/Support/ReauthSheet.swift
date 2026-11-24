@@ -35,9 +35,10 @@ final class ReauthStore {
 
 private struct ReauthSheetModifier: ViewModifier {
     let store: ReauthStore
+    let enabled: Bool
 
     func body(content: Content) -> some View {
-        let visible = store.info.visible
+        let visible = store.info.visible && enabled
         return content
             .task { await store.watch() }
             .sheet(
@@ -54,8 +55,8 @@ private struct ReauthSheetModifier: ViewModifier {
 }
 
 extension View {
-    func reauthSheet(_ store: ReauthStore) -> some View {
-        modifier(ReauthSheetModifier(store: store))
+    func reauthSheet(_ store: ReauthStore, enabled: Bool = true) -> some View {
+        modifier(ReauthSheetModifier(store: store, enabled: enabled))
     }
 }
 
