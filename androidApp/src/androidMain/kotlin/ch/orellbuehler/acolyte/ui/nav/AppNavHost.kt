@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
 import ch.orellbuehler.acolyte.feature.library.LibraryKind
 import ch.orellbuehler.acolyte.nav.Section
@@ -22,6 +23,14 @@ import ch.orellbuehler.acolyte.ui.library.LibraryScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryStatsScreen
 import ch.orellbuehler.acolyte.ui.library.LibrarySubtitlesScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryToolsScreen
+import ch.orellbuehler.acolyte.ui.requests.AskMusicSheet
+import ch.orellbuehler.acolyte.ui.requests.AskSheet
+import ch.orellbuehler.acolyte.ui.requests.NeverAddScreen
+import ch.orellbuehler.acolyte.ui.requests.OutsideListsScreen
+import ch.orellbuehler.acolyte.ui.requests.ReportProblemSheet
+import ch.orellbuehler.acolyte.ui.requests.ReportsScreen
+import ch.orellbuehler.acolyte.ui.requests.RequestRulesScreen
+import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
 import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
 import ch.orellbuehler.acolyte.ui.title.TitleScreen
@@ -53,12 +62,31 @@ fun AppNavHost(
         composable<StatsRoute> { LibraryStatsScreen(back(Section.STATS)) }
         composable<DownloadsRoute> { PlaceholderScreen(Section.DOWNLOADS, back(Section.DOWNLOADS)) }
         composable<CalendarRoute> { PlaceholderScreen(Section.CALENDAR, back(Section.CALENDAR)) }
-        composable<RequestsRoute> { PlaceholderScreen(Section.REQUESTS, back(Section.REQUESTS)) }
+        composable<RequestsRoute> { RequestsScreen(account, onBack = back(Section.REQUESTS), onNavigate = { nav.navigate(it) }) }
         composable<HistoryRoute> { PlaceholderScreen(Section.HISTORY, back(Section.HISTORY)) }
         composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }
         composable<PeopleRoute> { PlaceholderScreen(Section.PEOPLE, back(Section.PEOPLE)) }
         composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
         composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT)) }
+        dialog<AskRoute> { entry ->
+            val route = entry.toRoute<AskRoute>()
+            AskSheet(route.kind, route.tmdb, route.fourK, onClose = { nav.popBackStack() })
+        }
+        dialog<AskMusicRoute> { entry ->
+            val route = entry.toRoute<AskMusicRoute>()
+            AskMusicSheet(route.artist, route.name, route.album, route.edition, onClose = { nav.popBackStack() })
+        }
+        composable<ReportsRoute> { ReportsScreen(onBack = { nav.popBackStack() }) }
+        dialog<ReportProblemRoute> { entry ->
+            val route = entry.toRoute<ReportProblemRoute>()
+            ReportProblemSheet(route, onClose = { nav.popBackStack() }, onReports = {
+                nav.popBackStack()
+                nav.navigate(ReportsRoute)
+            })
+        }
+        composable<RequestRulesRoute> { RequestRulesScreen(onBack = { nav.popBackStack() }, onNavigate = { nav.navigate(it) }) }
+        composable<OutsideListsRoute> { OutsideListsScreen(onBack = { nav.popBackStack() }) }
+        composable<NeverAddRoute> { NeverAddScreen(onBack = { nav.popBackStack() }) }
         composable<MoreRoute> { MoreScreen(account, onOpen = { nav.navigate(it.destination.route) }, onSignOut = onSignOut) }
         composable<TitleRoute> { entry -> TitleScreen(entry.toRoute(), nav, onBack = { nav.popBackStack() }) }
         composable<LibraryToolsRoute> { LibraryToolsScreen(pop, open) }
@@ -72,7 +100,5 @@ fun AppNavHost(
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
         composable<PersonRoute> { PlaceholderScreen(Section.EXPLORE, onBack = { nav.popBackStack() }) }
         composable<CollectionRoute> { PlaceholderScreen(Section.MOVIES, onBack = { nav.popBackStack() }) }
-        composable<AskRoute> { PlaceholderScreen(Section.REQUESTS, onBack = { nav.popBackStack() }) }
-        composable<ReportRoute> { PlaceholderScreen(Section.REQUESTS, onBack = { nav.popBackStack() }) }
     }
 }

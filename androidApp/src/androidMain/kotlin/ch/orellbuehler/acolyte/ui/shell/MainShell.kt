@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -20,15 +22,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
+import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.SessionViewModel
 import ch.orellbuehler.acolyte.ui.nav.AppNavHost
 import ch.orellbuehler.acolyte.ui.nav.Destination
+import ch.orellbuehler.acolyte.ui.nav.RequestsRoute
 import ch.orellbuehler.acolyte.ui.nav.destination
 
 @Composable
@@ -37,6 +46,11 @@ fun MainShell(
     session: SessionViewModel,
 ) {
     val tabs = account.tabs.map { it.destination } + account.moreTab.destination
+    val sdk = LocalSdk.current
+    val inbox by sdk.inbox.state.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(sdk, lifecycle) { lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { sdk.inbox.poll() } }
+    val requestsTab = Section.REQUESTS in account.tabs
     key(tabs.map { it.route }) {
         val nav = rememberNavController()
         val entry by nav.currentBackStackEntryAsState()
@@ -56,7 +70,19 @@ fun MainShell(
                                 nav.openTab(tab, isSelected)
                                 selected = index
                             },
-                            icon = { Icon(if (isSelected) tab.selectedIcon else tab.icon, contentDescription = null) },
+                            icon = {
+                                val badge = if (tab.route == RequestsRoute) inbox.requestsBadge else 0
+                                val dot = index == tabs.lastIndex && !requestsTab && inbox.hasAttention
+                                BadgedBox(badge = {
+                                    if (badge > 0) {
+                                        Badge { Text(badge.toString()) }
+                                    } else if (dot) {
+                                        Badge()
+                                    }
+                                }) {
+                                    Icon(if (isSelected) tab.selectedIcon else tab.icon, contentDescription = null)
+                                }
+                            },
                             label = { Text(stringResource(tab.label), maxLines = 1, overflow = TextOverflow.Ellipsis) },
                         )
                     }

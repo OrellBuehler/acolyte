@@ -111,12 +111,38 @@ data class CollectionRoute(
 data class AskRoute(
     val kind: String,
     val tmdb: String,
+    val fourK: Boolean = false,
 )
 
 @Serializable
-data class ReportRoute(
-    val titleId: Long,
+data class AskMusicRoute(
+    val artist: String,
+    val name: String = "",
+    val album: String = "",
+    val edition: String = "",
 )
+
+@Serializable
+data object ReportsRoute
+
+@Serializable
+data class ReportProblemRoute(
+    val titleId: Long,
+    val name: String = "",
+    val season: Int = -1,
+    val itemId: Long = 0,
+    val albumId: Long = 0,
+    val versionId: Long = 0,
+)
+
+@Serializable
+data object RequestRulesRoute
+
+@Serializable
+data object OutsideListsRoute
+
+@Serializable
+data object NeverAddRoute
 
 object Routes {
     fun title(
@@ -130,12 +156,35 @@ object Routes {
 
     fun collection(id: String): CollectionRoute = CollectionRoute(id)
 
+    val settingsLibraryFolders: Any = SettingsLibraryFoldersRoute
+
     fun ask(
         kind: String,
         tmdb: String,
-    ): AskRoute = AskRoute(kind, tmdb)
+        fourK: Boolean = false,
+    ): Any = AskRoute(kind, tmdb, fourK)
 
-    fun report(titleId: Long): ReportRoute = ReportRoute(titleId)
+    fun askMusic(
+        artist: String,
+        name: String = "",
+        album: String = "",
+        edition: String = "",
+    ): Any = AskMusicRoute(artist, name, album, edition)
 
-    val settingsLibraryFolders: Any = SettingsLibraryFoldersRoute
+    val reports: Any = ReportsRoute
+
+    fun report(titleId: Long): Any = ReportProblemRoute(titleId)
+
+    fun reportProblem(
+        titleId: Long,
+        name: String = "",
+        season: Int = -1,
+        itemId: Long = 0,
+        albumId: Long = 0,
+        versionId: Long = 0,
+    ): Any = ReportProblemRoute(titleId, name, season, itemId, albumId, versionId)
+
+    val settingsRequests: Any = RequestRulesRoute
+    val settingsOutsideLists: Any = OutsideListsRoute
+    val settingsNeverAdd: Any = NeverAddRoute
 }

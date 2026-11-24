@@ -43,6 +43,7 @@ class LiveContractTest {
         return checker.endpoints.filter { endpoint ->
             val op = checker.operation(endpoint.method.value, endpoint.path)
             endpoint.method.value == "GET" &&
+                endpoint.key !in KnownSpecGaps.liveSkips &&
                 endpoint.pathParams.isEmpty() &&
                 endpoint.response !== NoContent &&
                 op != null &&

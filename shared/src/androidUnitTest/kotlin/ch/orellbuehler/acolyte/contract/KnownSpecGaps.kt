@@ -1,6 +1,10 @@
 package ch.orellbuehler.acolyte.contract
 
 internal object KnownSpecGaps {
+    private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
+    private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
+    private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
+
     val problems: Map<String, String> =
         mapOf(
             "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
@@ -79,5 +83,38 @@ internal object KnownSpecGaps {
                 "library/routes_leftovers.go decodes {dismissed}; the spec has no request body",
             "POST /api/v1/asks body.follow: sent by the model but not in the spec" to
                 "requests/routes_asks.go reads follow (default true)",
+            "POST /api/v1/outside-lists body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "POST /api/v1/outside-lists body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "POST /api/v1/outside-lists body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "PUT /api/v1/outside-lists/{id} body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "PUT /api/v1/outside-lists/{id} body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "PUT /api/v1/outside-lists/{id} body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+            "POST /api/v1/never-add body.kind: sent by the model but not in the spec" to
+                "the handler takes kind movie (default) or show (its 400 text says so); the spec body lacks it",
+            "PUT /api/v1/settings/asks body.four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.show_four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.show_four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.plex_watchlists_everyone: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.owner_auto_approve: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.qualities: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.pick_many: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.streaming_region: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.streaming_services: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/asks body.skip_on_services: sent by the model but not in the spec" to ASK_SETTINGS,
+            "GET /api/v1/watch-services: query parameter 'region' is not in the spec (it has [])" to
+                "the handler needs region=<country code> (400 without it); the spec lists no parameters",
+            "GET /api/v1/asks: query parameter 'offset' is not in the spec (it has [mine, state, limit, kind])" to
+                "listAsks reads ?offset= to page past the first 200 (requests/routes_asks.go)",
+            "POST /api/v1/asks body.editions: sent by the model but not in the spec" to NEW_ASK,
+            "POST /api/v1/asks body.quality: sent by the model but not in the spec" to NEW_ASK,
+            "POST /api/v1/asks/{id}/approve body.quality: sent by the model but not in the spec" to
+                "Go ApproveOptions (requests/approve.go) takes quality to approve as another line; the spec body lags",
+        )
+
+    val liveSkips: Map<String, String> =
+        mapOf(
+            "GET /api/v1/watch-services" to
+                "needs ?region=, which the spec does not list as a parameter (the handler answers 400 without it)",
         )
 }
