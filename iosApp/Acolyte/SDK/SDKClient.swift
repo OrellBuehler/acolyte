@@ -274,5 +274,19 @@ final class SDKClient: @unchecked Sendable {
         URL(string: sdk.settingsRemoteAccessUrl())
     func makeHealthChecks() -> HealthChecksDriver {
         HealthChecksDriver(presenter: sdk.settingsHealthChecks())
+    func makeSettingsControlsParts() -> SettingsControlsPartsDriver {
+        SettingsControlsPartsDriver(presenter: sdk.settingsControlsParts())
+    }
+
+    func makeSettingsControlsThisApp() -> SettingsControlsThisAppDriver {
+        SettingsControlsThisAppDriver(presenter: sdk.settingsControlsThisApp())
+    }
+
+    func makeSettingsControlsDanger() -> SettingsControlsDangerDriver {
+        SettingsControlsDangerDriver(presenter: sdk.settingsControlsDanger())
+    }
+
+    func makeSettingsControlsSchedules() -> SettingsControlsSchedulesDriver {
+        SettingsControlsSchedulesDriver(presenter: sdk.settingsControlsSchedules())
     }
 }

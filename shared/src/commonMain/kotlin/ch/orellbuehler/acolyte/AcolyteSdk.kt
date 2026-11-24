@@ -60,6 +60,10 @@ import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServer
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsAiPresenter
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiPresenter
 import ch.orellbuehler.acolyte.feature.settings.status.SettingsHealthChecksPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsDangerPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsPartsPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsSchedulesPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -245,4 +249,25 @@ class AcolyteSdk internal constructor(
 
     fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
     fun settingsHealthChecks(): SettingsHealthChecksPresenter = SettingsHealthChecksPresenter(session.api) { session.account }
+    fun settingsControlsParts(): SettingsControlsPartsPresenter =
+        SettingsControlsPartsPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsThisApp(): SettingsControlsThisAppPresenter =
+        SettingsControlsThisAppPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsControlsDanger(): SettingsControlsDangerPresenter =
+        SettingsControlsDangerPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsSchedules(): SettingsControlsSchedulesPresenter =
+        SettingsControlsSchedulesPresenter(session.api, { session.account })
 }
