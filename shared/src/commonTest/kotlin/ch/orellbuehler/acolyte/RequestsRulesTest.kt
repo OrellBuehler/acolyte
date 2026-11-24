@@ -5,10 +5,10 @@ import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.api.model.AskAsker
 import ch.orellbuehler.acolyte.api.model.AskLimit
-import ch.orellbuehler.acolyte.api.model.AskPickRules
 import ch.orellbuehler.acolyte.api.model.AskStep
 import ch.orellbuehler.acolyte.api.model.AskWho
 import ch.orellbuehler.acolyte.api.model.KindLimit
+import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.QualityChoice
 import ch.orellbuehler.acolyte.feature.Tone
 import ch.orellbuehler.acolyte.feature.requests.ApproverTab
@@ -163,9 +163,9 @@ class RequestsRulesTest {
         val lines = listOf(QualityChoice("standard", "", false, 1), QualityChoice("4k", "", true, 2))
         val rules =
             listOf(
-                AskPickRules(1, "Standard", listOf("movie")),
-                AskPickRules(6, "Lite", listOf("movie", "show")),
-                AskPickRules(3, "Music", listOf("music")),
+                PickRule(1, "Standard", listOf("movie")),
+                PickRule(6, "Lite", listOf("movie", "show")),
+                PickRule(3, "Music", listOf("music")),
             )
         val ask = Ask(kind = "movie", quality = "own-9", qualityName = "Remux")
         val pills = ownerRow(lines, rules, ask) { if (it == "4k") "4K" else "Standard" }

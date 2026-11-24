@@ -2,14 +2,14 @@ package ch.orellbuehler.acolyte.feature.requests
 
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
-import ch.orellbuehler.acolyte.api.RequestSettingsEndpoints
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
 import ch.orellbuehler.acolyte.api.model.ApproveBody
 import ch.orellbuehler.acolyte.api.model.Ask
-import ch.orellbuehler.acolyte.api.model.AskPickRules
 import ch.orellbuehler.acolyte.api.model.PartEpisode
 import ch.orellbuehler.acolyte.api.model.PartSong
+import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.QualityChoice
 import ch.orellbuehler.acolyte.api.model.StoredParts
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -114,7 +114,7 @@ class AskReviewPresenter internal constructor(
         val expandedSeasons: Set<Int> = emptySet(),
         val expandedAlbums: Set<String> = emptySet(),
         val lines: List<QualityChoice> = emptyList(),
-        val rules: List<AskPickRules> = emptyList(),
+        val rules: List<PickRule> = emptyList(),
         val selected: String = "",
     )
 
@@ -153,7 +153,7 @@ class AskReviewPresenter internal constructor(
                         if (!ask.isArtist || ask.artistMbid.isEmpty()) {
                             null
                         } else {
-                            api.result(RequestsEndpoints.artistLookup, "term" to "mbid:${ask.artistMbid}", "albums" to "true").valueOrNull()
+                            api.result(LibraryEndpoints.lookupArtists, "term" to "mbid:${ask.artistMbid}", "albums" to "true").valueOrNull()
                         }
                     }
                 val limit =
@@ -171,7 +171,7 @@ class AskReviewPresenter internal constructor(
                         if (!ask.isArtist &&
                             me?.can(Need.MANAGE_LIBRARY) == true
                         ) {
-                            api.result(RequestSettingsEndpoints.pickRules).valueOrNull()
+                            api.result(LibraryEndpoints.pickRules).valueOrNull()
                         } else {
                             null
                         }

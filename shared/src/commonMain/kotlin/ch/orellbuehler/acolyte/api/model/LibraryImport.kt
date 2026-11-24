@@ -187,6 +187,7 @@ data class LookupShow(
     val overview: String = "",
     @SerialName("original_language") val originalLanguage: String = "",
     @SerialName("never_add") val neverAdd: Boolean = false,
+    val seasons: List<AskShowSeason> = emptyList(),
     val ask: TitleAsk? = null,
     val hidden: Boolean = false,
 )
@@ -204,6 +205,9 @@ data class LookupArtist(
     val disambiguation: String = "",
     val image: String = "",
     @SerialName("title_id") val titleId: Long = 0,
+    @SerialName("never_add") val neverAdd: Boolean = false,
+    val ask: TitleAsk? = null,
+    @SerialName("ask_albums") val askAlbums: List<AskableAlbum> = emptyList(),
 )
 
 @Serializable

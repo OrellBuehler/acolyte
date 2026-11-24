@@ -3,15 +3,15 @@ package ch.orellbuehler.acolyte.feature.requests
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.OutsideListsEndpoints
-import ch.orellbuehler.acolyte.api.RequestSettingsEndpoints
-import ch.orellbuehler.acolyte.api.model.AskFolder
-import ch.orellbuehler.acolyte.api.model.AskPickRules
 import ch.orellbuehler.acolyte.api.model.KeyBody
+import ch.orellbuehler.acolyte.api.model.LibraryFolder
 import ch.orellbuehler.acolyte.api.model.NeverAddEntry
 import ch.orellbuehler.acolyte.api.model.NewNeverAdd
 import ch.orellbuehler.acolyte.api.model.OutsideList
 import ch.orellbuehler.acolyte.api.model.OutsideListDraft
+import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.SecretBody
 import ch.orellbuehler.acolyte.api.model.TokenBody
 import ch.orellbuehler.acolyte.api.model.TraktDeviceCode
@@ -90,8 +90,8 @@ data class OutsideListsState(
     val allowed: Boolean = true,
     val owner: Boolean = false,
     val lists: List<OutsideList> = emptyList(),
-    val folders: List<AskFolder> = emptyList(),
-    val rules: List<AskPickRules> = emptyList(),
+    val folders: List<LibraryFolder> = emptyList(),
+    val rules: List<PickRule> = emptyList(),
     val editing: Long? = null,
     val draft: OutsideListDraft = OutsideListDraft(),
     val formError: ApiError? = null,
@@ -116,9 +116,9 @@ data class OutsideListsState(
 
     val draftSeasons: ListSeasons get() = ListSeasons.of(draft.seasons)
 
-    val draftFolders: List<AskFolder> get() = folders.filter { it.kind == draft.titleKind }
+    val draftFolders: List<LibraryFolder> get() = folders.filter { it.kind == draft.titleKind }
 
-    val draftRules: List<AskPickRules> get() = rules.filter { it.kinds.isEmpty() || draft.titleKind in it.kinds }
+    val draftRules: List<PickRule> get() = rules.filter { it.kinds.isEmpty() || draft.titleKind in it.kinds }
 
     val needsTraktKey: Boolean get() = draftKind == ListKind.TRAKT && trakt?.clientId != true && traktKey.isEmpty()
 
@@ -182,8 +182,8 @@ class OutsideListsPresenter internal constructor(
             val owner = me.role == Role.OWNER
             mutableState.update { it.copy(status = it.status.started(), owner = owner) }
             coroutineScope {
-                val folders = async { api.result(RequestSettingsEndpoints.folders) }
-                val rules = async { api.result(RequestSettingsEndpoints.pickRules) }
+                val folders = async { api.result(LibraryEndpoints.folders) }
+                val rules = async { api.result(LibraryEndpoints.pickRules) }
                 val trakt = async { api.result(OutsideListsEndpoints.traktSignIn).valueOrNull() }
                 val key = async { api.result(OutsideListsEndpoints.traktKey).valueOrNull() }
                 val token = async { if (owner) api.result(OutsideListsEndpoints.traktToken).valueOrNull() else null }

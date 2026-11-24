@@ -4,8 +4,9 @@ import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
-import ch.orellbuehler.acolyte.api.model.AskBrief
+import ch.orellbuehler.acolyte.api.model.TitleAsk
 import ch.orellbuehler.acolyte.api.model.NewAsk
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
@@ -40,7 +41,7 @@ data class AskMusicState(
     val albums: List<AskAlbumRow> = emptyList(),
     val mode: MusicMode = MusicMode.EVERY,
     val follow: Boolean = true,
-    val brief: AskBrief? = null,
+    val brief: TitleAsk? = null,
     val busy: Boolean = false,
     val error: ApiError? = null,
     val outcome: AskOutcome? = null,
@@ -75,7 +76,7 @@ class AskMusicPresenter internal constructor(
             if (mutableState.value.status.phase == Phase.READY) return
             mutableState.update { it.copy(status = it.status.started()) }
             val mbid = mutableState.value.artist
-            when (val result = api.result(RequestsEndpoints.artistLookup, "term" to "mbid:$mbid", "albums" to "true")) {
+            when (val result = api.result(LibraryEndpoints.lookupArtists, "term" to "mbid:$mbid", "albums" to "true")) {
                 is ApiResult.Ok -> {
                     val found = result.value.artists.firstOrNull { it.mbid == mbid } ?: result.value.artists.firstOrNull()
                     if (found == null) {

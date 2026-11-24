@@ -4,8 +4,8 @@ import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.api.model.AskLimit
-import ch.orellbuehler.acolyte.api.model.AskPickRules
 import ch.orellbuehler.acolyte.api.model.KindLimit
+import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.QualityChoice
 import ch.orellbuehler.acolyte.feature.Tone
 import kotlin.time.Clock
@@ -304,7 +304,7 @@ fun alsoPills(
 
 fun ownerRow(
     lines: List<QualityChoice>,
-    rules: List<AskPickRules>,
+    rules: List<PickRule>,
     ask: Ask,
     builtInName: (String) -> String = { it },
 ): List<QualityPill> {

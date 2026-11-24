@@ -3,13 +3,10 @@ package ch.orellbuehler.acolyte.api
 import ch.orellbuehler.acolyte.api.model.ApproveBody
 import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.api.model.AskAnswer
-import ch.orellbuehler.acolyte.api.model.AskArtistLookup
 import ch.orellbuehler.acolyte.api.model.AskDecision
 import ch.orellbuehler.acolyte.api.model.AskLimit
 import ch.orellbuehler.acolyte.api.model.AskList
-import ch.orellbuehler.acolyte.api.model.AskMovieLookup
 import ch.orellbuehler.acolyte.api.model.AskSeasonEpisodes
-import ch.orellbuehler.acolyte.api.model.AskShowLookup
 import ch.orellbuehler.acolyte.api.model.AskTitleSeasons
 import ch.orellbuehler.acolyte.api.model.AskedBy
 import ch.orellbuehler.acolyte.api.model.InboxMessages
@@ -32,10 +29,6 @@ internal data object RequestsEndpoints : EndpointGroup() {
     val messages = get("/api/v1/messages", InboxMessages.serializer(), Need.SIGNED_IN, Part.WISHLIST)
     val readMessages = post("/api/v1/messages/read", NoContent, Need.SIGNED_IN, Part.WISHLIST)
     val askedBy = get("/api/v1/asked-by", AskedBy.serializer(), Need.SIGNED_IN, Part.WISHLIST, query = listOf("title_id"))
-    val movieLookup = get("/api/v1/titles/lookup", AskMovieLookup.serializer(), Need.SIGNED_IN, Part.MOVIES, query = listOf("term"))
-    val showLookup = get("/api/v1/shows/lookup", AskShowLookup.serializer(), Need.SIGNED_IN, Part.SHOWS, query = listOf("term"))
-    val artistLookup =
-        get("/api/v1/artists/lookup", AskArtistLookup.serializer(), Need.SIGNED_IN, Part.MUSIC, query = listOf("term", "albums"))
     val seasonEpisodes =
         get("/api/v1/metadata/show/{tmdb_id}/seasons/{number}", AskSeasonEpisodes.serializer(), Need.SIGNED_IN, Part.SHOWS)
     val titleSeasons = get("/api/v1/titles/{id}/seasons", AskTitleSeasons.serializer(), Need.SIGNED_IN, Part.SHOWS)

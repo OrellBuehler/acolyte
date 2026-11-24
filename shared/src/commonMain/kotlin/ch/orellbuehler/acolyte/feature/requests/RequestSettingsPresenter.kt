@@ -3,14 +3,15 @@ package ch.orellbuehler.acolyte.feature.requests
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.Part
 import ch.orellbuehler.acolyte.api.RequestSettingsEndpoints
-import ch.orellbuehler.acolyte.api.model.AskFolder
-import ch.orellbuehler.acolyte.api.model.AskPickRules
 import ch.orellbuehler.acolyte.api.model.AskSettings
 import ch.orellbuehler.acolyte.api.model.AskWatchService
 import ch.orellbuehler.acolyte.api.model.CleanupCheck
+import ch.orellbuehler.acolyte.api.model.LibraryFolder
+import ch.orellbuehler.acolyte.api.model.PickRule
 import ch.orellbuehler.acolyte.api.model.PlexFriends
 import ch.orellbuehler.acolyte.api.model.QualityLine
 import ch.orellbuehler.acolyte.api.model.QualityLines
@@ -83,8 +84,8 @@ data class RequestSettingsState(
     val saved: AskSettings = AskSettings(),
     val draft: AskSettings = AskSettings(),
     val limitText: Map<LimitKind, String> = emptyMap(),
-    val folders: List<AskFolder> = emptyList(),
-    val rules: List<AskPickRules> = emptyList(),
+    val folders: List<LibraryFolder> = emptyList(),
+    val rules: List<PickRule> = emptyList(),
     val plexFriends: PlexFriends? = null,
     val services: List<AskWatchService> = emptyList(),
     val servicesRegion: String = "",
@@ -123,9 +124,9 @@ data class RequestSettingsState(
 
     fun limit(kind: LimitKind): String = limitText[kind] ?: limitOf(draft, kind).toString()
 
-    fun foldersFor(field: FolderField): List<AskFolder> = folders.filter { it.kind == field.kind }
+    fun foldersFor(field: FolderField): List<LibraryFolder> = folders.filter { it.kind == field.kind }
 
-    fun rulesFor(field: FolderField): List<AskPickRules> = rules.filter { it.kinds.isEmpty() || field.kind in it.kinds }
+    fun rulesFor(field: FolderField): List<PickRule> = rules.filter { it.kinds.isEmpty() || field.kind in it.kinds }
 
     fun folder(field: FolderField): Long =
         when (field) {
@@ -213,9 +214,9 @@ class RequestSettingsPresenter internal constructor(
             mutableState.update { it.copy(status = it.status.started()) }
             coroutineScope {
                 val folders =
-                    async { if (me.can(Need.MANAGE_LIBRARY)) api.result(RequestSettingsEndpoints.folders).valueOrNull() else null }
+                    async { if (me.can(Need.MANAGE_LIBRARY)) api.result(LibraryEndpoints.folders).valueOrNull() else null }
                 val rules =
-                    async { if (me.can(Need.MANAGE_LIBRARY)) api.result(RequestSettingsEndpoints.pickRules).valueOrNull() else null }
+                    async { if (me.can(Need.MANAGE_LIBRARY)) api.result(LibraryEndpoints.pickRules).valueOrNull() else null }
                 val friends = async { if (me.can(Need.USERS)) api.result(RequestSettingsEndpoints.plexFriends).valueOrNull() else null }
                 val cleanup = async { api.result(RequestSettingsEndpoints.cleanup).valueOrNull() }
                 when (val result = api.result(RequestSettingsEndpoints.settings)) {

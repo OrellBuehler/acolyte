@@ -3,7 +3,7 @@ package ch.orellbuehler.acolyte
 import ch.orellbuehler.acolyte.api.ApiJson
 import ch.orellbuehler.acolyte.api.model.OutsideList
 import ch.orellbuehler.acolyte.api.model.Report
-import ch.orellbuehler.acolyte.api.model.TitleSearchBody
+import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.model.TraktDeviceCode
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.requests.FolderField
@@ -283,7 +283,7 @@ class RequestSettingsTest {
     fun searchBodiesAndParts() {
         assertEquals(
             "{}",
-            ApiJson.lenient.encodeToString(TitleSearchBody.serializer(), searchBody(Report(titleKind = "movie", itemId = 3))),
+            ApiJson.lenient.encodeToString(SearchBody.serializer(), searchBody(Report(titleKind = "movie", itemId = 3))),
         )
         assertEquals(2, searchBody(Report(titleKind = "show", season = 2)).season)
         assertEquals(9L, searchBody(Report(titleKind = "show", season = 2, itemId = 9)).itemId)

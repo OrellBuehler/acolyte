@@ -198,7 +198,7 @@ extension Mapping {
         )
     }
 
-    private static func brief(_ b: AskBrief?) -> AskBriefInfo? {
+    private static func brief(_ b: TitleAsk?) -> AskBriefInfo? {
         guard let b else { return nil }
         return AskBriefInfo(stateLabel: b.stateLabel, mine: b.mine, seasons: b.seasons.map { Int($0.int32Value) }, albums: b.albums.map { $0.name })
     }

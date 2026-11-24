@@ -93,31 +93,6 @@ data class CleanupCheck(
 )
 
 @Serializable
-data class AskFolder(
-    val id: Long = 0,
-    val kind: String = "",
-    val label: String = "",
-    val path: String = "",
-)
-
-@Serializable
-data class AskFolders(
-    @SerialName("library_folders") val libraryFolders: List<AskFolder> = emptyList(),
-)
-
-@Serializable
-data class AskPickRules(
-    val id: Long = 0,
-    val name: String = "",
-    val kinds: List<String> = emptyList(),
-)
-
-@Serializable
-data class AskPickRulesList(
-    @SerialName("pick_rules") val pickRules: List<AskPickRules> = emptyList(),
-)
-
-@Serializable
 data class AskWatchService(
     val id: Long = 0,
     val name: String = "",

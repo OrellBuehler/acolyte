@@ -3,12 +3,13 @@ package ch.orellbuehler.acolyte.feature.requests
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.ReportsEndpoints
 import ch.orellbuehler.acolyte.api.model.NewReport
 import ch.orellbuehler.acolyte.api.model.Report
 import ch.orellbuehler.acolyte.api.model.ReportFix
-import ch.orellbuehler.acolyte.api.model.TitleSearchBody
+import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.onFailure
 import ch.orellbuehler.acolyte.api.onSuccess
 import ch.orellbuehler.acolyte.feature.LoadStatus
@@ -209,7 +210,7 @@ class ReportsPresenter internal constructor(
         val report = mutableState.value.report(id) ?: return
         mutableState.update { it.copy(searching = it.searching + id) }
         api
-            .result(ReportsEndpoints.search, searchBody(report), "id" to report.titleId)
+            .result(LibraryEndpoints.search, searchBody(report), "id" to report.titleId)
             .onSuccess { note(ReportsNoteKind.SEARCH_STARTED, report.titleName) }
             .onFailure { note(ReportsNoteKind.SEARCH_FAILED, report.titleName, error = it) }
         mutableState.update { it.copy(searching = it.searching - id) }
@@ -247,21 +248,21 @@ class ReportsPresenter internal constructor(
     }
 }
 
-internal fun searchBody(report: Report): TitleSearchBody =
+internal fun searchBody(report: Report): SearchBody =
     when (report.titleKind) {
         "show" ->
-            TitleSearchBody(
+            SearchBody(
                 itemId = report.itemId.takeIf { it > 0 },
                 season = report.season.takeIf { report.itemId <= 0 },
                 versionId = report.versionId.takeIf { it > 0 },
             )
         "artist" ->
-            TitleSearchBody(
+            SearchBody(
                 itemId = report.itemId.takeIf { it > 0 },
                 albumId = report.albumId.takeIf { it > 0 && report.itemId <= 0 },
                 versionId = report.versionId.takeIf { it > 0 },
             )
-        else -> TitleSearchBody()
+        else -> SearchBody()
     }
 
 data class ReportProblemState(

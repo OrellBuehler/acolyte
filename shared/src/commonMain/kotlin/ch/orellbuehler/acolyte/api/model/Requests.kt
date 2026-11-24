@@ -97,17 +97,6 @@ data class AskList(
 )
 
 @Serializable
-data class AskBrief(
-    val id: Long = 0,
-    val state: String = "",
-    @SerialName("state_label") val stateLabel: String = "",
-    val mine: Boolean = false,
-    val people: Int = 0,
-    val seasons: List<Int> = emptyList(),
-    val albums: List<AskAlbum> = emptyList(),
-)
-
-@Serializable
 data class AskAnswer(
     val ask: Ask = Ask(),
     val joined: Boolean = false,
@@ -272,46 +261,9 @@ data class AskedBy(
 )
 
 @Serializable
-data class AskMovie(
-    val ids: Map<String, String> = emptyMap(),
-    val name: String = "",
-    val year: Int = 0,
-    val poster: String = "",
-    @SerialName("title_id") val titleId: Long = 0,
-    @SerialName("never_add") val neverAdd: Boolean = false,
-    val ask: AskBrief? = null,
-    @SerialName("ask_4k") val ask4k: AskBrief? = null,
-    @SerialName("has_4k") val has4k: Boolean = false,
-)
-
-@Serializable
-data class AskMovieLookup(
-    val movies: List<AskMovie> = emptyList(),
-)
-
-@Serializable
 data class AskShowSeason(
     val number: Int = 0,
     val name: String = "",
-)
-
-@Serializable
-data class AskShow(
-    val ids: Map<String, String> = emptyMap(),
-    val name: String = "",
-    val year: Int = 0,
-    val poster: String = "",
-    val source: String = "",
-    val seasons: List<AskShowSeason> = emptyList(),
-    @SerialName("title_id") val titleId: Long = 0,
-    @SerialName("never_add") val neverAdd: Boolean = false,
-    val ask: AskBrief? = null,
-)
-
-@Serializable
-data class AskShowLookup(
-    val shows: List<AskShow> = emptyList(),
-    val source: String = "",
 )
 
 @Serializable
@@ -323,21 +275,6 @@ data class AskableAlbum(
     @SerialName("release_date") val releaseDate: String = "",
     val kept: Boolean = false,
     @SerialName("left_out") val leftOut: Boolean = false,
-)
-
-@Serializable
-data class AskArtist(
-    val mbid: String = "",
-    val name: String = "",
-    @SerialName("title_id") val titleId: Long = 0,
-    @SerialName("never_add") val neverAdd: Boolean = false,
-    val ask: AskBrief? = null,
-    @SerialName("ask_albums") val askAlbums: List<AskableAlbum> = emptyList(),
-)
-
-@Serializable
-data class AskArtistLookup(
-    val artists: List<AskArtist> = emptyList(),
 )
 
 @Serializable

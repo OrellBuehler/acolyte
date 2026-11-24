@@ -119,6 +119,7 @@ data class TitleAsk(
     val mine: Boolean = false,
     val people: Int = 0,
     val seasons: List<Int> = emptyList(),
+    val albums: List<AskAlbum> = emptyList(),
 )
 
 @Serializable

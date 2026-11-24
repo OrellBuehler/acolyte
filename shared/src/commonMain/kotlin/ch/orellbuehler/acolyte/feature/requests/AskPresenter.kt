@@ -4,11 +4,12 @@ import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
 import ch.orellbuehler.acolyte.api.model.AskAnswer
-import ch.orellbuehler.acolyte.api.model.AskBrief
+import ch.orellbuehler.acolyte.api.model.TitleAsk
 import ch.orellbuehler.acolyte.api.model.AskEpisodes
-import ch.orellbuehler.acolyte.api.model.AskShow
+import ch.orellbuehler.acolyte.api.model.LookupShow
 import ch.orellbuehler.acolyte.api.model.NewAsk
 import ch.orellbuehler.acolyte.api.model.QualityChoice
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -73,7 +74,7 @@ data class AskSheetState(
     val poster: String = "",
     val titleId: Long = 0,
     val neverAdd: Boolean = false,
-    val briefs: Map<String, AskBrief> = emptyMap(),
+    val briefs: Map<String, TitleAsk> = emptyMap(),
     val pills: List<QualityPill> = emptyList(),
     val selected: String = "",
     val also: Set<String> = emptySet(),
@@ -100,7 +101,7 @@ data class AskSheetState(
 
     val pickedEpisodes: Int get() = seasons.filter { !it.ticked }.sumOf { it.picked }
 
-    val brief: AskBrief? get() = if (isShow) briefs[""] else briefs[selected.ifEmpty { STANDARD_LINE }]
+    val brief: TitleAsk? get() = if (isShow) briefs[""] else briefs[selected.ifEmpty { STANDARD_LINE }]
 
     val joining: Boolean get() = brief?.mine == false
 
@@ -120,7 +121,7 @@ class AskPresenter internal constructor(
     tmdb: String,
     private val fourKOnly: Boolean = false,
 ) {
-    private var show: AskShow? = null
+    private var show: LookupShow? = null
     private var sent: Set<String> = emptySet()
     private val mutableState = MutableStateFlow(AskSheetState(kind = if (kind == "show") "show" else "movie", tmdb = tmdb))
     private val lock = Mutex()
@@ -166,11 +167,11 @@ class AskPresenter internal constructor(
         }
     }
 
-    private var movieBriefs: Map<String, AskBrief> = emptyMap()
+    private var movieBriefs: Map<String, TitleAsk> = emptyMap()
     private var movieHas4k = false
 
     private suspend fun loadMovie(tmdb: String) {
-        when (val result = api.result(RequestsEndpoints.movieLookup, "term" to "tmdb:$tmdb")) {
+        when (val result = api.result(LibraryEndpoints.lookupMovies, "term" to "tmdb:$tmdb")) {
             is ApiResult.Ok -> {
                 val movie = result.value.movies.firstOrNull()
                 if (movie == null) {
@@ -196,7 +197,7 @@ class AskPresenter internal constructor(
     }
 
     private suspend fun loadShow(tmdb: String) {
-        when (val result = api.result(RequestsEndpoints.showLookup, "term" to "tmdb:$tmdb")) {
+        when (val result = api.result(LibraryEndpoints.lookupShows, "term" to "tmdb:$tmdb")) {
             is ApiResult.Ok -> {
                 val found = result.value.shows.firstOrNull()
                 if (found == null) {
@@ -398,7 +399,7 @@ class AskPresenter internal constructor(
 }
 
 internal fun showId(
-    show: AskShow?,
+    show: LookupShow?,
     tmdb: String,
 ): String {
     val ids = show?.ids.orEmpty()

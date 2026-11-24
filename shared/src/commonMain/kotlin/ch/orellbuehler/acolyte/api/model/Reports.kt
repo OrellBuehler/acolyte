@@ -62,16 +62,3 @@ internal data class ReportFix(
     val reply: String? = null,
 )
 
-@Serializable
-internal data class TitleSearchBody(
-    val season: Int? = null,
-    @SerialName("item_id") val itemId: Long? = null,
-    @SerialName("album_id") val albumId: Long? = null,
-    @SerialName("version_id") val versionId: Long? = null,
-)
-
-@Serializable
-data class TitleSearchQueued(
-    @SerialName("job_ids") val jobIds: List<Long> = emptyList(),
-    @SerialName("left_out") val leftOut: Int = 0,
-)
