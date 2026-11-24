@@ -487,7 +487,10 @@ internal fun nameCheckExtraTags(parsed: NameCheckParsed): List<String> =
         showNumbers(parsed.show).takeIf { it.isNotEmpty() }?.let { add(it) }
         parsed.edition.forEach { add(it.replace('_', ' ')) }
         parsed.flags.filter { it != "proper" && it != "repack" }.forEach { add(it.replace('_', ' ')) }
-        parsed.group?.value?.takeIf { it.isNotEmpty() }?.let { add("-$it") }
+        parsed.group
+            ?.value
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { add("-$it") }
     }
 
 internal fun nameCheckResult(answer: NameCheckAnswer): SettingsNameCheckResult {
@@ -500,7 +503,10 @@ internal fun nameCheckResult(answer: NameCheckAnswer): SettingsNameCheckResult {
             else -> ""
         }
     return SettingsNameCheckResult(
-        title = answer.parsed.title?.value.orEmpty(),
+        title =
+            answer.parsed.title
+                ?.value
+                .orEmpty(),
         year = answer.parsed.year?.value ?: 0,
         tags = ReleaseText.tags(answer.read) + nameCheckExtraTags(answer.parsed),
         matchName = title?.let { if (it.year > 0) "${it.name} (${it.year})" else it.name }.orEmpty(),

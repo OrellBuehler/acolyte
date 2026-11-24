@@ -12,32 +12,95 @@ import kotlinx.serialization.json.longOrNull
 object SettingsPickRuleChoices {
     val videoLadder: List<String> =
         listOf(
-            "cam", "telesync", "sd_tv", "sd_dvd",
-            "720p_tv", "720p_web", "720p_bluray",
-            "1080p_tv", "1080p_web", "1080p_bluray", "1080p_remux",
-            "2160p_web", "2160p_bluray", "2160p_remux",
+            "cam",
+            "telesync",
+            "sd_tv",
+            "sd_dvd",
+            "720p_tv",
+            "720p_web",
+            "720p_bluray",
+            "1080p_tv",
+            "1080p_web",
+            "1080p_bluray",
+            "1080p_remux",
+            "2160p_web",
+            "2160p_bluray",
+            "2160p_remux",
         )
 
     val musicLadder: List<String> = listOf("lossy_low", "lossy_mid", "lossy_high", "lossless", "lossless_hires")
 
     val videoTraits: List<String> =
         listOf(
-            "hevc", "ddp_audio", "web_dl", "upscaled", "dubbed_only", "hardcoded_subs", "3d", "cam", "telesync", "remux",
-            "av1", "dv", "hdr10", "hdr10plus", "atmos", "h264", "dts_audio", "truehd_audio", "dv_no_fallback",
+            "hevc",
+            "ddp_audio",
+            "web_dl",
+            "upscaled",
+            "dubbed_only",
+            "hardcoded_subs",
+            "3d",
+            "cam",
+            "telesync",
+            "remux",
+            "av1",
+            "dv",
+            "hdr10",
+            "hdr10plus",
+            "atmos",
+            "h264",
+            "dts_audio",
+            "truehd_audio",
+            "dv_no_fallback",
         )
 
     val musicTraits: List<String> =
         listOf(
-            "cd_source", "web_source", "vinyl_source", "log_cue", "hires", "mp3", "aac", "opus", "vorbis", "flac", "alac",
-            "single_image", "lossy_transcode", "deluxe",
+            "cd_source",
+            "web_source",
+            "vinyl_source",
+            "log_cue",
+            "hires",
+            "mp3",
+            "aac",
+            "opus",
+            "vorbis",
+            "flac",
+            "alac",
+            "single_image",
+            "lossy_transcode",
+            "deluxe",
         )
 
     val safetyTraits: List<String> = listOf("sample", "executable", "password_protected", "disc_image")
 
     val languages: List<String> =
         listOf(
-            "en", "fr", "de", "it", "es", "ru", "ja", "ko", "pl", "nl", "pt", "sv", "da", "no", "fi", "cs", "hu", "el", "he", "tr",
-            "ar", "hi", "zh", "th", "vi", "uk",
+            "en",
+            "fr",
+            "de",
+            "it",
+            "es",
+            "ru",
+            "ja",
+            "ko",
+            "pl",
+            "nl",
+            "pt",
+            "sv",
+            "da",
+            "no",
+            "fi",
+            "cs",
+            "hu",
+            "el",
+            "he",
+            "tr",
+            "ar",
+            "hi",
+            "zh",
+            "th",
+            "vi",
+            "uk",
         )
 
     val frenchVersions: List<String> = listOf("VFF", "VFQ", "VFI", "VF2")
@@ -159,8 +222,22 @@ internal data class PickBody(
     companion object {
         private val KNOWN =
             setOf(
-                "steps", "good_enough_at", "traits", "must_have", "never", "blocked_groups", "min_points", "good_enough_points",
-                "size_limits", "protocol", "language", "order", "upgrade_min_points", "replace_under_min", "proper_policy", "tags",
+                "steps",
+                "good_enough_at",
+                "traits",
+                "must_have",
+                "never",
+                "blocked_groups",
+                "min_points",
+                "good_enough_points",
+                "size_limits",
+                "protocol",
+                "language",
+                "order",
+                "upgrade_min_points",
+                "replace_under_min",
+                "proper_policy",
+                "tags",
                 "devices",
             )
 
@@ -185,18 +262,19 @@ internal data class PickBody(
                 minPoints = json.number("min_points"),
                 goodEnoughPoints = (json["good_enough_points"] as? JsonPrimitive)?.longOrNull,
                 sizeLimits =
-                    limits.entries.mapNotNull { (step, value) ->
-                        (value as? JsonObject)?.let {
-                            step to
-                                SizeEntry(
-                                    it.number("min"),
-                                    it.number("max"),
-                                    it.number("preferred"),
-                                    it.flag("per_minute"),
-                                    it.without("min", "max", "preferred", "per_minute"),
-                                )
-                        }
-                    }.toMap(),
+                    limits.entries
+                        .mapNotNull { (step, value) ->
+                            (value as? JsonObject)?.let {
+                                step to
+                                    SizeEntry(
+                                        it.number("min"),
+                                        it.number("max"),
+                                        it.number("preferred"),
+                                        it.flag("per_minute"),
+                                        it.without("min", "max", "preferred", "per_minute"),
+                                    )
+                            }
+                        }.toMap(),
                 prefer = protocol.text("prefer").ifEmpty { "either" },
                 waitTorrent = protocol.number("wait_minutes_torrent"),
                 waitUsenet = protocol.number("wait_minutes_usenet"),
@@ -221,7 +299,16 @@ internal data class PickBody(
 
         fun blank(kind: String): PickBody {
             val music = kind == "music"
-            val on = if (music) listOf("lossy_high", "lossless", "lossless_hires") else listOf("720p_tv", "720p_web", "720p_bluray", "1080p_tv", "1080p_web", "1080p_bluray")
+            val on =
+                if (music) {
+                    listOf(
+                        "lossy_high",
+                        "lossless",
+                        "lossless_hires",
+                    )
+                } else {
+                    listOf("720p_tv", "720p_web", "720p_bluray", "1080p_tv", "1080p_web", "1080p_bluray")
+                }
             val ladder = if (music) SettingsPickRuleChoices.musicLadder else SettingsPickRuleChoices.videoLadder
             return PickBody(
                 steps = ladder.map { StepEntry(it, it in on) },
@@ -238,26 +325,31 @@ internal data class PickBody(
     }
 }
 
-
 private fun StepEntry.json(): JsonObject =
-    JsonObject(LinkedHashMap<String, JsonElement>(extra).also {
-        it["quality"] = JsonPrimitive(quality)
-        it["allowed"] = JsonPrimitive(allowed)
-    })
+    JsonObject(
+        LinkedHashMap<String, JsonElement>(extra).also {
+            it["quality"] = JsonPrimitive(quality)
+            it["allowed"] = JsonPrimitive(allowed)
+        },
+    )
 
 private fun TraitEntry.json(): JsonObject =
-    JsonObject(LinkedHashMap<String, JsonElement>(extra).also {
-        it["trait"] = JsonPrimitive(trait)
-        it["points"] = JsonPrimitive(points)
-    })
+    JsonObject(
+        LinkedHashMap<String, JsonElement>(extra).also {
+            it["trait"] = JsonPrimitive(trait)
+            it["points"] = JsonPrimitive(points)
+        },
+    )
 
 private fun SizeEntry.json(): JsonObject =
-    JsonObject(LinkedHashMap<String, JsonElement>(extra).also {
-        it["min"] = JsonPrimitive(min)
-        it["max"] = JsonPrimitive(max)
-        if (preferred != 0L) it["preferred"] = JsonPrimitive(preferred) else it.remove("preferred")
-        it["per_minute"] = JsonPrimitive(perMinute)
-    })
+    JsonObject(
+        LinkedHashMap<String, JsonElement>(extra).also {
+            it["min"] = JsonPrimitive(min)
+            it["max"] = JsonPrimitive(max)
+            if (preferred != 0L) it["preferred"] = JsonPrimitive(preferred) else it.remove("preferred")
+            it["per_minute"] = JsonPrimitive(perMinute)
+        },
+    )
 
 private fun strings(values: List<String>): JsonArray = JsonArray(values.map { JsonPrimitive(it) })
 

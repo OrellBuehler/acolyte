@@ -32,7 +32,8 @@ data class SettingsPickRuleUse(
             ).filter { it.count > 0 }
 }
 
-internal fun PickRuleUse.toPublic(): SettingsPickRuleUse = SettingsPickRuleUse(versions, libraryFolders, outsideLists, wishlist, titleDefaults)
+internal fun PickRuleUse.toPublic(): SettingsPickRuleUse =
+    SettingsPickRuleUse(versions, libraryFolders, outsideLists, wishlist, titleDefaults)
 
 data class SettingsQualityNotice(
     val seq: Int,
@@ -55,7 +56,8 @@ private fun ApiError.bodyObject(): JsonObject? = runCatching { ApiJson.lenient.p
 
 internal fun ApiError.fieldName(): String = (bodyObject()?.get("field") as? JsonPrimitive)?.contentOrNull.orEmpty()
 
-internal fun ApiError.serverText(): String = (bodyObject()?.get("error") as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() } ?: message
+internal fun ApiError.serverText(): String =
+    (bodyObject()?.get("error") as? JsonPrimitive)?.contentOrNull?.takeIf { it.isNotBlank() } ?: message
 
 internal fun ApiError.inUse(): SettingsPickRuleUse? {
     val element = bodyObject()?.get("in_use") as? JsonObject ?: return null

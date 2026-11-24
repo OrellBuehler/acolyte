@@ -331,9 +331,25 @@ private val NESTED =
 
 internal val SETTINGS_PICK_RULE_FIELDS: Set<String> =
     setOf(
-        "name", "kinds", "steps", "good_enough_at", "good_enough_points", "traits", "must_have", "never", "size_limits", "prefer",
-        "wait_minutes_torrent", "wait_days", "wait_minutes_usenet", "language", "min_points", "upgrade_min_points", "order",
-        "proper_policy", "max_age_days",
+        "name",
+        "kinds",
+        "steps",
+        "good_enough_at",
+        "good_enough_points",
+        "traits",
+        "must_have",
+        "never",
+        "size_limits",
+        "prefer",
+        "wait_minutes_torrent",
+        "wait_days",
+        "wait_minutes_usenet",
+        "language",
+        "min_points",
+        "upgrade_min_points",
+        "order",
+        "proper_policy",
+        "max_age_days",
     )
 
 internal fun settingsPickRuleFieldKey(field: String): String {

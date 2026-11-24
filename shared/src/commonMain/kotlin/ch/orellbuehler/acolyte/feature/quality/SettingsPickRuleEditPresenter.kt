@@ -114,15 +114,18 @@ data class SettingsPickRuleEditState(
 
     fun problem(field: String): SettingsPickRuleProblem? = problems.firstOrNull { it.field == field }
 
-    fun choice(id: String): SettingsTraitChoice =
-        mine.firstOrNull { it.id == id } ?: SettingsTraitChoice(id, id.startsWith(OWN_PREFIX), "")
+    fun choice(id: String): SettingsTraitChoice = mine.firstOrNull { it.id == id } ?: SettingsTraitChoice(id, id.startsWith(OWN_PREFIX), "")
 
     val traitChoices: List<SettingsTraitChoice> get() = form.traitChoices.map { SettingsTraitChoice(it, false, "") } + mine
 
     val neverChoices: List<SettingsTraitChoice> get() = form.neverChoices.map { SettingsTraitChoice(it, false, "") } + mine
 
     fun freeTraitChoices(index: Int): List<SettingsTraitChoice> {
-        val taken = form.traits.filterIndexed { i, _ -> i != index }.map { it.trait }.toSet()
+        val taken =
+            form.traits
+                .filterIndexed { i, _ -> i != index }
+                .map { it.trait }
+                .toSet()
         return traitChoices.filter { it.id !in taken }
     }
 
@@ -226,7 +229,10 @@ class SettingsPickRuleEditPresenter internal constructor(
         up: Boolean,
     ) = edit { it.copy(steps = moveStep(it.steps, quality, up)) }
 
-    fun setGoodEnoughAt(quality: String) = edit { if (it.allowedBestFirst.any { s -> s.quality == quality }) it.copy(goodEnoughAt = quality) else it }
+    fun setGoodEnoughAt(quality: String) =
+        edit {
+            if (it.allowedBestFirst.any { s -> s.quality == quality }) it.copy(goodEnoughAt = quality) else it
+        }
 
     fun setGoodEnoughPoints(text: String) = edit { it.copy(goodEnoughPoints = intText(text, true)) }
 
@@ -280,7 +286,15 @@ class SettingsPickRuleEditPresenter internal constructor(
     fun removeBlockedGroup(group: String) = edit { it.copy(blockedGroups = it.blockedGroups - group) }
 
     fun toggleDevice(id: String) =
-        edit { if (id !in SettingsPickRuleChoices.devices) it else it.copy(devices = if (id in it.devices) it.devices - id else it.devices + id) }
+        edit {
+            if (id !in
+                SettingsPickRuleChoices.devices
+            ) {
+                it
+            } else {
+                it.copy(devices = if (id in it.devices) it.devices - id else it.devices + id)
+            }
+        }
 
     fun setSizeMin(text: String) = edit { it.copy(sizeMin = sizeText(text)) }
 
@@ -292,7 +306,16 @@ class SettingsPickRuleEditPresenter internal constructor(
                 form
             } else {
                 val ladder = form.steps.map { it.quality }
-                val rows = (form.stepSizes + SettingsPickRuleStepSize(step, form.sizeMin, "", form.sizeMax)).sortedBy { ladder.indexOf(it.step) }
+                val rows =
+                    (
+                        form.stepSizes +
+                            SettingsPickRuleStepSize(
+                                step,
+                                form.sizeMin,
+                                "",
+                                form.sizeMax,
+                            )
+                    ).sortedBy { ladder.indexOf(it.step) }
                 form.copy(stepSizes = rows)
             }
         }
@@ -448,7 +471,14 @@ class SettingsPickRuleEditPresenter internal constructor(
                 mutableState.update {
                     it.copy(
                         trash = it.trash.copy(busy = false, result = trashResult(applied)),
-                        notice = notices.make("applied", it.form.synced?.name.orEmpty(), applied.scored.size),
+                        notice =
+                            notices.make(
+                                "applied",
+                                it.form.synced
+                                    ?.name
+                                    .orEmpty(),
+                                applied.scored.size,
+                            ),
                     )
                 }
             }
@@ -497,7 +527,12 @@ private fun choicesOf(traits: List<OwnTrait>): List<SettingsTraitChoice> =
 
 private fun trashResult(applied: TrashApplied): SettingsTrashResult =
     SettingsTrashResult(
-        name = PickBody.from(applied.pickRules.body).synced?.let { (it["name"] as? JsonPrimitive)?.contentOrNull }.orEmpty(),
+        name =
+            PickBody
+                .from(applied.pickRules.body)
+                .synced
+                ?.let { (it["name"] as? JsonPrimitive)?.contentOrNull }
+                .orEmpty(),
         scored = applied.scored.size,
         added = applied.added,
         updated = applied.updated,

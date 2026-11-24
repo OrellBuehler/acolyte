@@ -83,7 +83,10 @@ class QualitySetsLogicTest {
             allowed.map { it.jsonObject["quality"]!!.jsonPrimitive.content },
         )
         assertEquals("1080p_web", json["good_enough_at"]!!.jsonPrimitive.content)
-        assertEquals(listOf("sample", "executable", "password_protected", "disc_image"), json["never"]!!.jsonArray.map { it.jsonPrimitive.content })
+        assertEquals(
+            listOf("sample", "executable", "password_protected", "disc_image"),
+            json["never"]!!.jsonArray.map { it.jsonPrimitive.content },
+        )
         val star = json["size_limits"]!!.jsonObject["*"]!!.jsonObject
         assertEquals("8947848", star["min"]!!.jsonPrimitive.content)
         assertEquals("107374182", star["max"]!!.jsonPrimitive.content)
@@ -117,9 +120,23 @@ class QualitySetsLogicTest {
         assertEquals(8947848L, star.min)
         assertEquals(107374182L, star.max)
         form = form.copy(sizeMin = "0.50", sizeMax = "6")
-        assertEquals(8947848L, form.toBody().sizeLimits.getValue("*").min)
+        assertEquals(
+            8947848L,
+            form
+                .toBody()
+                .sizeLimits
+                .getValue("*")
+                .min,
+        )
         form = form.copy(sizeMax = "8")
-        assertEquals(bytesPerMinute(8.0), form.toBody().sizeLimits.getValue("*").max)
+        assertEquals(
+            bytesPerMinute(8.0),
+            form
+                .toBody()
+                .sizeLimits
+                .getValue("*")
+                .max,
+        )
         form = form.copy(sizeMin = "", sizeMax = "")
         assertNull(form.toBody().sizeLimits["*"])
         form = form.copy(sizeMin = "1", sizeMax = "")
@@ -230,8 +247,14 @@ class QualitySetsLogicTest {
         val none = ok.copy(steps = ok.steps.map { it.copy(allowed = false) })
         assertEquals("step_on", checkPickRuleBody("a", listOf("movie"), none, own)["steps"]!!.code)
         assertNull(checkPickRuleBody("a", listOf("movie"), none, own)["good_enough_at"])
-        assertEquals("good_enough", checkPickRuleBody("a", listOf("movie"), ok.copy(goodEnoughAt = "1080p_bluray"), own)["good_enough_at"]!!.code)
-        assertEquals("trait_once", checkPickRuleBody("a", listOf("movie"), ok.copy(mustHave = listOf("hevc", "hevc")), own)["must_have"]!!.code)
+        assertEquals(
+            "good_enough",
+            checkPickRuleBody("a", listOf("movie"), ok.copy(goodEnoughAt = "1080p_bluray"), own)["good_enough_at"]!!.code,
+        )
+        assertEquals(
+            "trait_once",
+            checkPickRuleBody("a", listOf("movie"), ok.copy(mustHave = listOf("hevc", "hevc")), own)["must_have"]!!.code,
+        )
         val must = checkPickRuleBody("a", listOf("movie"), ok.copy(mustHave = listOf("sample")), own)["must_have"]!!
         assertEquals("cannot_be_must", must.code)
         assertEquals("sample", must.arg)

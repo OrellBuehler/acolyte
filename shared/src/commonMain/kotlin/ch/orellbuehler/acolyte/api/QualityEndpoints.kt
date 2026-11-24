@@ -25,5 +25,6 @@ internal data object QualityEndpoints : EndpointGroup() {
     val changeTrait = put("/api/v1/own-traits/{id}", OwnTraitInput.serializer(), OwnTrait.serializer(), Need.SETTINGS, Part.MEDIA)
     val removeTrait = delete("/api/v1/own-traits/{id}", OwnTraitRemoved.serializer(), Need.SETTINGS, Part.MEDIA)
 
-    val nameCheck = post("/api/v1/releases/name-check", NameCheckBody.serializer(), NameCheckAnswer.serializer(), Need.MANAGE_LIBRARY, Part.MEDIA)
+    val nameCheck =
+        post("/api/v1/releases/name-check", NameCheckBody.serializer(), NameCheckAnswer.serializer(), Need.MANAGE_LIBRARY, Part.MEDIA)
 }

@@ -52,7 +52,13 @@ class QualitySetsPresenterTest {
             assertEquals("60", s.handMade[0].over)
             assertEquals("", s.handMade[0].upTo)
             assertEquals(listOf("T1"), s.trashTraits.map { it.name })
-            assertTrue(s.trashTraits.single().specs.single().negate)
+            assertTrue(
+                s.trashTraits
+                    .single()
+                    .specs
+                    .single()
+                    .negate,
+            )
             assertEquals(listOf("Old"), s.importedTraits.map { it.name })
             assertEquals("sonarr", s.importedTraits.single().app)
         }
@@ -61,7 +67,11 @@ class QualitySetsPresenterTest {
     fun presetsOnlyHaveNoChipAndViewersCannotEdit() =
         runTest {
             val server = FakeServer()
-            server.json("GET", "/api/v1/pick-rules", """{"pick_rules":[{"id":1,"name":"Standard","kinds":["movie"],"preset":true,"in_use":0}]}""")
+            server.json(
+                "GET",
+                "/api/v1/pick-rules",
+                """{"pick_rules":[{"id":1,"name":"Standard","kinds":["movie"],"preset":true,"in_use":0}]}""",
+            )
             server.json("GET", "/api/v1/own-traits", """{"own_traits":[]}""")
             val viewer = SettingsPickRulesPresenter(server.api()) { testAccount(Role.ADMIN, listOf("manage_library")) }
             viewer.load()
@@ -99,7 +109,11 @@ class QualitySetsPresenterTest {
             presenter.askRemove(1)
             assertNull(presenter.state.value.remove)
             presenter.askRemove(2)
-            assertEquals(4, presenter.state.value.remove!!.inUse)
+            assertEquals(
+                4,
+                presenter.state.value.remove!!
+                    .inUse,
+            )
             presenter.confirmRemove()
             val refused = presenter.state.value.remove!!
             assertEquals(listOf("versions" to 2, "library_folders" to 1), refused.use!!.parts.map { it.key to it.count })
@@ -116,8 +130,13 @@ class QualitySetsPresenterTest {
     fun ownTraitsMakeChangeAndRemove() =
         runTest {
             val server = listServer()
-            server.on("POST", "/api/v1/own-traits") { respondJson("""{"id":11,"key":"own:11","name":"Anime","match":"group","terms":["A","B"]}""", 201) }
-            server.on("PUT", "/api/v1/own-traits/8") { respondJson("""{"id":8,"key":"own:8","name":"Big","match":"size","terms":["2-8"]}""") }
+            server.on("POST", "/api/v1/own-traits") {
+                respondJson("""{"id":11,"key":"own:11","name":"Anime","match":"group","terms":["A","B"]}""", 201)
+            }
+            server.on(
+                "PUT",
+                "/api/v1/own-traits/8",
+            ) { respondJson("""{"id":8,"key":"own:8","name":"Big","match":"size","terms":["2-8"]}""") }
             server.on("DELETE", "/api/v1/own-traits/7") { respondJson("""{"pick_rules_changed":2}""") }
             val presenter = SettingsPickRulesPresenter(server.api(), owner)
             presenter.load()
@@ -128,7 +147,10 @@ class QualitySetsPresenterTest {
             var sheet = presenter.state.value.traitSheet!!
             assertEquals("terms_min", sheet.problem("terms")!!.code)
             presenter.setTraitTerms("A\n\n  B \n")
-            assertNull(presenter.state.value.traitSheet!!.problem("terms"))
+            assertNull(
+                presenter.state.value.traitSheet!!
+                    .problem("terms"),
+            )
             presenter.saveTrait()
             val s = presenter.state.value
             assertNull(s.traitSheet)
@@ -144,10 +166,20 @@ class QualitySetsPresenterTest {
             presenter.setTraitOver("2")
             presenter.setTraitUpTo("8")
             presenter.saveTrait()
-            assertTrue(server.request("PUT", "/api/v1/own-traits/8").body.orEmpty().contains(""""terms":["2-8"]"""))
+            assertTrue(
+                server
+                    .request("PUT", "/api/v1/own-traits/8")
+                    .body
+                    .orEmpty()
+                    .contains(""""terms":["2-8"]"""),
+            )
             presenter.setTraitMatch("size")
             presenter.askRemoveTrait(7)
-            assertEquals("Subs", presenter.state.value.traitRemove!!.name)
+            assertEquals(
+                "Subs",
+                presenter.state.value.traitRemove!!
+                    .name,
+            )
             presenter.confirmRemoveTrait()
             val after = presenter.state.value
             assertNull(after.traitRemove)
@@ -177,7 +209,12 @@ class QualitySetsPresenterTest {
             presenter.setTraitOver("5")
             presenter.setTraitUpTo("2")
             presenter.saveTrait()
-            assertEquals("size_range", presenter.state.value.traitSheet!!.problem("terms")!!.code)
+            assertEquals(
+                "size_range",
+                presenter.state.value.traitSheet!!
+                    .problem("terms")!!
+                    .code,
+            )
         }
 
     @Test
@@ -239,7 +276,10 @@ class QualitySetsPresenterTest {
             assertNotNull(c.error)
             assertNull(c.result)
             assertFalse(c.busy)
-            server.on("POST", "/api/v1/releases/name-check") { respondJson("""{"name":"x","parsed":{},"title":null,"copies":[],"note":"no_title"}""") }
+            server.on(
+                "POST",
+                "/api/v1/releases/name-check",
+            ) { respondJson("""{"name":"x","parsed":{},"title":null,"copies":[],"note":"no_title"}""") }
             presenter.runCheck()
             val r = presenter.state.value.check.result!!
             assertEquals("no_title", r.hint)
@@ -285,7 +325,12 @@ class QualitySetsPresenterTest {
             val sent = ApiJson.lenient.parseToJsonElement(server.request("PUT", "/api/v1/pick-rules/4").body.orEmpty()).jsonObject
             assertEquals("Renamed", sent["name"]!!.jsonPrimitive.content)
             val body = sent["body"]!!.jsonObject
-            assertEquals(listOf("1080p_web", "720p_web", "1080p_bluray"), body["steps"]!!.jsonArray.map { it.jsonObject["quality"]!!.jsonPrimitive.content })
+            assertEquals(
+                listOf("1080p_web", "720p_web", "1080p_bluray"),
+                body["steps"]!!.jsonArray.map {
+                    it.jsonObject["quality"]!!.jsonPrimitive.content
+                },
+            )
             assertEquals("5", body["good_enough_points"]!!.jsonPrimitive.content)
             assertEquals(ApiJson.lenient.parseToJsonElement(SERVER_BODY).jsonObject["equal_steps"], body["equal_steps"])
             assertEquals(ApiJson.lenient.parseToJsonElement(SERVER_BODY).jsonObject["synced"], body["synced"])
@@ -315,9 +360,19 @@ class QualitySetsPresenterTest {
             assertFalse(presenter.state.value.dirty)
             presenter.addTrait()
             assertEquals(3, presenter.state.value.form.traits.size)
-            assertEquals("ddp_audio", presenter.state.value.form.traits.last().trait)
+            assertEquals(
+                "ddp_audio",
+                presenter.state.value.form.traits
+                    .last()
+                    .trait,
+            )
             presenter.setTraitKey(2, "hevc")
-            assertEquals("ddp_audio", presenter.state.value.form.traits.last().trait)
+            assertEquals(
+                "ddp_audio",
+                presenter.state.value.form.traits
+                    .last()
+                    .trait,
+            )
             presenter.removeTrait(2)
             presenter.setStepAllowed("1080p_web", false)
             assertEquals("720p_web", presenter.state.value.form.goodEnoughAt)
@@ -328,7 +383,10 @@ class QualitySetsPresenterTest {
         runTest {
             val server = editServer()
             server.on("PUT", "/api/v1/pick-rules/4") {
-                respondJson("""{"error":"The preferred size for \"1080p_web\" must sit between its smallest and largest.","field":"body.size_limits"}""", 400)
+                respondJson(
+                    """{"error":"The preferred size for \"1080p_web\" must sit between its smallest and largest.","field":"body.size_limits"}""",
+                    400,
+                )
             }
             val presenter = SettingsPickRuleEditPresenter(server.api(), owner, 4, 0)
             presenter.load()
@@ -351,9 +409,17 @@ class QualitySetsPresenterTest {
             assertNull(s.problem("size_limits"))
             assertNotNull(s.formError)
             assertEquals(1, s.formUse!!.versions)
-            server.on("PUT", "/api/v1/pick-rules/4") { respondJson("""{"error":"Other Pick rules already have this name.","field":"name"}""", 409) }
+            server.on(
+                "PUT",
+                "/api/v1/pick-rules/4",
+            ) { respondJson("""{"error":"Other Pick rules already have this name.","field":"name"}""", 409) }
             presenter.save()
-            assertEquals("Other Pick rules already have this name.", presenter.state.value.problem("name")!!.arg)
+            assertEquals(
+                "Other Pick rules already have this name.",
+                presenter.state.value
+                    .problem("name")!!
+                    .arg,
+            )
         }
 
     @Test
@@ -438,11 +504,37 @@ class QualitySetsPresenterTest {
             t = presenter.state.value.trash
             assertEquals(2, t.result!!.added)
             assertEquals(2, t.result!!.scored)
-            assertEquals(listOf("language"), t.result!!.skipped.first().kinds)
-            assertEquals("applied", presenter.state.value.notice!!.kind)
-            assertEquals("HD", presenter.state.value.notice!!.name)
-            assertTrue(server.request("POST", "/api/v1/pick-rules/4/trash").body.orEmpty().contains(""""profile_id":"p0""""))
+            assertEquals(
+                listOf("language"),
+                t.result!!
+                    .skipped
+                    .first()
+                    .kinds,
+            )
+            assertEquals(
+                "applied",
+                presenter.state.value.notice!!
+                    .kind,
+            )
+            assertEquals(
+                "HD",
+                presenter.state.value.notice!!
+                    .name,
+            )
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/pick-rules/4/trash")
+                    .body
+                    .orEmpty()
+                    .contains(""""profile_id":"p0""""),
+            )
             presenter.syncAgain()
-            assertTrue(server.request("POST", "/api/v1/pick-rules/4/trash").body.orEmpty().contains(""""profile_id":"p1""""))
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/pick-rules/4/trash")
+                    .body
+                    .orEmpty()
+                    .contains(""""profile_id":"p1""""),
+            )
         }
 }
