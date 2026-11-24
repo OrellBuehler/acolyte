@@ -90,6 +90,13 @@ internal data class HomeHealth(
     @SerialName("uptime_s") val uptimeSeconds: Long = 0,
     val sources: List<HomeHealthPart>? = null,
     val downloaders: List<HomeHealthPart>? = null,
+    val ok: Boolean = false,
+    val schema: Int = 0,
+    val writes: Long = 0,
+    @SerialName("write_wait_p95_ms") val writeWaitP95Ms: Double = 0.0,
+    @SerialName("write_wait_samples") val writeWaitSamples: Long = 0,
+    @SerialName("live_clients") val liveClients: Int = 0,
+    @SerialName("url_base") val urlBase: String = "",
 )
 
 @Serializable

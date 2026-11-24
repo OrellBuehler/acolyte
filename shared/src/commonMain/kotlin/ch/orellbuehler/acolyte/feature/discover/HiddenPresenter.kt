@@ -291,6 +291,8 @@ data class ExploreStatsState(
     val isEmpty: Boolean get() = status.phase == Phase.READY && rows.isEmpty() && layers.isEmpty()
 }
 
+private const val ROW_TITLE_STATS = "row_title_stats"
+
 class ExploreStatsPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
@@ -309,7 +311,7 @@ class ExploreStatsPresenter internal constructor(
             is ApiResult.Failed -> mutableState.update { it.copy(status = it.status.failed(result.error)) }
             is ApiResult.Ok -> {
                 val layers =
-                    if (account()?.role == Role.OWNER) {
+                    if (account()?.role == Role.OWNER && account()?.isHeld(ROW_TITLE_STATS) != true) {
                         api
                             .result(DiscoverEndpoints.titleStats)
                             .valueOrNull()

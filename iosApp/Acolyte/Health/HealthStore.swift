@@ -26,8 +26,51 @@ final class HealthStore {
         await driver.refresh()
     }
 
-    func runChecks() {
+    func checkAll() {
         let driver = self.driver
-        Task { await driver.runChecks() }
+        Task { await driver.checkAll() }
+    }
+
+    func check(_ key: String) {
+        let driver = self.driver
+        Task { await driver.check(key) }
+    }
+
+    func checkUpdates() {
+        let driver = self.driver
+        Task { await driver.checkUpdates() }
+    }
+
+    func setCheckOn(_ on: Bool) {
+        let driver = self.driver
+        Task { await driver.setCheckOn(on) }
+    }
+
+    func setMode(_ mode: StatusModeID) {
+        let driver = self.driver
+        Task { await driver.setMode(mode) }
+    }
+
+    func installNow() {
+        let driver = self.driver
+        Task { await driver.installNow() }
+    }
+
+    func goBack() {
+        let driver = self.driver
+        Task { await driver.goBack() }
+    }
+
+    func downloadBundle() {
+        let driver = self.driver
+        Task { await driver.downloadBundle() }
+    }
+
+    func bundleHandled() {
+        driver.bundleHandled()
+    }
+
+    func dismissNotice() {
+        driver.dismissNotice()
     }
 }

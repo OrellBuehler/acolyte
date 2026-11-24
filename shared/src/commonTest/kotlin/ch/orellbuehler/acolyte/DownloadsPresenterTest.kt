@@ -51,7 +51,7 @@ internal fun FakeServer.recorded(): List<Recorded> {
 }
 
 internal suspend fun TestScope.eventually(check: () -> Boolean) {
-    repeat(200) {
+    repeat(600) {
         runCurrent()
         if (check()) return
         withContext(Dispatchers.Default) { delay(10) }

@@ -352,6 +352,74 @@ final class SDKClient: @unchecked Sendable {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
 
+    func makeSettingsHome() -> SettingsHomeDriver {
+        SettingsHomeDriver(presenter: sdk.settingsHome())
+    }
+
+    func makeSettingsLookAppearance() -> SettingsLookAppearanceDriver {
+        SettingsLookAppearanceDriver(presenter: sdk.settingsLookAppearance())
+    }
+
+    func makeSettingsLookDefaults() -> SettingsLookDefaultsDriver {
+        SettingsLookDefaultsDriver(presenter: sdk.settingsLookDefaults())
+    }
+
+    func makeSettingsLookMetadata() -> SettingsLookMetadataDriver {
+        SettingsLookMetadataDriver(presenter: sdk.settingsLookMetadata())
+    }
+
+    func makeSettingsMediaServers() -> SettingsMediaServersDriver {
+        SettingsMediaServersDriver(presenter: sdk.settingsMediaServers())
+    }
+
+    func makeSettingsApi() -> SettingsApiDriver {
+        SettingsApiDriver(presenter: sdk.settingsApi())
+    }
+
+    func makeSettingsAi() -> SettingsAiDriver {
+        SettingsAiDriver(presenter: sdk.settingsAi())
+    }
+
+    func settingsRemoteAccessURL() -> URL? {
+        URL(string: sdk.settingsRemoteAccessUrl())
+    }
+
+    func makeHealthChecks() -> HealthChecksDriver {
+        HealthChecksDriver(presenter: sdk.settingsHealthChecks())
+    }
+
+    func makeSettingsControlsParts() -> SettingsControlsPartsDriver {
+        SettingsControlsPartsDriver(presenter: sdk.settingsControlsParts())
+    }
+
+    func makeSettingsControlsThisApp() -> SettingsControlsThisAppDriver {
+        SettingsControlsThisAppDriver(presenter: sdk.settingsControlsThisApp())
+    }
+
+    func makeSettingsControlsDanger() -> SettingsControlsDangerDriver {
+        SettingsControlsDangerDriver(presenter: sdk.settingsControlsDanger())
+    }
+
+    func makeSettingsControlsSchedules() -> SettingsControlsSchedulesDriver {
+        SettingsControlsSchedulesDriver(presenter: sdk.settingsControlsSchedules())
+    }
+
+    func makeSettingsAlerts() -> SettingsServerAlertsDriver {
+        SettingsServerAlertsDriver(presenter: sdk.settingsAlerts())
+    }
+
+    func makeSettingsBackups() -> SettingsServerBackupsDriver {
+        SettingsServerBackupsDriver(presenter: sdk.settingsBackups())
+    }
+
+    func makeSettingsLogs() -> SettingsServerLogsDriver {
+        SettingsServerLogsDriver(presenter: sdk.settingsLogs())
+    }
+
+    func makeSettingsSignIn() -> SettingsSignInDriver {
+        SettingsSignInDriver(presenter: sdk.settingsSignIn())
+    }
+
     // music
     func musicAccess() -> MusicAccessInfo {
         Mapping.musicAccess(sdk.musicAccess())

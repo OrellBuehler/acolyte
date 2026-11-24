@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.SettingsKeysAddresses
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
@@ -83,6 +84,22 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.settings.SettingsHomePresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsDangerPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsPartsPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsSchedulesPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsAiPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiPresenter
+import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookAppearancePresenter
+import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookDefaultsPresenter
+import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookMetadataPresenter
+import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServersPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerAlertsPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerBackupsPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerLogsPresenter
+import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInPresenter
+import ch.orellbuehler.acolyte.feature.settings.status.SettingsHealthChecksPresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckPresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceHealthPresenter
@@ -121,7 +138,7 @@ class AcolyteSdk internal constructor(
 
     fun signIn(): SignInFlow = SignInFlow(session)
 
-    fun health(): HealthPresenter = HealthPresenter(session.api)
+    fun health(): HealthPresenter = HealthPresenter(session.api, { session.account })
 
     private val libraryPrefs = LibraryPrefs(store)
 
@@ -278,6 +295,60 @@ class AcolyteSdk internal constructor(
     ): SettingsPickRuleEditPresenter = SettingsPickRuleEditPresenter(session.api, { session.account }, id, from)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsHome(): SettingsHomePresenter = SettingsHomePresenter(session.api, { session.account }, downloadBadges, inbox)
+
+    fun settingsLookAppearance(): SettingsLookAppearancePresenter = SettingsLookAppearancePresenter(session.api) { session.account }
+
+    fun settingsLookDefaults(): SettingsLookDefaultsPresenter = SettingsLookDefaultsPresenter(session.api) { session.account }
+
+    fun settingsLookMetadata(): SettingsLookMetadataPresenter = SettingsLookMetadataPresenter(session.api) { session.account }
+
+    fun settingsMediaServers(): SettingsMediaServersPresenter =
+        SettingsMediaServersPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsApi(): SettingsApiPresenter =
+        SettingsApiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsAi(): SettingsAiPresenter =
+        SettingsAiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
+
+    fun settingsHealthChecks(): SettingsHealthChecksPresenter = SettingsHealthChecksPresenter(session.api) { session.account }
+
+    fun settingsControlsParts(): SettingsControlsPartsPresenter =
+        SettingsControlsPartsPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsThisApp(): SettingsControlsThisAppPresenter =
+        SettingsControlsThisAppPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsControlsDanger(): SettingsControlsDangerPresenter =
+        SettingsControlsDangerPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsSchedules(): SettingsControlsSchedulesPresenter =
+        SettingsControlsSchedulesPresenter(session.api, { session.account })
+
+    fun settingsAlerts(): SettingsServerAlertsPresenter = SettingsServerAlertsPresenter(session.api) { session.account }
+
+    fun settingsBackups(): SettingsServerBackupsPresenter =
+        SettingsServerBackupsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsLogs(): SettingsServerLogsPresenter =
+        SettingsServerLogsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsSignIn(): SettingsSignInPresenter =
+        SettingsSignInPresenter(session.api, { session.account }) { password, code -> session.reauth(password, code) }
 
     fun settingsSubtitles(): SettingsSubtitlePresenter = SettingsSubtitlePresenter(session.api) { session.account }
 

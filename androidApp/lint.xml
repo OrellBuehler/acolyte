@@ -9,7 +9,7 @@
 
     <!-- The German strings use Swiss spelling (ss instead of the eszett). -->
     <issue id="Typos">
-        <ignore path="**/values-de/strings.xml" />
+        <ignore path="**/values-de/strings*.xml" />
     </issue>
 
     <!-- Self-hosted servers are often reached over plain HTTP on the home

@@ -10,6 +10,14 @@ internal object KnownSpecGaps {
 
     val problems: Map<String, String> =
         AccountSpecGaps.problems +
+            GapsSignIn.problems +
+            GapsKeys.problems +
+            GapsLook.problems +
+            GapsServer.problems +
+            GapsStatus.problems +
+            GapsControls.problems +
+            GapsMediaServers.problems +
+            GapsAccountKeys.problems +
             mapOf(
                 "GET /api/v1/music/artists/{mbid}: query parameter 'part' is not in the spec (it has [])" to
                     "internal/music/pages_core.go reads part (core, similar, more, videos, video)",
@@ -353,8 +361,13 @@ internal object KnownSpecGaps {
                     "routes_check.go reads {query, kind}; both are optional",
             )
 
-    val liveSkips: Map<String, String> =
+    val liveSkips: Map<String, String>
+        get() = liveBase + GapsMediaServers.liveSkips
+
+    private val liveBase: Map<String, String> =
         mapOf(
+            "GET /api/v1/auth/sso" to "session-only: an API key gets 403 reauth",
+            "GET /api/v1/settings/ai" to "held back in this release (404 while ai_apps is held)",
             "GET /api/v1/trash/profiles" to "needs ?app=, which the spec does not list; also reads the TRaSH Guides site",
             "GET /api/v1/watch-services" to
                 "needs ?region=, which the spec does not list as a parameter (the handler answers 400 without it)",

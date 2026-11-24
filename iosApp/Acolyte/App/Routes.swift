@@ -104,6 +104,8 @@ struct SectionScreen: View {
             PopularView(account: account)
         case .health:
             HealthView()
+        case .settings:
+            SettingsHomeView(account: account)
         case .requests:
             RequestsView(account: account)
         case .music:
@@ -116,8 +118,6 @@ struct SectionScreen: View {
             CalendarView()
         case .history:
             HistoryView(titleId: 0, episodeId: 0)
-        case .settings:
-            AcquisitionPagesView()
         case .people:
             PeopleView()
         default:
@@ -159,6 +159,22 @@ enum Route: Hashable, Sendable, Identifiable {
     case settingsRequests
     case settingsOutsideLists
     case settingsNeverAdd
+    case settingsSignIn
+    case settingsApi
+    case settingsAi
+    case settingsRemoteAccess
+    case settingsAppearance
+    case settingsTitleDefaults
+    case settingsMetadata
+    case settingsAlerts
+    case settingsBackups
+    case settingsLogs
+    case settingsHealth
+    case settingsParts
+    case settingsThisApp
+    case settingsDanger
+    case settingsSchedules
+    case settingsMediaServers
     case genre(type: ExploreTypeID, genre: Int)
     case browse(BrowseLinkInfo)
     case hidden
@@ -316,6 +332,38 @@ struct RouteScreen: View {
             OutsideListsView()
         case .settingsNeverAdd:
             NeverAddView()
+        case .settingsSignIn:
+            SettingsSignInView()
+        case .settingsApi:
+            SettingsApiView()
+        case .settingsAi:
+            SettingsAiView()
+        case .settingsRemoteAccess:
+            SettingsRemoteAccessView()
+        case .settingsAppearance:
+            SettingsAppearanceView()
+        case .settingsTitleDefaults:
+            SettingsTitleDefaultsView()
+        case .settingsMetadata:
+            SettingsMetadataView()
+        case .settingsAlerts:
+            SettingsAlertsView()
+        case .settingsBackups:
+            SettingsBackupsView()
+        case .settingsLogs:
+            SettingsLogsView()
+        case .settingsHealth:
+            SettingsHealthView()
+        case .settingsParts:
+            SettingsPartsView()
+        case .settingsThisApp:
+            SettingsThisAppView()
+        case .settingsDanger:
+            SettingsDangerView()
+        case .settingsSchedules:
+            SettingsSchedulesView()
+        case .settingsMediaServers:
+            SettingsMediaServersView()
         case let .genre(type, genre):
             GenreView(type: type, genre: genre, account: resolved)
         case let .browse(link):

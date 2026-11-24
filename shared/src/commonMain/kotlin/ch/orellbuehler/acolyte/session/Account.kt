@@ -61,6 +61,8 @@ data class Account(
     val setupSkipped: Boolean = false,
     val held: List<String> = emptyList(),
 ) {
+    fun isHeld(feature: String): Boolean = feature in held
+
     val aiAppsAvailable: Boolean get() = "ai_apps" !in held
 
     val usesCookies: Boolean get() = method != SignInMethod.API_KEY

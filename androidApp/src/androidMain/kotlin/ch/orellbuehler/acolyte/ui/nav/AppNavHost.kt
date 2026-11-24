@@ -57,7 +57,8 @@ import ch.orellbuehler.acolyte.ui.requests.ReportProblemSheet
 import ch.orellbuehler.acolyte.ui.requests.ReportsScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestRulesScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
-import ch.orellbuehler.acolyte.ui.settingsb.AcquisitionPagesScreen
+import ch.orellbuehler.acolyte.ui.settings.SettingsHomeScreen
+import ch.orellbuehler.acolyte.ui.settings.settingsRoutes
 import ch.orellbuehler.acolyte.ui.settingsb.SettingsDownloadersScreen
 import ch.orellbuehler.acolyte.ui.settingsb.SettingsMoveScreen
 import ch.orellbuehler.acolyte.ui.settingsb.SettingsNamingScreen
@@ -141,7 +142,7 @@ fun AppNavHost(
                 onOpenRoute = open,
             )
         }
-        composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }
+        composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH), onOpen = open) }
         composable<PeopleRoute> { PeopleScreen(account, onOpen = open, onBack = back(Section.PEOPLE)) }
         composable<PeopleDetailRoute> { PeopleDetailScreen(it.toRoute<PeopleDetailRoute>().id, account, open, pop) }
         composable<PeopleDevicesRoute> {
@@ -153,7 +154,7 @@ fun AppNavHost(
         composable<AccountAlertsRoute> { AlertsScreen(pop) }
         composable<AccountDevicesRoute> { DevicesScreen(null, stringResource(R.string.myaccount_devices), pop) }
         composable<AiConnectRoute> { AiConnectScreen(pop) }
-        composable<SettingsRoute> { AcquisitionPagesScreen(account, back(Section.SETTINGS), open) }
+        composable<SettingsRoute> { SettingsHomeScreen(account, back(Section.SETTINGS), open) }
         composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT), onOpen = open) }
         dialog<AskRoute> { entry ->
             val route = entry.toRoute<AskRoute>()
@@ -231,5 +232,6 @@ fun AppNavHost(
         }
         composable<SettingsMusicRoute> { MusicSettingsScreen(pop) }
         discoverRoutes(nav, account, discover)
+        settingsRoutes(nav)
     }
 }
