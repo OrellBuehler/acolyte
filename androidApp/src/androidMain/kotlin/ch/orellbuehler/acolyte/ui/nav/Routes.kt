@@ -188,10 +188,21 @@ data object SettingsMediaServersRoute
 data object SettingsSourcesRoute
 
 @Serializable
+data class SettingsSourceHealthRoute(
+    val id: Long,
+)
+
+@Serializable
 data object SettingsDownloadersRoute
 
 @Serializable
 data object SettingsPickRulesRoute
+
+@Serializable
+data class SettingsPickRuleEditRoute(
+    val id: Long = 0,
+    val from: Long = 0,
+)
 
 @Serializable
 data object SettingsNamingRoute
@@ -342,6 +353,20 @@ object Routes {
     fun collection(id: String): CollectionRoute = CollectionRoute(id)
 
     val settingsLibraryFolders: Any = SettingsLibraryFoldersRoute
+    val settingsSources: Any = SettingsSourcesRoute
+    val settingsDownloaders: Any = SettingsDownloadersRoute
+    val settingsPickRules: Any = SettingsPickRulesRoute
+    val settingsNaming: Any = SettingsNamingRoute
+    val settingsSubtitles: Any = SettingsSubtitlesRoute
+    val settingsSearch: Any = SettingsSearchRoute
+    val settingsMove: Any = SettingsMoveRoute
+
+    fun settingsSourceHealth(id: Long): Any = SettingsSourceHealthRoute(id)
+
+    fun settingsPickRuleEdit(
+        id: Long = 0,
+        from: Long = 0,
+    ): Any = SettingsPickRuleEditRoute(id, from)
 
     fun ask(
         kind: String,

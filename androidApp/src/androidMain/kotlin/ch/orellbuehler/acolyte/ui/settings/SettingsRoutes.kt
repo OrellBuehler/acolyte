@@ -16,21 +16,14 @@ import ch.orellbuehler.acolyte.ui.nav.SettingsApiRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsAppearanceRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsBackupsRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsDangerRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsDownloadersRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsHealthRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsLogsRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsMediaServersRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsMetadataRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsMoveRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsNamingRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsPartsRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsPickRulesRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsRemoteAccessRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsSchedulesRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsSearchRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsSignInRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsSourcesRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsSubtitlesRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsThisAppRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsTitleDefaultsRoute
 
@@ -53,17 +46,6 @@ fun NavGraphBuilder.settingsRoutes(nav: NavHostController) {
     composable<SettingsDangerRoute> { SettingsDangerScreen(pop, open) }
     composable<SettingsSchedulesRoute> { SettingsSchedulesScreen(pop, open) }
     composable<SettingsMediaServersRoute> { SettingsMediaServersScreen(pop, open) }
-    settingsPlaceholderRoutes(pop)
-}
-
-private fun NavGraphBuilder.settingsPlaceholderRoutes(pop: () -> Unit) {
-    composable<SettingsSourcesRoute> { SettingsPagePlaceholder(R.string.settings_page_sources, pop) }
-    composable<SettingsDownloadersRoute> { SettingsPagePlaceholder(R.string.settings_page_downloaders, pop) }
-    composable<SettingsPickRulesRoute> { SettingsPagePlaceholder(R.string.settings_page_pick_rules, pop) }
-    composable<SettingsNamingRoute> { SettingsPagePlaceholder(R.string.settings_page_naming, pop) }
-    composable<SettingsSubtitlesRoute> { SettingsPagePlaceholder(R.string.settings_page_subtitles, pop) }
-    composable<SettingsSearchRoute> { SettingsPagePlaceholder(R.string.settings_page_search, pop) }
-    composable<SettingsMoveRoute> { SettingsPagePlaceholder(R.string.settings_page_move, pop) }
 }
 
 @Composable

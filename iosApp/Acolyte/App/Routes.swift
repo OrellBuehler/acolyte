@@ -140,6 +140,15 @@ enum Route: Hashable, Sendable, Identifiable {
     case libraryImport
     case libraryImportFiles(path: String)
     case settingsLibraryFolders
+    case settingsSources
+    case settingsSourceHealth(id: Int64)
+    case settingsDownloaders
+    case settingsPickRules
+    case settingsPickRuleEdit(id: Int64, from: Int64)
+    case settingsNaming
+    case settingsSubtitles
+    case settingsSearch
+    case settingsMove
     case libraryTab(id: Int64, kind: String, tmdb: String)
     case downloads(show: String, open: String)
     case history(titleId: Int64, episodeId: Int64)
@@ -166,13 +175,6 @@ enum Route: Hashable, Sendable, Identifiable {
     case settingsDanger
     case settingsSchedules
     case settingsMediaServers
-    case settingsSources
-    case settingsDownloaders
-    case settingsPickRules
-    case settingsNaming
-    case settingsSubtitles
-    case settingsSearch
-    case settingsMove
     case genre(type: ExploreTypeID, genre: Int)
     case browse(BrowseLinkInfo)
     case hidden
@@ -292,6 +294,24 @@ struct RouteScreen: View {
             LibraryFilesView(path: path)
         case .settingsLibraryFolders:
             LibraryFoldersView()
+        case .settingsSources:
+            SettingsSourcesView(account: resolved)
+        case let .settingsSourceHealth(id):
+            SettingsSourceHealthView(id: id, account: resolved)
+        case .settingsDownloaders:
+            SettingsDownloadersView(account: resolved)
+        case .settingsPickRules:
+            SettingsPickRulesView(account: resolved)
+        case let .settingsPickRuleEdit(id, from):
+            SettingsPickRuleEditView(id: id, from: from, account: resolved)
+        case .settingsNaming:
+            SettingsNamingView(account: resolved)
+        case .settingsSubtitles:
+            SettingsSubtitlesView(account: resolved)
+        case .settingsSearch:
+            SettingsSearchView(account: resolved)
+        case .settingsMove:
+            SettingsMoveView(account: resolved)
         case let .libraryTab(id, kind, tmdb):
             TitleView(kind: kind, tmdb: tmdb, libraryId: id, openLibrary: true)
         case let .downloads(show, open):
@@ -344,20 +364,6 @@ struct RouteScreen: View {
             SettingsSchedulesView()
         case .settingsMediaServers:
             SettingsMediaServersView()
-        case .settingsSources:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.sources"))
-        case .settingsDownloaders:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.downloaders"))
-        case .settingsPickRules:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.pick.rules"))
-        case .settingsNaming:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.naming"))
-        case .settingsSubtitles:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.subtitles"))
-        case .settingsSearch:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.search"))
-        case .settingsMove:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.move"))
         case let .genre(type, genre):
             GenreView(type: type, genre: genre, account: resolved)
         case let .browse(link):

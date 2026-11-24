@@ -473,4 +473,7 @@ internal data class SubtitleReasonBody(
 data class SubtitleTranslator(
     val kind: String = "",
     val url: String = "",
+    val model: String = "",
+    @SerialName("has_key") val hasKey: Boolean = false,
+    @SerialName("built_in_auto") val builtInAuto: Boolean = false,
 )

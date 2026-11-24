@@ -204,6 +204,7 @@ data class PickRule(
     val name: String = "",
     val kinds: List<String> = emptyList(),
     val preset: Boolean = false,
+    @SerialName("in_use") val inUse: Int = 0,
 )
 
 @Serializable

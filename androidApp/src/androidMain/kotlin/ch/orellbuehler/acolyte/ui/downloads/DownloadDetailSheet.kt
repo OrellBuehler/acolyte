@@ -56,6 +56,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.model.Decision
 import ch.orellbuehler.acolyte.api.model.TrackerInfo
+import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DecisionGroup
 import ch.orellbuehler.acolyte.feature.downloads.DecisionHint
@@ -83,6 +84,7 @@ import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.nav.LibraryImportFilesRoute
+import ch.orellbuehler.acolyte.ui.nav.Routes
 import ch.orellbuehler.acolyte.ui.theme.Radius
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
@@ -886,12 +888,18 @@ private fun DecisionCard(
                 )
             if (meta.isNotEmpty()) Text(meta.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = muted)
             when (plan.hint) {
-                DecisionHint.PATH_PAIR ->
+                DecisionHint.PATH_PAIR -> {
                     Text(
                         stringResource(R.string.downloads_decide_hint_path),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.acolyte.waitText,
                     )
+                    if (AcquisitionPage.DOWNLOADERS in LocalSdk.current.acquisitionPages()) {
+                        OutlinedButton(onClick = { onOpenRoute(Routes.settingsDownloaders) }) {
+                            Text(stringResource(R.string.acq_dl_open))
+                        }
+                    }
+                }
                 DecisionHint.MATCH_BY_HAND -> {
                     Text(
                         stringResource(R.string.downloads_decide_hint_match),

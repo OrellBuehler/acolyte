@@ -30,5 +30,10 @@ internal class Api(
         vararg params: Pair<String, Any?>,
     ): ApiResult<R> = client()?.upload(endpoint, path, *params) ?: signedOut
 
+    suspend fun text(
+        endpoint: Endpoint<Unit, *>,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<String> = client()?.text(endpoint, *params) ?: signedOut
+
     private val signedOut = ApiResult.Failed(ApiError(ApiErrorCode.UNAUTHORIZED, 401))
 }
