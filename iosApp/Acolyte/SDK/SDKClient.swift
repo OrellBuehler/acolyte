@@ -139,6 +139,12 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSubtitleSettings() -> SubtitleSettingsDriver {
         SubtitleSettingsDriver(presenter: sdk.settingsSubtitles())
+    func makeSettingsPickRules() -> QualityListDriver {
+        QualityListDriver(presenter: sdk.settingsPickRules())
+    }
+
+    func makeSettingsPickRuleEdit(id: Int64, from: Int64) -> QualityEditDriver {
+        QualityEditDriver(presenter: sdk.settingsPickRuleEdit(id: id, from: from))
     }
 
     func makeOutsideLists() -> OutsideListsDriver {

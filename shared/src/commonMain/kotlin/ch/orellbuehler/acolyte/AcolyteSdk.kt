@@ -46,6 +46,8 @@ import ch.orellbuehler.acolyte.feature.library.LibraryReleasesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
+import ch.orellbuehler.acolyte.feature.quality.SettingsPickRuleEditPresenter
+import ch.orellbuehler.acolyte.feature.quality.SettingsPickRulesPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskReviewPresenter
@@ -224,6 +226,13 @@ class AcolyteSdk internal constructor(
         titleId: Long,
         episodeId: Long,
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
+
+    fun settingsPickRules(): SettingsPickRulesPresenter = SettingsPickRulesPresenter(session.api) { session.account }
+
+    fun settingsPickRuleEdit(
+        id: Long,
+        from: Long,
+    ): SettingsPickRuleEditPresenter = SettingsPickRuleEditPresenter(session.api, { session.account }, id, from)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
 

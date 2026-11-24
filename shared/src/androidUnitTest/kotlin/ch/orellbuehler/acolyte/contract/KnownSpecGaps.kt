@@ -230,6 +230,10 @@ internal object KnownSpecGaps {
             "GET /api/v1/events: query parameter 'source' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go filters by Source id",
+            "POST /api/v1/pick-rules/{id}/trash: sends a body but the spec takes none" to
+                "downloads/routes_trash.go decodes {app, profile_id}; the spec has no request body",
+            "GET /api/v1/trash/profiles: query parameter 'app' is not in the spec (it has [])" to
+                "the handler needs app=sonarr|radarr (400 without it); the spec lists no parameters",
             "GET /api/v1/events: query parameter 'feed' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go hides feed checks with feed=0",
@@ -247,6 +251,7 @@ internal object KnownSpecGaps {
             "GET /api/v1/explore/browse/category" to "needs a category id; the spec lists no query parameters",
             "GET /api/v1/explore/new/service" to "needs a service id; the spec lists no query parameters",
             "GET /api/v1/people/popular" to "asks TMDB; on a server without TMDB access it answers after the client's 20 s socket timeout",
+            "GET /api/v1/trash/profiles" to "needs ?app=, which the spec does not list; also reads the TRaSH Guides site",
             "GET /api/v1/explore/title-stats" to "held back in this release (404 while row_title_stats is held)",
         )
 }
