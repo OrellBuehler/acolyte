@@ -51,6 +51,7 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.settings.status.SettingsHealthChecksPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -81,7 +82,7 @@ class AcolyteSdk internal constructor(
 
     fun signIn(): SignInFlow = SignInFlow(session)
 
-    fun health(): HealthPresenter = HealthPresenter(session.api)
+    fun health(): HealthPresenter = HealthPresenter(session.api, { session.account })
 
     private val libraryPrefs = LibraryPrefs(store)
 
@@ -219,4 +220,6 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsHealthChecks(): SettingsHealthChecksPresenter = SettingsHealthChecksPresenter(session.api) { session.account }
 }
