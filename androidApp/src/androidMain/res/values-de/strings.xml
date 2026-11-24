@@ -443,10 +443,6 @@
     <string name="library_stats_kind_movies">Filme</string>
     <string name="library_stats_kind_shows">Serien</string>
     <string name="library_stats_kind_music">Musik</string>
-    <string name="library_stats_titles">Titel</string>
-    <string name="library_stats_files">Dateien</string>
-    <string name="library_stats_on_disk">Auf der Festplatte</string>
-    <string name="library_stats_unchecked">Noch nicht geprüft</string>
     <string name="library_stats_fact_resolution">Auflösung</string>
     <string name="library_stats_fact_video_codec">Video-Codec</string>
     <string name="library_stats_fact_hdr">HDR</string>
@@ -461,13 +457,6 @@
     <string name="library_stats_value_unsupported">Aus dem Dateinamen</string>
     <string name="library_stats_value_unsupported_hint">HolyArrs kann diesen Dateityp nicht von innen lesen (zum Beispiel WMV oder FLV) und nimmt deshalb den Dateinamen. Die Datei ist in Ordnung und spielt weiterhin ab.</string>
     <string name="library_stats_empty_title">Noch nichts in der Mediathek</string>
-    <string name="library_stats_empty_message">Die Statistik erscheint, sobald Titel Dateien haben.</string>
-    <string name="library_stats_watch_off">Der Wiedergabeverlauf ist aus</string>
-    <string name="library_stats_watch_off_owner">Der Besitzer kann ihn unter Einstellungen › Medienserver einschalten.</string>
-    <string name="library_stats_watch_on">Der Wiedergabeverlauf ist an</string>
-    <string name="library_stats_watch_first">Die erste Abfrage folgt innert 30 Minuten.</string>
-    <string name="library_stats_watch_help">Aus dem Wiedergabeverlauf von Plex, Jellyfin und Emby. Plex zählt nur Wiedergaben, von Hand als gesehen markierte Titel erscheinen deshalb nicht.</string>
-    <string name="library_stats_watch_read">Zuletzt gelesen %1$s.</string>
     <string name="library_stats_watch_nobody">Noch nichts Gesehenes passt zu deiner Mediathek.</string>
     <string name="library_stats_not_linked">Nicht verknüpft</string>
     <string name="library_stats_person_server">%1$s · %2$s</string>
@@ -475,39 +464,21 @@
         <item quantity="one">%1$d Film</item>
         <item quantity="other">%1$d Filme</item>
     </plurals>
-    <plurals name="library_stats_episodes">
-        <item quantity="one">%1$d Folge</item>
-        <item quantity="other">%1$d Folgen</item>
-    </plurals>
-    <plurals name="library_stats_plays">
-        <item quantity="one">%1$d Wiedergabe</item>
-        <item quantity="other">%1$d Wiedergaben</item>
-    </plurals>
     <string name="library_stats_last_watched">Zuletzt gesehen %1$s</string>
     <string name="library_stats_cleanup_title">Gesehene Titel aufräumen</string>
-    <string name="library_stats_cleanup_about">Titel, die alle Gewählten fertig geschaut haben, die grössten zuerst. Gewünschte Titel warten, bis die Person, die sie wollte, sie gesehen hat. Nichts wird entfernt, bevor du jeden einzeln bestätigst.</string>
     <string name="library_stats_cleanup_days">Tage seit zuletzt gesehen</string>
-    <string name="library_stats_cleanup_wait">Warten auf</string>
     <plurals name="library_stats_cleanup_found">
         <item quantity="one">%1$d Titel, belegt %2$s.</item>
         <item quantity="other">%1$d Titel, belegen %2$s.</item>
     </plurals>
     <string name="library_stats_cleanup_none">Nichts, das alle Gewählten vor mindestens %1$d Tagen fertig geschaut haben.</string>
-    <string name="library_stats_cleanup_pick">Wähle mindestens eine Person.</string>
-    <string name="library_stats_cleanup_line">Zuletzt gesehen %1$s · %2$s</string>
     <string name="library_stats_cleanup_remove">Entfernen</string>
     <string name="library_stats_remove_title">%1$s löschen?</string>
     <string name="library_stats_remove_files">Auch die Dateien löschen</string>
     <string name="library_stats_remove_files_hint">Bleiben eine Weile im Warteordner</string>
     <string name="library_stats_remove_never">Auf die Nie-hinzufügen-Liste setzen</string>
-    <string name="library_stats_remove_confirm">Löschen</string>
     <string name="library_stats_name_year">%1$s (%2$d)</string>
     <string name="library_codecs_title">Video-Codecs</string>
-    <plurals name="library_codecs_count">
-        <item quantity="one">%1$d Datei</item>
-        <item quantity="other">%1$d Dateien</item>
-    </plurals>
-    <string name="library_codecs_codec">Codec</string>
     <string name="library_codecs_all">Alle Codecs</string>
     <string name="library_codecs_option">%1$s (%2$d)</string>
     <string name="library_codecs_sort">Sortieren</string>
@@ -535,45 +506,26 @@
         <item quantity="one">%1$d Suche gestartet.</item>
         <item quantity="other">%1$d Suchen gestartet.</item>
     </plurals>
-    <string name="library_codecs_select">%1$s auswählen</string>
     <string name="library_deleted_title">Kürzlich gelöscht</string>
-    <plurals name="library_deleted_count">
-        <item quantity="one">%1$d Datei</item>
-        <item quantity="other">%1$d Dateien</item>
-    </plurals>
     <string name="library_deleted_show_all">Alle</string>
-    <string name="library_deleted_show_deleted">Gelöscht</string>
-    <string name="library_deleted_show_replaced">Ersetzt</string>
     <plurals name="library_deleted_days">
         <item quantity="one">Dateien bleiben 1 Tag hier und werden dann endgültig gelöscht.</item>
         <item quantity="other">Dateien bleiben %1$d Tage hier und werden dann endgültig gelöscht.</item>
     </plurals>
-    <string name="library_deleted_days_never">Dateien bleiben hier, bis du festlegst, wie viele Tage sie behalten werden.</string>
-    <string name="library_deleted_days_unknown">Gelöschte und ersetzte Dateien warten hier, bevor sie endgültig gelöscht werden.</string>
-    <string name="library_deleted_only">Nur %1$s</string>
     <string name="library_deleted_one_title">Ein Titel</string>
     <string name="library_deleted_select_all">Alle auswählen</string>
     <string name="library_deleted_tag_deleted">Gelöscht</string>
     <string name="library_deleted_tag_replaced">Ersetzt</string>
-    <string name="library_deleted_when_deleted">gelöscht %1$s</string>
-    <string name="library_deleted_when_replaced">ersetzt %1$s</string>
-    <string name="library_deleted_when_replaced_by">ersetzt %1$s durch %2$s</string>
     <string name="library_deleted_with_title">mit dem Titel</string>
-    <string name="library_deleted_left_kept">Bleibt, bis du leerst</string>
-    <string name="library_deleted_left_today">Geht heute</string>
     <plurals name="library_deleted_left">
         <item quantity="one">Noch 1 Tag</item>
         <item quantity="other">Noch %1$d Tage</item>
     </plurals>
-    <string name="library_deleted_empty">Nichts gelöscht.</string>
     <string name="library_deleted_restore">Wiederherstellen</string>
     <string name="library_deleted_restore_n">%1$d wiederherstellen</string>
     <string name="library_deleted_taken_title">Etwas ist an seinem Platz</string>
-    <string name="library_deleted_taken_text">Eine andere Datei liegt dort, wo %1$s hingehört. Nichts wird überschrieben.</string>
     <string name="library_deleted_swap">Zurücktauschen</string>
     <string name="library_deleted_swap_hint">Die Datei dort kommt zu «Kürzlich gelöscht» und diese nimmt ihren Platz ein.</string>
-    <string name="library_deleted_both">Beide behalten</string>
-    <string name="library_deleted_both_hint">Neben die andere Datei zurücklegen, mit (2) im Namen.</string>
     <string name="library_deleted_hands_off">Der Hands-off-Modus ist an, deshalb können keine Dateien wiederhergestellt werden.</string>
     <string name="library_releases_held">Zurückgehalten</string>
     <string name="library_releases_turned_down">Abgelehnt</string>
@@ -581,14 +533,7 @@
         <item quantity="one">%1$d Release</item>
         <item quantity="other">%1$d Releases</item>
     </plurals>
-    <string name="library_releases_clear">Alle entfernen</string>
-    <string name="library_releases_empty_held">Nichts zurückgehalten.</string>
-    <string name="library_releases_empty_held_hint">Wartet eine Verzögerung der Auswahlregeln ab.</string>
-    <string name="library_releases_empty_turned">Nichts abgelehnt.</string>
-    <string name="library_releases_empty_turned_hint">Releases, die du ablehnst, und falsche Downloads landen hier.</string>
-    <string name="library_releases_stop">Nicht mehr zurückhalten</string>
     <string name="library_releases_take_off">Entfernen</string>
-    <string name="library_releases_action">%1$s %2$s</string>
     <plurals name="library_releases_seeders">
         <item quantity="one">%1$d Seeder</item>
         <item quantity="other">%1$d Seeder</item>
@@ -619,17 +564,13 @@
         <item quantity="other">%1$d fehlen</item>
     </plurals>
     <string name="library_subs_language">Sprache</string>
-    <string name="library_subs_every_language">Jede Sprache</string>
     <string name="library_subs_kind">Art</string>
-    <string name="library_subs_kind_all">Filme und Folgen</string>
     <string name="library_subs_kind_movie">Filme</string>
     <string name="library_subs_kind_episode">Folgen</string>
-    <string name="library_subs_title_filter">Film oder Serie</string>
     <string name="library_subs_all_titles">Alle</string>
     <string name="library_subs_title_option">%1$s (%2$d)</string>
     <string name="library_subs_search_all">Alle suchen</string>
     <string name="library_subs_search">Suchen</string>
-    <string name="library_subs_progress">%1$d von %2$d Dateien durchsucht.</string>
     <string name="library_subs_hearing">%1$s, nur für Hörgeschädigte</string>
     <string name="library_subs_forced">%1$s, nur erzwungen</string>
     <plurals name="library_subs_none_good">
@@ -643,7 +584,6 @@
     </plurals>
     <string name="library_subs_not_looked">Noch nicht gesucht</string>
     <string name="library_subs_episode">%1$s S%2$02dE%3$02d</string>
-    <string name="library_subs_empty">Nichts fehlt.</string>
     <string name="library_subs_nothing_matches">Nichts passt.</string>
     <string name="library_rename_title">Dateien umbenennen</string>
     <plurals name="library_rename_count">
@@ -654,8 +594,6 @@
     <string name="library_rename_nothing">Nichts umzubenennen.</string>
     <string name="library_rename_now">Jetzt</string>
     <string name="library_rename_new">Neu</string>
-    <string name="library_rename_subtitle_to">Untertitel %1$s: → %2$s</string>
-    <string name="library_rename_subtitle_stays">Untertitel %1$s: bleibt, %2$s</string>
     <plurals name="library_rename_skipped">
         <item quantity="one">%1$d übersprungen</item>
         <item quantity="other">%1$d übersprungen</item>
@@ -674,40 +612,18 @@
     </plurals>
     <string name="library_rename_confirm_text">HolyArrs benennt die Dateien wie gezeigt um. Es prüft den Plan zuerst nochmals und benennt nichts um, wenn sich Dateien geändert haben.</string>
     <string name="library_rename_waiting">Wartet auf den Start.</string>
-    <string name="library_rename_running">Wird umbenannt.</string>
-    <string name="library_rename_failed">Das Umbenennen wurde nicht beendet. Nichts wurde halb gemacht; versuche es nochmals.</string>
     <string name="library_rename_hands_off">Der Hands-off-Modus ist an, deshalb können keine Dateien umbenannt werden.</string>
     <string name="library_import_title">Mediathek importieren</string>
     <string name="library_import_stay">Die Dateien bleiben, wo sie sind.</string>
-    <string name="library_import_pick">1. Ordner wählen</string>
     <string name="library_import_folder">Mediathek-Ordner</string>
-    <string name="library_import_shows_prefix">Serien: %1$s</string>
-    <string name="library_import_music_prefix">Musik: %1$s</string>
-    <string name="library_import_label_path">%1$s (%2$s)</string>
     <string name="library_import_scan">Scannen</string>
-    <string name="library_import_no_folder">Noch kein Mediathek-Ordner</string>
-    <string name="library_import_no_folder_hint">Füge zuerst den Ordner hinzu, in dem deine Filme, Serien oder Musik liegen.</string>
     <string name="library_import_by_hand">Dateien, die zu keinem Titel passen? Dateien von Hand importieren</string>
-    <string name="library_import_looked_up">%1$d von %2$d Ordnern nachgeschlagen.</string>
-    <string name="library_import_reading">Der Ordner wird gelesen und jeder Eintrag nachgeschlagen.</string>
     <string name="library_import_adopting">Übernahme: %1$d von %2$d fertig. Lass diese Seite offen, bis sie fertig ist.</string>
-    <string name="library_import_check">2. Prüfen und übernehmen</string>
     <string name="library_import_plan">%1$d Ordner in %2$s. Wähle die zu übernehmenden. Sichere Treffer sind schon gewählt.</string>
     <string name="library_import_plan_part">%1$d Ordner in %2$s. Dieser Teil zeigt %3$d bis %4$d.</string>
     <string name="library_import_more">Nach %1$s angehalten. Übernimm zuerst die gewählten und scanne dann den Rest. Den Rest jetzt zu scannen löscht die Auswahl hier.</string>
     <string name="library_import_scan_rest">Den Rest scannen</string>
-    <plurals name="library_import_scan_rest_confirm">
-        <item quantity="one">%1$d gewählter Ordner ist noch nicht übernommen. Den Rest zu scannen löscht seine Auswahl. Den Rest scannen?</item>
-        <item quantity="other">%1$d gewählte Ordner sind noch nicht übernommen. Den Rest zu scannen löscht ihre Auswahl. Den Rest scannen?</item>
-    </plurals>
-    <string name="library_import_loose">Filme ohne eigenen Ordner: %1$d. Sie wurden bei diesem Scan ausgelassen.</string>
-    <string name="library_import_loose_top">Filme, die als Dateien direkt in diesem Ordner liegen: %1$d. Das funktioniert; sie sind unten aufgeführt.</string>
-    <string name="library_import_suggest_flat">Deine Filme scheinen als Dateien in einem Ordner zu liegen. HolyArrs kann das so lassen.</string>
     <string name="library_import_tidy_optional">Möchtest du stattdessen jeden Film in einem eigenen Ordner? Das ist freiwillig.</string>
-    <string name="library_import_undo_files">Vom letzten Aufräumen verschobene Dateien: %1$d. Rückgängig legt sie zurück.</string>
-    <string name="library_import_keep_files">Als Dateien behalten</string>
-    <string name="library_import_tidy">Ordner aufräumen</string>
-    <string name="library_import_undo">Letztes Aufräumen rückgängig machen</string>
     <string name="library_import_search">Ordner suchen</string>
     <plurals name="library_import_ticked">
         <item quantity="one">%1$d gewählt</item>
@@ -722,10 +638,6 @@
         <item quantity="one">%1$d Serie übernehmen</item>
         <item quantity="other">%1$d Serien übernehmen</item>
     </plurals>
-    <plurals name="library_import_adopt_music">
-        <item quantity="one">%1$d Künstler übernehmen</item>
-        <item quantity="other">%1$d Künstler übernehmen</item>
-    </plurals>
     <string name="library_import_status_all">Alle</string>
     <string name="library_import_status_matched">Zugeordnet</string>
     <string name="library_import_status_unsure">Unsicher</string>
@@ -735,20 +647,12 @@
     <string name="library_import_status_never_add">Auf der Nie-hinzufügen-Liste</string>
     <string name="library_import_status_no_video">Keine Videodatei</string>
     <string name="library_import_status_no_audio">Keine Audiodatei</string>
-    <string name="library_import_score">%1$s · %2$d%%</string>
     <string name="library_import_change">Ändern</string>
     <string name="library_import_look_up">Nicht dieser? Nachschlagen</string>
     <string name="library_import_episodes">%1$d Folgen in %2$d Dateien</string>
     <string name="library_import_left_alone">%1$d Dateien ohne Folge bleiben unberührt</string>
     <string name="library_import_albums">%1$d Alben, %2$d Titel</string>
     <string name="library_import_lookup_title">%1$s nachschlagen</string>
-    <string name="library_import_lookup_hint_movie">Name und Jahr, oder tmdb:123</string>
-    <string name="library_import_lookup_hint_show">Name, oder tvdb:123</string>
-    <string name="library_import_lookup_hint_music">Name des Künstlers, oder mbid:&lt;id&gt;</string>
-    <string name="library_import_lookup">Nachschlagen</string>
-    <string name="library_import_use">Verwenden</string>
-    <string name="library_import_already">Schon in der Mediathek</string>
-    <string name="library_import_nothing_found">Nichts gefunden. Versuche weniger Wörter oder %1$s.</string>
     <string name="library_import_done">Fertig</string>
     <plurals name="library_import_done_adopted">
         <item quantity="one">%1$d Ordner ist jetzt in der Mediathek. Seine Dateien wurden nicht verschoben.</item>
@@ -762,14 +666,10 @@
         <item quantity="one">%1$d gesendet, aber das Ergebnis ist noch unbekannt. Prüfe die Mediathek.</item>
         <item quantity="other">%1$d gesendet, aber das Ergebnis ist noch unbekannt. Prüfe die Mediathek.</item>
     </plurals>
-    <string name="library_import_not_adopted">Nicht übernommen: %1$s</string>
     <string name="library_import_tidy_intro">Jeder Film unten erhält einen eigenen Ordner, benannt nach seinem Dateinamen. Nichts wird verschoben, bevor du bestätigst.</string>
     <string name="library_import_tidy_ready">Bereit zum Verschieben: %1$d</string>
     <string name="library_import_tidy_also">Verschiebt auch: %1$s</string>
     <string name="library_import_tidy_blocked">Kann nicht verschoben werden: %1$d</string>
-    <string name="library_import_tidy_exists">%1$s ist schon da</string>
-    <string name="library_import_tidy_two">Zwei Dateien würden %1$s heissen</string>
-    <string name="library_import_tidy_has_movie">Im Ordner %1$s liegt schon ein Film</string>
     <string name="library_import_tidy_unmatched">Kein Jahr im Dateinamen, bleiben wie sie sind: %1$d</string>
     <string name="library_import_tidy_nothing">Nichts aufzuräumen: Jeder Film mit Jahr im Namen hat einen eigenen Ordner.</string>
     <string name="library_import_tidy_move">Dateien verschieben</string>
@@ -778,18 +678,9 @@
     <string name="library_import_tidy_changed">Der Ordner hat sich seit dieser Liste geändert. Hier ist die neue Liste.</string>
     <string name="library_import_arrow">%1$s → %2$s</string>
     <string name="library_files_title">Dateien von Hand importieren</string>
-    <string name="library_files_owner_only">Nur für den Besitzer.</string>
-    <string name="library_files_pick">1. Ordner wählen</string>
-    <string name="library_files_path">Ordner oder Datei auf dem Server</string>
     <string name="library_files_browse">Durchsuchen</string>
     <string name="library_files_scan">Scannen</string>
-    <string name="library_files_hint">Ein Mediathek-, Downloader- oder zusätzlicher Import-Ordner.</string>
     <string name="library_files_nothing_moves">Nichts wird verschoben, bevor du auf Importieren tippst.</string>
-    <string name="library_files_check">2. Prüfen und importieren</string>
-    <plurals name="library_files_found">
-        <item quantity="one">%1$d Datei in %2$s. Sichere Treffer sind gewählt. Korrigiere den Rest mit Ändern.</item>
-        <item quantity="other">%1$d Dateien in %2$s. Sichere Treffer sind gewählt. Korrigiere den Rest mit Ändern.</item>
-    </plurals>
     <string name="library_files_more">Nur die ersten Dateien werden aufgeführt. Wähle für den Rest einen kleineren Ordner.</string>
     <string name="library_files_no_match">Noch kein Treffer</string>
     <string name="library_files_episode_pick">%1$s · S%2$02dE%3$02d</string>
@@ -802,15 +693,7 @@
     <string name="library_files_blocker_no_pick">Wähle den Film oder die Serie dazu.</string>
     <string name="library_files_blocker_no_episode">Wähle Staffel und Folge.</string>
     <string name="library_files_blocker_has_file">Hier gibt es schon eine Datei. Ersetze sie oder wähle eine andere Version.</string>
-    <string name="library_files_blocker_no_track">Wähle Album und Titel.</string>
     <string name="library_files_duplicate">Eine andere Datei gehört zu diesem Titel. Wähle diese, um sie stattdessen zu verwenden.</string>
-    <string name="library_files_moved">In die Mediathek verschoben</string>
-    <string name="library_files_copied">In die Mediathek kopiert (braucht zusätzlichen Platz)</string>
-    <string name="library_files_linked">Zur Mediathek hinzugefügt (kein zusätzlicher Platz)</string>
-    <string name="library_files_recorded">Erfasst</string>
-    <string name="library_files_not_imported">Nicht importiert: %1$s</string>
-    <string name="library_files_failed">Fehlgeschlagen: %1$s</string>
-    <string name="library_files_mode">Wie Dateien in die Mediathek kommen</string>
     <string name="library_files_mode_copy">Kopieren oder verlinken</string>
     <string name="library_files_mode_move">Verschieben</string>
     <string name="library_files_mode_copy_hint">Das Original bleibt, wo es ist. Ein Link braucht keinen zusätzlichen Platz, wenn die Ordner auf derselben Platte liegen.</string>
@@ -819,13 +702,7 @@
         <item quantity="one">%1$d Datei importieren</item>
         <item quantity="other">%1$d Dateien importieren</item>
     </plurals>
-    <plurals name="library_files_replace_confirm">
-        <item quantity="one">%1$d Datei ersetzt eine Datei in der Mediathek. Die alte Datei kommt zu «Kürzlich gelöscht». Importieren?</item>
-        <item quantity="other">%1$d Dateien ersetzen Dateien in der Mediathek. Die alten Dateien kommen zu «Kürzlich gelöscht». Importieren?</item>
-    </plurals>
-    <string name="library_files_import_button">Importieren</string>
     <string name="library_files_browser_title">Ordner wählen</string>
-    <string name="library_files_browser_root">Import-Orte auf dem Server</string>
     <string name="library_files_browser_up">Nach oben</string>
     <string name="library_files_browser_none">Keine Ordner darin</string>
     <plurals name="library_files_browser_files">
@@ -836,14 +713,11 @@
     <string name="library_files_browser_use">Diesen Ordner verwenden</string>
     <string name="library_files_editor_title">Treffer ändern</string>
     <string name="library_files_editor_search">Film, Serie oder Künstler in der Mediathek</string>
-    <string name="library_files_editor_lookup">Nachschlagen</string>
     <string name="library_files_editor_nothing">Nichts mit diesem Namen in der Mediathek. Füge den Film, die Serie oder den Künstler zuerst hinzu.</string>
     <string name="library_files_editor_pick">Wählen</string>
     <string name="library_files_editor_picked">Gewählt</string>
     <string name="library_files_editor_version">Version</string>
     <string name="library_files_editor_season">Staffel</string>
-    <string name="library_files_editor_season_n">Staffel %1$d</string>
-    <string name="library_files_editor_specials">Specials</string>
     <string name="library_files_editor_episode">Folge</string>
     <string name="library_files_editor_pick_one">Eine wählen</string>
     <string name="library_files_editor_episode_line">S%1$02dE%2$02d · %3$s</string>
@@ -851,21 +725,13 @@
     <string name="library_files_path_example">/downloads/complete/Some.Show.S01</string>
     <string name="library_folders_title">Mediathek-Ordner</string>
     <string name="library_folders_add">Ordner hinzufügen</string>
-    <string name="library_folders_hands_off_title">Hands-off-Modus</string>
-    <string name="library_folders_hands_off_about">HolyArrs wählt ein Release, schickt es an den Downloader und lässt die Dateien dann in Ruhe. Für den Fall, dass eine andere App deine Dateien verwaltet.</string>
-    <string name="library_folders_hands_off_toggle">Hands-off-Modus verwenden</string>
     <string name="library_folders_hands_off_hint">Kein Mediathek-Ordner nötig. Nichts wird importiert, umbenannt, verschoben oder gelöscht, und Untertitel sind aus. Ausschalten verschiebt nichts.</string>
     <string name="library_folders_password_title">Passwort bestätigen</string>
     <string name="library_folders_password_text">Um den Hands-off-Modus zu ändern, braucht es nochmals dein Passwort.</string>
-    <string name="library_folders_password">Passwort</string>
     <string name="library_folders_code">Zwei-Faktor-Code (falls aktiv)</string>
-    <string name="library_folders_confirm">Bestätigen</string>
     <string name="library_folders_kind_movie">Filme</string>
     <string name="library_folders_kind_show">Serien</string>
     <string name="library_folders_kind_music">Musik</string>
-    <string name="library_folders_for_movie">Für Filme</string>
-    <string name="library_folders_for_show">Für Serien</string>
-    <string name="library_folders_for_music">Für Musik</string>
     <string name="library_folders_holds">Enthält</string>
     <string name="library_folders_holds_hint">Jede Art braucht einen eigenen Ordner</string>
     <string name="library_folders_path">Ordnerpfad</string>
@@ -873,8 +739,6 @@
     <string name="library_folders_name">Name (freiwillig)</string>
     <string name="library_folders_quality">Qualität</string>
     <string name="library_folders_quality_hint">Neue Titel in diesem Ordner beginnen mit dieser Qualität.</string>
-    <string name="library_folders_default">Standard</string>
-    <string name="library_folders_default_named">%1$s · Standard</string>
     <string name="library_folders_tags">Tags für neue Titel</string>
     <string name="library_folders_tags_hint">Tags mit Kommas trennen.</string>
     <string name="library_folders_only_tagged">Nur Quellen mit diesen Tags fragen</string>
@@ -891,11 +755,9 @@
     <string name="library_folders_health_missing">Ordner nicht gefunden</string>
     <string name="library_folders_health_read_only">Hier kann nicht geschrieben werden</string>
     <string name="library_folders_health_no_hardlink">Jeder Import macht eine volle Kopie (braucht zusätzlichen Platz)</string>
-    <string name="library_folders_health_copies">Volle Kopien, wie gewählt</string>
     <string name="library_folders_health_look_only">Nur ansehen</string>
     <string name="library_folders_health_unknown">Noch nicht geprüft</string>
     <string name="library_folders_free">%1$s frei</string>
-    <string name="library_folders_checked">Geprüft %1$s</string>
     <string name="library_folders_check">Erneut prüfen</string>
     <string name="library_folders_copies_expected">Kopieren ist gewollt</string>
     <string name="library_folders_warn_again">Wieder warnen</string>
@@ -908,15 +770,7 @@
     <string name="library_folders_remove_text">Die Dateien bleiben auf der Festplatte.</string>
     <string name="library_folders_empty_title">Keine Mediathek-Ordner</string>
     <string name="library_folders_empty_message">Füge einen Ordner für Filme (wie /movies) und einen für Serien hinzu.</string>
-    <string name="library_folders_import_title">Zusätzliche Import-Ordner</string>
     <string name="library_folders_import_folders">Ordner</string>
-    <string name="library_folders_import_hint">Ein Pfad pro Zeile, z. B. /data/imports. Höchstens 32.</string>
-    <string name="library_folders_watch_folders">Überwachte Ordner</string>
-    <string name="library_folders_watch_hint">Neue Dateien hier, die zu einem gesuchten Titel ohne Datei passen, kommen alle paar Minuten in die Mediathek. Der Rest wartet auf «Dateien von Hand importieren».</string>
-    <string name="library_folders_owner_admins">Nur Besitzer und Admins</string>
-    <string name="library_folders_side_title">Untertitel-Dateien</string>
-    <string name="library_folders_side_toggle">Untertitel-Dateien mitnehmen</string>
-    <string name="library_folders_side_hint">Eine Datei, die schon in der Mediathek ist, wird nie ersetzt.</string>
     <string name="library_folders_side_types">Dateitypen</string>
     <string name="library_folders_side_types_hint">Typen mit Kommas trennen, zum Beispiel srt, ass.</string>
     <string name="library_folders_edit">%1$s bearbeiten</string>
@@ -1064,6 +918,9 @@
     <string name="library_files_browser_places">Import-Orte auf dem Server</string>
     <string name="library_folders_add_title">Mediathek-Ordner hinzufügen</string>
     <string name="library_folders_quality_default">Standard</string>
+    <string name="library_folders_for_movie">Für Filme</string>
+    <string name="library_folders_for_show">Für Serien</string>
+    <string name="library_folders_for_music">Für Musik</string>
     <string name="library_folders_checked_at">Geprüft %1$s</string>
     <string name="library_folders_health_copies_expected">Volle Kopien, wie von dir gewählt</string>
     <string name="library_folders_details">Details</string>

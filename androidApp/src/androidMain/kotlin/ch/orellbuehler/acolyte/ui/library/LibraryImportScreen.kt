@@ -106,7 +106,7 @@ fun LibraryImportScreen(
     if (confirmRest) {
         ConfirmDialog(
             title = stringResource(R.string.library_import_scan_rest),
-            text = pluralStringResource(R.plurals.library_import_scan_rest_confirm, state.tickedCount, state.tickedCount),
+            text = pluralStringResource(R.plurals.library_import_scan_rest_ask_folders, state.tickedCount, state.tickedCount),
             confirm = stringResource(R.string.library_import_scan_rest),
             onConfirm = { model.run { scanRest() } },
             onDismiss = { confirmRest = false },
@@ -127,8 +127,8 @@ private fun NoFolders(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         EmptyView(
-            title = stringResource(R.string.library_import_no_folder),
-            message = stringResource(R.string.library_import_no_folder_hint),
+            title = stringResource(R.string.library_import_empty_title),
+            message = stringResource(R.string.library_import_empty_message),
             icon = Icons.Rounded.Folder,
             modifier = Modifier.height(240.dp),
         )
@@ -142,13 +142,13 @@ private fun NoFolders(
 private fun folderLabel(folder: ImportFolderOption): String {
     val base =
         if (folder.label.isNotEmpty() && folder.label != folder.path) {
-            stringResource(R.string.library_import_label_path, folder.label, folder.path)
+            stringResource(R.string.library_import_folder_label, folder.label, folder.path)
         } else {
             folder.path
         }
     return when (folder.kind) {
-        "show" -> stringResource(R.string.library_import_shows_prefix, base)
-        "music" -> stringResource(R.string.library_import_music_prefix, base)
+        "show" -> stringResource(R.string.library_import_folder_show, base)
+        "music" -> stringResource(R.string.library_import_folder_music, base)
         else -> base
     }
 }
@@ -162,7 +162,7 @@ private fun PickFolder(
     var menu by remember { mutableStateOf(false) }
     Column(Modifier.padding(horizontal = Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
         Text(stringResource(R.string.library_import_stay), color = MaterialTheme.colorScheme.primary)
-        Text(stringResource(R.string.library_import_pick), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.library_import_step_pick), style = MaterialTheme.typography.titleMedium)
         val current = state.folders.firstOrNull { it.id == state.folderId }
         Box {
             OutlinedButton(onClick = { menu = true }, enabled = !state.busy, modifier = Modifier.fillMaxWidth()) {
@@ -211,9 +211,9 @@ private fun Progress(state: LibraryImportState) {
             when {
                 state.adopting -> stringResource(R.string.library_import_adopting, state.adoptDone, state.adoptTotal)
                 state.progressDone >= 0 && state.progressTotal > 0 ->
-                    stringResource(R.string.library_import_looked_up, state.progressDone, state.progressTotal)
+                    stringResource(R.string.library_import_progress_folders, state.progressDone, state.progressTotal)
                 state.progress.note.isNotEmpty() -> state.progress.note
-                else -> stringResource(R.string.library_import_reading)
+                else -> stringResource(R.string.library_import_progress_reading)
             },
         )
     }
@@ -228,7 +228,7 @@ private fun LazyListScope.plan(
     item {
         Column(Modifier.padding(Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
             HorizontalDivider()
-            Text(stringResource(R.string.library_import_check), style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.library_import_step_check), style = MaterialTheme.typography.titleMedium)
             MutedText(
                 if (plan.more || plan.offset > 0) {
                     stringResource(R.string.library_import_plan_part, plan.total, plan.path, plan.offset + 1, plan.offset + plan.shown)
@@ -294,29 +294,29 @@ private fun TidyNotice(
     if (plan.looseMovies == 0 && plan.looseTop == 0 && !plan.suggestFlat && state.undoFiles == 0) return
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(Spacing.Medium), verticalArrangement = Arrangement.spacedBy(Spacing.XSmall)) {
-            if (plan.looseMovies > 0) Text(stringResource(R.string.library_import_loose, plan.looseMovies))
-            if (plan.looseTop > 0) Text(stringResource(R.string.library_import_loose_top, plan.looseTop))
-            if (plan.suggestFlat) Text(stringResource(R.string.library_import_suggest_flat))
+            if (plan.looseMovies > 0) Text(stringResource(R.string.library_import_tidy_loose, plan.looseMovies))
+            if (plan.looseTop > 0) Text(stringResource(R.string.library_import_tidy_loose_top, plan.looseTop))
+            if (plan.suggestFlat) Text(stringResource(R.string.library_import_tidy_suggest_flat))
             if (plan.looseTop > 0 || plan.suggestFlat) MutedText(stringResource(R.string.library_import_tidy_optional))
-            if (state.undoFiles > 0) MutedText(stringResource(R.string.library_import_undo_files, state.undoFiles))
+            if (state.undoFiles > 0) MutedText(stringResource(R.string.library_import_tidy_undo_note, state.undoFiles))
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 if (!plan.flat && (plan.suggestFlat || plan.looseTop > 0)) {
                     TextButton(
                         onClick = { model.run { keepAsFiles() } },
                         enabled = !state.busy,
-                    ) { Text(stringResource(R.string.library_import_keep_files)) }
+                    ) { Text(stringResource(R.string.library_import_tidy_keep_flat)) }
                 }
                 if (plan.looseMovies > 0 || plan.looseTop > 0 || plan.suggestFlat) {
                     TextButton(
                         onClick = { model.run { openTidy() } },
                         enabled = !state.busy,
-                    ) { Text(stringResource(R.string.library_import_tidy)) }
+                    ) { Text(stringResource(R.string.library_import_tidy_open)) }
                 }
                 if (state.undoFiles > 0) {
                     TextButton(
                         onClick = { model.run { undoTidy() } },
                         enabled = !state.busy,
-                    ) { Text(stringResource(R.string.library_import_undo)) }
+                    ) { Text(stringResource(R.string.library_import_tidy_undo)) }
                 }
             }
         }
@@ -333,7 +333,7 @@ private fun Outcome(state: LibraryImportState) {
             if (outcome.failed > 0) Text(pluralStringResource(R.plurals.library_import_done_failed, outcome.failed, outcome.failed))
             if (outcome.unknown > 0) Text(pluralStringResource(R.plurals.library_import_done_unknown, outcome.unknown, outcome.unknown))
             outcome.folders.filter { it.error.isNotEmpty() }.forEach { failed ->
-                MutedText(failed.folder + " · " + stringResource(R.string.library_import_not_adopted, failed.error))
+                MutedText(failed.folder + " · " + stringResource(R.string.library_import_not_adopted_why, failed.error))
             }
         }
     }
@@ -378,7 +378,7 @@ private fun ImportRowItem(
     val score = pick?.score ?: -1.0
     val pill =
         if ((row.status == "matched" || row.status == "unsure") && score in 0.0..0.899) {
-            stringResource(R.string.library_import_score, label, (score * 100).roundToInt())
+            stringResource(R.string.library_import_status_score, label, (score * 100).roundToInt())
         } else {
             label
         }
@@ -470,7 +470,7 @@ private fun AdoptBar(
                     Text(
                         when (kind) {
                             "show" -> pluralStringResource(R.plurals.library_import_adopt_show, count, count)
-                            "music" -> pluralStringResource(R.plurals.library_import_adopt_music, count, count)
+                            "music" -> pluralStringResource(R.plurals.library_import_adopt_artist, count, count)
                             else -> pluralStringResource(R.plurals.library_import_adopt_movie, count, count)
                         },
                     )
@@ -500,9 +500,9 @@ private fun LookupDialog(
                         Text(
                             stringResource(
                                 when (kind) {
-                                    "show" -> R.string.library_import_lookup_hint_show
-                                    "music" -> R.string.library_import_lookup_hint_music
-                                    else -> R.string.library_import_lookup_hint_movie
+                                    "show" -> R.string.library_import_lookup_show
+                                    "music" -> R.string.library_import_lookup_music
+                                    else -> R.string.library_import_lookup_movie
                                 },
                             ),
                         )
@@ -511,7 +511,7 @@ private fun LookupDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Button(onClick = { model.run { lookup(term) } }, enabled = term.isNotBlank() && !lookup.busy) {
-                    Text(stringResource(R.string.library_import_lookup))
+                    Text(stringResource(R.string.library_import_lookup_button))
                 }
                 if (lookup.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                 lookup.error?.let { MutedText(libraryErrorText(it)) }
@@ -522,7 +522,7 @@ private fun LookupDialog(
                             "music" -> "mbid:<id>"
                             else -> "tmdb:<id>"
                         }
-                    MutedText(stringResource(R.string.library_import_nothing_found, id))
+                    MutedText(stringResource(R.string.library_import_lookup_nothing, id))
                 }
                 LazyColumn(Modifier.height(260.dp)) {
                     items(lookup.results, key = { it.key }) { result ->
@@ -539,10 +539,16 @@ private fun LookupDialog(
                                     },
                                 )
                             },
-                            supportingContent = { if (result.inLibrary) MutedText(stringResource(R.string.library_import_already)) },
+                            supportingContent = {
+                                if (result.inLibrary) {
+                                    MutedText(
+                                        stringResource(R.string.library_import_status_in_library),
+                                    )
+                                }
+                            },
                             trailingContent = {
                                 TextButton(onClick = { model.presenter.useLookup(result) }, enabled = !result.inLibrary) {
-                                    Text(stringResource(R.string.library_import_use))
+                                    Text(stringResource(R.string.library_import_lookup_use))
                                 }
                             },
                             colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
@@ -564,7 +570,7 @@ private fun TidyDialog(
     val tidy = state.tidy ?: return
     AlertDialog(
         onDismissRequest = { model.run { closeTidy() } },
-        title = { Text(stringResource(R.string.library_import_tidy)) },
+        title = { Text(stringResource(R.string.library_import_tidy_open)) },
         text = {
             LazyColumn(Modifier.height(380.dp), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 if (tidy.changed) item { NoticeBanner(stringResource(R.string.library_import_tidy_changed)) }
@@ -615,9 +621,9 @@ private fun TidyDialog(
                             Text(move.from, style = MaterialTheme.typography.bodySmall)
                             MutedText(
                                 when (move.why) {
-                                    "exists" -> stringResource(R.string.library_import_tidy_exists, move.path)
-                                    "two" -> stringResource(R.string.library_import_tidy_two, move.path)
-                                    "has_movie" -> stringResource(R.string.library_import_tidy_has_movie, move.path)
+                                    "exists" -> stringResource(R.string.library_import_tidy_why_exists, move.path)
+                                    "two" -> stringResource(R.string.library_import_tidy_why_two, move.path)
+                                    "has_movie" -> stringResource(R.string.library_import_tidy_why_has_movie, move.path)
                                     else -> move.problem
                                 },
                             )

@@ -71,7 +71,7 @@ fun LibraryReleasesScreen(
                 TextButton(
                     onClick = { confirm = true },
                     enabled = !state.busy,
-                ) { Text(stringResource(R.string.library_releases_clear)) }
+                ) { Text(stringResource(R.string.library_releases_clear_all)) }
             }
         },
     ) { padding ->
@@ -102,9 +102,9 @@ fun LibraryReleasesScreen(
                     onRefresh = { model.run { refresh() } },
                     modifier = Modifier.weight(1f),
                     empty = {
-                        val title = if (turnedDown) R.string.library_releases_empty_turned else R.string.library_releases_empty_held
+                        val title = if (turnedDown) R.string.library_releases_none_turned else R.string.library_releases_none_held
                         val hint =
-                            if (turnedDown) R.string.library_releases_empty_turned_hint else R.string.library_releases_empty_held_hint
+                            if (turnedDown) R.string.library_releases_none_turned_hint else R.string.library_releases_none_held_hint
                         EmptyView(
                             title = stringResource(title),
                             message = stringResource(hint),
@@ -140,14 +140,14 @@ fun LibraryReleasesScreen(
     }
     if (confirm) {
         ConfirmDialog(
-            title = stringResource(R.string.library_releases_clear),
+            title = stringResource(R.string.library_releases_clear_all),
             text =
                 if (turnedDown) {
                     pluralStringResource(R.plurals.library_releases_clear_turned, state.total, state.total)
                 } else {
                     pluralStringResource(R.plurals.library_releases_clear_held, state.total, state.total)
                 },
-            confirm = stringResource(R.string.library_releases_clear),
+            confirm = stringResource(R.string.library_releases_clear_all),
             danger = true,
             onConfirm = { model.run { clearAll() } },
             onDismiss = { confirm = false },
@@ -186,7 +186,7 @@ private fun ReleaseCard(
                 row.reasons.forEach { MutedText("• $it") }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onRemove, enabled = enabled) {
-                        Text(stringResource(if (turnedDown) R.string.library_releases_take_off else R.string.library_releases_stop))
+                        Text(stringResource(if (turnedDown) R.string.library_releases_take_off else R.string.library_releases_stop_holding))
                     }
                 }
             }

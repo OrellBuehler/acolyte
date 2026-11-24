@@ -168,7 +168,7 @@ private fun healthLabel(health: FolderHealth): String =
             FolderHealth.MISSING -> R.string.library_folders_health_missing
             FolderHealth.READ_ONLY -> R.string.library_folders_health_read_only
             FolderHealth.NO_HARDLINK -> R.string.library_folders_health_no_hardlink
-            FolderHealth.COPIES_EXPECTED -> R.string.library_folders_health_copies
+            FolderHealth.COPIES_EXPECTED -> R.string.library_folders_health_copies_expected
             FolderHealth.LOOK_ONLY -> R.string.library_folders_health_look_only
             FolderHealth.UNKNOWN -> R.string.library_folders_health_unknown
         },
@@ -202,7 +202,7 @@ private fun FolderCard(
             if (row.health == FolderHealth.OK) MutedText(stringResource(R.string.library_folders_health_ok_hint))
             if (folder.healthReason.isNotEmpty()) MutedText(folder.healthReason)
             if (folder.freeSpace > 0) MutedText(stringResource(R.string.library_folders_free, LibraryFormat.bytes(folder.freeSpace)))
-            val rules = if (row.rulesIsDefault) stringResource(R.string.library_folders_default) else row.rulesName
+            val rules = if (row.rulesIsDefault) stringResource(R.string.library_folders_quality_default) else row.rulesName
             MutedText(stringResource(R.string.library_folders_quality) + ": " + rules)
             if (folder.titleTags.isNotEmpty()) {
                 MutedText(
@@ -237,14 +237,14 @@ private fun RulesPicker(
         Box {
             OutlinedButton(onClick = { open = true }, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    rules.firstOrNull { it.id == current }?.name ?: stringResource(R.string.library_folders_default),
+                    rules.firstOrNull { it.id == current }?.name ?: stringResource(R.string.library_folders_quality_default),
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                 )
                 Icon(Icons.Rounded.ExpandMore, contentDescription = null)
             }
             DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                DropdownMenuItem(text = { Text(stringResource(R.string.library_folders_default)) }, onClick = {
+                DropdownMenuItem(text = { Text(stringResource(R.string.library_folders_quality_default)) }, onClick = {
                     open = false
                     onPick(0)
                 })
@@ -413,7 +413,7 @@ private fun FolderSheet(
                 StatusChip(healthLabel(row.health), row.tone)
                 if (folder.healthCheckedAt.isNotEmpty()) {
                     MutedText(
-                        stringResource(R.string.library_folders_checked, LibraryFormat.ago(folder.healthCheckedAt)),
+                        stringResource(R.string.library_folders_checked_at, LibraryFormat.ago(folder.healthCheckedAt)),
                     )
                 }
             }
@@ -568,11 +568,11 @@ private fun HandsOffCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(Spacing.Large), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-            Text(stringResource(R.string.library_folders_hands_off_title), style = MaterialTheme.typography.titleSmall)
-            MutedText(stringResource(R.string.library_folders_hands_off_about))
+            Text(stringResource(R.string.library_folders_hands_off), style = MaterialTheme.typography.titleSmall)
+            MutedText(stringResource(R.string.library_folders_hands_off_text))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.library_folders_hands_off_toggle))
+                    Text(stringResource(R.string.library_folders_hands_off_label))
                     MutedText(stringResource(R.string.library_folders_hands_off_hint))
                 }
                 Switch(checked = state.handsOff, onCheckedChange = { model.run { setHandsOff(it) } }, enabled = !state.handsOffBusy)
@@ -594,12 +594,12 @@ private fun ImportFoldersCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(Spacing.Large), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-            Text(stringResource(R.string.library_folders_import_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.library_folders_import), style = MaterialTheme.typography.titleSmall)
             OutlinedTextField(
                 value = extra,
                 onValueChange = { extra = it },
                 label = { Text(stringResource(R.string.library_folders_import_folders)) },
-                supportingText = { Text(stringResource(R.string.library_folders_import_hint)) },
+                supportingText = { Text(stringResource(R.string.library_folders_import_folders_hint)) },
                 minLines = 2,
                 enabled = state.canSaveImportFolders,
                 modifier = Modifier.fillMaxWidth(),
@@ -607,8 +607,8 @@ private fun ImportFoldersCard(
             OutlinedTextField(
                 value = watch,
                 onValueChange = { watch = it },
-                label = { Text(stringResource(R.string.library_folders_watch_folders)) },
-                supportingText = { Text(stringResource(R.string.library_folders_watch_hint)) },
+                label = { Text(stringResource(R.string.library_folders_import_watch)) },
+                supportingText = { Text(stringResource(R.string.library_folders_import_watch_hint)) },
                 minLines = 2,
                 enabled = state.canSaveImportFolders,
                 modifier = Modifier.fillMaxWidth(),
@@ -616,7 +616,7 @@ private fun ImportFoldersCard(
             if (state.canSaveImportFolders) {
                 Button(onClick = { model.run { saveImportFolders(extra, watch) } }) { Text(stringResource(R.string.library_save)) }
             } else {
-                MutedText(stringResource(R.string.library_folders_owner_admins))
+                MutedText(stringResource(R.string.library_folders_owner_only))
             }
         }
     }
@@ -635,11 +635,11 @@ private fun SideFilesCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(Modifier.padding(Spacing.Large), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-            Text(stringResource(R.string.library_folders_side_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.library_folders_side), style = MaterialTheme.typography.titleSmall)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.library_folders_side_toggle))
-                    MutedText(stringResource(R.string.library_folders_side_hint))
+                    Text(stringResource(R.string.library_folders_side_on))
+                    MutedText(stringResource(R.string.library_folders_side_on_hint))
                 }
                 Switch(checked = on, onCheckedChange = { on = it }, enabled = state.canEdit)
             }
@@ -673,7 +673,7 @@ private fun PasswordDialog(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.library_folders_password)) },
+                    label = { Text(stringResource(R.string.library_folders_password_label)) },
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
@@ -692,7 +692,7 @@ private fun PasswordDialog(
                 onClick = { model.run { confirmPassword(password, code) } },
                 enabled = password.isNotEmpty() && !state.handsOffBusy,
             ) {
-                Text(stringResource(R.string.library_folders_confirm))
+                Text(stringResource(R.string.library_folders_password_confirm))
             }
         },
         dismissButton = { TextButton(onClick = { model.presenter.cancelPassword() }) { Text(stringResource(R.string.library_cancel)) } },

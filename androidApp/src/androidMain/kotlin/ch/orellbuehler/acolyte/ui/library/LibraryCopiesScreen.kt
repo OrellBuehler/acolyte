@@ -97,7 +97,7 @@ fun LibraryCopiesScreen(onBack: () -> Unit) {
                     CodecMenu(state, model)
                     SortMenu(state, model)
                     Text(
-                        pluralStringResource(R.plurals.library_codecs_count, state.total, state.total),
+                        pluralStringResource(R.plurals.library_codecs_files, state.total, state.total),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
@@ -189,7 +189,7 @@ private fun CodecMenu(
                 if (state.codec == LibraryCopiesState.ALL) stringResource(R.string.library_codecs_all) else codecLabel(state.codec),
                 maxLines = 1,
             )
-            Icon(Icons.Rounded.ExpandMore, contentDescription = stringResource(R.string.library_codecs_codec))
+            Icon(Icons.Rounded.ExpandMore, contentDescription = stringResource(R.string.library_codecs_sort_codec))
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             state.codecs.forEach { option ->

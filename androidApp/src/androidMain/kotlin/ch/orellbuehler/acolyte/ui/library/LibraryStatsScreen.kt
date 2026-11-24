@@ -95,7 +95,7 @@ fun LibraryStatsScreen(onBack: (() -> Unit)?) {
                         empty = {
                             EmptyView(
                                 title = stringResource(R.string.library_stats_empty_title),
-                                message = stringResource(R.string.library_stats_empty_message),
+                                message = stringResource(R.string.library_stats_empty_text),
                                 icon = Icons.Rounded.BarChart,
                             )
                         },
@@ -158,10 +158,10 @@ private fun Tiles(kind: StatsKind) {
         verticalArrangement = Arrangement.spacedBy(Spacing.Small),
         maxItemsInEachRow = 2,
     ) {
-        Tile(stringResource(R.string.library_stats_titles), kind.titles.toString(), Modifier.weight(1f))
-        Tile(stringResource(R.string.library_stats_files), kind.files.toString(), Modifier.weight(1f))
-        Tile(stringResource(R.string.library_stats_on_disk), LibraryFormat.bytes(kind.bytes), Modifier.weight(1f))
-        Tile(stringResource(R.string.library_stats_unchecked), kind.unchecked.toString(), Modifier.weight(1f))
+        Tile(stringResource(R.string.library_stats_tile_titles), kind.titles.toString(), Modifier.weight(1f))
+        Tile(stringResource(R.string.library_stats_tile_files), kind.files.toString(), Modifier.weight(1f))
+        Tile(stringResource(R.string.library_stats_tile_disk), LibraryFormat.bytes(kind.bytes), Modifier.weight(1f))
+        Tile(stringResource(R.string.library_stats_tile_unchecked), kind.unchecked.toString(), Modifier.weight(1f))
     }
 }
 
@@ -204,7 +204,7 @@ private fun FactCard(
                     bucketHint(bucket.value)?.let { MutedText(it) }
                 }
             }
-            if (kind.files == 0) MutedText(stringResource(R.string.library_stats_empty_message))
+            if (kind.files == 0) MutedText(stringResource(R.string.library_stats_empty_text))
         }
     }
 }
@@ -285,11 +285,14 @@ private fun WatchedTab(
         status.phase == Phase.FAILED && error != null -> ErrorView(error, onRetry = { model.run { refresh() } })
         !state.watched.enabled ->
             EmptyView(
-                title = stringResource(R.string.library_stats_watch_off),
-                message = stringResource(R.string.library_stats_watch_off_owner),
+                title = stringResource(R.string.library_stats_off_title),
+                message = stringResource(R.string.library_stats_off_text),
             )
         state.watched.readAt.isEmpty() ->
-            EmptyView(title = stringResource(R.string.library_stats_watch_on), message = stringResource(R.string.library_stats_watch_first))
+            EmptyView(
+                title = stringResource(R.string.library_stats_first_title),
+                message = stringResource(R.string.library_stats_first_text),
+            )
         else -> WatchedList(state, model, onRemove)
     }
 }
@@ -307,8 +310,8 @@ private fun WatchedList(
                 Modifier.padding(horizontal = Spacing.Screen, vertical = Spacing.Small),
                 verticalArrangement = Arrangement.spacedBy(Spacing.XSmall),
             ) {
-                MutedText(stringResource(R.string.library_stats_watch_help))
-                MutedText(stringResource(R.string.library_stats_watch_read, LibraryFormat.ago(watched.readAt)))
+                MutedText(stringResource(R.string.library_stats_help))
+                MutedText(stringResource(R.string.library_stats_last_read, LibraryFormat.ago(watched.readAt)))
                 if (watched.people.isEmpty()) MutedText(stringResource(R.string.library_stats_watch_nobody))
             }
         }
@@ -330,8 +333,8 @@ private fun WatchedList(
                         MutedText(
                             listOf(
                                 pluralStringResource(R.plurals.library_stats_movies, person.movies, person.movies),
-                                pluralStringResource(R.plurals.library_stats_episodes, person.episodes, person.episodes),
-                                pluralStringResource(R.plurals.library_stats_plays, person.plays, person.plays),
+                                pluralStringResource(R.plurals.library_stats_unit_episode, person.episodes, person.episodes),
+                                pluralStringResource(R.plurals.library_stats_unit_play, person.plays, person.plays),
                             ).joinToString(" · "),
                         )
                         if (person.lastWatchedAt.isNotEmpty()) {
@@ -354,7 +357,7 @@ private fun WatchedList(
                     supportingContent = {
                         MutedText(
                             stringResource(
-                                R.string.library_stats_cleanup_line,
+                                R.string.library_stats_cleanup_last,
                                 LibraryFormat.ago(title.lastWatchedAt),
                                 LibraryFormat.bytes(title.bytes),
                             ),
@@ -385,7 +388,7 @@ private fun CleanupCard(
     ) {
         Column(Modifier.padding(Spacing.Large), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
             Text(stringResource(R.string.library_stats_cleanup_title), style = MaterialTheme.typography.titleSmall)
-            MutedText(stringResource(R.string.library_stats_cleanup_about))
+            MutedText(stringResource(R.string.library_stats_cleanup_desc))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.library_stats_cleanup_days), modifier = Modifier.weight(1f))
                 IconButton(onClick = { model.run { setCleanupDays(state.cleanupDays - DAY_STEP) } }, enabled = state.cleanupDays > 0) {
@@ -396,7 +399,7 @@ private fun CleanupCard(
                     Icon(Icons.Rounded.Add, contentDescription = null)
                 }
             }
-            Text(stringResource(R.string.library_stats_cleanup_wait), style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.library_stats_cleanup_who), style = MaterialTheme.typography.labelLarge)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 cleanup.people.forEach { person ->
                     FilterChip(
@@ -409,7 +412,7 @@ private fun CleanupCard(
             val bytes = cleanup.found.sumOf { it.bytes }
             MutedText(
                 when {
-                    state.cleanupPicked.isEmpty() -> stringResource(R.string.library_stats_cleanup_pick)
+                    state.cleanupPicked.isEmpty() -> stringResource(R.string.library_stats_cleanup_nobody)
                     cleanup.found.isEmpty() -> stringResource(R.string.library_stats_cleanup_none, state.cleanupDays)
                     else ->
                         pluralStringResource(
@@ -454,7 +457,7 @@ private fun RemoveWatchedDialog(
             TextButton(onClick = {
                 onDismiss()
                 onConfirm(files, never)
-            }) { Text(stringResource(R.string.library_stats_remove_confirm), color = MaterialTheme.colorScheme.error) }
+            }) { Text(stringResource(R.string.library_stats_remove_button), color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.library_cancel)) } },
     )

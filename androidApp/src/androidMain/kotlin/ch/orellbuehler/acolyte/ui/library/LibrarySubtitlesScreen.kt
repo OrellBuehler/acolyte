@@ -77,7 +77,7 @@ fun LibrarySubtitlesScreen(onBack: () -> Unit) {
                             progress = { if (state.searchTotal > 0) state.searchDone.toFloat() / state.searchTotal else 0f },
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        MutedText(stringResource(R.string.library_subs_progress, state.searchDone, state.searchTotal))
+                        MutedText(stringResource(R.string.library_subs_searched, state.searchDone, state.searchTotal))
                     }
                 }
                 StatusContent(
@@ -89,7 +89,7 @@ fun LibrarySubtitlesScreen(onBack: () -> Unit) {
                         EmptyView(
                             title =
                                 stringResource(
-                                    if (state.filtered) R.string.library_subs_nothing_matches else R.string.library_subs_empty,
+                                    if (state.filtered) R.string.library_subs_nothing_matches else R.string.library_subs_none,
                                 ),
                             icon = Icons.Rounded.Subtitles,
                         )
@@ -139,12 +139,12 @@ private fun Filters(
         Choice(
             label = stringResource(R.string.library_subs_language),
             current =
-                state.languages.firstOrNull { it.code == state.language }?.name ?: stringResource(R.string.library_subs_every_language),
-            options = listOf("" to stringResource(R.string.library_subs_every_language)) + state.languages.map { it.code to it.name },
+                state.languages.firstOrNull { it.code == state.language }?.name ?: stringResource(R.string.library_subs_every),
+            options = listOf("" to stringResource(R.string.library_subs_every)) + state.languages.map { it.code to it.name },
         ) { model.run { setLanguage(it) } }
         val kinds =
             listOf(
-                "" to stringResource(R.string.library_subs_kind_all),
+                "" to stringResource(R.string.library_subs_kind_both),
                 "movie" to stringResource(R.string.library_subs_kind_movie),
                 "episode" to stringResource(R.string.library_subs_kind_episode),
             )
@@ -157,7 +157,7 @@ private fun Filters(
             listOf("0" to stringResource(R.string.library_subs_all_titles)) +
                 state.titles.map { it.id.toString() to stringResource(R.string.library_subs_title_option, it.name, it.count) }
         Choice(
-            stringResource(R.string.library_subs_title_filter),
+            stringResource(R.string.library_subs_movie_or_show),
             titles.firstOrNull { it.first == state.titleId.toString() }?.second ?: titles.first().second,
             titles,
         ) { model.run { setTitle(it.toLongOrNull() ?: 0) } }

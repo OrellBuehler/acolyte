@@ -72,7 +72,7 @@ fun LibraryDeletedScreen(
                     isEmpty = state.isEmpty && state.titleId == 0L,
                     onRefresh = { model.run { refresh() } },
                     modifier = Modifier.weight(1f),
-                    empty = { EmptyView(title = stringResource(R.string.library_deleted_empty), icon = Icons.Rounded.DeleteOutline) },
+                    empty = { EmptyView(title = stringResource(R.string.library_deleted_none), icon = Icons.Rounded.DeleteOutline) },
                 ) { DeletedList(state, model) }
                 if (state.rows.isNotEmpty()) RestoreBar(state, model)
             }
@@ -85,9 +85,9 @@ fun LibraryDeletedScreen(
             title = { Text(stringResource(R.string.library_deleted_taken_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                    Text(stringResource(R.string.library_deleted_taken_text, question.name))
+                    Text(stringResource(R.string.library_deleted_taken_body, question.name))
                     if (question.canSwap) MutedText(stringResource(R.string.library_deleted_swap_hint))
-                    MutedText(stringResource(R.string.library_deleted_both_hint))
+                    MutedText(stringResource(R.string.library_deleted_keep_both_hint))
                 }
             },
             confirmButton = {
@@ -95,7 +95,7 @@ fun LibraryDeletedScreen(
                     if (question.canSwap) {
                         TextButton(onClick = { model.run { answer("swap") } }) { Text(stringResource(R.string.library_deleted_swap)) }
                     }
-                    TextButton(onClick = { model.run { answer("both") } }) { Text(stringResource(R.string.library_deleted_both)) }
+                    TextButton(onClick = { model.run { answer("both") } }) { Text(stringResource(R.string.library_deleted_keep_both)) }
                 }
             },
             dismissButton = { TextButton(onClick = { model.run { answer("") } }) { Text(stringResource(R.string.library_cancel)) } },
@@ -111,11 +111,11 @@ private fun DeletedList(
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = Spacing.XLarge)) {
         item {
             Column(Modifier.padding(horizontal = Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                MutedText(pluralStringResource(R.plurals.library_deleted_count, state.count, state.count))
+                MutedText(pluralStringResource(R.plurals.library_deleted_files, state.count, state.count))
                 MutedText(
                     when {
-                        state.holdingDays < 0 -> stringResource(R.string.library_deleted_days_unknown)
-                        state.holdingDays == 0 -> stringResource(R.string.library_deleted_days_never)
+                        state.holdingDays < 0 -> stringResource(R.string.library_deleted_note_unknown)
+                        state.holdingDays == 0 -> stringResource(R.string.library_deleted_note_forever)
                         else -> pluralStringResource(R.plurals.library_deleted_days, state.holdingDays, state.holdingDays)
                     },
                 )
@@ -127,7 +127,7 @@ private fun DeletedList(
                         label = {
                             Text(
                                 if (state.titleName.isNotEmpty()) {
-                                    stringResource(R.string.library_deleted_only, state.titleName)
+                                    stringResource(R.string.library_deleted_only_title, state.titleName)
                                 } else {
                                     stringResource(R.string.library_deleted_one_title)
                                 },
@@ -149,8 +149,8 @@ private fun DeletedList(
                                     stringResource(
                                         when (show) {
                                             HeldShow.ALL -> R.string.library_deleted_show_all
-                                            HeldShow.DELETED -> R.string.library_deleted_show_deleted
-                                            HeldShow.REPLACED -> R.string.library_deleted_show_replaced
+                                            HeldShow.DELETED -> R.string.library_deleted_tag_deleted
+                                            HeldShow.REPLACED -> R.string.library_deleted_tag_replaced
                                         },
                                     ),
                                     maxLines = 1,
@@ -162,7 +162,7 @@ private fun DeletedList(
             }
         }
         if (state.rows.isEmpty()) {
-            item { Centered { MutedText(stringResource(R.string.library_deleted_empty)) } }
+            item { Centered { MutedText(stringResource(R.string.library_deleted_none)) } }
         } else {
             item {
                 ListItem(
@@ -202,9 +202,9 @@ private fun HeldRowItem(
                 val action =
                     when {
                         file.replaced && file.replacedBy.isNotEmpty() ->
-                            stringResource(R.string.library_deleted_when_replaced_by, day, LibraryFormat.fileNameOf(file.replacedBy))
-                        file.replaced -> stringResource(R.string.library_deleted_when_replaced, day)
-                        else -> stringResource(R.string.library_deleted_when_deleted, day)
+                            stringResource(R.string.library_deleted_replaced_by, day, LibraryFormat.fileNameOf(file.replacedBy))
+                        file.replaced -> stringResource(R.string.library_deleted_replaced_on, day)
+                        else -> stringResource(R.string.library_deleted_on, day)
                     }
                 val withTitle = if (file.titleDeleted) " " + stringResource(R.string.library_deleted_with_title) else ""
                 MutedText(LibraryFormat.bytes(file.size) + " · " + action + withTitle)
@@ -213,8 +213,8 @@ private fun HeldRowItem(
         trailingContent = {
             val left =
                 when {
-                    row.daysLeft < 0 -> stringResource(R.string.library_deleted_left_kept)
-                    row.daysLeft == 0 -> stringResource(R.string.library_deleted_left_today)
+                    row.daysLeft < 0 -> stringResource(R.string.library_deleted_kept)
+                    row.daysLeft == 0 -> stringResource(R.string.library_deleted_today)
                     else -> pluralStringResource(R.plurals.library_deleted_left, row.daysLeft, row.daysLeft)
                 }
             Text(

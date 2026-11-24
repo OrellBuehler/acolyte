@@ -81,7 +81,7 @@ fun LibraryFilesScreen(
     ScreenScaffold(title = stringResource(R.string.library_files_title), onBack = onBack) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             if (!state.allowed) {
-                EmptyView(title = stringResource(R.string.library_files_owner_only), icon = Icons.Rounded.Lock)
+                EmptyView(title = stringResource(R.string.library_files_owner), icon = Icons.Rounded.Lock)
             } else {
                 Column(Modifier.fillMaxSize()) {
                     LazyColumn(Modifier.weight(1f).fillMaxWidth(), contentPadding = PaddingValues(bottom = Spacing.XLarge)) {
@@ -89,10 +89,10 @@ fun LibraryFilesScreen(
                         if (state.scanned) {
                             item {
                                 Column(Modifier.padding(Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.XSmall)) {
-                                    Text(stringResource(R.string.library_files_check), style = MaterialTheme.typography.titleMedium)
+                                    Text(stringResource(R.string.library_files_step_check), style = MaterialTheme.typography.titleMedium)
                                     MutedText(
                                         pluralStringResource(
-                                            R.plurals.library_files_found,
+                                            R.plurals.library_files_in,
                                             state.rows.size,
                                             state.rows.size,
                                             state.scanPath,
@@ -131,9 +131,9 @@ fun LibraryFilesScreen(
     }
     if (confirm) {
         ConfirmDialog(
-            title = stringResource(R.string.library_files_import_button),
-            text = pluralStringResource(R.plurals.library_files_replace_confirm, state.replaceCount, state.replaceCount),
-            confirm = stringResource(R.string.library_files_import_button),
+            title = stringResource(R.string.library_files_import_confirm),
+            text = pluralStringResource(R.plurals.library_files_replace_ask, state.replaceCount, state.replaceCount),
+            confirm = stringResource(R.string.library_files_import_confirm),
             onConfirm = { model.run { importFiles() } },
             onDismiss = { confirm = false },
         )
@@ -148,16 +148,16 @@ private fun PathPicker(
     model: FilesModel,
 ) {
     Column(Modifier.padding(horizontal = Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-        Text(stringResource(R.string.library_files_pick), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.library_files_step_pick), style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(
             value = state.path,
             onValueChange = { model.presenter.setPath(it) },
-            label = { Text(stringResource(R.string.library_files_path)) },
+            label = { Text(stringResource(R.string.library_files_path_label)) },
             placeholder = { Text(stringResource(R.string.library_files_path_example)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        MutedText(stringResource(R.string.library_files_hint))
+        MutedText(stringResource(R.string.library_files_where))
         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
             if (state.canBrowse) {
                 OutlinedButton(
@@ -204,7 +204,7 @@ private fun blockerText(blocker: ByHandBlocker): String? =
         ByHandBlocker.NO_PICK -> stringResource(R.string.library_files_blocker_no_pick)
         ByHandBlocker.NO_EPISODE -> stringResource(R.string.library_files_blocker_no_episode)
         ByHandBlocker.HAS_FILE -> stringResource(R.string.library_files_blocker_has_file)
-        ByHandBlocker.NO_TRACK -> stringResource(R.string.library_files_blocker_no_track)
+        ByHandBlocker.NO_TRACK -> stringResource(R.string.library_files_blocker_no_slot)
     }
 
 @Composable
@@ -243,12 +243,15 @@ private fun FileRowItem(
                 row.result?.let { result ->
                     Text(
                         when {
-                            result.outcome == "placed" && result.placedBy == "move" -> stringResource(R.string.library_files_moved)
-                            result.outcome == "placed" && result.placedBy == "copy" -> stringResource(R.string.library_files_copied)
-                            result.outcome == "placed" && result.placedBy.isNotEmpty() -> stringResource(R.string.library_files_linked)
-                            result.outcome == "placed" -> stringResource(R.string.library_files_recorded)
-                            result.outcome == "refused" -> stringResource(R.string.library_files_not_imported, result.error)
-                            else -> stringResource(R.string.library_files_failed, result.error)
+                            result.outcome == "placed" && result.placedBy == "move" -> stringResource(R.string.library_files_result_moved)
+                            result.outcome == "placed" && result.placedBy == "copy" -> stringResource(R.string.library_files_result_copied)
+                            result.outcome == "placed" && result.placedBy.isNotEmpty() ->
+                                stringResource(
+                                    R.string.library_files_result_linked,
+                                )
+                            result.outcome == "placed" -> stringResource(R.string.library_files_result_recorded)
+                            result.outcome == "refused" -> stringResource(R.string.library_files_result_refused, result.error)
+                            else -> stringResource(R.string.library_files_result_failed, result.error)
                         },
                         color = if (result.outcome == "placed") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
@@ -272,7 +275,7 @@ private fun ModePicker(
     model: FilesModel,
 ) {
     Column(Modifier.padding(Spacing.Screen), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-        Text(stringResource(R.string.library_files_mode), style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.library_files_mode_title), style = MaterialTheme.typography.titleSmall)
         val modes = listOf(LibraryFilesState.MODE_COPY, LibraryFilesState.MODE_MOVE)
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             modes.forEachIndexed { index, mode ->
@@ -322,7 +325,7 @@ private fun BrowserDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 Text(
-                    browser.path.ifEmpty { stringResource(R.string.library_files_browser_root) },
+                    browser.path.ifEmpty { stringResource(R.string.library_files_browser_places) },
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -384,7 +387,7 @@ private fun EditorDialog(
                 }
                 item {
                     Button(onClick = { model.run { editorSearch(query) } }, enabled = query.isNotBlank() && !editor.searching) {
-                        Text(stringResource(R.string.library_files_editor_lookup))
+                        Text(stringResource(R.string.library_files_editor_look_up))
                     }
                 }
                 if (editor.searching || editor.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
@@ -437,9 +440,9 @@ private fun EditorDialog(
                                 if (n ==
                                     0
                                 ) {
-                                    stringResource(R.string.library_files_editor_specials)
+                                    stringResource(R.string.library_files_season_specials)
                                 } else {
-                                    stringResource(R.string.library_files_editor_season_n, n)
+                                    stringResource(R.string.library_files_season_n, n)
                                 }
                             }
                             Choice(

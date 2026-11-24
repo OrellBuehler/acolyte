@@ -115,14 +115,22 @@ private fun RenameList(state: LibraryRenameState) {
                 if (state.changes.isNotEmpty()) MutedText(stringResource(R.string.library_rename_note))
                 when (state.failure) {
                     RenameFailure.PLAN_CHANGED -> NoticeBanner(stringResource(R.string.library_rename_changed))
-                    RenameFailure.FAILED -> NoticeBanner(state.failureText.ifEmpty { stringResource(R.string.library_rename_failed) })
+                    RenameFailure.FAILED -> NoticeBanner(state.failureText.ifEmpty { stringResource(R.string.library_rename_unfinished) })
                     RenameFailure.NONE -> Unit
                 }
                 if (state.running) {
                     LinearProgressIndicator(progress = { state.job.progress.toFloat() }, modifier = Modifier.fillMaxWidth())
                     MutedText(
                         state.job.note.ifEmpty {
-                            stringResource(if (state.job.progress > 0) R.string.library_rename_running else R.string.library_rename_waiting)
+                            stringResource(
+                                if (state.job.progress >
+                                    0
+                                ) {
+                                    R.string.library_rename_renaming
+                                } else {
+                                    R.string.library_rename_waiting
+                                },
+                            )
                         },
                     )
                 }
@@ -175,9 +183,9 @@ private fun RenameCard(row: RenameRow) {
                 row.subtitles.forEach { sub ->
                     MutedText(
                         if (sub.skip.isNotEmpty()) {
-                            stringResource(R.string.library_rename_subtitle_stays, sub.from, sub.skip)
+                            stringResource(R.string.library_rename_sub_stays, sub.from, sub.skip)
                         } else {
-                            stringResource(R.string.library_rename_subtitle_to, sub.from, sub.to)
+                            stringResource(R.string.library_rename_sub_moves, sub.from, sub.to)
                         },
                     )
                 }
