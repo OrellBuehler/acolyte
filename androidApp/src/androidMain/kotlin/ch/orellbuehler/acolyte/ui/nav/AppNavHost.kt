@@ -40,6 +40,7 @@ import ch.orellbuehler.acolyte.ui.requests.ReportProblemSheet
 import ch.orellbuehler.acolyte.ui.requests.ReportsScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestRulesScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
+import ch.orellbuehler.acolyte.ui.settings.SettingsHomeScreen
 import ch.orellbuehler.acolyte.ui.settings.settingsRoutes
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
 import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
@@ -117,7 +118,7 @@ fun AppNavHost(
         }
         composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }
         composable<PeopleRoute> { PlaceholderScreen(Section.PEOPLE, back(Section.PEOPLE)) }
-        composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
+        composable<SettingsRoute> { SettingsHomeScreen(account, back(Section.SETTINGS), open) }
         composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT)) }
         dialog<AskRoute> { entry ->
             val route = entry.toRoute<AskRoute>()

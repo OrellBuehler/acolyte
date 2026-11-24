@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -53,8 +54,17 @@ fun MoreScreen(
 ) {
     val badges = LocalSdk.current.downloadBadges
     val badge by badges.state.collectAsStateWithLifecycle()
+    val sdk = LocalSdk.current
+    val settingsHome = remember(sdk) { sdk.settingsHome() }
+    val settingsState by settingsHome.state.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(badges, lifecycle) { lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { badges.watch() } }
+    LaunchedEffect(settingsHome, lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            settingsHome.refresh()
+            settingsHome.watch()
+        }
+    }
     ScreenScaffold(title = stringResource(account.moreTab.destination.label)) { padding ->
         LazyColumn(Modifier.padding(padding)) {
             if (badge.decide > 0 && account.sections.contains(Section.DOWNLOADS)) {
@@ -63,7 +73,19 @@ fun MoreScreen(
             account.moreGroups.forEach { group ->
                 group.group.title?.let { title -> item(key = group.group.name) { SectionHeader(stringResource(title)) } }
                 items(group.sections, key = { it.name }) { section ->
-                    SectionRow(account, section, if (section == Section.DOWNLOADS) badge else null, onOpen)
+                    SectionRow(
+                        account,
+                        section,
+                        if (section ==
+                            Section.DOWNLOADS
+                        ) {
+                            badge
+                        } else {
+                            null
+                        },
+                        section == Section.SETTINGS && settingsState.needsAttention,
+                        onOpen,
+                    )
                 }
             }
             item(key = "sign-out") {
@@ -80,6 +102,7 @@ private fun SectionRow(
     account: Account,
     section: Section,
     badge: DownloadsBadge?,
+    attention: Boolean,
     onOpen: (Section) -> Unit,
 ) {
     val inbox by LocalSdk.current.inbox.state
@@ -98,6 +121,7 @@ private fun SectionRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val requestsBadge = if (section == Section.REQUESTS) inbox.requestsBadge else 0
                 if (requestsBadge > 0) Badge { Text(requestsBadge.toString()) }
+                if (attention) Badge()
                 if (badge != null) DownloadsBadgeLabel(badge)
                 Icon(
                     Icons.AutoMirrored.Rounded.KeyboardArrowRight,

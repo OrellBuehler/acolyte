@@ -76,4 +76,23 @@
     <string name="settings_reauth_code">Two-factor code (if you use one)</string>
     <string name="settings_reauth_confirm">Confirm</string>
     <string name="settings_reauth_cancel">Cancel</string>
+    <string name="settings_home_search">Search settings</string>
+    <string name="settings_home_search_empty_title">No matching settings</string>
+    <string name="settings_home_search_empty_text">Try another word, like folder, key or password.</string>
+    <string name="settings_home_search_clear">Clear the search</string>
+    <string name="settings_home_unset">Not set up</string>
+    <string name="settings_home_ok">All set</string>
+    <string name="settings_home_finish_setup">Finish setup</string>
+    <string name="settings_home_finish_setup_text">Pick up setup where you left off.</string>
+    <string name="settings_home_update_title">Update available</string>
+    <string name="settings_home_update_body">Version %1$s is ready</string>
+    <string name="settings_home_decisions">Downloads to decide: %1$d</string>
+    <string name="settings_home_requests">Requests waiting: %1$d</string>
+    <string name="settings_home_not_allowed">You can\'t change this</string>
+    <string name="settings_home_not_allowed_text">Only people who manage this server can open Settings. Ask the owner.</string>
+    <string name="settings_home_attention_title">Needs attention</string>
+    <plurals name="settings_home_attention_count">
+        <item quantity="one">%1$d needs attention</item>
+        <item quantity="other">%1$d need attention</item>
+    </plurals>
 </resources>
