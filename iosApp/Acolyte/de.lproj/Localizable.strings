@@ -3187,8 +3187,6 @@
 "acq.nm.err.free.max" = "Nimm 100 bis 1048576 MB";
 "acq.nm.err.range" = "Nimm 10 bis 100000";
 "acq.nm.example" = "Beispiel";
-"acq.nm.example.checking" = "Prüfe…";
-"acq.nm.example.error" = "Das funktioniert noch nicht";
 "acq.nm.examples" = "Beispiele";
 "acq.nm.see.error" = "Siehe den Fehler unter Filmnamen";
 "acq.nm.ex.show.folder" = "Serienordner";

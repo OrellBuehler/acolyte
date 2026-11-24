@@ -130,6 +130,10 @@ data class SettingsSearchState(
 
     fun numberError(field: SettingsSearchNumber): SettingsSearchNumberError? = settingsSearchNumberError(field, number(field))
 
+    fun numberMin(wire: String): Int = SettingsSearchNumber.of(wire)?.min ?: 0
+
+    fun numberMax(wire: String): Int = SettingsSearchNumber.of(wire)?.max ?: 0
+
     fun numberErrorKey(wire: String): String =
         SettingsSearchNumber
             .of(wire)

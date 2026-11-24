@@ -3187,8 +3187,6 @@
 "acq.nm.err.free.max" = "Use 100 to 1048576 MB";
 "acq.nm.err.range" = "Use 10 to 100,000";
 "acq.nm.example" = "Example";
-"acq.nm.example.checking" = "Checking…";
-"acq.nm.example.error" = "This does not work yet";
 "acq.nm.examples" = "Examples";
 "acq.nm.see.error" = "See the error under Movie names";
 "acq.nm.ex.show.folder" = "Show folder";

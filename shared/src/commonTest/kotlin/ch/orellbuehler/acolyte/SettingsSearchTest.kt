@@ -55,6 +55,8 @@ class SettingsSearchTest {
             assertEquals("rank", s.choice(SettingsSearchChoice.PACK_PREFER))
             assertEquals("2", s.number("album_extra_files"))
             assertTrue(s.canRun)
+            assertEquals(-1, s.numberMin("album_track_tolerance"))
+            assertEquals(2000, s.numberMax("artist_search_cap"))
         }
 
     @Test

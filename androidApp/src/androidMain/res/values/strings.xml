@@ -3516,8 +3516,6 @@
     <string name="acq_nm_err_free_max">Use 100 to 1048576 MB</string>
     <string name="acq_nm_err_range">Use 10 to 100,000</string>
     <string name="acq_nm_example">Example</string>
-    <string name="acq_nm_example_checking">Checking…</string>
-    <string name="acq_nm_example_error">This does not work yet</string>
     <string name="acq_nm_examples">Examples</string>
     <string name="acq_nm_see_error">See the error under Movie names</string>
     <string name="acq_nm_ex_show_folder">Show folder</string>

@@ -3514,8 +3514,6 @@
     <string name="acq_nm_err_free_max">Nimm 100 bis 1048576 MB</string>
     <string name="acq_nm_err_range">Nimm 10 bis 100000</string>
     <string name="acq_nm_example">Beispiel</string>
-    <string name="acq_nm_example_checking">Prüfe…</string>
-    <string name="acq_nm_example_error">Das funktioniert noch nicht</string>
     <string name="acq_nm_examples">Beispiele</string>
     <string name="acq_nm_see_error">Siehe den Fehler unter Filmnamen</string>
     <string name="acq_nm_ex_show_folder">Serienordner</string>
