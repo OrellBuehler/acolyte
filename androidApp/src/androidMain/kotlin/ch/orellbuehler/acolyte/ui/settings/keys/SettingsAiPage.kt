@@ -232,7 +232,7 @@ private fun canLine(groups: List<String>): String =
     if (groups.isEmpty()) {
         stringResource(R.string.settings_keys_ai_can_nothing)
     } else {
-        groups.joinToString(" · ") { groupShort(it) }
+        groups.map { groupShort(it) }.joinToString(" · ")
     }
 
 @Composable
