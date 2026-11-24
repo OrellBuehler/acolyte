@@ -25,7 +25,9 @@ data class LibraryFolder(
     @SerialName("new_title_audio") val titleAudio: List<String> = emptyList(),
     @SerialName("look_only") val lookOnly: Boolean = false,
     val flat: Boolean = false,
-)
+) {
+    val shown: String get() = label.ifBlank { path }
+}
 
 @Serializable
 internal data class FolderInput(

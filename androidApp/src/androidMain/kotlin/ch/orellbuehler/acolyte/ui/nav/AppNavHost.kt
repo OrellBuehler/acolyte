@@ -22,9 +22,9 @@ import ch.orellbuehler.acolyte.ui.library.LibraryScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryStatsScreen
 import ch.orellbuehler.acolyte.ui.library.LibrarySubtitlesScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryToolsScreen
-import ch.orellbuehler.acolyte.ui.library.TitlePlaceholderScreen
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
 import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
+import ch.orellbuehler.acolyte.ui.title.TitleScreen
 
 @Composable
 fun AppNavHost(
@@ -60,7 +60,7 @@ fun AppNavHost(
         composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
         composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT)) }
         composable<MoreRoute> { MoreScreen(account, onOpen = { nav.navigate(it.destination.route) }, onSignOut = onSignOut) }
-        composable<TitleRoute> { TitlePlaceholderScreen(pop) }
+        composable<TitleRoute> { entry -> TitleScreen(entry.toRoute(), nav, onBack = { nav.popBackStack() }) }
         composable<LibraryToolsRoute> { LibraryToolsScreen(pop, open) }
         composable<LibraryDeletedRoute> { LibraryDeletedScreen(it.toRoute<LibraryDeletedRoute>().titleId, pop) }
         composable<LibraryCopiesRoute> { LibraryCopiesScreen(pop) }
@@ -70,5 +70,9 @@ fun AppNavHost(
         composable<LibraryImportRoute> { LibraryImportScreen(pop, open) }
         composable<LibraryImportFilesRoute> { LibraryFilesScreen(it.toRoute<LibraryImportFilesRoute>().path, pop) }
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
+        composable<PersonRoute> { PlaceholderScreen(Section.EXPLORE, onBack = { nav.popBackStack() }) }
+        composable<CollectionRoute> { PlaceholderScreen(Section.MOVIES, onBack = { nav.popBackStack() }) }
+        composable<AskRoute> { PlaceholderScreen(Section.REQUESTS, onBack = { nav.popBackStack() }) }
+        composable<ReportRoute> { PlaceholderScreen(Section.REQUESTS, onBack = { nav.popBackStack() }) }
     }
 }

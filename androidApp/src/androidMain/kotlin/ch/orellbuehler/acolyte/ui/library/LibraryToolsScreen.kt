@@ -150,15 +150,3 @@ fun LibraryToolsScreen(
         }
     }
 }
-
-@Composable
-fun TitlePlaceholderScreen(onBack: () -> Unit) {
-    ScreenScaffold(title = "", onBack = onBack) { padding ->
-        EmptyView(
-            title = stringResource(R.string.placeholder_title),
-            message = stringResource(R.string.placeholder_message),
-            icon = Icons.Rounded.Movie,
-            modifier = Modifier.padding(padding),
-        )
-    }
-}

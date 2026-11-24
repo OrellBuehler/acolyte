@@ -161,6 +161,14 @@ data class LookupMovie(
     val ids: Map<String, String> = emptyMap(),
     val poster: String = "",
     @SerialName("title_id") val titleId: Long = 0,
+    val overview: String = "",
+    @SerialName("original_language") val originalLanguage: String = "",
+    val backdrop: String = "",
+    @SerialName("never_add") val neverAdd: Boolean = false,
+    val ask: TitleAsk? = null,
+    @SerialName("ask_4k") val ask4k: TitleAsk? = null,
+    @SerialName("has_4k") val has4k: Boolean = false,
+    val hidden: Boolean = false,
 )
 
 @Serializable
@@ -176,6 +184,11 @@ data class LookupShow(
     val ids: Map<String, String> = emptyMap(),
     val poster: String = "",
     @SerialName("title_id") val titleId: Long = 0,
+    val overview: String = "",
+    @SerialName("original_language") val originalLanguage: String = "",
+    @SerialName("never_add") val neverAdd: Boolean = false,
+    val ask: TitleAsk? = null,
+    val hidden: Boolean = false,
 )
 
 @Serializable
@@ -302,47 +315,4 @@ data class SearchTitle(
     val name: String = "",
     val year: Int = 0,
     val artwork: List<String> = emptyList(),
-)
-
-@Serializable
-data class TitleVersions(
-    val id: Long = 0,
-    val kind: String = "",
-    val versions: List<TitleVersion> = emptyList(),
-    val slots: List<VersionSlot> = emptyList(),
-)
-
-@Serializable
-data class VersionSlot(
-    val id: Long = 0,
-    @SerialName("version_id") val versionId: Long = 0,
-    val file: SlotFile? = null,
-)
-
-@Serializable
-data class TitleVersion(
-    val id: Long = 0,
-    val label: String = "",
-    val main: Boolean = false,
-)
-
-@Serializable
-data class EpisodeList(
-    val episodes: List<EpisodeRow> = emptyList(),
-)
-
-@Serializable
-data class EpisodeRow(
-    val id: Long = 0,
-    val season: Int = 0,
-    val episode: Int = 0,
-    val name: String = "",
-    val slots: List<EpisodeSlot> = emptyList(),
-)
-
-@Serializable
-data class EpisodeSlot(
-    val id: Long = 0,
-    @SerialName("version_id") val versionId: Long = 0,
-    @SerialName("file_id") val fileId: Long = 0,
 )

@@ -9,7 +9,6 @@ import ch.orellbuehler.acolyte.api.Part
 import ch.orellbuehler.acolyte.api.model.AnyoneWatched
 import ch.orellbuehler.acolyte.api.model.CopySearchRequest
 import ch.orellbuehler.acolyte.api.model.CopySelection
-import ch.orellbuehler.acolyte.api.model.EmptyBody
 import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.api.model.LibraryFolder
 import ch.orellbuehler.acolyte.api.model.MissingSearch
@@ -17,6 +16,7 @@ import ch.orellbuehler.acolyte.api.model.MissingSubtitleSearch
 import ch.orellbuehler.acolyte.api.model.MovieCollection
 import ch.orellbuehler.acolyte.api.model.MyWatched
 import ch.orellbuehler.acolyte.api.model.PickRule
+import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.model.TitleChange
 import ch.orellbuehler.acolyte.api.model.TitleMove
 import ch.orellbuehler.acolyte.api.model.TitleRefresh
@@ -538,7 +538,7 @@ class LibraryPresenter internal constructor(
 
     suspend fun searchSelected() =
         runBulk(LibraryNoticeKind.SEARCHING) {
-            api.result(LibraryEndpoints.search, EmptyBody, "id" to it.id)
+            api.result(LibraryEndpoints.search, SearchBody(), "id" to it.id)
         }
 
     suspend fun refreshSelected() {

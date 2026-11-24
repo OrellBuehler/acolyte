@@ -10,8 +10,6 @@ import ch.orellbuehler.acolyte.api.model.ByHandScan
 import ch.orellbuehler.acolyte.api.model.ByHandScanRequest
 import ch.orellbuehler.acolyte.api.model.CopySearchPreview
 import ch.orellbuehler.acolyte.api.model.CopySearchRequest
-import ch.orellbuehler.acolyte.api.model.EmptyBody
-import ch.orellbuehler.acolyte.api.model.EpisodeList
 import ch.orellbuehler.acolyte.api.model.FileSettings
 import ch.orellbuehler.acolyte.api.model.FileSubtitleSearch
 import ch.orellbuehler.acolyte.api.model.FolderBrowse
@@ -38,6 +36,8 @@ import ch.orellbuehler.acolyte.api.model.MovedTitle
 import ch.orellbuehler.acolyte.api.model.MovieCollections
 import ch.orellbuehler.acolyte.api.model.MovieLookup
 import ch.orellbuehler.acolyte.api.model.MyWatched
+import ch.orellbuehler.acolyte.api.model.OwnedEpisodes
+import ch.orellbuehler.acolyte.api.model.OwnedTitle
 import ch.orellbuehler.acolyte.api.model.PickRuleList
 import ch.orellbuehler.acolyte.api.model.ReleasePage
 import ch.orellbuehler.acolyte.api.model.RemovePlan
@@ -47,6 +47,7 @@ import ch.orellbuehler.acolyte.api.model.RenamePlan
 import ch.orellbuehler.acolyte.api.model.RestoreAnswer
 import ch.orellbuehler.acolyte.api.model.RestoreRequest
 import ch.orellbuehler.acolyte.api.model.ScanStarted
+import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.model.ShowLookup
 import ch.orellbuehler.acolyte.api.model.SideFiles
 import ch.orellbuehler.acolyte.api.model.StartedJob
@@ -62,7 +63,6 @@ import ch.orellbuehler.acolyte.api.model.TitleGrid
 import ch.orellbuehler.acolyte.api.model.TitleMove
 import ch.orellbuehler.acolyte.api.model.TitleRefresh
 import ch.orellbuehler.acolyte.api.model.TitleRemove
-import ch.orellbuehler.acolyte.api.model.TitleVersions
 import ch.orellbuehler.acolyte.api.model.VersionAudioChange
 import ch.orellbuehler.acolyte.api.model.WatchedCleanup
 import ch.orellbuehler.acolyte.api.model.WatchedSummary
@@ -84,7 +84,7 @@ internal data object LibraryEndpoints : EndpointGroup() {
             Need.MANAGE_LIBRARY,
             Part.TITLE,
         )
-    val search = post("/api/v1/titles/{id}/search", EmptyBody.serializer(), JobIds.serializer(), Need.MANAGE_LIBRARY, Part.TITLE)
+    val search = post("/api/v1/titles/{id}/search", SearchBody.serializer(), JobIds.serializer(), Need.MANAGE_LIBRARY, Part.TITLE)
     val refresh = post("/api/v1/titles/refresh", TitleRefresh.serializer(), JobIds.serializer(), Need.MANAGE_LIBRARY, Part.MEDIA)
     val move = post("/api/v1/titles/{id}/move", TitleMove.serializer(), MovedTitle.serializer(), Need.MANAGE_LIBRARY, Part.TITLE)
     val remove = post("/api/v1/titles/{id}/delete", TitleRemove.serializer(), RemovePlan.serializer(), Need.MANAGE_LIBRARY, Part.TITLE)
@@ -188,6 +188,13 @@ internal data object LibraryEndpoints : EndpointGroup() {
     val browse =
         post("/api/v1/manual-import/folders", FolderBrowseRequest.serializer(), FolderBrowse.serializer(), Need.USERS, Part.MEDIA)
     val librarySearch = get("/api/v1/library/search", LibrarySearch.serializer(), Need.SIGNED_IN, Part.MEDIA, query = listOf("q", "kind"))
-    val titleVersions = get("/api/v1/titles/{id}", TitleVersions.serializer(), Need.SIGNED_IN, Part.TITLE)
-    val episodes = get("/api/v1/titles/{id}/episodes", EpisodeList.serializer(), Need.SIGNED_IN, Part.SHOWS)
+    val titleVersions = get("/api/v1/titles/{id}", OwnedTitle.serializer(), Need.SIGNED_IN, Part.TITLE)
+    val episodes =
+        get(
+            "/api/v1/titles/{id}/episodes",
+            OwnedEpisodes.serializer(),
+            Need.SIGNED_IN,
+            Part.SHOWS,
+            query = listOf("season", "files", "points"),
+        )
 }

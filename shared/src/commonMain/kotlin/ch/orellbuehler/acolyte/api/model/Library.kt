@@ -2,7 +2,6 @@ package ch.orellbuehler.acolyte.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class TitleGrid(
@@ -197,21 +196,28 @@ data class PickRule(
     val id: Long = 0,
     val name: String = "",
     val kinds: List<String> = emptyList(),
+    val preset: Boolean = false,
 )
 
 @Serializable
 internal data class TitleChange(
     @SerialName("keep_up_to_date") val keepUpToDate: Boolean? = null,
     @SerialName("pick_rules_id") val pickRulesId: Long? = null,
+    @SerialName("release_gate") val releaseGate: String? = null,
+    @SerialName("gate_delay_days") val gateDelayDays: Int? = null,
+    @SerialName("episode_order") val episodeOrder: String? = null,
+    @SerialName("episode_group_id") val episodeGroupId: String? = null,
+    @SerialName("new_seasons") val newSeasons: String? = null,
+    @SerialName("pack_window") val packWindow: Int? = null,
 )
 
 @Serializable
 internal data class VersionAudioChange(
-    @SerialName("audio_languages") val audioLanguages: List<String>,
+    @SerialName("audio_languages") val audioLanguages: List<String>? = null,
+    val label: String? = null,
+    @SerialName("pick_rules_id") val pickRulesId: Long? = null,
+    @SerialName("keep_up_to_date") val keepUpToDate: Boolean? = null,
 )
-
-@Serializable
-internal object EmptyBody
 
 @Serializable
 internal data class TitleMove(
@@ -222,14 +228,19 @@ internal data class TitleMove(
 @Serializable
 internal data class TitleRemove(
     @SerialName("delete_files") val deleteFiles: Boolean,
-    @SerialName("never_add") val neverAdd: Boolean,
+    @SerialName("never_add") val neverAdd: Boolean?,
     val apply: Boolean,
+    val season: Int? = null,
+    @SerialName("episode_ids") val episodeIds: List<Long>? = null,
 )
 
 @Serializable
 data class RemovePlan(
     @SerialName("title_id") val titleId: Long = 0,
     val name: String = "",
+    val scope: String = "",
+    val season: Int = 0,
+    val episodes: List<String> = emptyList(),
     val applied: Boolean = false,
     val held: List<RemoveFile> = emptyList(),
     val kept: List<RemoveFile> = emptyList(),
@@ -241,6 +252,7 @@ data class RemovePlan(
 data class RemoveFile(
     @SerialName("file_id") val fileId: Long = 0,
     val path: String = "",
+    val why: String = "",
 )
 
 @Serializable
@@ -265,7 +277,8 @@ data class StartedJob(
 
 @Serializable
 data class TitleChanged(
-    val title: JsonObject? = null,
+    val title: OwnedTitle = OwnedTitle(),
+    @SerialName("rename_suggested") val renameSuggested: Boolean = false,
 )
 
 @Serializable

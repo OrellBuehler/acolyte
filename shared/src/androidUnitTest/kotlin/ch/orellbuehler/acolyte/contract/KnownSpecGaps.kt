@@ -53,5 +53,31 @@ internal object KnownSpecGaps {
                 "internal/discover/routes_library_search.go reads q",
             "GET /api/v1/library/search: query parameter 'kind' is not in the spec (it has [])" to
                 "internal/discover/routes_library_search.go reads kind",
+            "PUT /api/v1/titles/{id} body.pack_window: sent by the model but not in the spec" to
+                "TitleChange.PackWindow exists in library/edit.go; the web sends it for season packs",
+            "GET /api/v1/titles/{id}/episodes: query parameter 'files' is not in the spec (it has [season])" to
+                "shows/routes_episodes.go reads files=1 to add each slot's file",
+            "GET /api/v1/titles/{id}/episodes: query parameter 'points' is not in the spec (it has [season])" to
+                "shows/routes_episodes.go reads points=1 to add points and good_enough_points",
+            "GET /api/v1/titles/{id}/points: query parameter 'slot' is not in the spec (it has [])" to
+                "the handler answers 400 without slot; the spec lists no parameter",
+            "POST /api/v1/releases/{id}/turn-down body.block_group: sent by the model but not in the spec" to
+                "sources/routes_releases.go reads block_group (Block group button)",
+            "POST /api/v1/releases/check: sends a body but the spec takes none" to
+                "sources/routes_release_check.go decodes {tmdb, name, pick_rules_id, ...}; the spec has no request body",
+            "POST /api/v1/releases/check/{id}/pick: sends a body but the spec takes none" to
+                "the handler decodes {release_id, title_id, force}; the spec has no request body",
+            "POST /api/v1/titles body.follow: sent by the model but not in the spec" to
+                "discover/title_routes.go reads follow (default true)",
+            "POST /api/v1/shows body.follow: sent by the model but not in the spec" to
+                "shows/routes_add.go reads follow (default true)",
+            "POST /api/v1/titles/{id}/leftovers/match: sends a body but the spec takes none" to
+                "library/routes_leftovers.go decodes {items, replace}; the spec has no request body",
+            "POST /api/v1/titles/{id}/leftovers/unmatch: sends a body but the spec takes none" to
+                "library/routes_leftovers.go decodes {file_ids}; the spec has no request body",
+            "PUT /api/v1/titles/{id}/leftovers/{fid}: sends a body but the spec takes none" to
+                "library/routes_leftovers.go decodes {dismissed}; the spec has no request body",
+            "POST /api/v1/asks body.follow: sent by the model but not in the spec" to
+                "requests/routes_asks.go reads follow (default true)",
         )
 }

@@ -202,7 +202,9 @@ internal data class MissingSubtitleSearch(
 
 @Serializable
 internal data class FileSubtitleSearch(
-    @SerialName("file_id") val fileId: Long,
+    @SerialName("file_id") val fileId: Long? = null,
+    @SerialName("title_id") val titleId: Long? = null,
+    @SerialName("item_id") val itemId: Long? = null,
 )
 
 @Serializable
@@ -259,7 +261,9 @@ data class JobView(
     @SerialName("ProgressNote") val progressNote: String? = null,
     @SerialName("Result") val result: JsonObject? = null,
     @SerialName("Error") val error: JobError? = null,
-)
+) {
+    val finished: Boolean get() = state == "done" || state == "failed" || state == "cancelled"
+}
 
 @Serializable
 data class JobList(
