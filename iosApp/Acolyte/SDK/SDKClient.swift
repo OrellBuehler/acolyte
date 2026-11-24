@@ -262,5 +262,15 @@ final class SDKClient: @unchecked Sendable {
         SettingsLookMetadataDriver(presenter: sdk.settingsLookMetadata())
     func makeSettingsMediaServers() -> SettingsMediaServersDriver {
         SettingsMediaServersDriver(presenter: sdk.settingsMediaServers())
+    func makeSettingsApi() -> SettingsApiDriver {
+        SettingsApiDriver(presenter: sdk.settingsApi())
+    }
+
+    func makeSettingsAi() -> SettingsAiDriver {
+        SettingsAiDriver(presenter: sdk.settingsAi())
+    }
+
+    func settingsRemoteAccessURL() -> URL? {
+        URL(string: sdk.settingsRemoteAccessUrl())
     }
 }

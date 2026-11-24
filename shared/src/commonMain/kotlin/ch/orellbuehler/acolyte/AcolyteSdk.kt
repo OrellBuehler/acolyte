@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.SettingsKeysAddresses
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
@@ -56,6 +57,8 @@ import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookAppearancePrese
 import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookDefaultsPresenter
 import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookMetadataPresenter
 import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServersPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsAiPresenter
+import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -233,4 +236,11 @@ class AcolyteSdk internal constructor(
     fun settingsLookMetadata(): SettingsLookMetadataPresenter = SettingsLookMetadataPresenter(session.api) { session.account }
     fun settingsMediaServers(): SettingsMediaServersPresenter =
         SettingsMediaServersPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsApi(): SettingsApiPresenter =
+        SettingsApiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsAi(): SettingsAiPresenter =
+        SettingsAiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
 }
