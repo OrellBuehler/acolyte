@@ -22,7 +22,6 @@ import ch.orellbuehler.acolyte.ui.nav.SettingsLogsRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsMediaServersRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsMetadataRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsMoveRoute
-import ch.orellbuehler.acolyte.ui.nav.SettingsMusicRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsNamingRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsPartsRoute
 import ch.orellbuehler.acolyte.ui.nav.SettingsPickRulesRoute
@@ -65,7 +64,6 @@ private fun NavGraphBuilder.settingsPlaceholderRoutes(pop: () -> Unit) {
     composable<SettingsSubtitlesRoute> { SettingsPagePlaceholder(R.string.settings_page_subtitles, pop) }
     composable<SettingsSearchRoute> { SettingsPagePlaceholder(R.string.settings_page_search, pop) }
     composable<SettingsMoveRoute> { SettingsPagePlaceholder(R.string.settings_page_move, pop) }
-    composable<SettingsMusicRoute> { SettingsPagePlaceholder(R.string.settings_page_music, pop) }
 }
 
 @Composable

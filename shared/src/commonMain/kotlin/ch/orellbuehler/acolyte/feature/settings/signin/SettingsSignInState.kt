@@ -88,7 +88,7 @@ data class SettingsSignInPlex(
 }
 
 enum class SettingsSignInEveryoneWho {
-    SHARED,
+    PICKED_SERVER,
     EVERY_PLEX,
     SERVER,
 }

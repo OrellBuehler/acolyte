@@ -210,10 +210,13 @@ data class LookupArtist(
     val mbid: String = "",
     val name: String = "",
     val disambiguation: String = "",
+    val type: String = "",
+    val country: String = "",
     val image: String = "",
     @SerialName("title_id") val titleId: Long = 0,
     @SerialName("never_add") val neverAdd: Boolean = false,
     val ask: TitleAsk? = null,
+    val asks: List<TitleAsk> = emptyList(),
     @SerialName("ask_albums") val askAlbums: List<AskableAlbum> = emptyList(),
 )
 

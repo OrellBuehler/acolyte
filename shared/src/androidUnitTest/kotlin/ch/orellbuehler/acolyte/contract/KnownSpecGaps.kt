@@ -16,6 +16,28 @@ internal object KnownSpecGaps {
             GapsMediaServers.problems +
             GapsAccountKeys.problems +
             mapOf(
+                "GET /api/v1/music/artists/{mbid}: query parameter 'part' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads part (core, similar, more, videos, video)",
+                "GET /api/v1/music/artists/{mbid}: query parameter 'n' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads n for the similar list size",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'part' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads part (core, near)",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'artist' is not in the spec (it has [])" to
+                    "internal/music/pages.go reads artist, the MusicBrainz id of the album's artist",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'similar' is not in the spec (it has [])" to
+                    "internal/music/pages.go honours similar=0 to leave out the similar list",
+                "GET /api/v1/music/genre/{slug}: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/genre.go reads region for the chart country",
+                "GET /api/v1/music/browse/{kind}/{slug}: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/browse.go reads region for the chart country",
+                "GET /api/v1/music/browse-tiles: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/browse.go reads region for the chart country",
+                "GET /api/v1/explore/new/music: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/explore_new_music_page.go reads region for the chart country",
+                "PUT /api/v1/metadata/album/{mbid}/follow: sends a body but the spec takes none" to
+                    "internal/music/explore_new_music_page.go decodes {name, artist, release_date}",
+                "POST /api/v1/artists body.follow: sent by the model but not in the spec" to
+                    "internal/music/music.go reads follow (default true) to put the artist on the calendar",
                 "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
                     "presence flag read with Query().Has(\"grid\") in cmd/holyarrs/wire_titles.go; the Library grid shape",
                 "GET /api/v1/titles: query parameter 'brief' is not in the spec (it has [q])" to
@@ -249,6 +271,8 @@ internal object KnownSpecGaps {
             "GET /api/v1/explore/new/service" to "needs a service id; the spec lists no query parameters",
             "GET /api/v1/people/popular" to "asks TMDB; on a server without TMDB access it answers after the client's 20 s socket timeout",
             "GET /api/v1/explore/title-stats" to "held back in this release (404 while row_title_stats is held)",
+            "GET /api/v1/explore/music/rising" to "needs the metadata service; a fresh server answers 404 no rising artists",
+            "GET /api/v1/music/browse-tiles" to "needs the metadata service; a fresh server answers 503 music catalog not ready",
             "GET /api/v1/auth/ai-connect" to "held back in this release (404 while ai_apps is held) and needs the OAuth authorize query",
             "GET /api/v1/auth/setup/discover" to "answers 404 once the first-run setup is finished",
         )

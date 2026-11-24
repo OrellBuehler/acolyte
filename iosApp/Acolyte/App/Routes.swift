@@ -108,6 +108,8 @@ struct SectionScreen: View {
             SettingsHomeView(account: account)
         case .requests:
             RequestsView(account: account)
+        case .music:
+            LibraryView(kind: .artist)
         case .account:
             AccountView(account: account)
         case .downloads:
@@ -171,17 +173,24 @@ enum Route: Hashable, Sendable, Identifiable {
     case settingsSubtitles
     case settingsSearch
     case settingsMove
-    case settingsMusic
     case genre(type: ExploreTypeID, genre: Int)
     case browse(BrowseLinkInfo)
     case hidden
     case exploreStats
+    case musicArtist(mbid: String)
+    case musicAlbum(mbid: String, artist: String)
+    case musicGenre(slug: String)
+    case musicPage(kind: String, slug: String)
+    case musicLibraryArtist(titleId: Int64, tab: String)
+    case musicLibraryAlbum(titleId: Int64, albumId: Int64)
+    case musicAdd(mbid: String, name: String)
+    case settingsMusic
 
     var id: Self { self }
 
     var isSheet: Bool {
         switch self {
-        case .ask, .askMusic, .reportProblem: true
+        case .ask, .askMusic, .reportProblem, .musicAdd: true
         default: false
         }
     }
@@ -349,8 +358,6 @@ struct RouteScreen: View {
             SettingsPlaceholderView(title: L10n.tr("settings.page.search"))
         case .settingsMove:
             SettingsPlaceholderView(title: L10n.tr("settings.page.move"))
-        case .settingsMusic:
-            SettingsPlaceholderView(title: L10n.tr("settings.page.music"))
         case let .genre(type, genre):
             GenreView(type: type, genre: genre, account: resolved)
         case let .browse(link):
@@ -359,6 +366,22 @@ struct RouteScreen: View {
             HiddenView()
         case .exploreStats:
             ExploreStatsView()
+        case let .musicArtist(mbid):
+            MusicArtistView(mbid: mbid)
+        case let .musicAlbum(mbid, artist):
+            MusicAlbumView(mbid: mbid, artist: artist)
+        case let .musicGenre(slug):
+            MusicRowsView(kind: "genre", slug: slug, account: resolved)
+        case let .musicPage(kind, slug):
+            MusicRowsView(kind: kind, slug: slug, account: resolved)
+        case let .musicLibraryArtist(titleId, tab):
+            MusicLibraryArtistView(titleId: titleId, tab: tab, account: resolved)
+        case let .musicLibraryAlbum(titleId, albumId):
+            MusicLibraryAlbumView(titleId: titleId, albumId: albumId)
+        case let .musicAdd(mbid, name):
+            MusicAddView(mbid: mbid, name: name)
+        case .settingsMusic:
+            MusicSettingsView()
         }
     }
 }

@@ -39,6 +39,14 @@ import ch.orellbuehler.acolyte.ui.library.LibraryScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryStatsScreen
 import ch.orellbuehler.acolyte.ui.library.LibrarySubtitlesScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryToolsScreen
+import ch.orellbuehler.acolyte.ui.music.MusicAddSheet
+import ch.orellbuehler.acolyte.ui.music.MusicAlbumScreen
+import ch.orellbuehler.acolyte.ui.music.MusicArtistScreen
+import ch.orellbuehler.acolyte.ui.music.MusicLibraryAlbumScreen
+import ch.orellbuehler.acolyte.ui.music.MusicLibraryArtistScreen
+import ch.orellbuehler.acolyte.ui.music.MusicRowsScreen
+import ch.orellbuehler.acolyte.ui.music.MusicSettingsScreen
+import ch.orellbuehler.acolyte.ui.music.rememberMusicNav
 import ch.orellbuehler.acolyte.ui.people.PeopleDetailScreen
 import ch.orellbuehler.acolyte.ui.people.PeopleScreen
 import ch.orellbuehler.acolyte.ui.requests.AskMusicSheet
@@ -52,7 +60,6 @@ import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
 import ch.orellbuehler.acolyte.ui.settings.SettingsHomeScreen
 import ch.orellbuehler.acolyte.ui.settings.settingsRoutes
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
-import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
 import ch.orellbuehler.acolyte.ui.title.TitleScreen
 
 @Composable
@@ -70,16 +77,17 @@ fun AppNavHost(
     val open: (Any) -> Unit = { nav.navigate(it) }
     val pop: () -> Unit = { nav.popBackStack() }
     val discover = rememberDiscoverNav(nav, account)
+    val music = rememberMusicNav(nav, discover.openSection)
 
     NavHost(navController = nav, startDestination = start, modifier = modifier) {
         composable<HomeRoute> { HomeScreen(discover, back(Section.HOME)) }
-        composable<ExploreRoute> { ExploreScreen(discover, back(Section.EXPLORE)) }
+        composable<ExploreRoute> { ExploreScreen(discover, music, back(Section.EXPLORE)) }
         composable<LibraryRoute> { LibraryScreen(null, back(Section.LIBRARY), open) }
-        composable<SearchRoute> { SearchScreen(discover, back(Section.SEARCH)) }
-        composable<PopularRoute> { PopularScreen(discover, back(Section.POPULAR)) }
+        composable<SearchRoute> { SearchScreen(discover, music, back(Section.SEARCH)) }
+        composable<PopularRoute> { PopularScreen(discover, music, back(Section.POPULAR)) }
         composable<MoviesRoute> { LibraryScreen(LibraryKind.MOVIE, back(Section.MOVIES), open) }
         composable<ShowsRoute> { LibraryScreen(LibraryKind.SHOW, back(Section.SHOWS), open) }
-        composable<MusicRoute> { PlaceholderScreen(Section.MUSIC, back(Section.MUSIC)) }
+        composable<MusicRoute> { LibraryScreen(LibraryKind.ARTIST, back(Section.MUSIC), open) }
         composable<StatsRoute> { LibraryStatsScreen(back(Section.STATS)) }
         composable<DownloadsRoute> {
             DownloadsScreen(
@@ -176,6 +184,32 @@ fun AppNavHost(
         composable<LibraryImportRoute> { LibraryImportScreen(pop, open) }
         composable<LibraryImportFilesRoute> { LibraryFilesScreen(it.toRoute<LibraryImportFilesRoute>().path, pop) }
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
+        composable<MusicArtistRoute> { MusicArtistScreen(it.toRoute<MusicArtistRoute>().mbid, music, pop) }
+        composable<MusicAlbumRoute> {
+            val route = it.toRoute<MusicAlbumRoute>()
+            MusicAlbumScreen(route.mbid, route.artist, music, pop)
+        }
+        composable<MusicGenreRoute> { MusicRowsScreen("genre", it.toRoute<MusicGenreRoute>().slug, music, pop) }
+        composable<MusicPageRoute> {
+            val route = it.toRoute<MusicPageRoute>()
+            MusicRowsScreen(route.kind, route.slug, music, pop)
+        }
+        composable<MusicLibraryArtistRoute> {
+            val route = it.toRoute<MusicLibraryArtistRoute>()
+            MusicLibraryArtistScreen(route.titleId, route.tab, music, pop)
+        }
+        composable<MusicLibraryAlbumRoute> {
+            val route = it.toRoute<MusicLibraryAlbumRoute>()
+            MusicLibraryAlbumScreen(route.titleId, route.albumId, music, pop)
+        }
+        dialog<MusicAddRoute> {
+            val route = it.toRoute<MusicAddRoute>()
+            MusicAddSheet(route.mbid, route.name, onClose = pop, onOpenFolders = {
+                pop()
+                nav.navigate(Routes.settingsLibraryFolders)
+            })
+        }
+        composable<SettingsMusicRoute> { MusicSettingsScreen(pop) }
         discoverRoutes(nav, account, discover)
         settingsRoutes(nav)
     }

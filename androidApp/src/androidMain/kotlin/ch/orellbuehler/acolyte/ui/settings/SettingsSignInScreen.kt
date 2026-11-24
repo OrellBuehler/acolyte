@@ -134,7 +134,7 @@ private fun EveryoneDialog(
 ) {
     val who =
         when (ask.who) {
-            SettingsSignInEveryoneWho.SHARED -> stringResource(R.string.settings_signin_who_shared)
+            SettingsSignInEveryoneWho.PICKED_SERVER -> stringResource(R.string.settings_signin_who_shared)
             SettingsSignInEveryoneWho.EVERY_PLEX -> stringResource(R.string.settings_signin_who_every)
             SettingsSignInEveryoneWho.SERVER -> stringResource(R.string.settings_signin_who_server, ask.kind.app)
         }

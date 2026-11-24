@@ -395,7 +395,7 @@ class SettingsSignInTest {
             var s = presenter.state.value
             assertEquals(0, calls(server, "PUT", settingsPath))
             assertEquals(SettingsSignInWayKind.PLEX, s.everyoneAsk?.kind)
-            assertEquals(ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInEveryoneWho.SHARED, s.everyoneAsk?.who)
+            assertEquals(ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInEveryoneWho.PICKED_SERVER, s.everyoneAsk?.who)
             presenter.dismissEveryone()
             assertNull(presenter.state.value.everyoneAsk)
             presenter.saveWay(SettingsSignInWayKind.PLEX, confirmed = true)

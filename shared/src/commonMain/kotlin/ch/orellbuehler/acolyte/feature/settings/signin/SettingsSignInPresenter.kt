@@ -460,7 +460,7 @@ class SettingsSignInPresenter internal constructor(
             val who =
                 when {
                     kind != SettingsSignInWayKind.PLEX -> SettingsSignInEveryoneWho.SERVER
-                    way.serverId.isNotEmpty() -> SettingsSignInEveryoneWho.SHARED
+                    way.serverId.isNotEmpty() -> SettingsSignInEveryoneWho.PICKED_SERVER
                     else -> SettingsSignInEveryoneWho.EVERY_PLEX
                 }
             edit { it.copy(everyoneAsk = SettingsSignInEveryoneAsk(kind, who, way.lastCount)) }
