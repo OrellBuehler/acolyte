@@ -128,3 +128,10 @@ Swift 6 language mode (`SWIFT_VERSION 6.0`), deployment target iOS 18. Check new
 ## Git
 
 Commit style: lowercase imperative, short first line, details in the body if needed (e.g. `add library screen`). Never add `Co-Authored-By` or any attribution line. Stage files by path, not with `git add -A`.
+
+## Settings
+
+- `feature/settings/SettingsCatalog.kt` lists every settings page with its gate (permission, part, held feature); the Settings home, search and attention dots come from `SettingsHomePresenter`. A new page: add it to `SettingsPage`, a `Settings<Page>Route` (Android) / `Route.settings<Page>` (iOS), strings `settings_page_<key>` and `_about`.
+- Risky writes answer `403 reauth`: wrap them in `SettingsReauthGate.guard` (state `SettingsReauthState`, Android `SettingsReauthDialog`, iOS `.settingsReauth`).
+- Files go through `Api.download` / `Api.upload` (streamed to the temp folder), then the share sheet (`shareTransferredFile`, `ActivityShareSheet`); call `clearTransfers()` afterwards.
+- Spec gaps of settings endpoints live in `contract/Gaps<Area>.kt`, not in `KnownSpecGaps`.
