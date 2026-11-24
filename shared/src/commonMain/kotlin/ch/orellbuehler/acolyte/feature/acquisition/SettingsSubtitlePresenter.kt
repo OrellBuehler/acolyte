@@ -314,7 +314,15 @@ class SettingsSubtitlePresenter internal constructor(
                         saved = result.value,
                         draft = result.value,
                         numberText = emptyMap(),
-                        cleanLanguage = if (result.value.clean.containsKey(it.cleanLanguage)) it.cleanLanguage else SETTINGS_SUBTITLE_EVERY_LANGUAGE,
+                        cleanLanguage =
+                            if (result.value.clean.containsKey(
+                                    it.cleanLanguage,
+                                )
+                            ) {
+                                it.cleanLanguage
+                            } else {
+                                SETTINGS_SUBTITLE_EVERY_LANGUAGE
+                            },
                         note = nextNote(SettingsSubtitleNoteKind.SETTINGS_SAVED),
                     )
                 }
@@ -467,7 +475,14 @@ class SettingsSubtitlePresenter internal constructor(
         mutableState.update { it.copy(testingSite = id) }
         when (val result = api.result(SubtitleSettingsEndpoints.testSite, "id" to id)) {
             is ApiResult.Ok ->
-                mutableState.update { it.copy(testingSite = 0, siteTests = it.siteTests + (id to result.value), siteTestErrors = it.siteTestErrors - id) }
+                mutableState.update {
+                    it.copy(
+                        testingSite = 0,
+                        siteTests = it.siteTests + (id to result.value),
+                        siteTestErrors =
+                            it.siteTestErrors - id,
+                    )
+                }
             is ApiResult.Failed ->
                 mutableState.update {
                     it.copy(
@@ -488,7 +503,13 @@ class SettingsSubtitlePresenter internal constructor(
         when (val result = api.result(SubtitleSettingsEndpoints.updateSite, body, "id" to id)) {
             is ApiResult.Ok -> {
                 mutableState.update {
-                    it.copy(note = nextNote(if (pause) SettingsSubtitleNoteKind.SITE_PAUSED else SettingsSubtitleNoteKind.SITE_RESUMED, site.name))
+                    it.copy(
+                        note =
+                            nextNote(
+                                if (pause) SettingsSubtitleNoteKind.SITE_PAUSED else SettingsSubtitleNoteKind.SITE_RESUMED,
+                                site.name,
+                            ),
+                    )
                 }
                 reloadSites()
             }
@@ -507,7 +528,11 @@ class SettingsSubtitlePresenter internal constructor(
     }
 
     suspend fun removeSite(id: Long) {
-        val name = mutableState.value.sites.firstOrNull { it.id == id }?.name.orEmpty()
+        val name =
+            mutableState.value.sites
+                .firstOrNull { it.id == id }
+                ?.name
+                .orEmpty()
         when (val result = api.result(SubtitleSettingsEndpoints.removeSite, "id" to id)) {
             is ApiResult.Ok -> {
                 mutableState.update { it.copy(siteTests = it.siteTests - id, siteTestErrors = it.siteTestErrors - id) }
@@ -525,7 +550,12 @@ class SettingsSubtitlePresenter internal constructor(
         when (val result = api.result(SubtitleSettingsEndpoints.clean)) {
             is ApiResult.Ok -> mutableState.update { it.copy(cleaning = false, note = nextNote(SettingsSubtitleNoteKind.CLEAN_QUEUED)) }
             is ApiResult.Failed ->
-                mutableState.update { it.copy(cleaning = false, note = nextNote(SettingsSubtitleNoteKind.CLEAN_FAILED, error = result.error)) }
+                mutableState.update {
+                    it.copy(
+                        cleaning = false,
+                        note = nextNote(SettingsSubtitleNoteKind.CLEAN_FAILED, error = result.error),
+                    )
+                }
         }
     }
 

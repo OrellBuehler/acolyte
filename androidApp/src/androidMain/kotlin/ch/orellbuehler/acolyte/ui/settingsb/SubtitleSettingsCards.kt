@@ -26,7 +26,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -289,7 +288,10 @@ internal fun SubtitleTranslatorCard(
         val test = state.translatorTest
         if (test != null && !state.translatorDirty) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                StatusChip(stringResource(if (test.ok) R.string.acq_sub_test_ok else R.string.acq_sub_test_failed), if (test.ok) Tone.OK else Tone.FAIL)
+                StatusChip(
+                    stringResource(if (test.ok) R.string.acq_sub_test_ok else R.string.acq_sub_test_failed),
+                    if (test.ok) Tone.OK else Tone.FAIL,
+                )
                 if (test.message.isNotBlank()) {
                     Text(
                         test.message,

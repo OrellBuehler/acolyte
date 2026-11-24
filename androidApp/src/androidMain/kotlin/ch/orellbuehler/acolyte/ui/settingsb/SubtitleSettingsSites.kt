@@ -18,7 +18,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -97,7 +96,13 @@ private fun SubtitleSiteForm(
             }
         }
         SubtitleTextField(stringResource(R.string.acq_sub_name), form.name, viewModel::setFormName)
-        SiteNumber(R.string.acq_sub_priority, SettingsSubtitleSiteNumber.PRIORITY, form, viewModel, stringResource(R.string.acq_sub_priority_hint))
+        SiteNumber(
+            R.string.acq_sub_priority,
+            SettingsSubtitleSiteNumber.PRIORITY,
+            form,
+            viewModel,
+            stringResource(R.string.acq_sub_priority_hint),
+        )
         SubtitleTextField(stringResource(R.string.acq_sub_address), form.url, viewModel::setFormUrl, keyboardType = KeyboardType.Uri)
         if (kind?.needsAccount == true) {
             Text(stringResource(R.string.acq_sub_your_account), style = MaterialTheme.typography.titleSmall)

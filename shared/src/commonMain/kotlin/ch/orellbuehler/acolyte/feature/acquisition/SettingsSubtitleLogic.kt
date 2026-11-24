@@ -87,7 +87,14 @@ fun parseSettingsSubtitleNumber(
     return value.takeIf { it >= min && it <= max }
 }
 
-fun settingsSubtitleFps(value: Double): String = if (value == floor(value) && value < 1_000_000) value.toLong().toString() else value.toString()
+fun settingsSubtitleFps(value: Double): String =
+    if (value == floor(value) &&
+        value < 1_000_000
+    ) {
+        value.toLong().toString()
+    } else {
+        value.toString()
+    }
 
 enum class SettingsSubtitleFlag(
     val key: String,

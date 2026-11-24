@@ -55,7 +55,11 @@ class SettingsSubtitleTest {
     private fun server(): FakeServer {
         val server = FakeServer()
         server.json("GET", "/api/v1/settings/subtitles", settings)
-        server.json("GET", "/api/v1/subtitles/languages", """{"languages":[{"code":"en","name":"English"},{"code":"de","name":"German"}]}""")
+        server.json(
+            "GET",
+            "/api/v1/subtitles/languages",
+            """{"languages":[{"code":"en","name":"English"},{"code":"de","name":"German"}]}""",
+        )
         server.json(
             "GET",
             "/api/v1/settings/subtitles/translator",
@@ -269,7 +273,13 @@ class SettingsSubtitleTest {
             presenter.setTranslatorKey("")
             presenter.setTranslatorClearKey(true)
             presenter.saveTranslator()
-            assertTrue(server.request("PUT", "/api/v1/settings/subtitles/translator").body.orEmpty().contains(""""clear_key":true"""))
+            assertTrue(
+                server
+                    .request("PUT", "/api/v1/settings/subtitles/translator")
+                    .body
+                    .orEmpty()
+                    .contains(""""clear_key":true"""),
+            )
         }
 
     @Test
@@ -283,11 +293,19 @@ class SettingsSubtitleTest {
                     "limits":{"gap_ms":1000,"per_window":60,"window_seconds":3600,"downloads_per_day":0},"priority":25,"has_account":true}""",
                 201,
             )
-            server.json("POST", "/api/v1/subtitle-sites/9/test", """{"ok":true,"message":"The site answered: 12 subtitles for a test title.","found":12}""")
+            server.json(
+                "POST",
+                "/api/v1/subtitle-sites/9/test",
+                """{"ok":true,"message":"The site answered: 12 subtitles for a test title.","found":12}""",
+            )
             val presenter = SettingsSubtitlePresenter(server.api()) { owner() }
             presenter.load()
             presenter.startAdd()
-            assertEquals("gestdown", presenter.state.value.form?.kind)
+            assertEquals(
+                "gestdown",
+                presenter.state.value.form
+                    ?.kind,
+            )
             presenter.pickKind("opensubtitles")
             var form = presenter.state.value.form!!
             assertEquals("OpenSubtitles.com", form.name)
@@ -319,7 +337,8 @@ class SettingsSubtitleTest {
     fun changeKeepsAccountWhenNothingIsTyped() {
         val kind = SettingsSubtitleKind(kind = "opensubtitles", needsAccount = true, account = listOf("api_key", "username", "password"))
         val form =
-            ch.orellbuehler.acolyte.feature.acquisition.SettingsSubtitleSiteForm(kind = "opensubtitles", isNew = false, hasAccount = true)
+            ch.orellbuehler.acolyte.feature.acquisition
+                .SettingsSubtitleSiteForm(kind = "opensubtitles", isNew = false, hasAccount = true)
         assertEquals(emptyList(), settingsSubtitleAccountMissing(kind, form))
         assertEquals(listOf("password"), settingsSubtitleAccountMissing(kind, form.copy(username = "a", apiKey = "b")))
         assertEquals(listOf("api_key", "username", "password"), settingsSubtitleAccountMissing(kind, form.copy(hasAccount = false)))
@@ -341,7 +360,11 @@ class SettingsSubtitleTest {
             assertTrue(body.contains(""""enabled":false"""))
             assertTrue(body.contains(""""downloads_per_day":20"""))
             assertTrue(body.contains(""""name":"Gestdown""""))
-            assertEquals(SettingsSubtitleNoteKind.SITE_PAUSED, presenter.state.value.note?.kind)
+            assertEquals(
+                SettingsSubtitleNoteKind.SITE_PAUSED,
+                presenter.state.value.note
+                    ?.kind,
+            )
         }
 
     @Test
@@ -353,10 +376,22 @@ class SettingsSubtitleTest {
             val presenter = SettingsSubtitlePresenter(server.api()) { owner() }
             presenter.load()
             presenter.removeSite(3)
-            assertEquals(SettingsSubtitleNoteKind.REMOVE_FAILED, presenter.state.value.note?.kind)
-            assertEquals("Gestdown", presenter.state.value.note?.name)
+            assertEquals(
+                SettingsSubtitleNoteKind.REMOVE_FAILED,
+                presenter.state.value.note
+                    ?.kind,
+            )
+            assertEquals(
+                "Gestdown",
+                presenter.state.value.note
+                    ?.name,
+            )
             presenter.cleanAll()
-            assertEquals(SettingsSubtitleNoteKind.CLEAN_QUEUED, presenter.state.value.note?.kind)
+            assertEquals(
+                SettingsSubtitleNoteKind.CLEAN_QUEUED,
+                presenter.state.value.note
+                    ?.kind,
+            )
         }
 
     @Test
@@ -364,7 +399,9 @@ class SettingsSubtitleTest {
         runTest {
             val presenter = SettingsSubtitlePresenter(server().api()) { owner() }
             presenter.load()
-            val row = presenter.state.value.siteRows.single()
+            val row =
+                presenter.state.value.siteRows
+                    .single()
             assertEquals("Gestdown", row.kindName)
             assertEquals(4, row.downloadsToday)
             assertEquals(20, row.downloadsMax)

@@ -137,6 +137,10 @@ final class SDKClient: @unchecked Sendable {
         RequestRulesDriver(presenter: sdk.requestSettings())
     }
 
+    func makeSubtitleSettings() -> SubtitleSettingsDriver {
+        SubtitleSettingsDriver(presenter: sdk.settingsSubtitles())
+    }
+
     func makeOutsideLists() -> OutsideListsDriver {
         OutsideListsDriver(presenter: sdk.outsideLists())
     }
