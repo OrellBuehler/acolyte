@@ -30,16 +30,20 @@ struct SourceFormSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                identity
-                address
-                usage
-                media
-                numbers
-                routing
-                languages
-                limits
-                proxy
-                network
+                Group {
+                    identity
+                    address
+                    usage
+                    media
+                    numbers
+                }
+                Group {
+                    routing
+                    languages
+                    limits
+                    proxy
+                    network
+                }
                 if let error = info.saveError {
                     Section { Text(error.sourceText).foregroundStyle(Theme.failText) }
                 }

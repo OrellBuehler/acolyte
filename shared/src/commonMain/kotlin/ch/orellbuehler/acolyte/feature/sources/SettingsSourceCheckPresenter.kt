@@ -17,9 +17,9 @@ data class SettingsSourceCheckResult(
 ) {
     val total: Int get() = lines.size
 
-    val connected: Int get() = lines.count { it.word == SettingsCheckWord.CONNECTED }
+    val connected: Int get() = lines.count { it.word == SettingsSourceCheckWord.CONNECTED }
 
-    val paused: Int get() = lines.count { it.word == SettingsCheckWord.PAUSED }
+    val paused: Int get() = lines.count { it.word == SettingsSourceCheckWord.PAUSED }
 
     val failed: Int get() = total - connected - paused
 }

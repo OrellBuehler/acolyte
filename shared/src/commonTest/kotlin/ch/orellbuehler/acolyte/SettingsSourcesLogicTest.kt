@@ -8,7 +8,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsSourceLimits
 import ch.orellbuehler.acolyte.api.model.SettingsSourceUse
 import ch.orellbuehler.acolyte.api.model.SourceRef
 import ch.orellbuehler.acolyte.feature.Tone
-import ch.orellbuehler.acolyte.feature.sources.SettingsDownloaderChoice
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceDownloader
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceForm
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceKeyKind
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceProblem
@@ -209,8 +209,8 @@ class SettingsSourcesLogicTest {
     fun sendToFollowsTheProtocolAndNoticesARemovedDownloader() {
         val all =
             listOf(
-                SettingsDownloaderChoice(1, "qBit", "torrent"),
-                SettingsDownloaderChoice(2, "SAB", "usenet"),
+                SettingsSourceDownloader(1, "qBit", "torrent"),
+                SettingsSourceDownloader(2, "SAB", "usenet"),
             )
         assertNull(torznab.sendTo(null))
         assertEquals(listOf(1L), torznab.sendTo(all)?.map { it.id })

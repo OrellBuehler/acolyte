@@ -56,7 +56,7 @@ enum class SettingsSourceCause {
     LOCAL_NETWORK,
 }
 
-enum class SettingsCheckWord {
+enum class SettingsSourceCheckWord {
     CONNECTED,
     NOT_CONNECTED,
     PAUSED,
@@ -98,7 +98,7 @@ data class SettingsSourceCallRow(
 data class SettingsSourceCheckLine(
     val id: Long,
     val name: String,
-    val word: SettingsCheckWord,
+    val word: SettingsSourceCheckWord,
     val tone: Tone,
     val count: Int,
     val ms: Int,
@@ -277,9 +277,9 @@ object SettingsSourcesLogic {
     fun checkLine(r: SettingsSourceCheckRow): SettingsSourceCheckLine {
         val word =
             when {
-                r.paused -> SettingsCheckWord.PAUSED
-                r.answered -> SettingsCheckWord.CONNECTED
-                else -> SettingsCheckWord.NOT_CONNECTED
+                r.paused -> SettingsSourceCheckWord.PAUSED
+                r.answered -> SettingsSourceCheckWord.CONNECTED
+                else -> SettingsSourceCheckWord.NOT_CONNECTED
             }
         val tone =
             when {

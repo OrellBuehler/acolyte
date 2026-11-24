@@ -36,7 +36,7 @@ data class SettingsSourcesState(
     val canEdit: Boolean = false,
     val partOff: Boolean = false,
     val rows: List<SettingsSourceRow> = emptyList(),
-    val downloaders: List<SettingsDownloaderChoice>? = null,
+    val downloaders: List<SettingsSourceDownloader>? = null,
     val editing: SettingsSourceForm? = null,
     val editToken: Int = 0,
     val saving: Boolean = false,
@@ -95,7 +95,7 @@ class SettingsSourcesPresenter internal constructor(
                 val downloaders =
                     async {
                         api.result(DownloadsLinkEndpoints.downloaders).valueOrNull()?.downloaders?.map {
-                            SettingsDownloaderChoice(it.id, it.name, it.protocol)
+                            SettingsSourceDownloader(it.id, it.name, it.protocol)
                         }
                     }
                 when (val result = api.result(DownloadsLinkEndpoints.sources)) {

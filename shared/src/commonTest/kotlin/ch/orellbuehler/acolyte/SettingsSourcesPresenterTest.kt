@@ -10,9 +10,9 @@ import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgeDraft
 import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
-import ch.orellbuehler.acolyte.feature.sources.SettingsCheckWord
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCause
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckWord
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceHealthPresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceOp
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceWord
@@ -303,7 +303,7 @@ class SettingsSourcesPresenterTest {
             assertEquals(1, result.failed)
             assertEquals(1, result.paused)
             assertEquals(
-                listOf(SettingsCheckWord.CONNECTED, SettingsCheckWord.NOT_CONNECTED, SettingsCheckWord.PAUSED),
+                listOf(SettingsSourceCheckWord.CONNECTED, SettingsSourceCheckWord.NOT_CONNECTED, SettingsSourceCheckWord.PAUSED),
                 result.lines.map { it.word },
             )
             assertEquals("Waiting.", result.lines[2].detail)

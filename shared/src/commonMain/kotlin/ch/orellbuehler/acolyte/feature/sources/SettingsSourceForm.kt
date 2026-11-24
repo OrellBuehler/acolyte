@@ -8,7 +8,7 @@ import ch.orellbuehler.acolyte.feature.library.LibraryLogic
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
-data class SettingsBuiltInSite(
+data class SettingsSourceBuiltIn(
     val id: String,
     val name: String,
     val url: String,
@@ -24,15 +24,15 @@ data class SettingsBuiltInSite(
 object SettingsSourceSites {
     private val everything = listOf("movie", "tv", "music")
 
-    val all: List<SettingsBuiltInSite> =
+    val all: List<SettingsSourceBuiltIn> =
         listOf(
-            SettingsBuiltInSite("knaben", "Knaben", "https://api.knaben.org", false, false, everything, 2000, 100, 20, true),
-            SettingsBuiltInSite("torrentscsv", "TorrentsCSV", "https://torrents-csv.com", false, false, everything, 2000, 100, 20, false),
-            SettingsBuiltInSite("subsplease", "SubsPlease", "https://subsplease.org", false, false, listOf("tv"), 2000, 100, 20, true),
-            SettingsBuiltInSite("iptorrents", "IPTorrents", "https://iptorrents.com", true, true, everything, 3000, 60, 30, true),
+            SettingsSourceBuiltIn("knaben", "Knaben", "https://api.knaben.org", false, false, everything, 2000, 100, 20, true),
+            SettingsSourceBuiltIn("torrentscsv", "TorrentsCSV", "https://torrents-csv.com", false, false, everything, 2000, 100, 20, false),
+            SettingsSourceBuiltIn("subsplease", "SubsPlease", "https://subsplease.org", false, false, listOf("tv"), 2000, 100, 20, true),
+            SettingsSourceBuiltIn("iptorrents", "IPTorrents", "https://iptorrents.com", true, true, everything, 3000, 60, 30, true),
         )
 
-    fun byId(id: String): SettingsBuiltInSite? = all.firstOrNull { it.id == id }
+    fun byId(id: String): SettingsSourceBuiltIn? = all.firstOrNull { it.id == id }
 }
 
 enum class SettingsSourceProblem {
@@ -64,7 +64,7 @@ enum class SettingsSourceAddressHint {
     SITE,
 }
 
-data class SettingsDownloaderChoice(
+data class SettingsSourceDownloader(
     val id: Long,
     val name: String,
     val protocolName: String,
@@ -104,7 +104,7 @@ data class SettingsSourceForm(
     val originalProtocol: String = "",
     val originalDownloaderId: Long = 0,
 ) {
-    val builtIn: SettingsBuiltInSite? get() = SettingsSourceSites.byId(site)
+    val builtIn: SettingsSourceBuiltIn? get() = SettingsSourceSites.byId(site)
 
     val isSite: Boolean get() = format == FORMAT_SITE
 
@@ -187,7 +187,7 @@ data class SettingsSourceForm(
         on: Boolean,
     ): SettingsSourceForm = copy(kinds = if (on) (kinds + kind).distinct() else kinds.filter { it != kind })
 
-    internal fun settled(downloaders: List<SettingsDownloaderChoice>?): SettingsSourceForm {
+    internal fun settled(downloaders: List<SettingsSourceDownloader>?): SettingsSourceForm {
         if (downloaders == null) return this
         val known = downloaders.any { it.protocolName == sendProtocol && it.id == downloaderId }
         if (downloaderId <= 0 || known) return copy(sendGone = false)
@@ -195,7 +195,7 @@ data class SettingsSourceForm(
         return copy(downloaderId = 0, sendGone = gone)
     }
 
-    fun sendTo(downloaders: List<SettingsDownloaderChoice>?): List<SettingsDownloaderChoice>? =
+    fun sendTo(downloaders: List<SettingsSourceDownloader>?): List<SettingsSourceDownloader>? =
         downloaders?.filter { it.protocolName == sendProtocol }
 
     fun problems(): List<SettingsSourceProblem> {

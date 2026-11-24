@@ -6,8 +6,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.ApiError
-import ch.orellbuehler.acolyte.feature.sources.SettingsCheckWord
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCause
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckWord
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceErrorKind
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceOp
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceOutcome
@@ -137,12 +137,12 @@ fun sourceErrorKindText(
     }
 
 @Composable
-fun sourceCheckWordText(word: SettingsCheckWord): String =
+fun sourceCheckWordText(word: SettingsSourceCheckWord): String =
     stringResource(
         when (word) {
-            SettingsCheckWord.CONNECTED -> R.string.acq_src_check_connected
-            SettingsCheckWord.NOT_CONNECTED -> R.string.acq_src_check_not_connected
-            SettingsCheckWord.PAUSED -> R.string.acq_src_check_paused
+            SettingsSourceCheckWord.CONNECTED -> R.string.acq_src_check_connected
+            SettingsSourceCheckWord.NOT_CONNECTED -> R.string.acq_src_check_not_connected
+            SettingsSourceCheckWord.PAUSED -> R.string.acq_src_check_paused
         },
     )
 

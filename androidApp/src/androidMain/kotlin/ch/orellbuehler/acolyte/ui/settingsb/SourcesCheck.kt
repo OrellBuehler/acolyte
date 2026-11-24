@@ -24,9 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.R
-import ch.orellbuehler.acolyte.feature.sources.SettingsCheckWord
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckLine
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckResult
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckWord
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.requests.FailText
 import ch.orellbuehler.acolyte.ui.requests.Hint
@@ -103,14 +103,14 @@ private fun CheckResultLine(line: SettingsSourceCheckLine) {
         }
         val meta =
             buildList {
-                if (line.word == SettingsCheckWord.CONNECTED) {
+                if (line.word == SettingsSourceCheckWord.CONNECTED) {
                     add(pluralStringResource(R.plurals.acq_src_check_results, line.count, line.count))
                 }
-                if (line.word != SettingsCheckWord.PAUSED && line.ms > 0) add(sourceDurationText(line.ms))
+                if (line.word != SettingsSourceCheckWord.PAUSED && line.ms > 0) add(sourceDurationText(line.ms))
             }
         if (meta.isNotEmpty()) Hint(meta.joinToString(" · "))
         if (line.detail.isNotBlank()) {
-            if (line.word == SettingsCheckWord.NOT_CONNECTED) FailText(line.detail) else Hint(line.detail)
+            if (line.word == SettingsSourceCheckWord.NOT_CONNECTED) FailText(line.detail) else Hint(line.detail)
         }
     }
 }
