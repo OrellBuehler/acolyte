@@ -247,4 +247,16 @@ final class SDKClient: @unchecked Sendable {
     func placeholder(_ name: String) -> PlaceholderInfo {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
+
+    func makeSettingsAlerts() -> SettingsServerAlertsDriver {
+        SettingsServerAlertsDriver(presenter: sdk.settingsAlerts())
+    }
+
+    func makeSettingsBackups() -> SettingsServerBackupsDriver {
+        SettingsServerBackupsDriver(presenter: sdk.settingsBackups())
+    }
+
+    func makeSettingsLogs() -> SettingsServerLogsDriver {
+        SettingsServerLogsDriver(presenter: sdk.settingsLogs())
+    }
 }
