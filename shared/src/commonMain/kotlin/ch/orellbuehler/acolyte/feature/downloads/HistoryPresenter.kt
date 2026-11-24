@@ -3,14 +3,16 @@ package ch.orellbuehler.acolyte.feature.downloads
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
-import ch.orellbuehler.acolyte.api.DownloadsEndpoints
 import ch.orellbuehler.acolyte.api.DownloadsLinkEndpoints
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.Part
+import ch.orellbuehler.acolyte.api.TitleEndpoints
+import ch.orellbuehler.acolyte.api.TitleSupportEndpoints
 import ch.orellbuehler.acolyte.api.model.EventRecord
+import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.api.model.SearchBody
 import ch.orellbuehler.acolyte.api.model.SourceRef
-import ch.orellbuehler.acolyte.api.model.TitleBrief
 import ch.orellbuehler.acolyte.api.model.TurnDownBody
 import ch.orellbuehler.acolyte.api.onFailure
 import ch.orellbuehler.acolyte.api.onSuccess
@@ -18,6 +20,7 @@ import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.live.LiveEvent
+import ch.orellbuehler.acolyte.nav.LibraryTool
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -95,7 +98,7 @@ class HistoryPresenter internal constructor(
     private val mutableState = MutableStateFlow(HistoryState(titleId = titleId, episodeId = episodeId))
     private val lock = Mutex()
     private var events: List<EventRecord> = emptyList()
-    private var titles: Map<Long, TitleBrief> = emptyMap()
+    private var titles: Map<Long, GridTitle> = emptyMap()
     private var users: Map<Long, String> = emptyMap()
     private var sideLoaded = false
     private var pages = 1
@@ -169,7 +172,7 @@ class HistoryPresenter internal constructor(
         publish()
     }
 
-    suspend fun titleLink(titleId: Long): TitleLink? = links.resolve(titleId)
+    suspend fun titleLink(titleId: Long): DownloadTitleLink? = links.resolve(titleId)
 
     fun consumeNotice() {
         mutableState.update { it.copy(notice = null) }
@@ -185,10 +188,10 @@ class HistoryPresenter internal constructor(
         }
         val slot = item.events.firstOrNull { it.slotId > 0 }?.slotId
         mutableState.update { it.copy(busy = it.busy + key, actionError = null) }
-        val turned = api.result(DownloadsLinkEndpoints.turnDown, TurnDownBody(slot), "id" to release)
+        val turned = api.result(TitleEndpoints.turnDown, TurnDownBody(slot), "id" to release)
         val result =
             if (turned is ApiResult.Ok) {
-                api.result(DownloadsLinkEndpoints.search, SearchBody(slotId = slot), "id" to item.head.titleId)
+                api.result(LibraryEndpoints.search, SearchBody(slotId = slot), "id" to item.head.titleId)
             } else {
                 turned
             }
@@ -241,7 +244,7 @@ class HistoryPresenter internal constructor(
                 null
             }
         return api.result(
-            DownloadsEndpoints.events,
+            TitleSupportEndpoints.events,
             "episode" to s.episodeId.takeIf { it > 0 },
             "title" to (s.titleId.takeIf { it > 0 && s.episodeId == 0L } ?: titleFromQuery),
             "kind" to HistoryRules.kinds(f.steps).joinToString(","),
@@ -300,13 +303,25 @@ class HistoryPresenter internal constructor(
         val who = account()
         if (who?.isOn(Part.MEDIA) == true) links.briefs()?.let { titles = it }
         if (who?.can(Need.USERS) == true) {
-            api.result(DownloadsLinkEndpoints.users).valueOrNull()?.let { list -> users = list.users.associate { it.id to it.name } }
+            api.result(TitleSupportEndpoints.users).valueOrNull()?.let { list -> users = list.users.associate { it.id to it.name } }
         }
         if (who?.can(Need.SETTINGS) == true) {
             api.result(DownloadsLinkEndpoints.sources).valueOrNull()?.let { list ->
                 mutableState.update { it.copy(sources = list.sources, canSources = true) }
             }
         }
+    }
+
+    private fun libraryLinkIfAllowed(line: LineKind): LibraryLink {
+        val link = HistoryRules.libraryLinkOf(line)
+        val tool =
+            when (link) {
+                LibraryLink.TURNED_DOWN -> LibraryTool.TURNED_DOWN
+                LibraryLink.HELD -> LibraryTool.HELD
+                LibraryLink.DELETED -> LibraryTool.DELETED
+                LibraryLink.NONE -> return link
+            }
+        return if (account()?.libraryTools?.contains(tool) == true) link else LibraryLink.NONE
     }
 
     private fun publish() {
@@ -354,6 +369,7 @@ class HistoryPresenter internal constructor(
                     downloadId = list.firstNotNullOfOrNull { it.downloadId.takeIf { id -> id > 0 } } ?: 0,
                     failed = failingStep || verb.tone == ch.orellbuehler.acolyte.feature.Tone.FAIL,
                     needsYou = verb == HistoryVerb.NEEDS_YOU || verb == HistoryVerb.NEEDS_DECISION,
+                    libraryLink = libraryLinkIfAllowed(line.kind),
                 )
             }
         val days =

@@ -4,11 +4,12 @@ import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.DownloadsEndpoints
-import ch.orellbuehler.acolyte.api.DownloadsLinkEndpoints
+import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.Part
+import ch.orellbuehler.acolyte.api.TitleEndpoints
 import ch.orellbuehler.acolyte.api.model.CalendarRow
-import ch.orellbuehler.acolyte.api.model.TitleBrief
+import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.api.onFailure
 import ch.orellbuehler.acolyte.api.onSuccess
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -87,7 +88,7 @@ class CalendarPresenter internal constructor(
     private val links = TitleLinks(api)
     private val lock = Mutex()
     private val loaded = mutableMapOf<String, List<CalendarRow>>()
-    private var titles: Map<Long, TitleBrief> = emptyMap()
+    private var titles: Map<Long, GridTitle> = emptyMap()
     private var titlesTried = false
     private var followsPicked = false
     private val texts = mutableMapOf<String, String>()
@@ -174,15 +175,15 @@ class CalendarPresenter internal constructor(
         mutableState.update { it.copy(actionError = null) }
     }
 
-    suspend fun titleLink(titleId: Long): TitleLink? = links.resolve(titleId)
+    suspend fun titleLink(titleId: Long): DownloadTitleLink? = links.resolve(titleId)
 
-    fun link(group: CalendarGroup): TitleLink? {
+    fun link(group: CalendarGroup): DownloadTitleLink? {
         val e = group.lead
         if (e.tmdb.isEmpty() || e.tmdb == "0") return null
         return when (e.kind) {
-            "episode" -> TitleLink("show", e.tmdb)
+            "episode" -> DownloadTitleLink("show", e.tmdb)
             "album" -> null
-            else -> TitleLink("movie", e.tmdb)
+            else -> DownloadTitleLink("movie", e.tmdb)
         }
     }
 
@@ -270,9 +271,9 @@ class CalendarPresenter internal constructor(
         mutableState.update { it.copy(busy = it.busy + key, actionError = null) }
         val result =
             if (on) {
-                api.result(DownloadsLinkEndpoints.follow, "id" to id)
+                api.result(TitleEndpoints.followTitleOn, "id" to id)
             } else {
-                api.result(DownloadsLinkEndpoints.unfollow, "id" to id)
+                api.result(TitleEndpoints.followTitleOff, "id" to id)
             }
         mutableState.update { it.copy(busy = it.busy - key) }
         result
@@ -319,7 +320,7 @@ class CalendarPresenter internal constructor(
         var jobs = 0
         var error: ApiError? = null
         for (e in entries) {
-            when (val result = api.result(DownloadsLinkEndpoints.search, CalendarRules.searchBody(e), "id" to e.titleId)) {
+            when (val result = api.result(LibraryEndpoints.search, CalendarRules.searchBody(e), "id" to e.titleId)) {
                 is ApiResult.Ok -> jobs += result.value.jobIds.size
                 is ApiResult.Failed -> if (error == null) error = result.error
             }
@@ -363,13 +364,13 @@ class CalendarPresenter internal constructor(
                 when (e.kind) {
                     "episode" ->
                         api
-                            .result(DownloadsLinkEndpoints.season, "tmdb_id" to e.tmdb, "number" to e.season)
+                            .result(TitleEndpoints.season, "tmdb_id" to e.tmdb, "number" to e.season)
                             .valueOrNull()
                             ?.episodes
                             ?.firstOrNull { it.number == e.episode }
                             ?.overview
                     "album" -> null
-                    else -> api.result(DownloadsLinkEndpoints.metadata, "kind" to "movie", "tmdb_id" to e.tmdb).valueOrNull()?.overview
+                    else -> api.result(TitleEndpoints.details, "kind" to "movie", "tmdb_id" to e.tmdb).valueOrNull()?.overview
                 }
             if (!text.isNullOrBlank()) {
                 texts[key] = text

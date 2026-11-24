@@ -25,12 +25,28 @@ data class EventRecord(
     val episode: String = "",
     val version: String = "",
     @SerialName("actor_name") val actorName: String = "",
+    @SerialName("GroupKey") val groupKey: String = "",
 ) {
     val titleId: Long get() = titleRef ?: 0
 
     val slotId: Long get() = slotRef ?: 0
 
     val downloadId: Long get() = downloadRef ?: 0
+
+    fun toTitleEvent(): TitleEvent =
+        TitleEvent(
+            id = id,
+            kind = kind,
+            summary = summary,
+            at = at,
+            downloadId = downloadRef,
+            slotId = slotRef,
+            groupKey = groupKey,
+            titleId = titleRef,
+            episode = episode,
+            version = version,
+            actorName = actorName,
+        )
 }
 
 @Serializable
@@ -43,17 +59,6 @@ data class EventsPage(
 )
 
 @Serializable
-data class PersonRef(
-    val id: Long = 0,
-    val name: String = "",
-)
-
-@Serializable
-data class PersonList(
-    val users: List<PersonRef> = emptyList(),
-)
-
-@Serializable
 data class SourceRef(
     val id: Long = 0,
     val name: String = "",
@@ -62,34 +67,6 @@ data class SourceRef(
 @Serializable
 data class SourceList(
     val sources: List<SourceRef> = emptyList(),
-)
-
-@Serializable
-data class TurnDownBody(
-    @SerialName("slot_id") val slotId: Long? = null,
-)
-
-@Serializable
-data class ReleaseRef(
-    val id: Long = 0,
-)
-
-@Serializable
-data class SearchBody(
-    @SerialName("item_id") val itemId: Long? = null,
-    @SerialName("album_id") val albumId: Long? = null,
-    @SerialName("slot_id") val slotId: Long? = null,
-)
-
-@Serializable
-data class SearchAnswer(
-    @SerialName("job_ids") val jobIds: List<Long> = emptyList(),
-)
-
-@Serializable
-data class FollowAnswer(
-    @SerialName("title_id") val titleId: Long = 0,
-    val following: Boolean = false,
 )
 
 @Serializable
@@ -148,22 +125,4 @@ data class CalendarAnswer(
     val dates: List<CalendarRow> = emptyList(),
     @SerialName("my_follows") val myFollows: Int = 0,
     val people: Int = 0,
-)
-
-@Serializable
-data class SeasonEpisode(
-    val number: Int = 0,
-    val name: String = "",
-    val overview: String = "",
-    val still: String = "",
-)
-
-@Serializable
-data class SeasonEpisodes(
-    val episodes: List<SeasonEpisode> = emptyList(),
-)
-
-@Serializable
-data class MovieOverview(
-    val overview: String = "",
 )

@@ -236,6 +236,13 @@ enum class HistoryRedo {
     REPLACE,
 }
 
+enum class LibraryLink {
+    NONE,
+    TURNED_DOWN,
+    HELD,
+    DELETED,
+}
+
 data class HistoryItem(
     val key: String,
     val head: EventRecord,
@@ -256,6 +263,7 @@ data class HistoryItem(
     val downloadId: Long,
     val failed: Boolean,
     val needsYou: Boolean,
+    val libraryLink: LibraryLink = LibraryLink.NONE,
 )
 
 data class HistoryDay(
@@ -266,6 +274,14 @@ data class HistoryDay(
 )
 
 object HistoryRules {
+    fun libraryLinkOf(line: LineKind): LibraryLink =
+        when (line) {
+            LineKind.TURNED_DOWN -> LibraryLink.TURNED_DOWN
+            LineKind.HELD_BACK, LineKind.HELD_GONE -> LibraryLink.HELD
+            LineKind.BETTER, LineKind.FILE_BACK, LineKind.FILE_HELD, LineKind.HOLDING_CLEANED -> LibraryLink.DELETED
+            else -> LibraryLink.NONE
+        }
+
     private val NON_ROUTINE =
         listOf(
             "import_done",

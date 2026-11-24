@@ -5,7 +5,6 @@ import ch.orellbuehler.acolyte.api.FormFile
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class DownloadRow(
@@ -582,34 +581,4 @@ data class LiveInterestBody(
 @Serializable
 data class LiveInterestAnswer(
     @SerialName("ttl_seconds") val ttlSeconds: Int = 0,
-)
-
-@Serializable
-data class TitleBrief(
-    val id: Long = 0,
-    val kind: String = "",
-    val name: String = "",
-    val artwork: List<String> = emptyList(),
-    @SerialName("cinema_date") val cinemaDate: String = "",
-    @SerialName("digital_date") val digitalDate: String = "",
-    @SerialName("physical_date") val physicalDate: String = "",
-    val slots: List<TitleBriefSlot> = emptyList(),
-)
-
-@Serializable
-data class TitleBriefSlot(
-    val state: String = "",
-)
-
-@Serializable
-data class TitleBriefList(
-    val titles: List<TitleBrief> = emptyList(),
-)
-
-@Serializable
-data class TitleRef(
-    val id: Long = 0,
-    val kind: String = "",
-    val name: String = "",
-    val ids: JsonObject? = null,
 )

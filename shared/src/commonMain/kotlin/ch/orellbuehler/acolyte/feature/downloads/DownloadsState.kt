@@ -7,10 +7,10 @@ import ch.orellbuehler.acolyte.api.model.ClientView
 import ch.orellbuehler.acolyte.api.model.Decision
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.model.DownloaderInfo
+import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.api.model.ImportRecord
 import ch.orellbuehler.acolyte.api.model.MatchView
 import ch.orellbuehler.acolyte.api.model.RestOf
-import ch.orellbuehler.acolyte.api.model.TitleBrief
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
@@ -125,9 +125,11 @@ data class DownloadsNotice(
     val tone: Tone = Tone.OK,
 )
 
-data class TitleLink(
+data class DownloadTitleLink(
     val kind: String,
     val tmdb: String,
+    val libraryId: Long = 0,
+    val openLibrary: Boolean = false,
 )
 
 data class MatchesInfo(
@@ -186,7 +188,7 @@ internal data class DownloadsRaw(
     val rows: List<DownloadRow> = emptyList(),
     val imports: Map<Long, ImportRecord> = emptyMap(),
     val decisions: List<Decision> = emptyList(),
-    val titles: Map<Long, TitleBrief> = emptyMap(),
+    val titles: Map<Long, GridTitle> = emptyMap(),
     val clients: List<ClientHealth> = emptyList(),
     val clientViews: List<ClientView> = emptyList(),
     val outsideRest: Map<String, RestOf> = emptyMap(),

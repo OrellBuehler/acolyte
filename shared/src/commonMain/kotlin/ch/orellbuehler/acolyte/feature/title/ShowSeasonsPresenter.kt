@@ -164,7 +164,15 @@ class ShowSeasonsPresenter internal constructor(
     }
 
     suspend fun loadHistory() {
-        val events = api.result(TitleSupportEndpoints.events, "title" to titleId, "limit" to 50).valueOrNull()?.events
+        val events =
+            api
+                .result(
+                    TitleSupportEndpoints.events,
+                    "title" to titleId,
+                    "limit" to 50,
+                ).valueOrNull()
+                ?.events
+                ?.map { it.toTitleEvent() }
         mutableState.update { it.copy(history = events.orEmpty().filter { e -> e.kind !in TitleState.routineKinds }, historyLoaded = true) }
     }
 

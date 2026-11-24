@@ -8,6 +8,7 @@ import ch.orellbuehler.acolyte.api.DownloadsLinkEndpoints
 import ch.orellbuehler.acolyte.api.Endpoint
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.Part
+import ch.orellbuehler.acolyte.api.TitleSupportEndpoints
 import ch.orellbuehler.acolyte.api.model.AddTorrentsBody
 import ch.orellbuehler.acolyte.api.model.BulkBody
 import ch.orellbuehler.acolyte.api.model.DecideBody
@@ -222,7 +223,7 @@ class DownloadsPresenter internal constructor(
         mutableState.update { it.copy(loadingMore = false) }
     }
 
-    suspend fun titleLink(titleId: Long): TitleLink? = links.resolve(titleId)
+    suspend fun titleLink(titleId: Long): DownloadTitleLink? = links.resolve(titleId)
 
     private suspend fun reload(quiet: Boolean) {
         lock.withLock {
@@ -506,7 +507,7 @@ class DownloadsPresenter internal constructor(
                     DownloadAction.RETRY -> api.result(DownloadsEndpoints.itemRetry, "id" to r.downloaderId, "hash" to r.hash)
                     DownloadAction.IMPORT_AGAIN -> api.result(DownloadsEndpoints.importAgain, "id" to r.id)
                     DownloadAction.MARK_FAILED ->
-                        when (val answer = api.result(DownloadsEndpoints.markFailed, "id" to r.id)) {
+                        when (val answer = api.result(TitleSupportEndpoints.markFailed, "id" to r.id)) {
                             is ApiResult.Ok -> ApiResult.Ok(DlOk(ok = true))
                             is ApiResult.Failed -> answer
                         }

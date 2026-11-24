@@ -3,8 +3,8 @@ package ch.orellbuehler.acolyte
 import ch.orellbuehler.acolyte.api.model.CalendarFollower
 import ch.orellbuehler.acolyte.api.model.CalendarRow
 import ch.orellbuehler.acolyte.api.model.CalendarVersion
-import ch.orellbuehler.acolyte.api.model.TitleBrief
-import ch.orellbuehler.acolyte.api.model.TitleBriefSlot
+import ch.orellbuehler.acolyte.api.model.GridSlot
+import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
 import ch.orellbuehler.acolyte.feature.downloads.CalendarFollows
@@ -83,7 +83,7 @@ class CalendarTest {
         val disc = CalendarRow(titleId = 9, name = "Dune", kind = "physical", date = "2026-12-10T00:00:00Z")
         assertEquals(listOf("digital"), CalendarRules.oneMovieDate(listOf(cinema, digital, disc), emptyMap()).map { it.kind })
         assertEquals(listOf("cinema"), CalendarRules.oneMovieDate(listOf(cinema), emptyMap()).map { it.kind })
-        val brief = TitleBrief(id = 9, kind = "movie", physicalDate = "2026-12-10T00:00:00Z", slots = listOf(TitleBriefSlot("in_library")))
+        val brief = GridTitle(id = 9, kind = "movie", physicalDate = "2026-12-10T00:00:00Z", slots = listOf(GridSlot(state = "in_library")))
         val kept = CalendarRules.oneMovieDate(listOf(cinema, digital, disc), mapOf(9L to brief))
         assertEquals(listOf("physical"), kept.map { it.kind })
         assertEquals("in_library", kept[0].state)

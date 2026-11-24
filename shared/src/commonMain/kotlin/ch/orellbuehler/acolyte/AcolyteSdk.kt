@@ -1,7 +1,7 @@
 package ch.orellbuehler.acolyte
 
-import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink

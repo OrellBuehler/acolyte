@@ -1,7 +1,7 @@
 package ch.orellbuehler.acolyte.feature.downloads
 
 import ch.orellbuehler.acolyte.api.model.CalendarRow
-import ch.orellbuehler.acolyte.api.model.TitleBrief
+import ch.orellbuehler.acolyte.api.model.GridTitle
 import ch.orellbuehler.acolyte.feature.Tone
 
 enum class CalendarType {
@@ -205,7 +205,7 @@ object CalendarRules {
 
     fun oneMovieDate(
         entries: List<CalendarRow>,
-        titles: Map<Long, TitleBrief>,
+        titles: Map<Long, GridTitle>,
     ): List<CalendarRow> {
         val home = mutableMapOf<Long, String>()
         for (e in entries) {
@@ -461,7 +461,7 @@ object CalendarRules {
         return start to end
     }
 
-    fun searchBody(e: CalendarRow): ch.orellbuehler.acolyte.api.model.SearchBody =
+    internal fun searchBody(e: CalendarRow): ch.orellbuehler.acolyte.api.model.SearchBody =
         when {
             e.kind == "episode" && e.itemId > 0 ->
                 ch.orellbuehler.acolyte.api.model
