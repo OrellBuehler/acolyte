@@ -6,6 +6,8 @@ import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
 import ch.orellbuehler.acolyte.feature.acquisition.SettingsSubtitlePresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsNamingPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSearchPresenter
 import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
@@ -226,4 +228,7 @@ class AcolyteSdk internal constructor(
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
 
     fun settingsSubtitles(): SettingsSubtitlePresenter = SettingsSubtitlePresenter(session.api) { session.account }
+    fun settingsNaming(): SettingsNamingPresenter = SettingsNamingPresenter(session.api) { session.account }
+
+    fun settingsSearch(): SettingsSearchPresenter = SettingsSearchPresenter(session.api) { session.account }
 }

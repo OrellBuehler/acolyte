@@ -149,6 +149,14 @@ final class SDKClient: @unchecked Sendable {
         NeverAddDriver(presenter: sdk.neverAdd())
     }
 
+    func makeNaming() -> NamingDriver {
+        NamingDriver(presenter: sdk.settingsNaming())
+    }
+
+    func makeSearchSettings() -> SearchSettingsDriver {
+        SearchSettingsDriver(presenter: sdk.settingsSearch())
+    }
+
     func makeHome() -> HomeDriver {
         HomeDriver(presenter: sdk.home(utcOffsetSeconds: Int32(TimeZone.current.secondsFromGMT())))
     }

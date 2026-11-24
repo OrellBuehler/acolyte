@@ -3,6 +3,7 @@ package ch.orellbuehler.acolyte.contract
 internal object KnownSpecGaps {
     private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
+    private const val NAMING_SETTINGS = "Go NamingSettings has 34 fields; the spec lists 27 (part colon, illegal, rename, language)"
     private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
 
     val problems: Map<String, String> =
@@ -102,6 +103,18 @@ internal object KnownSpecGaps {
             "PUT /api/v1/settings/asks body.streaming_region: sent by the model but not in the spec" to ASK_SETTINGS,
             "PUT /api/v1/settings/asks body.streaming_services: sent by the model but not in the spec" to ASK_SETTINGS,
             "PUT /api/v1/settings/asks body.skip_on_services: sent by the model but not in the spec" to ASK_SETTINGS,
+            "PUT /api/v1/settings/naming body.show_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.music_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "PUT /api/v1/settings/naming body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "POST /api/v1/settings/naming/example body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "POST /api/v1/settings/naming/example body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "POST /api/v1/settings/naming/example body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "POST /api/v1/settings/naming/example body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+            "POST /api/v1/settings/naming/example body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
             "GET /api/v1/watch-services: query parameter 'region' is not in the spec (it has [])" to
                 "the handler needs region=<country code> (400 without it); the spec lists no parameters",
             "GET /api/v1/asks: query parameter 'offset' is not in the spec (it has [mine, state, limit, kind])" to
