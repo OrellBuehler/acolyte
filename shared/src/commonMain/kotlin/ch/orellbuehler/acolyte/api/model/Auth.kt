@@ -12,6 +12,10 @@ data class AuthState(
     @SerialName("min_password_length") val minPasswordLength: Int = 8,
     @SerialName("host_refused") val hostRefused: String? = null,
     @SerialName("setup_open") val setupOpen: Boolean = false,
+    @SerialName("setup_ways") val setupWays: List<String> = emptyList(),
+    @SerialName("config_unmapped") val configUnmapped: Boolean = false,
+    @SerialName("owner_reset") val ownerReset: Boolean = false,
+    @SerialName("owner_reset_env") val ownerResetEnv: Boolean = false,
 )
 
 @Serializable
@@ -32,6 +36,7 @@ internal data class SignInAnswer(
     val csrf: String = "",
     @SerialName("two_factor") val twoFactor: Boolean = false,
     val ticket: String = "",
+    val waiting: Boolean = false,
 )
 
 @Serializable

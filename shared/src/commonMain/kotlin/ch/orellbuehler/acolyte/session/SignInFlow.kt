@@ -1,14 +1,23 @@
 package ch.orellbuehler.acolyte.session
 
+import ch.orellbuehler.acolyte.api.AccountEndpoints
 import ch.orellbuehler.acolyte.api.ApiClient
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AuthEndpoints
 import ch.orellbuehler.acolyte.api.Credentials
+import ch.orellbuehler.acolyte.api.SignInExtraEndpoints
+import ch.orellbuehler.acolyte.api.model.AccountEmpty
+import ch.orellbuehler.acolyte.api.model.AccountPicture
+import ch.orellbuehler.acolyte.api.model.AccountPlexFinish
+import ch.orellbuehler.acolyte.api.model.AccountResetCode
+import ch.orellbuehler.acolyte.api.model.AccountResetFinish
+import ch.orellbuehler.acolyte.api.model.AccountSetupOwner
 import ch.orellbuehler.acolyte.api.model.PasswordSignIn
 import ch.orellbuehler.acolyte.api.model.SignInAnswer
 import ch.orellbuehler.acolyte.api.model.TwoFactorSignIn
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +28,9 @@ enum class SignInStep {
     SERVER,
     CREDENTIALS,
     TWO_FACTOR,
+    SETUP,
+    RESET_CODE,
+    RESET_PASSWORD,
     DONE,
 }
 
@@ -29,7 +41,7 @@ enum class SignInWay(
     PASSWORD("password", true),
     JELLYFIN("jellyfin", true),
     EMBY("emby", true),
-    PLEX("plex", false),
+    PLEX("plex", true),
     OIDC("oidc", false),
     FORWARD_AUTH("forward_auth", false),
 }
@@ -48,6 +60,14 @@ enum class SignInErrorCode {
     NOT_ALLOWED,
     WAY_OFF,
     RATE_LIMITED,
+    INVALID_NAME,
+    PASSWORD_SHORT,
+    NAME_TAKEN,
+    OWNER_EXISTS,
+    PLEX_TIMEOUT,
+    RESET_CODE_WRONG,
+    INVITE_GONE,
+    LINKED,
     SERVER,
 }
 
@@ -66,6 +86,13 @@ data class SignInState(
     val otherWays: List<SignInWay> = emptyList(),
     val userName: String = "",
     val hostRefused: String? = null,
+    val minPasswordLength: Int = 8,
+    val configUnmapped: Boolean = false,
+    val ownerReset: Boolean = false,
+    val ownerResetEnv: Boolean = false,
+    val resetCodeMade: Boolean = false,
+    val resetName: String = "",
+    val plexUrl: String? = null,
     val busy: Boolean = false,
     val error: SignInError? = null,
 )
@@ -110,8 +137,19 @@ class SignInFlow internal constructor(
                         when {
                             answer.ways.isEmpty() -> best = better(best, ApiError(ApiErrorCode.INVALID_RESPONSE, 200))
                             answer.needsSetup -> {
-                                probe.close()
-                                fail(SignInError(SignInErrorCode.NEEDS_SETUP))
+                                replaceClient(probe)
+                                mutableState.update {
+                                    it.copy(
+                                        step = SignInStep.SETUP,
+                                        serverUrl = url,
+                                        serverName = ServerAddress.displayName(url),
+                                        minPasswordLength = answer.minPasswordLength,
+                                        configUnmapped = answer.configUnmapped,
+                                        hostRefused = answer.hostRefused?.takeIf { refused -> refused.isNotBlank() },
+                                        busy = false,
+                                        error = null,
+                                    )
+                                }
                                 return@attempt
                             }
                             else -> {
@@ -125,6 +163,9 @@ class SignInFlow internal constructor(
                                         ways = ways.filter { way -> way.inApp }.ifEmpty { listOf(SignInWay.PASSWORD) },
                                         otherWays = ways.filterNot { way -> way.inApp },
                                         hostRefused = answer.hostRefused?.takeIf { refused -> refused.isNotBlank() },
+                                        minPasswordLength = answer.minPasswordLength,
+                                        ownerReset = answer.ownerReset,
+                                        ownerResetEnv = answer.ownerResetEnv,
                                         busy = false,
                                         error = null,
                                     )
@@ -195,6 +236,117 @@ class SignInFlow internal constructor(
         }
     }
 
+    suspend fun createOwner(
+        name: String,
+        displayName: String,
+        password: String,
+        picture: ByteArray? = null,
+    ) {
+        attempt {
+            val current = client ?: return@attempt
+            val minimum = mutableState.value.minPasswordLength
+            val trimmed = name.trim()
+            when {
+                !AccountRules.validName(trimmed) -> return@attempt fail(SignInError(SignInErrorCode.INVALID_NAME))
+                !AccountRules.validPassword(password, minimum) -> return@attempt fail(SignInError(SignInErrorCode.PASSWORD_SHORT))
+            }
+            mutableState.update { it.copy(userName = trimmed) }
+            pendingMethod = SignInMethod.PASSWORD
+            val body = AccountSetupOwner(trimmed, password, displayName.trim().ifEmpty { trimmed })
+            handleAnswer(current, current.result(SignInExtraEndpoints.setup, body))
+            if (picture != null && mutableState.value.step == SignInStep.DONE) {
+                sessions.client?.result(AccountEndpoints.avatarPut, AccountPicture(picture, "image/jpeg"))
+            }
+        }
+    }
+
+    suspend fun signInWithPlex() {
+        attempt {
+            val current = client ?: return@attempt
+            val started =
+                when (val result = current.result(SignInExtraEndpoints.plexStart)) {
+                    is ApiResult.Ok -> result.value
+                    is ApiResult.Failed -> return@attempt fail(plexError(result.error))
+                }
+            pendingMethod = SignInMethod.MEDIA_SERVER
+            mutableState.update { it.copy(plexUrl = started.authUrl) }
+            try {
+                repeat(PLEX_POLLS) {
+                    delay(PLEX_POLL_MILLIS)
+                    when (val result = current.result(SignInExtraEndpoints.plexFinish, AccountPlexFinish(started.id))) {
+                        is ApiResult.Ok -> {
+                            if (!result.value.waiting) {
+                                handleAnswer(current, result)
+                                return@attempt
+                            }
+                        }
+                        is ApiResult.Failed -> {
+                            if (result.error.code != ApiErrorCode.RATE_LIMITED) {
+                                handleAnswer(current, result)
+                                return@attempt
+                            }
+                        }
+                    }
+                }
+                fail(SignInError(SignInErrorCode.PLEX_TIMEOUT))
+            } finally {
+                mutableState.update { it.copy(plexUrl = null) }
+            }
+        }
+    }
+
+    fun startReset() {
+        val current = mutableState.value
+        if (current.step != SignInStep.CREDENTIALS || !current.ownerReset) return
+        mutableState.update {
+            it.copy(step = SignInStep.RESET_CODE, error = null, resetCodeMade = it.ownerResetEnv, resetName = "")
+        }
+    }
+
+    suspend fun makeResetCode() {
+        attempt {
+            val current = client ?: return@attempt
+            when (val result = current.result(SignInExtraEndpoints.resetCode, AccountEmpty())) {
+                is ApiResult.Ok -> mutableState.update { it.copy(resetCodeMade = true) }
+                is ApiResult.Failed -> fail(serverError(result.error))
+            }
+        }
+    }
+
+    suspend fun checkResetCode(code: String) {
+        attempt {
+            val current = client ?: return@attempt
+            when (val result = current.result(SignInExtraEndpoints.resetCheck, AccountResetCode(code.trim()))) {
+                is ApiResult.Ok -> mutableState.update { it.copy(step = SignInStep.RESET_PASSWORD, resetName = result.value.name) }
+                is ApiResult.Failed -> fail(resetError(result.error))
+            }
+        }
+    }
+
+    suspend fun finishReset(
+        code: String,
+        name: String,
+        password: String,
+    ) {
+        attempt {
+            val current = client ?: return@attempt
+            val trimmed = name.trim()
+            when {
+                !AccountRules.validName(trimmed) -> return@attempt fail(SignInError(SignInErrorCode.INVALID_NAME))
+                !AccountRules.validPassword(password, mutableState.value.minPasswordLength) ->
+                    return@attempt fail(SignInError(SignInErrorCode.PASSWORD_SHORT))
+            }
+            when (val result = current.result(SignInExtraEndpoints.resetFinish, AccountResetFinish(code.trim(), trimmed, password))) {
+                is ApiResult.Ok -> {
+                    mutableState.update { it.copy(userName = trimmed, step = SignInStep.CREDENTIALS) }
+                    pendingMethod = SignInMethod.PASSWORD
+                    handleAnswer(current, current.result(AuthEndpoints.login, PasswordSignIn(trimmed, password)))
+                }
+                is ApiResult.Failed -> fail(resetError(result.error))
+            }
+        }
+    }
+
     fun back() {
         val step = mutableState.value.step
         if (mutableState.value.busy) return
@@ -203,9 +355,12 @@ class SignInFlow internal constructor(
                 ticket = null
                 mutableState.update { it.copy(step = SignInStep.CREDENTIALS, error = null) }
             }
-            SignInStep.CREDENTIALS -> {
+            SignInStep.CREDENTIALS, SignInStep.SETUP -> {
                 replaceClient(null)
                 mutableState.update { it.copy(step = SignInStep.SERVER, error = null) }
+            }
+            SignInStep.RESET_CODE, SignInStep.RESET_PASSWORD -> {
+                mutableState.update { it.copy(step = SignInStep.CREDENTIALS, error = null, resetCodeMade = false, resetName = "") }
             }
             else -> Unit
         }
@@ -264,7 +419,10 @@ class SignInFlow internal constructor(
                 val code =
                     when {
                         error.code == ApiErrorCode.RATE_LIMITED -> SignInErrorCode.RATE_LIMITED
-                        error.code == ApiErrorCode.UNAUTHORIZED && error.message.contains("ended") -> SignInErrorCode.SIGN_IN_ENDED
+                        (error.code == ApiErrorCode.UNAUTHORIZED || error.code == ApiErrorCode.NOT_FOUND) &&
+                            error.message.contains("ended") -> SignInErrorCode.SIGN_IN_ENDED
+                        error.code == ApiErrorCode.CONFLICT && error.message.contains("owner") -> SignInErrorCode.OWNER_EXISTS
+                        error.code == ApiErrorCode.CONFLICT && error.message.contains("taken") -> SignInErrorCode.NAME_TAKEN
                         error.code == ApiErrorCode.UNAUTHORIZED && inTwoFactor -> SignInErrorCode.WRONG_CODE
                         error.code == ApiErrorCode.UNAUTHORIZED -> SignInErrorCode.WRONG_CREDENTIALS
                         error.code == ApiErrorCode.FORBIDDEN && error.message.contains("host", ignoreCase = true) ->
@@ -273,7 +431,7 @@ class SignInFlow internal constructor(
                         error.code == ApiErrorCode.NOT_FOUND -> SignInErrorCode.WAY_OFF
                         else -> null
                     }
-                if (code == SignInErrorCode.SIGN_IN_ENDED) {
+                if (code == SignInErrorCode.SIGN_IN_ENDED && mutableState.value.step == SignInStep.TWO_FACTOR) {
                     ticket = null
                     mutableState.update { it.copy(step = SignInStep.CREDENTIALS) }
                 }
@@ -281,6 +439,19 @@ class SignInFlow internal constructor(
             }
         }
     }
+
+    private fun plexError(error: ApiError): SignInError =
+        when {
+            error.code == ApiErrorCode.NOT_FOUND -> SignInError(SignInErrorCode.WAY_OFF, error.message)
+            error.code == ApiErrorCode.RATE_LIMITED -> SignInError(SignInErrorCode.RATE_LIMITED, error.message, error.retryAfterSeconds)
+            else -> serverError(error)
+        }
+
+    private fun resetError(error: ApiError): SignInError =
+        when (error.code) {
+            ApiErrorCode.UNAUTHORIZED -> SignInError(SignInErrorCode.RESET_CODE_WRONG, error.message)
+            else -> serverError(error)
+        }
 
     private fun fail(error: SignInError) {
         mutableState.update { it.copy(error = error) }
@@ -324,5 +495,10 @@ class SignInFlow internal constructor(
                 else -> SignInErrorCode.SERVER
             }
         return SignInError(code, error.message, error.retryAfterSeconds)
+    }
+
+    private companion object {
+        const val PLEX_POLL_MILLIS = 2_000L
+        const val PLEX_POLLS = 270
     }
 }
