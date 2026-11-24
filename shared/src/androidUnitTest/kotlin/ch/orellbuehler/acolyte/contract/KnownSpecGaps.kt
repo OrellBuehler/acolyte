@@ -3,335 +3,337 @@ package ch.orellbuehler.acolyte.contract
 internal object KnownSpecGaps {
     private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
+    private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
     private const val NAMING_SETTINGS = "Go NamingSettings has 34 fields; the spec lists 27 (part colon, illegal, rename, language)"
     private const val DOWNLOADER_INPUT = "Go downloads.Input (downloader_settings.go) takes more fields than the spec lists"
     private const val DOWNLOADER_SETTINGS = "Go downloads.DownloaderSettings (routes_downloaders.go) has fields the spec lacks"
-    private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
 
     val problems: Map<String, String> =
-        mapOf(
-            "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
-                "presence flag read with Query().Has(\"grid\") in cmd/holyarrs/wire_titles.go; the Library grid shape",
-            "GET /api/v1/titles: query parameter 'brief' is not in the spec (it has [q])" to
-                "presence flag in cmd/holyarrs/titles_brief.go; ids and posters only",
-            "PUT /api/v1/titles/{id}/versions/{vid} body.audio_languages: sent by the model but not in the spec" to
-                "VersionChange.AudioLanguages in internal/mediafiles/routes_versions.go",
-            "GET /api/v1/holding: query parameter 'title_id' is not in the spec (it has [])" to
-                "read by internal/mediafiles/routes_holding.go to list one title",
-            "GET /api/v1/holding: query parameter 'count' is not in the spec (it has [])" to
-                "routes_holding.go answers {count} only when count=1",
-            "POST /api/v1/holding/restore body.how: sent by the model but not in the spec" to
-                "swap/both choice of internal/library/holding_restore.go",
-            "GET /api/v1/library/watched-cleanup: query parameter 'days' is not in the spec (it has [])" to
-                "internal/mediaservers/watched_cleanup.go reads days",
-            "GET /api/v1/library/watched-cleanup: query parameter 'people' is not in the spec (it has [])" to
-                "internal/mediaservers/watched_cleanup.go reads the picked people",
-            "POST /api/v1/library-folders body.new_title_tags: sent by the model but not in the spec" to
-                "FolderInput in internal/library/folders.go",
-            "POST /api/v1/library-folders body.only_tagged_sources: sent by the model but not in the spec" to
-                "FolderInput in internal/library/folders.go",
-            "POST /api/v1/library-folders body.new_title_audio: sent by the model but not in the spec" to
-                "FolderInput in internal/library/folders.go",
-            "POST /api/v1/library-folders body.look_only: sent by the model but not in the spec" to
-                "FolderInput in internal/library/folders.go",
-            "POST /api/v1/library-folders body.flat: sent by the model but not in the spec" to
-                "FolderInput in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.copies_expected: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.new_title_tags: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.only_tagged_sources: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.new_title_audio: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.look_only: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/library-folders/{id} body.flat: sent by the model but not in the spec" to
-                "FolderChange in internal/library/folders.go",
-            "PUT /api/v1/settings/import-folders body.watch_folders: sent by the model but not in the spec" to
-                "watch folders of internal/importer/byhand_places.go",
-            "PUT /api/v1/settings/hands-off: sends a body but the spec takes none" to
-                "the handler requires {on} and answers 400 without it",
-            "POST /api/v1/library-folders/{id}/adopt body.follow: sent by the model but not in the spec" to
-                "adopt request follow flag, default true",
-            "POST /api/v1/manual-import body.items[].replace: sent by the model but not in the spec" to
-                "ByHandItem.Replace in internal/importer/manual.go",
-            "GET /api/v1/library/search: query parameter 'q' is not in the spec (it has [])" to
-                "internal/discover/routes_library_search.go reads q",
-            "GET /api/v1/library/search: query parameter 'kind' is not in the spec (it has [])" to
-                "internal/discover/routes_library_search.go reads kind",
-            "PUT /api/v1/titles/{id} body.pack_window: sent by the model but not in the spec" to
-                "TitleChange.PackWindow exists in library/edit.go; the web sends it for season packs",
-            "GET /api/v1/titles/{id}/episodes: query parameter 'files' is not in the spec (it has [season])" to
-                "shows/routes_episodes.go reads files=1 to add each slot's file",
-            "GET /api/v1/titles/{id}/episodes: query parameter 'points' is not in the spec (it has [season])" to
-                "shows/routes_episodes.go reads points=1 to add points and good_enough_points",
-            "GET /api/v1/titles/{id}/points: query parameter 'slot' is not in the spec (it has [])" to
-                "the handler answers 400 without slot; the spec lists no parameter",
-            "POST /api/v1/releases/{id}/turn-down body.block_group: sent by the model but not in the spec" to
-                "sources/routes_releases.go reads block_group (Block group button)",
-            "POST /api/v1/releases/check: sends a body but the spec takes none" to
-                "sources/routes_release_check.go decodes {tmdb, name, pick_rules_id, ...}; the spec has no request body",
-            "POST /api/v1/releases/check/{id}/pick: sends a body but the spec takes none" to
-                "the handler decodes {release_id, title_id, force}; the spec has no request body",
-            "POST /api/v1/titles body.follow: sent by the model but not in the spec" to
-                "discover/title_routes.go reads follow (default true)",
-            "POST /api/v1/shows body.follow: sent by the model but not in the spec" to
-                "shows/routes_add.go reads follow (default true)",
-            "POST /api/v1/titles/{id}/leftovers/match: sends a body but the spec takes none" to
-                "library/routes_leftovers.go decodes {items, replace}; the spec has no request body",
-            "POST /api/v1/titles/{id}/leftovers/unmatch: sends a body but the spec takes none" to
-                "library/routes_leftovers.go decodes {file_ids}; the spec has no request body",
-            "PUT /api/v1/titles/{id}/leftovers/{fid}: sends a body but the spec takes none" to
-                "library/routes_leftovers.go decodes {dismissed}; the spec has no request body",
-            "POST /api/v1/asks body.follow: sent by the model but not in the spec" to
-                "requests/routes_asks.go reads follow (default true)",
-            "POST /api/v1/outside-lists body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "POST /api/v1/outside-lists body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "POST /api/v1/outside-lists body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "PUT /api/v1/outside-lists/{id} body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "PUT /api/v1/outside-lists/{id} body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "PUT /api/v1/outside-lists/{id} body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
-            "POST /api/v1/never-add body.kind: sent by the model but not in the spec" to
-                "the handler takes kind movie (default) or show (its 400 text says so); the spec body lacks it",
-            "PUT /api/v1/settings/asks body.four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.show_four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.show_four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.plex_watchlists_everyone: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.owner_auto_approve: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.qualities: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.pick_many: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.streaming_region: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.streaming_services: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/asks body.skip_on_services: sent by the model but not in the spec" to ASK_SETTINGS,
-            "PUT /api/v1/settings/naming body.show_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.music_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "PUT /api/v1/settings/naming body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "POST /api/v1/settings/naming/example body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "POST /api/v1/settings/naming/example body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "POST /api/v1/settings/naming/example body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "POST /api/v1/settings/naming/example body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "POST /api/v1/settings/naming/example body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
-            "GET /api/v1/watch-services: query parameter 'region' is not in the spec (it has [])" to
-                "the handler needs region=<country code> (400 without it); the spec lists no parameters",
-            "GET /api/v1/asks: query parameter 'offset' is not in the spec (it has [mine, state, limit, kind])" to
-                "listAsks reads ?offset= to page past the first 200 (requests/routes_asks.go)",
-            "POST /api/v1/asks body.editions: sent by the model but not in the spec" to NEW_ASK,
-            "POST /api/v1/asks body.quality: sent by the model but not in the spec" to NEW_ASK,
-            "POST /api/v1/asks/{id}/approve body.quality: sent by the model but not in the spec" to
-                "Go ApproveOptions (requests/approve.go) takes quality to approve as another line; the spec body lags",
-            "GET /api/v1/explore/head: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/head: query parameter 'tz' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/head: query parameter 'services' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/head: query parameter 'region' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/tail: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/tail: query parameter 'tz' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/tail: query parameter 'services' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/tail: query parameter 'region' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/tail: query parameter 'page' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/service-top: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/service-top: query parameter 'region' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/top: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/top: query parameter 'chip' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/top: query parameter 'region' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/top: query parameter 'services' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/top: query parameter 'genre' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new/services: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/genre-row: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/strip: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/strip: query parameter 'row' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/strip: query parameter 'tz' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "POST /api/v1/explore/strip/counts: sends a body but the spec takes none" to
-                "the Go handler reads a JSON body; the spec has no request body",
-            "POST /api/v1/explore/counts: sends a body but the spec takes none" to
-                "the Go handler reads a JSON body; the spec has no request body",
-            "GET /api/v1/explore/genre: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/genre: query parameter 'genre' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/browse: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/browse/section: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/browse/section: query parameter 'section' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/browse/category: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/browse/category: query parameter 'id' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new: query parameter 'page' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new/service: query parameter 'id' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new/service: query parameter 'type' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/explore/new/service: query parameter 'row' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/search: query parameter 'q' is not in the spec (it has [])" to
-                "the Go handler reads this query parameter; the spec lists none",
-            "GET /api/v1/people/{id}: query parameter 'sort' is not in the spec (it has [role, page, page_size])" to
-                "the Go handler reads sort (oldest, newest, popular); the spec lists only role, page and page_size",
-            "GET /api/v1/downloads/view: query parameter 'client' is not in the spec (it has [limit])" to
-                "routes_downloads.go reads client to reread one Downloader after a push gap",
-            "GET /api/v1/downloads/view: query parameter 'outside_limit' is not in the spec (it has [limit])" to
-                "routes_downloads.go pages outside torrents with outside_limit",
-            "GET /api/v1/downloads/view: query parameter 'cursor' is not in the spec (it has [limit])" to
-                "routes_downloads.go pages outside torrents with cursor",
-            "POST /api/v1/downloaders/{id}/items/{hash}/priority: sends a body but the spec takes none" to
-                "handler decodes {priority} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
-                "handler decodes {urls} (routes_manage.go)",
-            "PUT /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
-                "handler decodes {ref, url, tier} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/items/{hash}/trackers/remove: sends a body but the spec takes none" to
-                "handler decodes {refs} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/bulk: sends a body but the spec takes none" to
-                "handler decodes {action, hashes, delete_files} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/share-limits: sends a body but the spec takes none" to
-                "handler decodes the seeding rules body (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/location: sends a body but the spec takes none" to
-                "handler decodes {hashes, category, folder} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/speed-limits: sends a body but the spec takes none" to
-                "handler decodes {hashes, down, up} (routes_manage.go)",
-            "POST /api/v1/downloaders/{id}/slow-mode: sends a body but the spec takes none" to
-                "handler decodes {on} (routes_control.go)",
-            "POST /api/v1/downloaders/{id}/torrents: sends a body but the spec takes none" to
-                "handler takes JSON {links, category, save_path, paused} or multipart",
-            "POST /api/v1/needs-decision/{id}/decide body.replace: sent by the model but not in the spec" to
-                "the spec lists search, turn_down and stop; the handler also takes import with replace",
-            "POST /api/v1/downloads/matches/{id}/pick: sends a body but the spec takes none" to
-                "handler decodes {candidate} | {not_media} | {skip} (routes_match.go)",
-            "GET /api/v1/events: query parameter 'source' is not in the spec " +
-                "(it has [title, episode, album, kind, from, to, limit, offset])" to
-                "history_events.go filters by Source id",
-            "POST /api/v1/pick-rules/{id}/trash: sends a body but the spec takes none" to
-                "downloads/routes_trash.go decodes {app, profile_id}; the spec has no request body",
-            "GET /api/v1/trash/profiles: query parameter 'app' is not in the spec (it has [])" to
-                "the handler needs app=sonarr|radarr (400 without it); the spec lists no parameters",
-            "GET /api/v1/events: query parameter 'feed' is not in the spec " +
-                "(it has [title, episode, album, kind, from, to, limit, offset])" to
-                "history_events.go hides feed checks with feed=0",
-            "POST /api/v1/downloaders body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "PUT /api/v1/downloaders/{id} body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
-            "POST /api/v1/downloaders/{id}/test: sends a body but the spec takes none" to
-                "an optional DownloaderInput body tests typed values without saving (typed_check.go)",
-            "POST /api/v1/downloaders/{id}/category: sends a body but the spec takes none" to
-                "the handler requires {name} (routes_category.go)",
-            "PUT /api/v1/settings/downloaders body.downloads_sab_outside: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
-            "PUT /api/v1/settings/downloaders body.downloads_auto_add: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
-            "PUT /api/v1/settings/downloaders body.dead_metadata_minutes: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
-            "PUT /api/v1/settings/downloaders body.crawl_kbps: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
-            "PUT /api/v1/settings/downloaders body.crawl_hours: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
-            "POST /api/v1/migrate/probe body.add: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/probe body.skip_linked: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/read body.add: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/read body.skip_linked: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/linked body.add: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/linked body.skip_linked: sent by the model but not in the spec" to
-                "Source in internal/migrate/routes_read.go takes add and skip_linked",
-            "POST /api/v1/migrate/find: sends a body but the spec takes none" to
-                "FindInput in internal/migrate/routes_find.go takes host, addresses and kinds",
-            "POST /api/v1/migrate/plan body.no_formats: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/plan body.leave_folders: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/plan body.names: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/plan body.quick: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/dry-run body.no_formats: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/dry-run body.leave_folders: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/dry-run body.names: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/dry-run body.quick: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/moves body.no_formats: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/moves body.leave_folders: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/moves body.names: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/moves body.quick: sent by the model but not in the spec" to
-                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
-            "POST /api/v1/migrate/downloaders: sends a body but the spec takes none" to
-                "bringDownloaders in internal/migrate/routes_move.go reads {snapshots}",
-            "POST /api/v1/sources body.site: sent by the model but not in the spec" to
-                "built-in site of a site-format Source (sources.Input.Site)",
-            "POST /api/v1/sources body.site_user: sent by the model but not in the spec" to
-                "IPTorrents user id (sources.Input.SiteUser)",
-            "POST /api/v1/sources body.site_login: sent by the model but not in the spec" to
-                "passkey or cookie sign-in (sources.Input.SiteLogin)",
-            "POST /api/v1/sources body.site_agent: sent by the model but not in the spec" to
-                "browser user agent for the cookie (sources.Input.SiteAgent)",
-            "POST /api/v1/sources body.downloader_id: sent by the model but not in the spec" to
-                "the one Downloader a Source sends to (sources.Input.DownloaderID)",
-            "PUT /api/v1/sources/{id} body.site: sent by the model but not in the spec" to
-                "built-in site of a site-format Source (sources.Input.Site)",
-            "PUT /api/v1/sources/{id} body.site_user: sent by the model but not in the spec" to
-                "IPTorrents user id (sources.Input.SiteUser)",
-            "PUT /api/v1/sources/{id} body.site_login: sent by the model but not in the spec" to
-                "passkey or cookie sign-in (sources.Input.SiteLogin)",
-            "PUT /api/v1/sources/{id} body.site_agent: sent by the model but not in the spec" to
-                "browser user agent for the cookie (sources.Input.SiteAgent)",
-            "PUT /api/v1/sources/{id} body.downloader_id: sent by the model but not in the spec" to
-                "the one Downloader a Source sends to (sources.Input.DownloaderID)",
-            "POST /api/v1/sources/check: sends a body but the spec takes none" to
-                "routes_check.go reads {query, kind}; both are optional",
-        )
+        AccountSpecGaps.problems +
+            mapOf(
+                "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
+                    "presence flag read with Query().Has(\"grid\") in cmd/holyarrs/wire_titles.go; the Library grid shape",
+                "GET /api/v1/titles: query parameter 'brief' is not in the spec (it has [q])" to
+                    "presence flag in cmd/holyarrs/titles_brief.go; ids and posters only",
+                "PUT /api/v1/titles/{id}/versions/{vid} body.audio_languages: sent by the model but not in the spec" to
+                    "VersionChange.AudioLanguages in internal/mediafiles/routes_versions.go",
+                "GET /api/v1/holding: query parameter 'title_id' is not in the spec (it has [])" to
+                    "read by internal/mediafiles/routes_holding.go to list one title",
+                "GET /api/v1/holding: query parameter 'count' is not in the spec (it has [])" to
+                    "routes_holding.go answers {count} only when count=1",
+                "POST /api/v1/holding/restore body.how: sent by the model but not in the spec" to
+                    "swap/both choice of internal/library/holding_restore.go",
+                "GET /api/v1/library/watched-cleanup: query parameter 'days' is not in the spec (it has [])" to
+                    "internal/mediaservers/watched_cleanup.go reads days",
+                "GET /api/v1/library/watched-cleanup: query parameter 'people' is not in the spec (it has [])" to
+                    "internal/mediaservers/watched_cleanup.go reads the picked people",
+                "POST /api/v1/library-folders body.new_title_tags: sent by the model but not in the spec" to
+                    "FolderInput in internal/library/folders.go",
+                "POST /api/v1/library-folders body.only_tagged_sources: sent by the model but not in the spec" to
+                    "FolderInput in internal/library/folders.go",
+                "POST /api/v1/library-folders body.new_title_audio: sent by the model but not in the spec" to
+                    "FolderInput in internal/library/folders.go",
+                "POST /api/v1/library-folders body.look_only: sent by the model but not in the spec" to
+                    "FolderInput in internal/library/folders.go",
+                "POST /api/v1/library-folders body.flat: sent by the model but not in the spec" to
+                    "FolderInput in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.copies_expected: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.new_title_tags: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.only_tagged_sources: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.new_title_audio: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.look_only: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/library-folders/{id} body.flat: sent by the model but not in the spec" to
+                    "FolderChange in internal/library/folders.go",
+                "PUT /api/v1/settings/import-folders body.watch_folders: sent by the model but not in the spec" to
+                    "watch folders of internal/importer/byhand_places.go",
+                "PUT /api/v1/settings/hands-off: sends a body but the spec takes none" to
+                    "the handler requires {on} and answers 400 without it",
+                "POST /api/v1/library-folders/{id}/adopt body.follow: sent by the model but not in the spec" to
+                    "adopt request follow flag, default true",
+                "POST /api/v1/manual-import body.items[].replace: sent by the model but not in the spec" to
+                    "ByHandItem.Replace in internal/importer/manual.go",
+                "GET /api/v1/library/search: query parameter 'q' is not in the spec (it has [])" to
+                    "internal/discover/routes_library_search.go reads q",
+                "GET /api/v1/library/search: query parameter 'kind' is not in the spec (it has [])" to
+                    "internal/discover/routes_library_search.go reads kind",
+                "PUT /api/v1/titles/{id} body.pack_window: sent by the model but not in the spec" to
+                    "TitleChange.PackWindow exists in library/edit.go; the web sends it for season packs",
+                "GET /api/v1/titles/{id}/episodes: query parameter 'files' is not in the spec (it has [season])" to
+                    "shows/routes_episodes.go reads files=1 to add each slot's file",
+                "GET /api/v1/titles/{id}/episodes: query parameter 'points' is not in the spec (it has [season])" to
+                    "shows/routes_episodes.go reads points=1 to add points and good_enough_points",
+                "GET /api/v1/titles/{id}/points: query parameter 'slot' is not in the spec (it has [])" to
+                    "the handler answers 400 without slot; the spec lists no parameter",
+                "POST /api/v1/releases/{id}/turn-down body.block_group: sent by the model but not in the spec" to
+                    "sources/routes_releases.go reads block_group (Block group button)",
+                "POST /api/v1/releases/check: sends a body but the spec takes none" to
+                    "sources/routes_release_check.go decodes {tmdb, name, pick_rules_id, ...}; the spec has no request body",
+                "POST /api/v1/releases/check/{id}/pick: sends a body but the spec takes none" to
+                    "the handler decodes {release_id, title_id, force}; the spec has no request body",
+                "POST /api/v1/titles body.follow: sent by the model but not in the spec" to
+                    "discover/title_routes.go reads follow (default true)",
+                "POST /api/v1/shows body.follow: sent by the model but not in the spec" to
+                    "shows/routes_add.go reads follow (default true)",
+                "POST /api/v1/titles/{id}/leftovers/match: sends a body but the spec takes none" to
+                    "library/routes_leftovers.go decodes {items, replace}; the spec has no request body",
+                "POST /api/v1/titles/{id}/leftovers/unmatch: sends a body but the spec takes none" to
+                    "library/routes_leftovers.go decodes {file_ids}; the spec has no request body",
+                "PUT /api/v1/titles/{id}/leftovers/{fid}: sends a body but the spec takes none" to
+                    "library/routes_leftovers.go decodes {dismissed}; the spec has no request body",
+                "POST /api/v1/asks body.follow: sent by the model but not in the spec" to
+                    "requests/routes_asks.go reads follow (default true)",
+                "POST /api/v1/outside-lists body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "POST /api/v1/outside-lists body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "POST /api/v1/outside-lists body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "PUT /api/v1/outside-lists/{id} body.title_kind: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "PUT /api/v1/outside-lists/{id} body.seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "PUT /api/v1/outside-lists/{id} body.new_seasons: sent by the model but not in the spec" to OUTSIDE_LIST,
+                "POST /api/v1/never-add body.kind: sent by the model but not in the spec" to
+                    "the handler takes kind movie (default) or show (its 400 text says so); the spec body lacks it",
+                "PUT /api/v1/settings/asks body.four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.show_four_k_library_folder_id: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.show_four_k_pick_rules_id: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.plex_watchlists_everyone: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.owner_auto_approve: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.qualities: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.pick_many: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.streaming_region: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.streaming_services: sent by the model but not in the spec" to ASK_SETTINGS,
+                "PUT /api/v1/settings/asks body.skip_on_services: sent by the model but not in the spec" to ASK_SETTINGS,
+                "GET /api/v1/watch-services: query parameter 'region' is not in the spec (it has [])" to
+                    "the handler needs region=<country code> (400 without it); the spec lists no parameters",
+                "GET /api/v1/asks: query parameter 'offset' is not in the spec (it has [mine, state, limit, kind])" to
+                    "listAsks reads ?offset= to page past the first 200 (requests/routes_asks.go)",
+                "POST /api/v1/asks body.editions: sent by the model but not in the spec" to NEW_ASK,
+                "POST /api/v1/asks body.quality: sent by the model but not in the spec" to NEW_ASK,
+                "POST /api/v1/asks/{id}/approve body.quality: sent by the model but not in the spec" to
+                    "Go ApproveOptions (requests/approve.go) takes quality to approve as another line; the spec body lags",
+                "GET /api/v1/explore/head: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/head: query parameter 'tz' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/head: query parameter 'services' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/head: query parameter 'region' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/tail: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/tail: query parameter 'tz' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/tail: query parameter 'services' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/tail: query parameter 'region' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/tail: query parameter 'page' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/service-top: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/service-top: query parameter 'region' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/top: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/top: query parameter 'chip' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/top: query parameter 'region' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/top: query parameter 'services' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/top: query parameter 'genre' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new/services: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/genre-row: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/strip: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/strip: query parameter 'row' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/strip: query parameter 'tz' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "POST /api/v1/explore/strip/counts: sends a body but the spec takes none" to
+                    "the Go handler reads a JSON body; the spec has no request body",
+                "POST /api/v1/explore/counts: sends a body but the spec takes none" to
+                    "the Go handler reads a JSON body; the spec has no request body",
+                "GET /api/v1/explore/genre: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/genre: query parameter 'genre' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/browse: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/browse/section: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/browse/section: query parameter 'section' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/browse/category: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/browse/category: query parameter 'id' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new: query parameter 'page' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new/service: query parameter 'id' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new/service: query parameter 'type' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/explore/new/service: query parameter 'row' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/search: query parameter 'q' is not in the spec (it has [])" to
+                    "the Go handler reads this query parameter; the spec lists none",
+                "GET /api/v1/people/{id}: query parameter 'sort' is not in the spec (it has [role, page, page_size])" to
+                    "the Go handler reads sort (oldest, newest, popular); the spec lists only role, page and page_size",
+                "GET /api/v1/downloads/view: query parameter 'client' is not in the spec (it has [limit])" to
+                    "routes_downloads.go reads client to reread one Downloader after a push gap",
+                "GET /api/v1/downloads/view: query parameter 'outside_limit' is not in the spec (it has [limit])" to
+                    "routes_downloads.go pages outside torrents with outside_limit",
+                "GET /api/v1/downloads/view: query parameter 'cursor' is not in the spec (it has [limit])" to
+                    "routes_downloads.go pages outside torrents with cursor",
+                "POST /api/v1/downloaders/{id}/items/{hash}/priority: sends a body but the spec takes none" to
+                    "handler decodes {priority} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
+                    "handler decodes {urls} (routes_manage.go)",
+                "PUT /api/v1/downloaders/{id}/items/{hash}/trackers: sends a body but the spec takes none" to
+                    "handler decodes {ref, url, tier} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/items/{hash}/trackers/remove: sends a body but the spec takes none" to
+                    "handler decodes {refs} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/bulk: sends a body but the spec takes none" to
+                    "handler decodes {action, hashes, delete_files} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/share-limits: sends a body but the spec takes none" to
+                    "handler decodes the seeding rules body (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/location: sends a body but the spec takes none" to
+                    "handler decodes {hashes, category, folder} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/speed-limits: sends a body but the spec takes none" to
+                    "handler decodes {hashes, down, up} (routes_manage.go)",
+                "POST /api/v1/downloaders/{id}/slow-mode: sends a body but the spec takes none" to
+                    "handler decodes {on} (routes_control.go)",
+                "POST /api/v1/downloaders/{id}/torrents: sends a body but the spec takes none" to
+                    "handler takes JSON {links, category, save_path, paused} or multipart",
+                "POST /api/v1/needs-decision/{id}/decide body.replace: sent by the model but not in the spec" to
+                    "the spec lists search, turn_down and stop; the handler also takes import with replace",
+                "POST /api/v1/downloads/matches/{id}/pick: sends a body but the spec takes none" to
+                    "handler decodes {candidate} | {not_media} | {skip} (routes_match.go)",
+                "GET /api/v1/events: query parameter 'source' is not in the spec " +
+                    "(it has [title, episode, album, kind, from, to, limit, offset])" to
+                    "history_events.go filters by Source id",
+                "GET /api/v1/events: query parameter 'feed' is not in the spec " +
+                    "(it has [title, episode, album, kind, from, to, limit, offset])" to
+                    "history_events.go hides feed checks with feed=0",
+                "PUT /api/v1/settings/naming body.show_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_rename_on_import: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "PUT /api/v1/settings/naming body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.show_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.show_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.music_colon: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.music_illegal: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/settings/naming/example body.title_language: sent by the model but not in the spec" to NAMING_SETTINGS,
+                "POST /api/v1/pick-rules/{id}/trash: sends a body but the spec takes none" to
+                    "downloads/routes_trash.go decodes {app, profile_id}; the spec has no request body",
+                "GET /api/v1/trash/profiles: query parameter 'app' is not in the spec (it has [])" to
+                    "the handler needs app=sonarr|radarr (400 without it); the spec lists no parameters",
+                "POST /api/v1/downloaders body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_movies: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_shows: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_music: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.path_map[].link: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.writable: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.clear_finished: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.after_seeding: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.category_after_import: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "PUT /api/v1/downloaders/{id} body.own_only: sent by the model but not in the spec" to DOWNLOADER_INPUT,
+                "POST /api/v1/downloaders/{id}/test: sends a body but the spec takes none" to
+                    "an optional DownloaderInput body tests typed values without saving (typed_check.go)",
+                "POST /api/v1/downloaders/{id}/category: sends a body but the spec takes none" to
+                    "the handler requires {name} (routes_category.go)",
+                "PUT /api/v1/settings/downloaders body.downloads_sab_outside: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.downloads_auto_add: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.dead_metadata_minutes: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.crawl_kbps: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "PUT /api/v1/settings/downloaders body.crawl_hours: sent by the model but not in the spec" to DOWNLOADER_SETTINGS,
+                "POST /api/v1/migrate/probe body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/probe body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/read body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/read body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/linked body.add: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/linked body.skip_linked: sent by the model but not in the spec" to
+                    "Source in internal/migrate/routes_read.go takes add and skip_linked",
+                "POST /api/v1/migrate/find: sends a body but the spec takes none" to
+                    "FindInput in internal/migrate/routes_find.go takes host, addresses and kinds",
+                "POST /api/v1/migrate/plan body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/plan body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/dry-run body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.no_formats: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.leave_folders: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.names: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/moves body.quick: sent by the model but not in the spec" to
+                    "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+                "POST /api/v1/migrate/downloaders: sends a body but the spec takes none" to
+                    "bringDownloaders in internal/migrate/routes_move.go reads {snapshots}",
+                "POST /api/v1/sources body.site: sent by the model but not in the spec" to
+                    "built-in site of a site-format Source (sources.Input.Site)",
+                "POST /api/v1/sources body.site_user: sent by the model but not in the spec" to
+                    "IPTorrents user id (sources.Input.SiteUser)",
+                "POST /api/v1/sources body.site_login: sent by the model but not in the spec" to
+                    "passkey or cookie sign-in (sources.Input.SiteLogin)",
+                "POST /api/v1/sources body.site_agent: sent by the model but not in the spec" to
+                    "browser user agent for the cookie (sources.Input.SiteAgent)",
+                "POST /api/v1/sources body.downloader_id: sent by the model but not in the spec" to
+                    "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+                "PUT /api/v1/sources/{id} body.site: sent by the model but not in the spec" to
+                    "built-in site of a site-format Source (sources.Input.Site)",
+                "PUT /api/v1/sources/{id} body.site_user: sent by the model but not in the spec" to
+                    "IPTorrents user id (sources.Input.SiteUser)",
+                "PUT /api/v1/sources/{id} body.site_login: sent by the model but not in the spec" to
+                    "passkey or cookie sign-in (sources.Input.SiteLogin)",
+                "PUT /api/v1/sources/{id} body.site_agent: sent by the model but not in the spec" to
+                    "browser user agent for the cookie (sources.Input.SiteAgent)",
+                "PUT /api/v1/sources/{id} body.downloader_id: sent by the model but not in the spec" to
+                    "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+                "POST /api/v1/sources/check: sends a body but the spec takes none" to
+                    "routes_check.go reads {query, kind}; both are optional",
+            )
 
     val liveSkips: Map<String, String> =
         mapOf(
+            "GET /api/v1/trash/profiles" to "needs ?app=, which the spec does not list; also reads the TRaSH Guides site",
             "GET /api/v1/watch-services" to
                 "needs ?region=, which the spec does not list as a parameter (the handler answers 400 without it)",
             "GET /api/v1/explore/tail" to "needs type and page; the spec lists no query parameters",
@@ -342,7 +344,8 @@ internal object KnownSpecGaps {
             "GET /api/v1/explore/browse/category" to "needs a category id; the spec lists no query parameters",
             "GET /api/v1/explore/new/service" to "needs a service id; the spec lists no query parameters",
             "GET /api/v1/people/popular" to "asks TMDB; on a server without TMDB access it answers after the client's 20 s socket timeout",
-            "GET /api/v1/trash/profiles" to "needs ?app=, which the spec does not list; also reads the TRaSH Guides site",
             "GET /api/v1/explore/title-stats" to "held back in this release (404 while row_title_stats is held)",
+            "GET /api/v1/auth/ai-connect" to "held back in this release (404 while ai_apps is held) and needs the OAuth authorize query",
+            "GET /api/v1/auth/setup/discover" to "answers 404 once the first-run setup is finished",
         )
 }

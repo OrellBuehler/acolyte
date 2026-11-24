@@ -9,11 +9,7 @@ struct AccountView: View {
         List {
             Section {
                 HStack(spacing: Theme.Spacing.large) {
-                    AuthImage(source: account.avatarPath, size: .thumb) {
-                        ArtPlaceholderView(name: account.displayName)
-                    }
-                    .frame(width: 64, height: 64)
-                    .clipShape(Circle())
+                    PersonAvatar(source: account.avatarPath, name: account.displayName, side: 64)
                     VStack(alignment: .leading) {
                         Text(account.displayName)
                             .font(.title2.weight(.bold))
@@ -23,14 +19,54 @@ struct AccountView: View {
                     }
                 }
                 .padding(.vertical, Theme.Spacing.xSmall)
+                .accessibilityElement(children: .combine)
             }
             if account.mustSetUpTwoFactor || account.safeMode {
                 Section {
                     if account.mustSetUpTwoFactor {
-                        NoticeBanner(text: L10n.tr("account.two.factor.needed"))
+                        NoticeBanner(text: L10n.tr("myaccount.two.factor.needed"))
                     }
                     if account.safeMode {
                         NoticeBanner(text: L10n.tr("account.safe.mode"))
+                    }
+                }
+            }
+            Section {
+                NavigationLink {
+                    MyProfileView(account: account)
+                } label: {
+                    Label(L10n.tr("myaccount.profile"), systemImage: "person.text.rectangle")
+                }
+                NavigationLink {
+                    MyPreferencesView()
+                } label: {
+                    Label(L10n.tr("myaccount.preferences"), systemImage: "globe")
+                }
+                NavigationLink {
+                    MySecurityView(account: account)
+                } label: {
+                    LabeledContent {
+                        Text(account.twoFactor ? L10n.tr("myaccount.two.factor.on") : L10n.tr("myaccount.two.factor.off"))
+                            .foregroundStyle(Theme.textMuted)
+                    } label: {
+                        Label(L10n.tr("myaccount.security"), systemImage: "lock.shield")
+                    }
+                }
+                NavigationLink {
+                    MyAlertsView()
+                } label: {
+                    Label(L10n.tr("myaccount.alerts"), systemImage: "bell")
+                }
+                NavigationLink {
+                    MyDevicesView(userId: nil, title: L10n.tr("myaccount.devices"))
+                } label: {
+                    Label(L10n.tr("myaccount.devices"), systemImage: "iphone.and.ipad")
+                }
+                if account.mayConnectAiApps {
+                    NavigationLink {
+                        AiConnectView(account: account)
+                    } label: {
+                        Label(L10n.tr("myaccount.ai.connect"), systemImage: "sparkles")
                     }
                 }
             }

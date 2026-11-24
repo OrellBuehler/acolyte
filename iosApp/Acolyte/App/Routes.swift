@@ -116,6 +116,8 @@ struct SectionScreen: View {
             HistoryView(titleId: 0, episodeId: 0)
         case .settings:
             AcquisitionPagesView()
+        case .people:
+            PeopleView()
         default:
             PlaceholderView(section: section)
         }

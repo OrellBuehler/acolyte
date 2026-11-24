@@ -14,8 +14,13 @@ struct RootView: View {
                 ConnectView(expired: expired)
                     .transition(.opacity)
             case let .signedIn(account):
-                MainTabs(account: account)
-                    .transition(.opacity)
+                if account.setupOpen && account.role == .owner {
+                    FirstRunView()
+                        .transition(.opacity)
+                } else {
+                    MainTabs(account: account)
+                        .transition(.opacity)
+                }
             }
         }
         .animation(.smooth(duration: 0.3), value: model.session)
