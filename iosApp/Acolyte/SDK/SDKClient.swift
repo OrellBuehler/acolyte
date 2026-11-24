@@ -288,5 +288,15 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsControlsSchedules() -> SettingsControlsSchedulesDriver {
         SettingsControlsSchedulesDriver(presenter: sdk.settingsControlsSchedules())
+    func makeSettingsAlerts() -> SettingsServerAlertsDriver {
+        SettingsServerAlertsDriver(presenter: sdk.settingsAlerts())
+    }
+
+    func makeSettingsBackups() -> SettingsServerBackupsDriver {
+        SettingsServerBackupsDriver(presenter: sdk.settingsBackups())
+    }
+
+    func makeSettingsLogs() -> SettingsServerLogsDriver {
+        SettingsServerLogsDriver(presenter: sdk.settingsLogs())
     }
 }

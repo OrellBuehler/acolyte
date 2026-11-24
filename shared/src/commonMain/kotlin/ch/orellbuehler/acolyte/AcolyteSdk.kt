@@ -64,6 +64,9 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsDangerP
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsPartsPresenter
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsSchedulesPresenter
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerAlertsPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerBackupsPresenter
+import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerLogsPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -270,4 +273,11 @@ class AcolyteSdk internal constructor(
 
     fun settingsControlsSchedules(): SettingsControlsSchedulesPresenter =
         SettingsControlsSchedulesPresenter(session.api, { session.account })
+    fun settingsAlerts(): SettingsServerAlertsPresenter = SettingsServerAlertsPresenter(session.api) { session.account }
+
+    fun settingsBackups(): SettingsServerBackupsPresenter =
+        SettingsServerBackupsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsLogs(): SettingsServerLogsPresenter =
+        SettingsServerLogsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
 }
