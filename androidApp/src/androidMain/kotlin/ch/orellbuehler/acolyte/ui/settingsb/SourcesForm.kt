@@ -104,7 +104,7 @@ fun SourceFormCard(
         field(
             stringResource(R.string.acq_src_name),
             form.name,
-            { update(form.copy(name = it.take(SettingsSourceForm.NAME_MAX + 20))) },
+            { update(form.copy(name = it.take(SettingsSourceForm.NAME_LIMIT + 20))) },
             error = problemFor(SettingsSourceProblem.NAME, form.name.isNotBlank()),
         )
         val formats =

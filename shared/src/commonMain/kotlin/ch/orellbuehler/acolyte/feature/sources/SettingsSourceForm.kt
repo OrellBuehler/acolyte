@@ -201,7 +201,7 @@ data class SettingsSourceForm(
     fun problems(): List<SettingsSourceProblem> {
         val out = mutableListOf<SettingsSourceProblem>()
         val trimmed = name.trim()
-        if (trimmed.isEmpty() || trimmed.length > NAME_MAX) out += SettingsSourceProblem.NAME
+        if (trimmed.isEmpty() || trimmed.length > NAME_LIMIT) out += SettingsSourceProblem.NAME
         when {
             !SettingsSourcesLogic.isWebAddress(url.trim()) -> out += SettingsSourceProblem.URL
             !isRss && url.contains('?') -> out += SettingsSourceProblem.URL_QUERY
@@ -287,7 +287,7 @@ data class SettingsSourceForm(
         const val PROTOCOL_USENET = "usenet"
         const val LOGIN_PASSKEY = "passkey"
         const val LOGIN_COOKIE = "cookie"
-        const val NAME_MAX = 80
+        const val NAME_LIMIT = 80
         const val DEFAULT_PRIORITY = 25
         const val MAX_PRIORITY = 50
         const val MAX_SEARCHES = 10000
