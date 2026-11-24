@@ -46,7 +46,7 @@ enum class InfoGroupKind {
     WHERE,
 }
 
-enum class FactKind {
+enum class DownloadFactKind {
     STATUS,
     DOWNLOADED,
     SIZE,
@@ -76,7 +76,7 @@ enum class FactKind {
 }
 
 data class InfoFact(
-    val kind: FactKind,
+    val kind: DownloadFactKind,
     val text: String = "",
     val at: String = "",
     val seconds: Long = 0,
@@ -181,7 +181,7 @@ object DetailRules {
         d: DownloadDetail?,
     ): List<InfoGroup> {
         val failed = DownloadRules.stageOf(r) == Stage.FAILED
-        val status = if (failed && r.text.isNotBlank()) InfoFact(FactKind.STATUS, r.text.trim()) else null
+        val status = if (failed && r.text.isNotBlank()) InfoFact(DownloadFactKind.STATUS, r.text.trim()) else null
         val requested = (d?.requestedBy ?: "").ifEmpty { r.requestedBy }
         val downloader = (d?.downloader ?: "").ifEmpty { r.downloader }
         if (DownloadRules.protocolOf(r) == "usenet") {
@@ -191,26 +191,26 @@ object DetailRules {
                     if (r.progress >=
                         1
                     ) {
-                        fact(FactKind.SIZE, size(r.size))
+                        fact(DownloadFactKind.SIZE, size(r.size))
                     } else {
-                        factPair(FactKind.DOWNLOADED, (r.size * r.progress).toLong(), r.size)
+                        factPair(DownloadFactKind.DOWNLOADED, (r.size * r.progress).toLong(), r.size)
                     },
-                    if (r.speed > 0) fact(FactKind.DOWN, speed(r.speed)) else null,
-                    if (r.eta > 0) InfoFact(FactKind.TIME_LEFT, seconds = r.eta) else null,
+                    if (r.speed > 0) fact(DownloadFactKind.DOWN, speed(r.speed)) else null,
+                    if (r.eta > 0) InfoFact(DownloadFactKind.TIME_LEFT, seconds = r.eta) else null,
                 )
             val dates =
                 listOfNotNull(
-                    at(FactKind.POSTED, r.postedAt),
-                    at(FactKind.ADDED, r.startedAt),
-                    at(FactKind.DONE_AT, r.finishedAt),
+                    at(DownloadFactKind.POSTED, r.postedAt),
+                    at(DownloadFactKind.ADDED, r.startedAt),
+                    at(DownloadFactKind.DONE_AT, r.finishedAt),
                 )
             val where =
                 listOfNotNull(
-                    fact(FactKind.RELEASE, r.name),
-                    fact(FactKind.DOWNLOADER, downloader),
-                    fact(FactKind.CATEGORY, r.category),
-                    fact(FactKind.FOLDER, r.importFolder.ifEmpty { r.path }),
-                    fact(FactKind.REQUESTED_BY, requested),
+                    fact(DownloadFactKind.RELEASE, r.name),
+                    fact(DownloadFactKind.DOWNLOADER, downloader),
+                    fact(DownloadFactKind.CATEGORY, r.category),
+                    fact(DownloadFactKind.FOLDER, r.importFolder.ifEmpty { r.path }),
+                    fact(DownloadFactKind.REQUESTED_BY, requested),
                 )
             return listOf(
                 InfoGroup(InfoGroupKind.TRANSFER, transfer),
@@ -225,26 +225,26 @@ object DetailRules {
             if (seeding) {
                 listOfNotNull(
                     status,
-                    ratio?.let { fact(FactKind.RATIO, DownloadRules.ratioText(it, 2)) },
-                    t?.uploaded?.takeIf { it > 0 }?.let { fact(FactKind.UPLOADED, size(it)) },
-                    t?.seedingTime?.takeIf { it > 0 }?.let { InfoFact(FactKind.SEEDING_TIME, seconds = it) },
-                    t?.let { at(FactKind.LAST_ACTIVITY, it.lastActivity) },
-                    fact(FactKind.SIZE, size(t?.size ?: r.size)),
-                    (t?.upSpeed ?: r.upSpeed).takeIf { it > 0 }?.let { fact(FactKind.UP, speed(it)) },
-                    (t?.speed ?: r.speed).takeIf { it > 0 }?.let { fact(FactKind.DOWN, speed(it)) },
-                    t?.wasted?.takeIf { it > 0 }?.let { fact(FactKind.WASTED, size(it)) },
+                    ratio?.let { fact(DownloadFactKind.RATIO, DownloadRules.ratioText(it, 2)) },
+                    t?.uploaded?.takeIf { it > 0 }?.let { fact(DownloadFactKind.UPLOADED, size(it)) },
+                    t?.seedingTime?.takeIf { it > 0 }?.let { InfoFact(DownloadFactKind.SEEDING_TIME, seconds = it) },
+                    t?.let { at(DownloadFactKind.LAST_ACTIVITY, it.lastActivity) },
+                    fact(DownloadFactKind.SIZE, size(t?.size ?: r.size)),
+                    (t?.upSpeed ?: r.upSpeed).takeIf { it > 0 }?.let { fact(DownloadFactKind.UP, speed(it)) },
+                    (t?.speed ?: r.speed).takeIf { it > 0 }?.let { fact(DownloadFactKind.DOWN, speed(it)) },
+                    t?.wasted?.takeIf { it > 0 }?.let { fact(DownloadFactKind.WASTED, size(it)) },
                 )
             } else {
                 listOfNotNull(
                     status,
-                    factPair(FactKind.DOWNLOADED, t?.downloaded ?: (r.size * r.progress).toLong(), t?.size ?: r.size),
-                    (t?.speed ?: r.speed).takeIf { it > 0 }?.let { fact(FactKind.DOWN, speed(it)) },
-                    (t?.upSpeed ?: r.upSpeed).takeIf { it > 0 }?.let { fact(FactKind.UP, speed(it)) },
-                    (t?.eta ?: r.eta).takeIf { it > 0 }?.let { InfoFact(FactKind.TIME_LEFT, seconds = it) },
-                    t?.uploaded?.takeIf { it > 0 }?.let { fact(FactKind.UPLOADED, size(it)) },
-                    ratio?.let { fact(FactKind.RATIO, DownloadRules.ratioText(it, 2)) },
-                    t?.let { at(FactKind.LAST_ACTIVITY, it.lastActivity) },
-                    t?.wasted?.takeIf { it > 0 }?.let { fact(FactKind.WASTED, size(it)) },
+                    factPair(DownloadFactKind.DOWNLOADED, t?.downloaded ?: (r.size * r.progress).toLong(), t?.size ?: r.size),
+                    (t?.speed ?: r.speed).takeIf { it > 0 }?.let { fact(DownloadFactKind.DOWN, speed(it)) },
+                    (t?.upSpeed ?: r.upSpeed).takeIf { it > 0 }?.let { fact(DownloadFactKind.UP, speed(it)) },
+                    (t?.eta ?: r.eta).takeIf { it > 0 }?.let { InfoFact(DownloadFactKind.TIME_LEFT, seconds = it) },
+                    t?.uploaded?.takeIf { it > 0 }?.let { fact(DownloadFactKind.UPLOADED, size(it)) },
+                    ratio?.let { fact(DownloadFactKind.RATIO, DownloadRules.ratioText(it, 2)) },
+                    t?.let { at(DownloadFactKind.LAST_ACTIVITY, it.lastActivity) },
+                    t?.wasted?.takeIf { it > 0 }?.let { fact(DownloadFactKind.WASTED, size(it)) },
                 )
             }
         val seeds = t?.seeds ?: r.seeds
@@ -253,25 +253,47 @@ object DetailRules {
         val peersTotal = t?.peersTotal ?: r.peersTotal
         val swarm =
             listOfNotNull(
-                InfoFact(FactKind.SEEDS, a = seeds.toLong(), b = if (seedsTotal >= seeds && seedsTotal > 0) seedsTotal.toLong() else 0),
-                InfoFact(FactKind.PEERS, a = peers.toLong(), b = if (peersTotal >= peers && peersTotal > 0) peersTotal.toLong() else 0),
-                t?.let { InfoFact(FactKind.PRIVATE, a = if (it.private) 1 else 0) },
+                InfoFact(
+                    DownloadFactKind.SEEDS,
+                    a = seeds.toLong(),
+                    b =
+                        if (seedsTotal >= seeds &&
+                            seedsTotal > 0
+                        ) {
+                            seedsTotal.toLong()
+                        } else {
+                            0
+                        },
+                ),
+                InfoFact(
+                    DownloadFactKind.PEERS,
+                    a = peers.toLong(),
+                    b =
+                        if (peersTotal >= peers &&
+                            peersTotal > 0
+                        ) {
+                            peersTotal.toLong()
+                        } else {
+                            0
+                        },
+                ),
+                t?.let { InfoFact(DownloadFactKind.PRIVATE, a = if (it.private) 1 else 0) },
             )
         val dates =
             listOfNotNull(
-                at(FactKind.ADDED, t?.addedAt?.ifEmpty { null } ?: r.startedAt),
-                at(FactKind.DONE_AT, t?.doneAt?.ifEmpty { null } ?: r.finishedAt),
-                t?.timeActive?.takeIf { it > 0 }?.let { InfoFact(FactKind.TIME_ACTIVE, seconds = it) },
-                if (!seeding) t?.seedingTime?.takeIf { it > 0 }?.let { InfoFact(FactKind.SEEDING_TIME, seconds = it) } else null,
-                fact(FactKind.RELEASE, r.name),
-                fact(FactKind.SAVE_PATH, t?.savePath?.ifEmpty { null } ?: r.path),
-                fact(FactKind.DOWNLOADER, downloader),
-                fact(FactKind.REQUESTED_BY, requested),
+                at(DownloadFactKind.ADDED, t?.addedAt?.ifEmpty { null } ?: r.startedAt),
+                at(DownloadFactKind.DONE_AT, t?.doneAt?.ifEmpty { null } ?: r.finishedAt),
+                t?.timeActive?.takeIf { it > 0 }?.let { InfoFact(DownloadFactKind.TIME_ACTIVE, seconds = it) },
+                if (!seeding) t?.seedingTime?.takeIf { it > 0 }?.let { InfoFact(DownloadFactKind.SEEDING_TIME, seconds = it) } else null,
+                fact(DownloadFactKind.RELEASE, r.name),
+                fact(DownloadFactKind.SAVE_PATH, t?.savePath?.ifEmpty { null } ?: r.path),
+                fact(DownloadFactKind.DOWNLOADER, downloader),
+                fact(DownloadFactKind.REQUESTED_BY, requested),
             )
         val rules =
             listOfNotNull(
-                if (r.limitDown > 0 || r.limitUp > 0) InfoFact(FactKind.SPEED_LIMITS, a = r.limitDown, b = r.limitUp) else null,
-                r.limits?.let { InfoFact(FactKind.SEEDING_RULES, limits = it) },
+                if (r.limitDown > 0 || r.limitUp > 0) InfoFact(DownloadFactKind.SPEED_LIMITS, a = r.limitDown, b = r.limitUp) else null,
+                r.limits?.let { InfoFact(DownloadFactKind.SEEDING_RULES, limits = it) },
             )
         return listOf(
             InfoGroup(InfoGroupKind.TRANSFER, transfer),
@@ -282,17 +304,17 @@ object DetailRules {
     }
 
     private fun fact(
-        kind: FactKind,
+        kind: DownloadFactKind,
         text: String,
     ): InfoFact? = text.takeIf { it.isNotBlank() }?.let { InfoFact(kind, it) }
 
     private fun at(
-        kind: FactKind,
+        kind: DownloadFactKind,
         iso: String?,
     ): InfoFact? = iso?.takeIf { it.isNotBlank() && Days.parseInstant(it) != null }?.let { InfoFact(kind, at = it) }
 
     private fun factPair(
-        kind: FactKind,
+        kind: DownloadFactKind,
         a: Long,
         b: Long,
     ): InfoFact? = if (b > 0) InfoFact(kind, a = a, b = b) else null

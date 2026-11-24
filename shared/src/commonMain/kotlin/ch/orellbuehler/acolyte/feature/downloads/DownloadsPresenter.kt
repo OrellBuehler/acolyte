@@ -73,7 +73,7 @@ enum class RemoveFilesLine {
     MANY,
 }
 
-data class RemovePlan(
+data class DownloadRemovePlan(
     val keys: List<String>,
     val names: List<String>,
     val more: Int,
@@ -725,7 +725,7 @@ class DownloadsPresenter internal constructor(
         }
     }
 
-    fun removePlan(keys: List<String>): RemovePlan? {
+    fun removePlan(keys: List<String>): DownloadRemovePlan? {
         val all = rowsOf(keys).filter { it.canAct }
         if (all.isEmpty()) return null
         val settings = canSettings
@@ -773,7 +773,7 @@ class DownloadsPresenter internal constructor(
                 deleting.size <= 1 -> RemoveFilesLine.ONE
                 else -> RemoveFilesLine.MANY
             }
-        return RemovePlan(
+        return DownloadRemovePlan(
             keys = rows.map { DownloadRules.keyOf(it) },
             names = rows.take(6).map { DownloadRules.rowName(it) },
             more = (rows.size - 6).coerceAtLeast(0),
@@ -796,7 +796,7 @@ class DownloadsPresenter internal constructor(
     }
 
     suspend fun remove(
-        plan: RemovePlan,
+        plan: DownloadRemovePlan,
         deleteFiles: Boolean,
         turnDown: Boolean,
         searchAgain: Boolean,

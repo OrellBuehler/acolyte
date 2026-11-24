@@ -439,7 +439,7 @@ extension Mapping {
         )
     }
 
-    static func removePlan(_ p: RemovePlan) -> RemovePlanInfo {
+    static func removePlan(_ p: DownloadRemovePlan) -> RemovePlanInfo {
         RemovePlanInfo(
             keys: p.keys,
             names: p.names,

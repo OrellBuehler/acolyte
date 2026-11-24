@@ -55,11 +55,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
+import ch.orellbuehler.acolyte.feature.downloads.DownloadRemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
 import ch.orellbuehler.acolyte.feature.downloads.RemoveDoneLine
 import ch.orellbuehler.acolyte.feature.downloads.RemoveFilesLine
-import ch.orellbuehler.acolyte.feature.downloads.RemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.SpeedTarget
 import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.theme.Radius
@@ -68,7 +68,7 @@ import ch.orellbuehler.acolyte.ui.theme.acolyte
 
 @Composable
 internal fun RemoveDialog(
-    plan: RemovePlan,
+    plan: DownloadRemovePlan,
     busy: Boolean,
     viewModel: DownloadsViewModel,
     onDismiss: () -> Unit,

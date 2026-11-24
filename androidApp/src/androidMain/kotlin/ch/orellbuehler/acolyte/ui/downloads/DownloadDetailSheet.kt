@@ -66,12 +66,12 @@ import ch.orellbuehler.acolyte.feature.downloads.DetailTab
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailPresenter
 import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailState
+import ch.orellbuehler.acolyte.feature.downloads.DownloadFactKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
-import ch.orellbuehler.acolyte.feature.downloads.FactKind
 import ch.orellbuehler.acolyte.feature.downloads.InfoFact
 import ch.orellbuehler.acolyte.feature.downloads.InfoGroupKind
 import ch.orellbuehler.acolyte.feature.downloads.ReasonLine
@@ -293,44 +293,49 @@ private fun InfoGroupKind.label(): Int =
         InfoGroupKind.WHERE -> R.string.downloads_group_where
     }
 
-private fun FactKind.label(): Int =
+private fun DownloadFactKind.label(): Int =
     when (this) {
-        FactKind.STATUS -> R.string.downloads_fact_status
-        FactKind.DOWNLOADED -> R.string.downloads_fact_downloaded
-        FactKind.SIZE -> R.string.downloads_fact_size
-        FactKind.DOWN -> R.string.downloads_fact_down
-        FactKind.UP -> R.string.downloads_fact_up
-        FactKind.TIME_LEFT -> R.string.downloads_fact_time_left
-        FactKind.UPLOADED -> R.string.downloads_fact_uploaded
-        FactKind.RATIO -> R.string.downloads_fact_ratio
-        FactKind.LAST_ACTIVITY -> R.string.downloads_fact_last_activity
-        FactKind.WASTED -> R.string.downloads_fact_wasted
-        FactKind.SEEDING_TIME -> R.string.downloads_fact_seeding_time
-        FactKind.SEEDS -> R.string.downloads_fact_seeds
-        FactKind.PEERS -> R.string.downloads_fact_peers
-        FactKind.PRIVATE -> R.string.downloads_fact_private
-        FactKind.ADDED -> R.string.downloads_fact_added
-        FactKind.POSTED -> R.string.downloads_fact_posted
-        FactKind.DONE_AT -> R.string.downloads_fact_done
-        FactKind.TIME_ACTIVE -> R.string.downloads_fact_time_active
-        FactKind.RELEASE -> R.string.downloads_fact_release
-        FactKind.SAVE_PATH -> R.string.downloads_fact_save_path
-        FactKind.DOWNLOADER -> R.string.downloads_fact_downloader
-        FactKind.CATEGORY -> R.string.downloads_fact_category
-        FactKind.FOLDER -> R.string.downloads_fact_folder
-        FactKind.REQUESTED_BY -> R.string.downloads_fact_requested_by
-        FactKind.SPEED_LIMITS -> R.string.downloads_fact_speed_limits
-        FactKind.SEEDING_RULES -> R.string.downloads_fact_seeding_rules
+        DownloadFactKind.STATUS -> R.string.downloads_fact_status
+        DownloadFactKind.DOWNLOADED -> R.string.downloads_fact_downloaded
+        DownloadFactKind.SIZE -> R.string.downloads_fact_size
+        DownloadFactKind.DOWN -> R.string.downloads_fact_down
+        DownloadFactKind.UP -> R.string.downloads_fact_up
+        DownloadFactKind.TIME_LEFT -> R.string.downloads_fact_time_left
+        DownloadFactKind.UPLOADED -> R.string.downloads_fact_uploaded
+        DownloadFactKind.RATIO -> R.string.downloads_fact_ratio
+        DownloadFactKind.LAST_ACTIVITY -> R.string.downloads_fact_last_activity
+        DownloadFactKind.WASTED -> R.string.downloads_fact_wasted
+        DownloadFactKind.SEEDING_TIME -> R.string.downloads_fact_seeding_time
+        DownloadFactKind.SEEDS -> R.string.downloads_fact_seeds
+        DownloadFactKind.PEERS -> R.string.downloads_fact_peers
+        DownloadFactKind.PRIVATE -> R.string.downloads_fact_private
+        DownloadFactKind.ADDED -> R.string.downloads_fact_added
+        DownloadFactKind.POSTED -> R.string.downloads_fact_posted
+        DownloadFactKind.DONE_AT -> R.string.downloads_fact_done
+        DownloadFactKind.TIME_ACTIVE -> R.string.downloads_fact_time_active
+        DownloadFactKind.RELEASE -> R.string.downloads_fact_release
+        DownloadFactKind.SAVE_PATH -> R.string.downloads_fact_save_path
+        DownloadFactKind.DOWNLOADER -> R.string.downloads_fact_downloader
+        DownloadFactKind.CATEGORY -> R.string.downloads_fact_category
+        DownloadFactKind.FOLDER -> R.string.downloads_fact_folder
+        DownloadFactKind.REQUESTED_BY -> R.string.downloads_fact_requested_by
+        DownloadFactKind.SPEED_LIMITS -> R.string.downloads_fact_speed_limits
+        DownloadFactKind.SEEDING_RULES -> R.string.downloads_fact_seeding_rules
     }
 
 @Composable
 private fun factValue(f: InfoFact): String =
     when {
-        f.kind == FactKind.DOWNLOADED -> stringResource(R.string.downloads_value_of, DownloadFormat.size(f.a), DownloadFormat.size(f.b))
-        f.kind == FactKind.SEEDS || f.kind == FactKind.PEERS ->
+        f.kind == DownloadFactKind.DOWNLOADED ->
+            stringResource(
+                R.string.downloads_value_of,
+                DownloadFormat.size(f.a),
+                DownloadFormat.size(f.b),
+            )
+        f.kind == DownloadFactKind.SEEDS || f.kind == DownloadFactKind.PEERS ->
             if (f.b > 0) stringResource(R.string.downloads_value_of, f.a.toString(), f.b.toString()) else f.a.toString()
-        f.kind == FactKind.PRIVATE -> stringResource(if (f.a > 0) R.string.downloads_value_yes else R.string.downloads_value_no)
-        f.kind == FactKind.SPEED_LIMITS ->
+        f.kind == DownloadFactKind.PRIVATE -> stringResource(if (f.a > 0) R.string.downloads_value_yes else R.string.downloads_value_no)
+        f.kind == DownloadFactKind.SPEED_LIMITS ->
             stringResource(
                 R.string.downloads_value_caps,
                 if (f.a > 0) speedText(f.a) else stringResource(R.string.downloads_value_no_cap),

@@ -9,9 +9,9 @@ import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailPresenter
+import ch.orellbuehler.acolyte.feature.downloads.DownloadRemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
-import ch.orellbuehler.acolyte.feature.downloads.RemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.SpeedTarget
 import ch.orellbuehler.acolyte.feature.downloads.UsenetPriority
 import kotlinx.coroutines.flow.StateFlow
@@ -67,7 +67,7 @@ class DownloadsViewModel(
     }
 
     fun remove(
-        plan: RemovePlan,
+        plan: DownloadRemovePlan,
         deleteFiles: Boolean,
         turnDown: Boolean,
         searchAgain: Boolean,

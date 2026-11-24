@@ -21,7 +21,7 @@ private final class LatestBox<Value>: @unchecked Sendable {
 final class DownloadsDriver: @unchecked Sendable {
     private let presenter: DownloadsPresenter
     private let latest = LatestBox<DownloadsState>()
-    private let plan = LatestBox<RemovePlan>()
+    private let plan = LatestBox<DownloadRemovePlan>()
 
     init(presenter: DownloadsPresenter) {
         self.presenter = presenter
@@ -177,7 +177,7 @@ final class DownloadsDriver: @unchecked Sendable {
     }
 
     func remove(keys: [String], deleteFiles: Bool, turnDown: Bool, searchAgain: Bool) async -> [String] {
-        var chosen: RemovePlan?
+        var chosen: DownloadRemovePlan?
         if let held = plan.get(), Set(held.keys) == Set(keys) {
             chosen = held
         } else {

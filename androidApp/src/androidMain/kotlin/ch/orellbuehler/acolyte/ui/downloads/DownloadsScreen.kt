@@ -79,6 +79,7 @@ import ch.orellbuehler.acolyte.feature.downloads.ClientNoteKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
+import ch.orellbuehler.acolyte.feature.downloads.DownloadRemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsEmptyKind
@@ -89,7 +90,6 @@ import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
 import ch.orellbuehler.acolyte.feature.downloads.KindFilter
 import ch.orellbuehler.acolyte.feature.downloads.NetworkFilter
 import ch.orellbuehler.acolyte.feature.downloads.NoticeKind
-import ch.orellbuehler.acolyte.feature.downloads.RemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.SortKey
 import ch.orellbuehler.acolyte.feature.downloads.SortOrder
 import ch.orellbuehler.acolyte.feature.downloads.TrackerFilterKind
@@ -121,7 +121,7 @@ internal sealed interface DownloadsSheet {
     ) : DownloadsSheet
 
     data class Remove(
-        val plan: RemovePlan,
+        val plan: DownloadRemovePlan,
     ) : DownloadsSheet
 
     data class MarkFailed(
