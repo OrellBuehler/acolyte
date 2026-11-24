@@ -143,6 +143,8 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSubtitleSettings() -> SubtitleSettingsDriver {
         SubtitleSettingsDriver(presenter: sdk.settingsSubtitles())
+    }
+
     func makeSettingsPickRules() -> QualityListDriver {
         QualityListDriver(presenter: sdk.settingsPickRules())
     }
@@ -165,6 +167,8 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSearchSettings() -> SearchSettingsDriver {
         SearchSettingsDriver(presenter: sdk.settingsSearch())
+    }
+
     func makeSources() -> SourcesDriver {
         SourcesDriver(presenter: sdk.settingsSources())
     }
@@ -267,6 +271,8 @@ final class SDKClient: @unchecked Sendable {
 
     func makeDownloaderRules() -> DownloaderRulesDriver {
         DownloaderRulesDriver(presenter: sdk.settingsDownloaderRules())
+    }
+
     func makeReauth() -> ReauthDriver {
         ReauthDriver(gate: sdk.reauthGate())
     }
