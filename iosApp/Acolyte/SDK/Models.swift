@@ -81,6 +81,14 @@ struct AccountInfo: Hashable, Sendable {
     let tabs: [SectionID]
     let moreTab: MoreTabKind
     let moreGroups: [MoreGroupInfo]
+    let twoFactor: Bool
+    let hasPassword: Bool
+    let authMethod: String
+    let via: String
+    let setupOpen: Bool
+    let setupSkipped: Bool
+    let aiAppsAvailable: Bool
+    let usesCookies: Bool
 }
 
 enum SessionSnapshot: Hashable, Sendable {
@@ -161,6 +169,9 @@ enum SignInStepKind: String, Hashable, Sendable {
     case server
     case credentials
     case twoFactor = "twofactor"
+    case setup
+    case resetCode = "resetcode"
+    case resetPassword = "resetpassword"
     case done
 }
 
@@ -189,6 +200,14 @@ enum SignInErrorKind: String, Hashable, Sendable {
     case notAllowed = "notallowed"
     case wayOff = "wayoff"
     case rateLimited = "ratelimited"
+    case invalidName = "invalidname"
+    case passwordShort = "passwordshort"
+    case nameTaken = "nametaken"
+    case ownerExists = "ownerexists"
+    case plexTimeout = "plextimeout"
+    case resetCodeWrong = "resetcodewrong"
+    case inviteGone = "invitegone"
+    case linked
     case server
 }
 
@@ -205,6 +224,13 @@ struct SignInInfo: Hashable, Sendable {
     let otherWays: [SignInWayKind]
     let userName: String
     let hostRefused: String?
+    let minPasswordLength: Int
+    let configUnmapped: Bool
+    let ownerReset: Bool
+    let ownerResetEnv: Bool
+    let resetCodeMade: Bool
+    let resetName: String
+    let plexURL: URL?
     let busy: Bool
     let error: SignInErrorInfo?
 
@@ -216,6 +242,13 @@ struct SignInInfo: Hashable, Sendable {
         otherWays: [],
         userName: "",
         hostRefused: nil,
+        minPasswordLength: 8,
+        configUnmapped: false,
+        ownerReset: false,
+        ownerResetEnv: false,
+        resetCodeMade: false,
+        resetName: "",
+        plexURL: nil,
         busy: false,
         error: nil
     )

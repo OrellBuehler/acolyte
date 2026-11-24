@@ -1,5 +1,6 @@
 package ch.orellbuehler.acolyte.ui.account
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +10,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -29,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.R
+import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.feature.Tone
 import ch.orellbuehler.acolyte.image.ImageSize
 import ch.orellbuehler.acolyte.live.LiveStatus
@@ -40,6 +45,11 @@ import ch.orellbuehler.acolyte.ui.components.NoticeBanner
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.components.StatusChip
+import ch.orellbuehler.acolyte.ui.nav.AccountAlertsRoute
+import ch.orellbuehler.acolyte.ui.nav.AccountDevicesRoute
+import ch.orellbuehler.acolyte.ui.nav.AccountProfileRoute
+import ch.orellbuehler.acolyte.ui.nav.AccountSecurityRoute
+import ch.orellbuehler.acolyte.ui.nav.AiConnectRoute
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 
 @Composable
@@ -47,6 +57,7 @@ fun AccountScreen(
     account: Account,
     onSignOut: () -> Unit,
     onBack: (() -> Unit)?,
+    onOpen: (Any) -> Unit,
 ) {
     val live by LocalSdk.current.session.liveStatus
         .collectAsStateWithLifecycle()
@@ -70,8 +81,21 @@ fun AccountScreen(
                     Text(account.userName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            if (account.mustSetUpTwoFactor) NoticeBanner(stringResource(R.string.account_two_factor_needed))
+            if (account.mustSetUpTwoFactor) NoticeBanner(stringResource(R.string.myaccount_tf_required))
             if (account.safeMode) NoticeBanner(stringResource(R.string.account_safe_mode))
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+                NavRow(stringResource(R.string.myaccount_profile)) { onOpen(AccountProfileRoute) }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                NavRow(stringResource(R.string.myaccount_security)) { onOpen(AccountSecurityRoute) }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                NavRow(stringResource(R.string.myaccount_alerts)) { onOpen(AccountAlertsRoute) }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                NavRow(stringResource(R.string.myaccount_devices)) { onOpen(AccountDevicesRoute) }
+                if (account.aiAppsAvailable && account.can(Need.SETTINGS)) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    NavRow(stringResource(R.string.aiconnect_title)) { onOpen(AiConnectRoute) }
+                }
+            }
             Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
                 InfoRow(stringResource(R.string.account_server), account.serverName)
                 account.serverVersion?.let {
@@ -107,6 +131,20 @@ fun AccountScreen(
             },
             dismissButton = { TextButton(onClick = { confirm = false }) { Text(stringResource(R.string.common_cancel)) } },
         )
+    }
+}
+
+@Composable
+private fun NavRow(
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(Spacing.Large),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

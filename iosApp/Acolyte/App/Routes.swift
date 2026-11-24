@@ -116,6 +116,8 @@ struct SectionScreen: View {
             CalendarView()
         case .history:
             HistoryView(titleId: 0, episodeId: 0)
+        case .people:
+            PeopleView()
         default:
             PlaceholderView(section: section)
         }

@@ -55,6 +55,32 @@ data object SettingsRoute
 data object AccountRoute
 
 @Serializable
+data object AccountProfileRoute
+
+@Serializable
+data object AccountSecurityRoute
+
+@Serializable
+data object AccountAlertsRoute
+
+@Serializable
+data object AccountDevicesRoute
+
+@Serializable
+data object AiConnectRoute
+
+@Serializable
+data class PeopleDetailRoute(
+    val id: Long,
+)
+
+@Serializable
+data class PeopleDevicesRoute(
+    val id: Long,
+    val name: String,
+)
+
+@Serializable
 data object MoreRoute
 
 @Serializable

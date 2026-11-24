@@ -4,11 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class SettingsLookLanguageChange(
-    val language: String = "",
-)
-
-@Serializable
 data class SettingsLookMetadata(
     val mode: String = "",
     val locked: Boolean = false,

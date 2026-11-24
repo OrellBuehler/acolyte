@@ -1,14 +1,14 @@
 package ch.orellbuehler.acolyte.feature.settings.look
 
+import ch.orellbuehler.acolyte.api.AccountEndpoints
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AppEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.Part
-import ch.orellbuehler.acolyte.api.SettingsLookEndpoints
 import ch.orellbuehler.acolyte.api.SettingsSharedEndpoints
-import ch.orellbuehler.acolyte.api.model.SettingsLookLanguageChange
+import ch.orellbuehler.acolyte.api.model.AccountLanguageChange
 import ch.orellbuehler.acolyte.api.model.SettingsUiChange
 import ch.orellbuehler.acolyte.api.model.SettingsUiSettings
 import ch.orellbuehler.acolyte.api.valueOrNull
@@ -146,7 +146,7 @@ class SettingsLookAppearancePresenter internal constructor(
         lock.withLock {
             if (mutableState.value.language == wanted || mutableState.value.languageSaving) return
             mutableState.update { it.copy(languageSaving = true, languageError = null) }
-            when (val result = api.result(SettingsLookEndpoints.changeLanguage, SettingsLookLanguageChange(wanted))) {
+            when (val result = api.result(AccountEndpoints.updateLanguage, AccountLanguageChange(wanted))) {
                 is ApiResult.Ok ->
                     mutableState.update {
                         it.copy(

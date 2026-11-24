@@ -2,7 +2,7 @@
 import Foundation
 
 final class SignInDriver: @unchecked Sendable {
-    private let flow: SignInFlow
+    let flow: SignInFlow
 
     init(flow: SignInFlow) {
         self.flow = flow

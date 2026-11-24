@@ -1,9 +1,7 @@
 package ch.orellbuehler.acolyte.api
 
-import ch.orellbuehler.acolyte.api.model.MyProfile
 import ch.orellbuehler.acolyte.api.model.SettingsLookKeyAnswer
 import ch.orellbuehler.acolyte.api.model.SettingsLookKeyTest
-import ch.orellbuehler.acolyte.api.model.SettingsLookLanguageChange
 import ch.orellbuehler.acolyte.api.model.SettingsLookMetadata
 import ch.orellbuehler.acolyte.api.model.SettingsLookMetadataChange
 import ch.orellbuehler.acolyte.api.model.SettingsLookMetadataHealth
@@ -12,7 +10,6 @@ import ch.orellbuehler.acolyte.api.model.TitleGateDefaults
 import ch.orellbuehler.acolyte.api.model.TitleShowDefaults
 
 internal data object SettingsLookEndpoints : EndpointGroup() {
-    val changeLanguage = put("/api/v1/my/language", SettingsLookLanguageChange.serializer(), MyProfile.serializer(), Need.SIGNED_IN)
     val saveDefaults =
         put("/api/v1/settings/title-defaults", TitleAddDefaults.serializer(), TitleAddDefaults.serializer(), Need.SETTINGS, Part.MEDIA)
     val saveGate =

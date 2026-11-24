@@ -10,6 +10,8 @@ import ch.orellbuehler.acolyte.api.HomeEndpoints
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.OutsideListsEndpoints
+import ch.orellbuehler.acolyte.api.SettingsLookEndpoints
+import ch.orellbuehler.acolyte.api.SettingsServerEndpoints
 import ch.orellbuehler.acolyte.api.SettingsSharedEndpoints
 import ch.orellbuehler.acolyte.api.SettingsStatusEndpoints
 import ch.orellbuehler.acolyte.api.TransferredFile
@@ -280,8 +282,8 @@ class HealthPresenter internal constructor(
                     val checks = async { api.result(HealthEndpoints.checks) }
                     val schedules = async { api.result(SettingsSharedEndpoints.schedules) }
                     val lists = async { if (act) api.result(OutsideListsEndpoints.lists) else null }
-                    val alerts = async { if (act) api.result(SettingsStatusEndpoints.alerts) else null }
-                    val metadata = async { api.result(SettingsStatusEndpoints.metadataHealth) }
+                    val alerts = async { if (act) api.result(SettingsServerEndpoints.alerts) else null }
+                    val metadata = async { api.result(SettingsLookEndpoints.metadataHealth) }
                     val active = async { api.result(SettingsStatusEndpoints.activeJobs) }
                     val history = async { api.result(LibraryEndpoints.jobs, "limit" to HISTORY_LIMIT) }
                     val diskRead = async { if (loadDisks) api.result(SettingsStatusEndpoints.disks) else null }

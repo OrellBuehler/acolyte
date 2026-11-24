@@ -3,10 +3,8 @@ package ch.orellbuehler.acolyte.api
 import ch.orellbuehler.acolyte.api.model.SettingsHealthChecksChange
 import ch.orellbuehler.acolyte.api.model.SettingsHealthChecksSettings
 import ch.orellbuehler.acolyte.api.model.SettingsStatusActiveJobs
-import ch.orellbuehler.acolyte.api.model.SettingsStatusAlerts
 import ch.orellbuehler.acolyte.api.model.SettingsStatusDisks
 import ch.orellbuehler.acolyte.api.model.SettingsStatusInstall
-import ch.orellbuehler.acolyte.api.model.SettingsStatusMetadata
 import ch.orellbuehler.acolyte.api.model.SettingsStatusModeChange
 import ch.orellbuehler.acolyte.api.model.SettingsStatusTest
 import ch.orellbuehler.acolyte.api.model.SettingsUpdateInfo
@@ -28,8 +26,6 @@ internal data object SettingsStatusEndpoints : EndpointGroup() {
             SettingsHealthChecksSettings.serializer(),
             Need.SETTINGS,
         )
-    val alerts = get("/api/v1/alerts", SettingsStatusAlerts.serializer(), Need.SETTINGS)
     val testSource = post("/api/v1/sources/{id}/test", SettingsStatusTest.serializer(), Need.SETTINGS)
     val testDownloader = post("/api/v1/downloaders/{id}/test", SettingsStatusTest.serializer(), Need.SETTINGS)
-    val metadataHealth = get("/api/v1/metadata/health", SettingsStatusMetadata.serializer(), Need.SIGNED_IN)
 }

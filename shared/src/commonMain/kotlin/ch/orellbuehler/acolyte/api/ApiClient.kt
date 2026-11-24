@@ -22,6 +22,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import io.ktor.utils.io.ByteWriteChannel
@@ -188,7 +189,10 @@ internal class ApiClient(
                     accept(ContentType.Application.Json)
                     authenticate(endpoint.isUnsafe)
                     val form = body as? FormBody
-                    if (form != null && form.formFiles.isNotEmpty()) {
+                    val raw = body as? RawBody
+                    if (raw != null) {
+                        setBody(ByteArrayContent(raw.rawBytes, ContentType.parse(raw.rawType)))
+                    } else if (form != null && form.formFiles.isNotEmpty()) {
                         setBody(multipart(form))
                     } else if (bodySerializer != null && body != null) {
                         setBody(TextContent(json.encodeToString(bodySerializer, body), ContentType.Application.Json))

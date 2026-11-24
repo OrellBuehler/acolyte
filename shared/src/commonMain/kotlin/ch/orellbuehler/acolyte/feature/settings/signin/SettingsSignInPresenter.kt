@@ -1,19 +1,19 @@
 package ch.orellbuehler.acolyte.feature.settings.signin
 
-import ch.orellbuehler.acolyte.api.AccountKeysEndpoints
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AuthEndpoints
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.PeopleEndpoints
 import ch.orellbuehler.acolyte.api.SettingsSignInEndpoints
 import ch.orellbuehler.acolyte.api.TitleSupportEndpoints
-import ch.orellbuehler.acolyte.api.model.ImportBody
-import ch.orellbuehler.acolyte.api.model.ImportPick
-import ch.orellbuehler.acolyte.api.model.ImportPreviewBody
-import ch.orellbuehler.acolyte.api.model.MediaServerProbe
-import ch.orellbuehler.acolyte.api.model.MediaServerProbed
+import ch.orellbuehler.acolyte.api.model.AccountAddressAnswer
+import ch.orellbuehler.acolyte.api.model.AccountAddressTest
+import ch.orellbuehler.acolyte.api.model.AccountImportBody
+import ch.orellbuehler.acolyte.api.model.AccountImportPick
+import ch.orellbuehler.acolyte.api.model.AccountImportPreview
 import ch.orellbuehler.acolyte.api.model.SettingsSignInChange
 import ch.orellbuehler.acolyte.api.model.SettingsSignInPlexFinish
 import ch.orellbuehler.acolyte.api.model.SettingsSignInPlexFinished
@@ -109,7 +109,7 @@ private fun linkFailureOf(error: ApiError): SettingsSignInLinkFailure =
 
 private fun describe(
     kind: SettingsSignInWayKind,
-    probed: MediaServerProbed,
+    probed: AccountAddressAnswer,
 ): String {
     val app = probed.product.ifEmpty { kind.app }
     val version = if (probed.version.isEmpty()) "" else " ${probed.version}"
@@ -437,7 +437,7 @@ class SettingsSignInPresenter internal constructor(
                 .url
                 .trim()
         val result =
-            when (val probed = api.result(AccountKeysEndpoints.probeMediaServer, MediaServerProbe(url), "kind" to kind.key)) {
+            when (val probed = api.result(PeopleEndpoints.testAddress, AccountAddressTest(url), "kind" to kind.key)) {
                 is ApiResult.Ok ->
                     if (probed.value.ok) {
                         SettingsSignInTest(true, describe(kind, probed.value))
@@ -674,8 +674,8 @@ class SettingsSignInPresenter internal constructor(
         val sheet = mutableState.value.importSheet ?: return
         val plex = sheet.kind == SettingsSignInWayKind.PLEX
         editImport { it.copy(phase = SettingsSignInImportPhase.LOADING, error = null) }
-        val body = if (plex) ImportPreviewBody() else ImportPreviewBody(name = name.trim(), password = password)
-        when (val result = api.result(AccountKeysEndpoints.previewImport, body, "kind" to sheet.kind.key)) {
+        val body = if (plex) AccountImportPreview() else AccountImportPreview(name = name.trim(), password = password)
+        when (val result = api.result(PeopleEndpoints.importPreview, body, "kind" to sheet.kind.key)) {
             is ApiResult.Ok -> {
                 val people =
                     result.value.people.map {
@@ -720,10 +720,10 @@ class SettingsSignInPresenter internal constructor(
             return
         }
         editImport { it.copy(busy = true, confirmAdults = emptyList(), error = null) }
-        val body = ImportBody(picks.map { ImportPick(it.id, it.asKid, if (it.kid && !it.asKid) true else null) })
+        val body = AccountImportBody(picks.map { AccountImportPick(it.id, it.asKid, if (it.kid && !it.asKid) true else null) })
         gate.guard(onFailure = { error -> editImport { it.copy(busy = false, error = error) } }) {
             lock.withLock {
-                when (val result = api.result(AccountKeysEndpoints.importPeople, body, "kind" to sheet.kind.key)) {
+                when (val result = api.result(PeopleEndpoints.importPeople, body, "kind" to sheet.kind.key)) {
                     is ApiResult.Ok -> {
                         edit { it.copy(importSheet = null) }
                         val made = result.value.made

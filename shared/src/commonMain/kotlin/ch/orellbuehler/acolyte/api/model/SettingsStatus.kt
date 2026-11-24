@@ -108,19 +108,9 @@ internal data class SettingsHealthChecksChange(
     @SerialName("update_check_every_days") val updateCheckEveryDays: Int,
 )
 
-@Serializable
-data class SettingsStatusAlert(
-    val id: Long = 0,
-    val name: String = "",
-    val enabled: Boolean = false,
-    @SerialName("last_sent_at") val lastSentAt: String = "",
-    @SerialName("last_error") val lastError: String = "",
-)
+typealias SettingsStatusAlert = SettingsServerAlert
 
-@Serializable
-data class SettingsStatusAlerts(
-    val alerts: List<SettingsStatusAlert> = emptyList(),
-)
+typealias SettingsStatusAlerts = SettingsServerAlerts
 
 @Serializable
 data class SettingsStatusTest(
@@ -128,8 +118,4 @@ data class SettingsStatusTest(
     val text: String = "",
 )
 
-@Serializable
-data class SettingsStatusMetadata(
-    val up: Boolean = true,
-    val message: String = "",
-)
+typealias SettingsStatusMetadata = SettingsLookMetadataHealth

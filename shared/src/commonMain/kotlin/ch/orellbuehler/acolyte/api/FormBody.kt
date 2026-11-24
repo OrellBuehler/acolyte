@@ -12,3 +12,9 @@ internal interface FormBody {
 
     val formFiles: List<FormFile>
 }
+
+internal interface RawBody {
+    val rawBytes: ByteArray
+
+    val rawType: String
+}

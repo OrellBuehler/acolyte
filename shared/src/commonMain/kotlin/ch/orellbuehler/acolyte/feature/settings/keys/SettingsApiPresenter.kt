@@ -1,15 +1,15 @@
 package ch.orellbuehler.acolyte.feature.settings.keys
 
-import ch.orellbuehler.acolyte.api.AccountKeysEndpoints
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.Need
+import ch.orellbuehler.acolyte.api.PeopleEndpoints
 import ch.orellbuehler.acolyte.api.SettingsKeysAddresses
 import ch.orellbuehler.acolyte.api.SettingsKeysEndpoints
-import ch.orellbuehler.acolyte.api.model.ApiKeyInfo
-import ch.orellbuehler.acolyte.api.model.NewApiKey
+import ch.orellbuehler.acolyte.api.model.AccountKey
+import ch.orellbuehler.acolyte.api.model.AccountKeyMake
 import ch.orellbuehler.acolyte.api.model.SettingsKeysOldApp
 import ch.orellbuehler.acolyte.api.model.SettingsKeysOldAppChange
 import ch.orellbuehler.acolyte.feature.LoadStatus
@@ -31,7 +31,7 @@ data class SettingsApiState(
     val allowed: Boolean = true,
     val baseAddress: String = "",
     val openApiAddress: String = "",
-    val keys: List<ApiKeyInfo> = emptyList(),
+    val keys: List<AccountKey> = emptyList(),
     val keysError: ApiError? = null,
     val fresh: SettingsKeysFresh? = null,
     val making: Boolean = false,
@@ -84,7 +84,7 @@ class SettingsApiPresenter internal constructor(
             }
             coroutineScope {
                 val oldApp = async { api.result(SettingsKeysEndpoints.oldApp) }
-                val keys = api.result(AccountKeysEndpoints.keys)
+                val keys = api.result(PeopleEndpoints.keys)
                 val seerr = oldApp.await()
                 val keysHard = (keys as? ApiResult.Failed)?.error?.takeIf { it.code != ApiErrorCode.FORBIDDEN }
                 val seerrHard = (seerr as? ApiResult.Failed)?.error?.takeIf { it.code != ApiErrorCode.NOT_FOUND }
@@ -146,7 +146,7 @@ class SettingsApiPresenter internal constructor(
         }
 
     private suspend fun reloadKeys() {
-        val result = api.result(AccountKeysEndpoints.keys)
+        val result = api.result(PeopleEndpoints.keys)
         if (result is ApiResult.Ok) mutableState.update { it.copy(keys = result.value.keys, keysError = null) }
     }
 
@@ -156,7 +156,7 @@ class SettingsApiPresenter internal constructor(
         mutableState.update { it.copy(making = true) }
         gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_MAKE_FAILED, error = error) }) {
             lock.withLock {
-                when (val result = api.result(AccountKeysEndpoints.makeKey, NewApiKey(name))) {
+                when (val result = api.result(PeopleEndpoints.makeKey, AccountKeyMake(name))) {
                     is ApiResult.Ok -> {
                         val made = result.value
                         mutableState.update {
@@ -177,7 +177,7 @@ class SettingsApiPresenter internal constructor(
         mutableState.update { it.copy(revokingId = id) }
         gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_REVOKE_FAILED, key.label, error) }) {
             lock.withLock {
-                when (val result = api.result(AccountKeysEndpoints.revokeKey, "id" to id)) {
+                when (val result = api.result(PeopleEndpoints.revokeKey, "id" to id)) {
                     is ApiResult.Ok -> {
                         mutableState.update {
                             it.copy(

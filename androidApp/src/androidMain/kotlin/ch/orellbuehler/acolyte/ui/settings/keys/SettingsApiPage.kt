@@ -40,7 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ch.orellbuehler.acolyte.R
-import ch.orellbuehler.acolyte.api.model.ApiKeyInfo
+import ch.orellbuehler.acolyte.api.model.AccountKey
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsApiState
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsSeerrCard
 import ch.orellbuehler.acolyte.feature.settings.keys.SettingsSeerrFresh
@@ -163,7 +163,7 @@ private fun ApiKeysCard(
 
 @Composable
 private fun ApiKeyRow(
-    key: ApiKeyInfo,
+    key: AccountKey,
     enabled: Boolean,
     onRevoke: () -> Unit,
 ) {
