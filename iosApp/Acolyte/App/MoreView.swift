@@ -5,6 +5,7 @@ struct MoreView: View {
     @Environment(AppModel.self) private var model
     @State private var confirmSignOut = false
     @State private var badges = DownloadBadgesStore()
+    @State private var settingsHome = SettingsHomeStore()
 
     private var showsDownloads: Bool {
         account.tabs.contains(.downloads) || account.moreGroups.contains { $0.sections.contains(.downloads) }
@@ -44,6 +45,9 @@ struct MoreView: View {
         .navigationTitle(account.moreTab.title)
         .task { await badges.watch() }
         .task { await badges.follow() }
+        .task { await settingsHome.watch() }
+        .task { await settingsHome.load() }
+        .task { await settingsHome.followLive() }
         .confirmationDialog(L10n.tr("account.sign.out.title"), isPresented: $confirmSignOut, titleVisibility: .visible) {
             Button(L10n.tr("account.sign.out"), role: .destructive) { model.signOut() }
         } message: {
@@ -69,6 +73,14 @@ struct MoreView: View {
                 Label(section.title, systemImage: section.symbol)
                 Spacer(minLength: Theme.Spacing.small)
                 DownloadsBadgeLabel(badge: badges.badge)
+            }
+        } else if section == .settings {
+            HStack {
+                Label(section.title, systemImage: section.symbol)
+                Spacer(minLength: Theme.Spacing.small)
+                if settingsHome.info.needsAttention {
+                    Circle().fill(Theme.fail).frame(width: 8, height: 8)
+                }
             }
         } else {
             Label(section.title, systemImage: section.symbol)

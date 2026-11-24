@@ -104,6 +104,8 @@ struct SectionScreen: View {
             PopularView(account: account)
         case .health:
             HealthView()
+        case .settings:
+            SettingsHomeView(account: account)
         case .requests:
             RequestsView(account: account)
         case .account:
