@@ -4,13 +4,6 @@ import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
-import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
-import ch.orellbuehler.acolyte.feature.acquisition.SettingsSubtitlePresenter
-import ch.orellbuehler.acolyte.feature.acquisition.SettingsNamingPresenter
-import ch.orellbuehler.acolyte.feature.acquisition.SettingsSearchPresenter
-import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
-import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderRulesPresenter
-import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloadersPresenter
 import ch.orellbuehler.acolyte.feature.account.AccountDevicesPresenter
 import ch.orellbuehler.acolyte.feature.account.AccountImportPresenter
 import ch.orellbuehler.acolyte.feature.account.AccountKeysPresenter
@@ -20,6 +13,13 @@ import ch.orellbuehler.acolyte.feature.account.AccountWizardPresenter
 import ch.orellbuehler.acolyte.feature.account.AiConnectPresenter
 import ch.orellbuehler.acolyte.feature.account.PeoplePresenter
 import ch.orellbuehler.acolyte.feature.account.ReauthGate
+import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsNamingPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSearchPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSubtitlePresenter
+import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderRulesPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloadersPresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
 import ch.orellbuehler.acolyte.feature.discover.BrowseViewPresenter
@@ -57,9 +57,9 @@ import ch.orellbuehler.acolyte.feature.library.LibraryReleasesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
+import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRuleEditPresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRulesPresenter
-import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
 import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskReviewPresenter
@@ -269,12 +269,15 @@ class AcolyteSdk internal constructor(
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
 
     fun settingsSubtitles(): SettingsSubtitlePresenter = SettingsSubtitlePresenter(session.api) { session.account }
+
     fun settingsNaming(): SettingsNamingPresenter = SettingsNamingPresenter(session.api) { session.account }
 
     fun settingsSearch(): SettingsSearchPresenter = SettingsSearchPresenter(session.api) { session.account }
+
     fun settingsDownloaders(): SettingsDownloadersPresenter = SettingsDownloadersPresenter(session.api) { session.account }
 
     fun settingsDownloaderRules(): SettingsDownloaderRulesPresenter = SettingsDownloaderRulesPresenter(session.api) { session.account }
+
     fun reauthGate(): ReauthGate = ReauthGate({ password, code -> session.reauth(password, code) }, { session.account })
 
     fun invite(target: InviteTarget): InviteFlow = InviteFlow(session, target)
