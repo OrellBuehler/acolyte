@@ -191,6 +191,7 @@ enum class SettingsPage(
 }
 
 data class SettingsPageText(
+    val key: String,
     val label: String,
     val about: String,
     val group: String,
@@ -225,25 +226,25 @@ object SettingsCatalog {
 
     fun search(
         query: String,
-        pages: List<SettingsPage>,
-        texts: Map<SettingsPage, SettingsPageText>,
-    ): List<SettingsPage> {
-        val words = fold(query).split(' ', ',').filter { it.isNotEmpty() }
+        texts: List<SettingsPageText>,
+    ): List<String> {
+        val folded = fold(query)
+        val words = folded.split(' ', ',').filter { it.isNotEmpty() }
         if (words.isEmpty()) return emptyList()
-        return pages
-            .mapIndexedNotNull { index, page ->
-                val text = texts[page] ?: return@mapIndexedNotNull null
+        return texts
+            .mapIndexedNotNull { index, text ->
+                val page = SettingsPage.entries.firstOrNull { it.key == text.key } ?: return@mapIndexedNotNull null
                 val label = fold(text.label)
                 val haystack = "$label ${fold(text.about)} ${fold(text.group)} ${fold(page.words)}"
                 if (!words.all { haystack.contains(it) }) return@mapIndexedNotNull null
                 val rank =
                     when {
-                        label.startsWith(fold(query).trim()) -> 0
-                        label.contains(fold(query).trim()) -> 1
+                        label.startsWith(folded) -> 0
+                        label.contains(folded) -> 1
                         words.all { label.contains(it) } -> 2
                         else -> 3
                     }
-                Triple(rank, index, page)
+                Triple(rank, index, page.key)
             }.sortedWith(compareBy({ it.first }, { it.second }))
             .map { it.third }
             .take(MAX_RESULTS)
