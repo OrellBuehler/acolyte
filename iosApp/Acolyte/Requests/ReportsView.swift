@@ -56,7 +56,7 @@ struct ReportsView: View {
             if store.info.note?.id == note.id { store.dismissNote() }
         }
         .sheet(item: $open) { report in
-            ReportDetailView(report: info.shown.first { $0.id == report.id } ?? report, store: store, manager: info.manager)
+            ReportDetailView(report: info.shown.first(where: { $0.id == report.id }) ?? report, store: store, manager: info.manager)
         }
         .task { await store.watch() }
         .task { await store.load() }
