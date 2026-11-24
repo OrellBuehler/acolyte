@@ -247,4 +247,16 @@ final class SDKClient: @unchecked Sendable {
     func placeholder(_ name: String) -> PlaceholderInfo {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
+
+    func makeSettingsApi() -> SettingsApiDriver {
+        SettingsApiDriver(presenter: sdk.settingsApi())
+    }
+
+    func makeSettingsAi() -> SettingsAiDriver {
+        SettingsAiDriver(presenter: sdk.settingsAi())
+    }
+
+    func settingsRemoteAccessURL() -> URL? {
+        URL(string: sdk.settingsRemoteAccessUrl())
+    }
 }
