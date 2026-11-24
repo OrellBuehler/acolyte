@@ -267,9 +267,3 @@ struct DlDayHeader: View {
         .accessibilityAddTraits(.isHeader)
     }
 }
-
-extension ErrorInfo {
-    var detailed: String {
-        message.isEmpty ? localized : localized + " " + message
-    }
-}

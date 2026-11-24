@@ -31,3 +31,9 @@ final class DlToastModel {
         if message?.id == id { message = nil }
     }
 }
+
+extension ErrorInfo {
+    var detailed: String {
+        message.isEmpty ? localized : localized + " " + message
+    }
+}
