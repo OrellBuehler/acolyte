@@ -9,6 +9,7 @@ import ch.orellbuehler.acolyte.feature.downloads.Day
 import ch.orellbuehler.acolyte.feature.downloads.DownloadStepKey
 import ch.orellbuehler.acolyte.feature.downloads.HistoryFactKind
 import ch.orellbuehler.acolyte.feature.downloads.HistoryFilter
+import ch.orellbuehler.acolyte.feature.downloads.HistoryLineKind
 import ch.orellbuehler.acolyte.feature.downloads.HistoryNotice
 import ch.orellbuehler.acolyte.feature.downloads.HistoryPresenter
 import ch.orellbuehler.acolyte.feature.downloads.HistoryRedo
@@ -18,7 +19,6 @@ import ch.orellbuehler.acolyte.feature.downloads.HistoryType
 import ch.orellbuehler.acolyte.feature.downloads.HistoryVerb
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWhen
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWhoFilter
-import ch.orellbuehler.acolyte.feature.downloads.LineKind
 import ch.orellbuehler.acolyte.feature.downloads.StepState
 import ch.orellbuehler.acolyte.feature.downloads.WhoKind
 import kotlinx.coroutines.test.runTest
@@ -110,14 +110,17 @@ class HistoryTest {
         assertEquals(HistoryVerb.SYSTEM, HistoryRules.verbOf("signed_in"))
         assertEquals(HistoryVerb.MEDIA_SERVER_FAILED, HistoryRules.verbOf("media_server_unreachable"))
         assertEquals(HistoryVerb.OTHER, HistoryRules.verbOf("brand_new_kind"))
-        assertEquals(LineKind.PAUSED_AT, HistoryRules.lineOf(event(1, "download_paused", data = """{"progress":0.42}""")).kind)
+        assertEquals(HistoryLineKind.PAUSED_AT, HistoryRules.lineOf(event(1, "download_paused", data = """{"progress":0.42}""")).kind)
         assertEquals(42, HistoryRules.lineOf(event(1, "download_paused", data = """{"progress":0.42}""")).number)
-        assertEquals(LineKind.REMOVED_DELETED, HistoryRules.lineOf(event(1, "title_removed", data = """{"delete_files":true}""")).kind)
+        assertEquals(
+            HistoryLineKind.REMOVED_DELETED,
+            HistoryRules.lineOf(event(1, "title_removed", data = """{"delete_files":true}""")).kind,
+        )
         val reason = HistoryRules.lineOf(event(1, "import_failed", data = """{"reason":"nothing fits; match the files by hand."}"""))
-        assertEquals(LineKind.REASON, reason.kind)
+        assertEquals(HistoryLineKind.REASON, reason.kind)
         assertEquals("Nothing fits", reason.text)
         val summary = HistoryRules.lineOf(event(1, "settings_changed").copy(summary = "Heat: changed"))
-        assertEquals(LineKind.SUMMARY, summary.kind)
+        assertEquals(HistoryLineKind.SUMMARY, summary.kind)
         assertEquals("changed", summary.text)
         assertEquals("4K", HistoryRules.resolutionOf("Movie.UHD.BluRay"))
     }
@@ -175,7 +178,7 @@ class HistoryTest {
         titleId: Long = 0,
     ) = HistoryPresenter(
         server.api(),
-        { testAccount() },
+        { downloadsAccount() },
         titleId,
         0,
         object : Clock {

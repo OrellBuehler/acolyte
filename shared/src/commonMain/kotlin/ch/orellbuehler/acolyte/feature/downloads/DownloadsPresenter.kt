@@ -144,7 +144,7 @@ class DownloadsPresenter internal constructor(
 
     fun setQuery(query: String) = setFilter { it.copy(query = query) }
 
-    fun setKind(kind: KindFilter) = setFilter { it.copy(kind = kind) }
+    fun setKind(kind: DownloadKindFilter) = setFilter { it.copy(kind = kind) }
 
     fun setNetwork(network: NetworkFilter) =
         setFilter {
@@ -175,7 +175,7 @@ class DownloadsPresenter internal constructor(
             }?.let { SortOrder(it, descending) },
     )
 
-    fun clearFilters() = setFilter { it.copy(kind = KindFilter.ALL, network = NetworkFilter.ANY, tracker = "") }
+    fun clearFilters() = setFilter { it.copy(kind = DownloadKindFilter.ALL, network = NetworkFilter.ANY, tracker = "") }
 
     fun toggleSelect(key: String) {
         val item = mutableState.value.item(key) ?: return

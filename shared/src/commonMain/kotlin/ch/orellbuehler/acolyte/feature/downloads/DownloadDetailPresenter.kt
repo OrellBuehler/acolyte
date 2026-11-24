@@ -180,7 +180,7 @@ object DetailRules {
         r: DownloadRow,
         d: DownloadDetail?,
     ): List<InfoGroup> {
-        val failed = DownloadRules.stageOf(r) == Stage.FAILED
+        val failed = DownloadRules.stageOf(r) == DownloadStage.FAILED
         val status = if (failed && r.text.isNotBlank()) InfoFact(DownloadFactKind.STATUS, r.text.trim()) else null
         val requested = (d?.requestedBy ?: "").ifEmpty { r.requestedBy }
         val downloader = (d?.downloader ?: "").ifEmpty { r.downloader }

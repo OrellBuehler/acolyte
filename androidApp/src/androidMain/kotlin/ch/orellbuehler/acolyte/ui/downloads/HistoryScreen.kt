@@ -73,6 +73,7 @@ import ch.orellbuehler.acolyte.feature.downloads.HistoryFactKind
 import ch.orellbuehler.acolyte.feature.downloads.HistoryFilter
 import ch.orellbuehler.acolyte.feature.downloads.HistoryItem
 import ch.orellbuehler.acolyte.feature.downloads.HistoryLine
+import ch.orellbuehler.acolyte.feature.downloads.HistoryLineKind
 import ch.orellbuehler.acolyte.feature.downloads.HistoryNotice
 import ch.orellbuehler.acolyte.feature.downloads.HistoryRedo
 import ch.orellbuehler.acolyte.feature.downloads.HistoryState
@@ -83,7 +84,6 @@ import ch.orellbuehler.acolyte.feature.downloads.HistoryWhen
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWho
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWhoFilter
 import ch.orellbuehler.acolyte.feature.downloads.LibraryLink
-import ch.orellbuehler.acolyte.feature.downloads.LineKind
 import ch.orellbuehler.acolyte.feature.downloads.StepState
 import ch.orellbuehler.acolyte.feature.downloads.WhoKind
 import ch.orellbuehler.acolyte.ui.LocalSdk
@@ -393,8 +393,8 @@ private fun whoText(who: HistoryWho): String =
 private fun lineText(line: HistoryLine): String {
     val phrase =
         when (line.kind) {
-            LineKind.SUMMARY, LineKind.REASON -> return line.text
-            LineKind.ADDED_LIST ->
+            HistoryLineKind.SUMMARY, HistoryLineKind.REASON -> return line.text
+            HistoryLineKind.ADDED_LIST ->
                 if (line.text.isNotEmpty()) {
                     return stringResource(
                         R.string.downloads_line_added_list_named,
@@ -403,50 +403,50 @@ private fun lineText(line: HistoryLine): String {
                 } else {
                     R.string.downloads_line_added_list
                 }
-            LineKind.ADDED_IMPORT -> R.string.downloads_line_added_import
-            LineKind.ADDED_BY -> return stringResource(R.string.downloads_line_added_by, line.text)
-            LineKind.ADDED_ASK -> return stringResource(R.string.downloads_line_added_ask, line.text)
-            LineKind.REMOVED_KEPT -> R.string.downloads_line_removed_kept
-            LineKind.REMOVED_DELETED -> R.string.downloads_line_removed_deleted
-            LineKind.RENAMED -> R.string.downloads_line_renamed
-            LineKind.RENAME_READY -> R.string.downloads_line_rename_ready
-            LineKind.FEEDS -> R.string.downloads_line_feeds
-            LineKind.LOOKED -> R.string.downloads_line_looked
-            LineKind.SEARCH_FAILED -> R.string.downloads_line_search_failed
-            LineKind.TURNED_DOWN -> R.string.downloads_line_turned_down
-            LineKind.UNBLOCKED -> R.string.downloads_line_unblocked
-            LineKind.HELD_BACK -> R.string.downloads_line_held_back
-            LineKind.HELD_GONE -> R.string.downloads_line_held_gone
-            LineKind.WAITING -> R.string.downloads_line_waiting
-            LineKind.DOWNLOADING -> R.string.downloads_line_downloading
-            LineKind.DOWNLOADING_PCT -> return stringResource(R.string.downloads_line_downloading_pct, line.number)
-            LineKind.STALLED -> R.string.downloads_line_stalled
-            LineKind.PAUSED -> R.string.downloads_line_paused
-            LineKind.PAUSED_AT -> return stringResource(R.string.downloads_line_paused_at, line.number)
-            LineKind.SHARING -> R.string.downloads_line_sharing
-            LineKind.MOVED_OUT -> R.string.downloads_line_moved_out
-            LineKind.REMOVED_OUTSIDE -> R.string.downloads_line_removed_outside
-            LineKind.REMOVED_DL -> R.string.downloads_line_removed_dl
-            LineKind.REMOVED_DL_FILES -> R.string.downloads_line_removed_dl_files
-            LineKind.DL_FAILED -> R.string.downloads_line_dl_failed
-            LineKind.NOT_REMOVED -> R.string.downloads_line_not_removed
-            LineKind.NOT_MOVED -> R.string.downloads_line_not_moved
-            LineKind.PARTLY -> R.string.downloads_line_partly
-            LineKind.NOTHING_PLACED -> R.string.downloads_line_nothing_placed
-            LineKind.BETTER -> R.string.downloads_line_better
-            LineKind.FILE_BACK -> R.string.downloads_line_file_back
-            LineKind.FILE_HELD -> R.string.downloads_line_file_held
-            LineKind.HOLD_FAILED -> R.string.downloads_line_hold_failed
-            LineKind.HOLDING_CLEANED -> R.string.downloads_line_holding_cleaned
-            LineKind.LOW_SPACE -> R.string.downloads_line_low_space
-            LineKind.STOPPED_LOOKING -> R.string.downloads_line_stopped_looking
-            LineKind.WORKING_AGAIN -> R.string.downloads_line_working_again
-            LineKind.MEDIA_TOLD -> R.string.downloads_line_media_told
-            LineKind.MEDIA_FAILED -> R.string.downloads_line_media_failed
-            LineKind.ALERT_FAILED -> R.string.downloads_line_alert_failed
-            LineKind.OUT_NOW -> R.string.downloads_line_out_now
-            LineKind.REPORT -> R.string.downloads_line_report
-            LineKind.CHECKED_DETAILS -> R.string.downloads_line_checked_details
+            HistoryLineKind.ADDED_IMPORT -> R.string.downloads_line_added_import
+            HistoryLineKind.ADDED_BY -> return stringResource(R.string.downloads_line_added_by, line.text)
+            HistoryLineKind.ADDED_ASK -> return stringResource(R.string.downloads_line_added_ask, line.text)
+            HistoryLineKind.REMOVED_KEPT -> R.string.downloads_line_removed_kept
+            HistoryLineKind.REMOVED_DELETED -> R.string.downloads_line_removed_deleted
+            HistoryLineKind.RENAMED -> R.string.downloads_line_renamed
+            HistoryLineKind.RENAME_READY -> R.string.downloads_line_rename_ready
+            HistoryLineKind.FEEDS -> R.string.downloads_line_feeds
+            HistoryLineKind.LOOKED -> R.string.downloads_line_looked
+            HistoryLineKind.SEARCH_FAILED -> R.string.downloads_line_search_failed
+            HistoryLineKind.TURNED_DOWN -> R.string.downloads_line_turned_down
+            HistoryLineKind.UNBLOCKED -> R.string.downloads_line_unblocked
+            HistoryLineKind.HELD_BACK -> R.string.downloads_line_held_back
+            HistoryLineKind.HELD_GONE -> R.string.downloads_line_held_gone
+            HistoryLineKind.WAITING -> R.string.downloads_line_waiting
+            HistoryLineKind.DOWNLOADING -> R.string.downloads_line_downloading
+            HistoryLineKind.DOWNLOADING_PCT -> return stringResource(R.string.downloads_line_downloading_pct, line.number)
+            HistoryLineKind.STALLED -> R.string.downloads_line_stalled
+            HistoryLineKind.PAUSED -> R.string.downloads_line_paused
+            HistoryLineKind.PAUSED_AT -> return stringResource(R.string.downloads_line_paused_at, line.number)
+            HistoryLineKind.SHARING -> R.string.downloads_line_sharing
+            HistoryLineKind.MOVED_OUT -> R.string.downloads_line_moved_out
+            HistoryLineKind.REMOVED_OUTSIDE -> R.string.downloads_line_removed_outside
+            HistoryLineKind.REMOVED_DL -> R.string.downloads_line_removed_dl
+            HistoryLineKind.REMOVED_DL_FILES -> R.string.downloads_line_removed_dl_files
+            HistoryLineKind.DL_FAILED -> R.string.downloads_line_dl_failed
+            HistoryLineKind.NOT_REMOVED -> R.string.downloads_line_not_removed
+            HistoryLineKind.NOT_MOVED -> R.string.downloads_line_not_moved
+            HistoryLineKind.PARTLY -> R.string.downloads_line_partly
+            HistoryLineKind.NOTHING_PLACED -> R.string.downloads_line_nothing_placed
+            HistoryLineKind.BETTER -> R.string.downloads_line_better
+            HistoryLineKind.FILE_BACK -> R.string.downloads_line_file_back
+            HistoryLineKind.FILE_HELD -> R.string.downloads_line_file_held
+            HistoryLineKind.HOLD_FAILED -> R.string.downloads_line_hold_failed
+            HistoryLineKind.HOLDING_CLEANED -> R.string.downloads_line_holding_cleaned
+            HistoryLineKind.LOW_SPACE -> R.string.downloads_line_low_space
+            HistoryLineKind.STOPPED_LOOKING -> R.string.downloads_line_stopped_looking
+            HistoryLineKind.WORKING_AGAIN -> R.string.downloads_line_working_again
+            HistoryLineKind.MEDIA_TOLD -> R.string.downloads_line_media_told
+            HistoryLineKind.MEDIA_FAILED -> R.string.downloads_line_media_failed
+            HistoryLineKind.ALERT_FAILED -> R.string.downloads_line_alert_failed
+            HistoryLineKind.OUT_NOW -> R.string.downloads_line_out_now
+            HistoryLineKind.REPORT -> R.string.downloads_line_report
+            HistoryLineKind.CHECKED_DETAILS -> R.string.downloads_line_checked_details
         }
     val text = stringResource(phrase)
     return if (line.text.isNotEmpty()) "$text · ${line.text}" else text

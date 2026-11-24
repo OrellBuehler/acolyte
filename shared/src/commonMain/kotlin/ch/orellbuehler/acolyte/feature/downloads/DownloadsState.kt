@@ -18,7 +18,7 @@ import ch.orellbuehler.acolyte.feature.Tone
 data class DownloadItem(
     val key: String,
     val row: DownloadRow,
-    val stage: Stage,
+    val stage: DownloadStage,
     val name: String,
     val title: String,
     val subLine: SubLine,
@@ -44,12 +44,12 @@ data class DownloadsFilter(
     val tab: DownloadsTab = DownloadsTab.ALL,
     val sub: DownloadsSub? = null,
     val query: String = "",
-    val kind: KindFilter = KindFilter.ALL,
+    val kind: DownloadKindFilter = DownloadKindFilter.ALL,
     val network: NetworkFilter = NetworkFilter.ANY,
     val tracker: String = "",
     val sort: SortOrder? = null,
 ) {
-    val filtersOn: Int get() = listOf(kind != KindFilter.ALL, network != NetworkFilter.ANY, tracker.isNotEmpty()).count { it }
+    val filtersOn: Int get() = listOf(kind != DownloadKindFilter.ALL, network != NetworkFilter.ANY, tracker.isNotEmpty()).count { it }
 }
 
 enum class DownloadsEmptyKind {
@@ -216,9 +216,9 @@ internal object DownloadsDerive {
         if (history) {
             when {
                 r.clientItem -> {
-                    if (stage == Stage.FAILED && r.text.isNotBlank()) note = RowNote(NoteKind.CLIENT_TEXT, text = r.text.trim())
+                    if (stage == DownloadStage.FAILED && r.text.isNotBlank()) note = RowNote(NoteKind.CLIENT_TEXT, text = r.text.trim())
                 }
-                stage == Stage.FAILED -> Unit
+                stage == DownloadStage.FAILED -> Unit
                 DownloadRules.filesGone(im) -> {
                     word = StatusWord.TAKEN
                     bar = BarTone.HELD
@@ -253,7 +253,7 @@ internal object DownloadsDerive {
             detail = detail,
             bar = bar,
             tone = tone,
-            progress = if (history && stage != Stage.FAILED) 1.0 else r.progress.coerceIn(0.0, 1.0),
+            progress = if (history && stage != DownloadStage.FAILED) 1.0 else r.progress.coerceIn(0.0, 1.0),
             moving = DownloadRules.moving(r),
             history = history,
             poster = brief?.artwork?.firstOrNull(),
@@ -279,10 +279,10 @@ internal object DownloadsDerive {
                 .toSet()
         val decisionsByRow = raw.decisions.filter { it.downloadId in ids }.groupBy { it.downloadId }
         val searched = all.filter { DownloadRules.matches(it, filter.query) }
-        val kinded = searched.filter { filter.kind == KindFilter.ALL || DownloadRules.kindOf(it) == filter.kind.wire }
+        val kinded = searched.filter { filter.kind == DownloadKindFilter.ALL || DownloadRules.kindOf(it) == filter.kind.wire }
         val networked = kinded.filter { filter.network == NetworkFilter.ANY || DownloadRules.protocolOf(it) == filter.network.wire }
         val tracked = networked.filter { DownloadRules.byTracker(it, filter.tracker) }
-        val partial = filter.query.isNotBlank() || filter.kind != KindFilter.ALL || filter.tracker.isNotEmpty()
+        val partial = filter.query.isNotBlank() || filter.kind != DownloadKindFilter.ALL || filter.tracker.isNotEmpty()
         val left = DownloadRules.restSum(raw.outsideRest, filter.network.wire)
         val extra = if (partial) emptyMap() else left
         val picked = DownloadRules.pick(tracked, filter.tab, filter.sub)
@@ -293,7 +293,7 @@ internal object DownloadsDerive {
             when {
                 items.isNotEmpty() -> null
                 filter.query.isNotBlank() -> DownloadsEmpty(DownloadsEmptyKind.NO_MATCHES)
-                filter.kind != KindFilter.ALL -> DownloadsEmpty(DownloadsEmptyKind.NO_KIND)
+                filter.kind != DownloadKindFilter.ALL -> DownloadsEmpty(DownloadsEmptyKind.NO_KIND)
                 filter.network != NetworkFilter.ANY -> DownloadsEmpty(DownloadsEmptyKind.NO_NETWORK)
                 unloaded > 0 -> DownloadsEmpty(DownloadsEmptyKind.LOADING_MORE, unloaded)
                 all.isEmpty() -> DownloadsEmpty(DownloadsEmptyKind.NOTHING)

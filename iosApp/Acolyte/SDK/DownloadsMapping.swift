@@ -86,12 +86,12 @@ extension Mapping {
         }
     }
 
-    static func kotlinKind(_ k: DlKindFilter) -> KindFilter {
+    static func kotlinKind(_ k: DlKindFilter) -> DownloadKindFilter {
         switch k {
-        case .all: KindFilter.all
-        case .movie: KindFilter.movie
-        case .show: KindFilter.show
-        case .music: KindFilter.music
+        case .all: DownloadKindFilter.all
+        case .movie: DownloadKindFilter.movie
+        case .show: DownloadKindFilter.show
+        case .music: DownloadKindFilter.music
         }
     }
 

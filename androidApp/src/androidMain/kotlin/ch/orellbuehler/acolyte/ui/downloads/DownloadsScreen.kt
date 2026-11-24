@@ -79,6 +79,7 @@ import ch.orellbuehler.acolyte.feature.downloads.ClientNoteKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
+import ch.orellbuehler.acolyte.feature.downloads.DownloadKindFilter
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
@@ -87,7 +88,6 @@ import ch.orellbuehler.acolyte.feature.downloads.DownloadsNotice
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsSub
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
-import ch.orellbuehler.acolyte.feature.downloads.KindFilter
 import ch.orellbuehler.acolyte.feature.downloads.NetworkFilter
 import ch.orellbuehler.acolyte.feature.downloads.NoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.SortKey
@@ -546,8 +546,8 @@ private fun InlineEmpty(
             DownloadsEmptyKind.NO_KIND ->
                 stringResource(
                     when (f.kind) {
-                        KindFilter.SHOW -> R.string.downloads_empty_kind_show
-                        KindFilter.MUSIC -> R.string.downloads_empty_kind_music
+                        DownloadKindFilter.SHOW -> R.string.downloads_empty_kind_show
+                        DownloadKindFilter.MUSIC -> R.string.downloads_empty_kind_music
                         else -> R.string.downloads_empty_kind_movie
                     },
                 ) to null
@@ -856,10 +856,10 @@ private fun FiltersSheet(
             Text(stringResource(R.string.downloads_filters), style = MaterialTheme.typography.titleLarge)
             ChipGroup(stringResource(R.string.downloads_filter_library)) {
                 listOf(
-                    KindFilter.ALL to R.string.downloads_filter_everything,
-                    KindFilter.MOVIE to R.string.downloads_filter_movies,
-                    KindFilter.SHOW to R.string.downloads_filter_shows,
-                    KindFilter.MUSIC to R.string.downloads_filter_music,
+                    DownloadKindFilter.ALL to R.string.downloads_filter_everything,
+                    DownloadKindFilter.MOVIE to R.string.downloads_filter_movies,
+                    DownloadKindFilter.SHOW to R.string.downloads_filter_shows,
+                    DownloadKindFilter.MUSIC to R.string.downloads_filter_music,
                 ).forEach { (k, label) ->
                     FilterChip(selected = f.kind == k, onClick = { p.setKind(k) }, label = { Text(stringResource(label)) })
                 }

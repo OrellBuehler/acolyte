@@ -276,7 +276,6 @@ internal data class SearchBody(
     @SerialName("version_id") val versionId: Long? = null,
     @SerialName("album_id") val albumId: Long? = null,
     val choose: Boolean? = null,
-    @SerialName("album_id") val albumId: Long? = null,
 )
 
 @Serializable

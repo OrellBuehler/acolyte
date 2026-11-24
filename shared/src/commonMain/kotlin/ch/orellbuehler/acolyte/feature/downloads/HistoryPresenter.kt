@@ -312,7 +312,7 @@ class HistoryPresenter internal constructor(
         }
     }
 
-    private fun libraryLinkIfAllowed(line: LineKind): LibraryLink {
+    private fun libraryLinkIfAllowed(line: HistoryLineKind): LibraryLink {
         val link = HistoryRules.libraryLinkOf(line)
         val tool =
             when (link) {

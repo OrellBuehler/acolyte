@@ -10,7 +10,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToLong
 
-enum class Stage(
+enum class DownloadStage(
     val wire: String,
 ) {
     CHECKING("checking"),
@@ -26,29 +26,29 @@ enum class Stage(
 }
 
 enum class DownloadsSub(
-    internal val stages: Set<Stage>,
+    internal val stages: Set<DownloadStage>,
 ) {
-    QUEUED(setOf(Stage.QUEUED)),
-    PAUSED(setOf(Stage.PAUSED)),
-    DOWNLOADING(setOf(Stage.DOWNLOADING, Stage.STALLED)),
-    CHECKING(setOf(Stage.CHECKING)),
-    IMPORTING(setOf(Stage.IMPORTING)),
-    FAILED(setOf(Stage.FAILED)),
-    DECIDE(setOf(Stage.DECIDE)),
+    QUEUED(setOf(DownloadStage.QUEUED)),
+    PAUSED(setOf(DownloadStage.PAUSED)),
+    DOWNLOADING(setOf(DownloadStage.DOWNLOADING, DownloadStage.STALLED)),
+    CHECKING(setOf(DownloadStage.CHECKING)),
+    IMPORTING(setOf(DownloadStage.IMPORTING)),
+    FAILED(setOf(DownloadStage.FAILED)),
+    DECIDE(setOf(DownloadStage.DECIDE)),
 }
 
 enum class DownloadsTab(
-    internal val stages: Set<Stage>,
+    internal val stages: Set<DownloadStage>,
     val subs: List<DownloadsSub>,
 ) {
-    ALL(Stage.entries.toSet(), emptyList()),
-    WAITING(setOf(Stage.QUEUED, Stage.PAUSED), listOf(DownloadsSub.QUEUED, DownloadsSub.PAUSED)),
+    ALL(DownloadStage.entries.toSet(), emptyList()),
+    WAITING(setOf(DownloadStage.QUEUED, DownloadStage.PAUSED), listOf(DownloadsSub.QUEUED, DownloadsSub.PAUSED)),
     PROGRESS(
-        setOf(Stage.DOWNLOADING, Stage.STALLED, Stage.CHECKING, Stage.IMPORTING),
+        setOf(DownloadStage.DOWNLOADING, DownloadStage.STALLED, DownloadStage.CHECKING, DownloadStage.IMPORTING),
         listOf(DownloadsSub.DOWNLOADING, DownloadsSub.CHECKING, DownloadsSub.IMPORTING),
     ),
-    PROBLEMS(setOf(Stage.FAILED, Stage.DECIDE), listOf(DownloadsSub.FAILED, DownloadsSub.DECIDE)),
-    DONE(setOf(Stage.DONE, Stage.SEEDING), emptyList()),
+    PROBLEMS(setOf(DownloadStage.FAILED, DownloadStage.DECIDE), listOf(DownloadsSub.FAILED, DownloadsSub.DECIDE)),
+    DONE(setOf(DownloadStage.DONE, DownloadStage.SEEDING), emptyList()),
 }
 
 enum class StatusWord {
@@ -140,7 +140,7 @@ enum class BarTone {
     DONE,
 }
 
-enum class KindFilter(
+enum class DownloadKindFilter(
     val wire: String,
 ) {
     ALL(""),
@@ -252,23 +252,28 @@ object DownloadRules {
     private val TORRENT_KINDS = setOf("qbittorrent", "transmission", "deluge", "rtorrent", "aria2")
     private val NOT_FOUND = Regex("no such file or directory|cannot find the (file|path)", RegexOption.IGNORE_CASE)
 
-    fun stageOf(r: DownloadRow): Stage {
-        if (r.clientHint == "checking" || r.clientHint == "moving") return Stage.CHECKING
+    fun stageOf(r: DownloadRow): DownloadStage {
+        if (r.clientHint == "checking" || r.clientHint == "moving") return DownloadStage.CHECKING
         return when (r.phase) {
-            "waiting" -> Stage.QUEUED
-            "paused" -> Stage.PAUSED
-            "downloading" -> if (r.progress >= 1) Stage.IMPORTING else Stage.DOWNLOADING
-            "stalled" -> Stage.STALLED
-            "waiting_to_import", "importing" -> Stage.IMPORTING
-            "needs_a_decision" -> Stage.DECIDE
-            "failed", "vanished" -> if (r.replaced) Stage.DONE else Stage.FAILED
-            "import_refused" -> Stage.FAILED
-            "done" -> if (r.state == "seeding") Stage.SEEDING else Stage.DONE
-            else -> Stage.DONE
+            "waiting" -> DownloadStage.QUEUED
+            "paused" -> DownloadStage.PAUSED
+            "downloading" -> if (r.progress >= 1) DownloadStage.IMPORTING else DownloadStage.DOWNLOADING
+            "stalled" -> DownloadStage.STALLED
+            "waiting_to_import", "importing" -> DownloadStage.IMPORTING
+            "needs_a_decision" -> DownloadStage.DECIDE
+            "failed", "vanished" -> if (r.replaced) DownloadStage.DONE else DownloadStage.FAILED
+            "import_refused" -> DownloadStage.FAILED
+            "done" -> if (r.state == "seeding") DownloadStage.SEEDING else DownloadStage.DONE
+            else -> DownloadStage.DONE
         }
     }
 
-    fun inHistory(r: DownloadRow): Boolean = stageOf(r).let { it == Stage.DONE || it == Stage.SEEDING || it == Stage.FAILED }
+    fun inHistory(r: DownloadRow): Boolean =
+        stageOf(r).let {
+            it == DownloadStage.DONE ||
+                it == DownloadStage.SEEDING ||
+                it == DownloadStage.FAILED
+        }
 
     fun isNow(r: DownloadRow): Boolean = r.phase in NOW_PHASES
 
@@ -288,25 +293,25 @@ object DownloadRules {
     fun statusWord(r: DownloadRow): StatusWord {
         if (r.phase == "failed" || r.phase == "vanished") return StatusWord.FAILED
         val stage = stageOf(r)
-        if ((stage == Stage.DONE || stage == Stage.SEEDING) && partialPack(r)) return StatusWord.PACK_WAITING
+        if ((stage == DownloadStage.DONE || stage == DownloadStage.SEEDING) && partialPack(r)) return StatusWord.PACK_WAITING
         return when (stage) {
-            Stage.CHECKING -> if (r.clientHint == "moving") StatusWord.MOVING else StatusWord.CHECKING
-            Stage.QUEUED -> StatusWord.QUEUED
-            Stage.PAUSED -> StatusWord.PAUSED
-            Stage.DOWNLOADING -> StatusWord.DOWNLOADING
-            Stage.STALLED -> StatusWord.STALLED
-            Stage.IMPORTING -> StatusWord.IMPORTING
-            Stage.SEEDING -> StatusWord.SEEDING
-            Stage.DECIDE -> StatusWord.REVIEW
-            Stage.FAILED -> StatusWord.FAILED
-            Stage.DONE -> if (r.seeding) StatusWord.DONE_SEEDING else StatusWord.DONE
+            DownloadStage.CHECKING -> if (r.clientHint == "moving") StatusWord.MOVING else StatusWord.CHECKING
+            DownloadStage.QUEUED -> StatusWord.QUEUED
+            DownloadStage.PAUSED -> StatusWord.PAUSED
+            DownloadStage.DOWNLOADING -> StatusWord.DOWNLOADING
+            DownloadStage.STALLED -> StatusWord.STALLED
+            DownloadStage.IMPORTING -> StatusWord.IMPORTING
+            DownloadStage.SEEDING -> StatusWord.SEEDING
+            DownloadStage.DECIDE -> StatusWord.REVIEW
+            DownloadStage.FAILED -> StatusWord.FAILED
+            DownloadStage.DONE -> if (r.seeding) StatusWord.DONE_SEEDING else StatusWord.DONE
         }
     }
 
     fun problemOf(r: DownloadRow): RowProblem? {
         val stage = stageOf(r)
-        if (stage == Stage.DONE || stage == Stage.PAUSED) return null
-        val failed = stage == Stage.FAILED
+        if (stage == DownloadStage.DONE || stage == DownloadStage.PAUSED) return null
+        val failed = stage == DownloadStage.FAILED
         val protocol = protocolOf(r)
         if (protocol == "usenet") {
             val t = r.text
@@ -319,20 +324,20 @@ object DownloadRules {
             }
             if (r.clientHint == "repairing") return RowProblem(ProblemKind.REPAIRING, Tone.WAIT)
         }
-        if (r.phase == "import_refused" || stage == Stage.DECIDE) return RowProblem(ProblemKind.IMPORT_BLOCKED, Tone.FAIL)
+        if (r.phase == "import_refused" || stage == DownloadStage.DECIDE) return RowProblem(ProblemKind.IMPORT_BLOCKED, Tone.FAIL)
         if (r.trackerProblem == "error") return RowProblem(ProblemKind.TRACKER_ERROR, Tone.FAIL)
         if (r.trackerProblem == "announce") return RowProblem(ProblemKind.NO_TRACKER_REPLY, Tone.WAIT)
-        if (stage == Stage.STALLED &&
+        if (stage == DownloadStage.STALLED &&
             Regex("^every download on this downloader stopped", RegexOption.IGNORE_CASE).containsMatchIn(r.text)
         ) {
             return RowProblem(ProblemKind.DOWNLOADER_STOPPED, Tone.WAIT)
         }
-        val getting = (stage == Stage.DOWNLOADING || stage == Stage.STALLED) && !partialPack(r)
+        val getting = (stage == DownloadStage.DOWNLOADING || stage == DownloadStage.STALLED) && !partialPack(r)
         val availability = r.availability
         if (getting && availability != null && availability < 1) {
-            return RowProblem(ProblemKind.NO_FULL_COPY, if (stage == Stage.STALLED) Tone.FAIL else Tone.WAIT)
+            return RowProblem(ProblemKind.NO_FULL_COPY, if (stage == DownloadStage.STALLED) Tone.FAIL else Tone.WAIT)
         }
-        if (stage == Stage.STALLED && !partialPack(r) && protocol == "torrent" && r.seeds == 0 && r.peers == 0) {
+        if (stage == DownloadStage.STALLED && !partialPack(r) && protocol == "torrent" && r.seeds == 0 && r.peers == 0) {
             return RowProblem(ProblemKind.NO_PEERS, Tone.WAIT)
         }
         if (r.trackerProblem == "warning") return RowProblem(ProblemKind.TRACKER_WARNING, Tone.WAIT)
@@ -370,32 +375,32 @@ object DownloadRules {
         im: ImportRecord?,
     ): RowDetail? {
         val stage = stageOf(r)
-        if ((stage == Stage.DONE || stage == Stage.SEEDING || stage == Stage.DECIDE) &&
+        if ((stage == DownloadStage.DONE || stage == DownloadStage.SEEDING || stage == DownloadStage.DECIDE) &&
             filesGone(im)
         ) {
             return RowDetail(DetailKind.FILES_GONE)
         }
-        if (stage == Stage.IMPORTING) {
+        if (stage == DownloadStage.IMPORTING) {
             return when (r.phase) {
                 "downloading" -> RowDetail(DetailKind.UNPACKING)
                 "waiting_to_import" -> RowDetail(DetailKind.UP_NEXT)
                 else -> RowDetail(DetailKind.PLACING)
             }
         }
-        if (stage == Stage.FAILED || stage == Stage.DECIDE) {
+        if (stage == DownloadStage.FAILED || stage == DownloadStage.DECIDE) {
             failReason(im)?.let { return it }
             if (r.phase == "vanished") return RowDetail(DetailKind.REMOVED)
             if (r.phase == "import_refused") {
                 return if (r.refusedWhy.isNotBlank()) RowDetail(DetailKind.REFUSED, r.refusedWhy) else RowDetail(DetailKind.NO_MATCH)
             }
         }
-        if ((stage == Stage.DONE || stage == Stage.SEEDING) && r.cleanupWait.isNotEmpty()) {
+        if ((stage == DownloadStage.DONE || stage == DownloadStage.SEEDING) && r.cleanupWait.isNotEmpty()) {
             val eps = r.cleanupWait
             val shown = eps.take(4).joinToString(", ") + if (eps.size > 4) " +${eps.size - 4}" else ""
             return RowDetail(DetailKind.CLEANUP_HOLD, shown)
         }
         val ratio = r.ratio
-        if (stage == Stage.SEEDING && ratio != null) return RowDetail(DetailKind.RATIO, ratioText(ratio, 2))
+        if (stage == DownloadStage.SEEDING && ratio != null) return RowDetail(DetailKind.RATIO, ratioText(ratio, 2))
         return null
     }
 
@@ -423,19 +428,19 @@ object DownloadRules {
     }
 
     fun queueNote(r: DownloadRow): RowNote? {
-        if (stageOf(r) != Stage.QUEUED || r.queuePos <= 0) return null
+        if (stageOf(r) != DownloadStage.QUEUED || r.queuePos <= 0) return null
         return if (r.queuePos == 1) RowNote(NoteKind.NEXT_IN_LINE) else RowNote(NoteKind.IN_LINE, number = r.queuePos)
     }
 
     fun barTone(r: DownloadRow): BarTone =
         when (stageOf(r)) {
-            Stage.QUEUED -> BarTone.QUEUED
-            Stage.PAUSED, Stage.STALLED -> BarTone.HELD
-            Stage.DECIDE, Stage.FAILED -> BarTone.BAD
+            DownloadStage.QUEUED -> BarTone.QUEUED
+            DownloadStage.PAUSED, DownloadStage.STALLED -> BarTone.HELD
+            DownloadStage.DECIDE, DownloadStage.FAILED -> BarTone.BAD
             else -> BarTone.GO
         }
 
-    fun moving(r: DownloadRow): Boolean = r.active && r.speed > 0 && stageOf(r) == Stage.DOWNLOADING
+    fun moving(r: DownloadRow): Boolean = r.active && r.speed > 0 && stageOf(r) == DownloadStage.DOWNLOADING
 
     fun rowName(r: DownloadRow): String {
         if (r.title.isEmpty()) return r.name
@@ -542,7 +547,7 @@ object DownloadRules {
 
     fun tabCounts(
         rows: List<DownloadRow>,
-        extra: Map<Stage, Int>,
+        extra: Map<DownloadStage, Int>,
     ): List<TabCount> {
         val stages = rows.map { stageOf(it) }
         return DownloadsTab.entries.map { tab ->
@@ -553,7 +558,7 @@ object DownloadRules {
     fun subCounts(
         rows: List<DownloadRow>,
         tab: DownloadsTab,
-        extra: Map<Stage, Int>,
+        extra: Map<DownloadStage, Int>,
     ): List<SubCount> {
         val stages = rows.map { stageOf(it) }
         return tab.subs.map { sub -> SubCount(sub, stages.count { it in sub.stages } + sub.stages.sumOf { extra[it] ?: 0 }) }
@@ -571,12 +576,12 @@ object DownloadRules {
     fun restSum(
         rest: Map<String, RestOf>,
         protocol: String,
-    ): Map<Stage, Int> {
-        val out = mutableMapOf<Stage, Int>()
+    ): Map<DownloadStage, Int> {
+        val out = mutableMapOf<DownloadStage, Int>()
         for (entry in rest.values) {
             if (protocol.isNotEmpty() && entry.protocol != protocol) continue
             for ((name, n) in entry.stages) {
-                val stage = Stage.entries.firstOrNull { it.wire == name } ?: continue
+                val stage = DownloadStage.entries.firstOrNull { it.wire == name } ?: continue
                 out[stage] = (out[stage] ?: 0) + n
             }
         }

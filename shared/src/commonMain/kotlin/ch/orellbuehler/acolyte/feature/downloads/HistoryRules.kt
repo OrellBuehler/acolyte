@@ -143,7 +143,7 @@ data class DownloadStep(
     val state: StepState,
 )
 
-enum class LineKind {
+enum class HistoryLineKind {
     SUMMARY,
     REASON,
     ADDED_LIST,
@@ -194,7 +194,7 @@ enum class LineKind {
 }
 
 data class HistoryLine(
-    val kind: LineKind,
+    val kind: HistoryLineKind,
     val text: String = "",
     val number: Int = 0,
 )
@@ -274,11 +274,15 @@ data class HistoryDay(
 )
 
 object HistoryRules {
-    fun libraryLinkOf(line: LineKind): LibraryLink =
+    fun libraryLinkOf(line: HistoryLineKind): LibraryLink =
         when (line) {
-            LineKind.TURNED_DOWN -> LibraryLink.TURNED_DOWN
-            LineKind.HELD_BACK, LineKind.HELD_GONE -> LibraryLink.HELD
-            LineKind.BETTER, LineKind.FILE_BACK, LineKind.FILE_HELD, LineKind.HOLDING_CLEANED -> LibraryLink.DELETED
+            HistoryLineKind.TURNED_DOWN -> LibraryLink.TURNED_DOWN
+            HistoryLineKind.HELD_BACK, HistoryLineKind.HELD_GONE -> LibraryLink.HELD
+            HistoryLineKind.BETTER,
+            HistoryLineKind.FILE_BACK,
+            HistoryLineKind.FILE_HELD,
+            HistoryLineKind.HOLDING_CLEANED,
+            -> LibraryLink.DELETED
             else -> LibraryLink.NONE
         }
 
@@ -593,7 +597,7 @@ object HistoryRules {
         val reason = plainWhy(str(d, "reason"))
         val pct = (num(d, "progress") * 100).let { kotlin.math.round(it).toInt() }
         return when (e.kind) {
-            "gate_opened" -> HistoryLine(LineKind.OUT_NOW)
+            "gate_opened" -> HistoryLine(HistoryLineKind.OUT_NOW)
             "title_added" ->
                 when (str(d, "why_added")) {
                     "list" ->
@@ -602,78 +606,86 @@ object HistoryRules {
                                 "list_name",
                             ).isNotEmpty()
                         ) {
-                            HistoryLine(LineKind.ADDED_LIST, str(d, "list_name"))
+                            HistoryLine(HistoryLineKind.ADDED_LIST, str(d, "list_name"))
                         } else {
-                            HistoryLine(LineKind.ADDED_LIST)
+                            HistoryLine(HistoryLineKind.ADDED_LIST)
                         }
-                    "import" -> HistoryLine(LineKind.ADDED_IMPORT)
-                    "ask" -> HistoryLine(LineKind.ADDED_ASK, e.actorName)
-                    else -> if (e.actorName.isNotEmpty()) HistoryLine(LineKind.ADDED_BY, e.actorName) else summary(e)
+                    "import" -> HistoryLine(HistoryLineKind.ADDED_IMPORT)
+                    "ask" -> HistoryLine(HistoryLineKind.ADDED_ASK, e.actorName)
+                    else -> if (e.actorName.isNotEmpty()) HistoryLine(HistoryLineKind.ADDED_BY, e.actorName) else summary(e)
                 }
-            "list_synced" -> HistoryLine(LineKind.ADDED_LIST)
-            "title_removed" -> HistoryLine(if (bool(d, "delete_files")) LineKind.REMOVED_DELETED else LineKind.REMOVED_KEPT)
-            "title_refreshed" -> HistoryLine(LineKind.CHECKED_DETAILS)
-            "renamed" -> HistoryLine(LineKind.RENAMED)
-            "rename_planned" -> HistoryLine(LineKind.RENAME_READY)
-            "search_done" -> HistoryLine(LineKind.LOOKED)
-            "search_failed" -> HistoryLine(LineKind.SEARCH_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
-            "feed_checked" -> HistoryLine(LineKind.FEEDS)
-            "release_turned_down" -> HistoryLine(LineKind.TURNED_DOWN, reason)
-            "turned_down_removed" -> HistoryLine(LineKind.UNBLOCKED)
-            "release_held" -> HistoryLine(LineKind.HELD_BACK, reason)
-            "held_removed" -> HistoryLine(LineKind.HELD_GONE)
-            "download_queued" -> HistoryLine(LineKind.WAITING)
+            "list_synced" -> HistoryLine(HistoryLineKind.ADDED_LIST)
+            "title_removed" -> HistoryLine(if (bool(d, "delete_files")) HistoryLineKind.REMOVED_DELETED else HistoryLineKind.REMOVED_KEPT)
+            "title_refreshed" -> HistoryLine(HistoryLineKind.CHECKED_DETAILS)
+            "renamed" -> HistoryLine(HistoryLineKind.RENAMED)
+            "rename_planned" -> HistoryLine(HistoryLineKind.RENAME_READY)
+            "search_done" -> HistoryLine(HistoryLineKind.LOOKED)
+            "search_failed" -> HistoryLine(HistoryLineKind.SEARCH_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
+            "feed_checked" -> HistoryLine(HistoryLineKind.FEEDS)
+            "release_turned_down" -> HistoryLine(HistoryLineKind.TURNED_DOWN, reason)
+            "turned_down_removed" -> HistoryLine(HistoryLineKind.UNBLOCKED)
+            "release_held" -> HistoryLine(HistoryLineKind.HELD_BACK, reason)
+            "held_removed" -> HistoryLine(HistoryLineKind.HELD_GONE)
+            "download_queued" -> HistoryLine(HistoryLineKind.WAITING)
             "download_downloading" ->
                 if (pct >
                     0
                 ) {
-                    HistoryLine(LineKind.DOWNLOADING_PCT, number = pct)
+                    HistoryLine(HistoryLineKind.DOWNLOADING_PCT, number = pct)
                 } else {
-                    HistoryLine(LineKind.DOWNLOADING)
+                    HistoryLine(HistoryLineKind.DOWNLOADING)
                 }
-            "download_stalled" -> HistoryLine(LineKind.STALLED, reason)
-            "download_paused" -> if (pct > 0) HistoryLine(LineKind.PAUSED_AT, number = pct) else HistoryLine(LineKind.PAUSED)
-            "download_seeding" -> HistoryLine(LineKind.SHARING)
+            "download_stalled" -> HistoryLine(HistoryLineKind.STALLED, reason)
+            "download_paused" -> if (pct > 0) HistoryLine(HistoryLineKind.PAUSED_AT, number = pct) else HistoryLine(HistoryLineKind.PAUSED)
+            "download_seeding" -> HistoryLine(HistoryLineKind.SHARING)
             "download_removed" ->
                 when {
-                    bool(d, "moved_out") -> HistoryLine(LineKind.MOVED_OUT)
-                    bool(d, "outside") -> HistoryLine(LineKind.REMOVED_OUTSIDE)
-                    bool(d, "delete_files") -> HistoryLine(LineKind.REMOVED_DL_FILES)
-                    else -> HistoryLine(LineKind.REMOVED_DL)
+                    bool(d, "moved_out") -> HistoryLine(HistoryLineKind.MOVED_OUT)
+                    bool(d, "outside") -> HistoryLine(HistoryLineKind.REMOVED_OUTSIDE)
+                    bool(d, "delete_files") -> HistoryLine(HistoryLineKind.REMOVED_DL_FILES)
+                    else -> HistoryLine(HistoryLineKind.REMOVED_DL)
                 }
-            "download_failed" -> if (reason.isNotEmpty()) HistoryLine(LineKind.REASON, reason) else HistoryLine(LineKind.DL_FAILED)
-            "download_vanished" -> HistoryLine(LineKind.REMOVED_OUTSIDE)
-            "download_not_removed" -> HistoryLine(LineKind.NOT_REMOVED)
-            "download_not_moved" -> HistoryLine(LineKind.NOT_MOVED)
-            "import_partly_done" -> HistoryLine(LineKind.PARTLY)
-            "import_failed", "import_rejected" ->
+            "download_failed" ->
                 if (reason.isNotEmpty()) {
                     HistoryLine(
-                        LineKind.REASON,
+                        HistoryLineKind.REASON,
                         reason,
                     )
                 } else {
-                    HistoryLine(LineKind.NOTHING_PLACED)
+                    HistoryLine(HistoryLineKind.DL_FAILED)
                 }
-            "file_replaced" -> HistoryLine(LineKind.BETTER)
-            "file_back" -> HistoryLine(LineKind.FILE_BACK)
-            "file_held" -> HistoryLine(LineKind.FILE_HELD)
-            "file_hold_failed" -> HistoryLine(LineKind.HOLD_FAILED)
-            "holding_cleaned" -> HistoryLine(LineKind.HOLDING_CLEANED)
-            "free_space_low" -> HistoryLine(LineKind.LOW_SPACE, plainWhy(str(d, "reason").ifEmpty { str(d, "message") }))
-            "needs_decision" -> if (reason.isNotEmpty()) HistoryLine(LineKind.REASON, reason) else summary(e)
-            "stopped_looking" -> HistoryLine(LineKind.STOPPED_LOOKING, reason)
-            "health_recovered" -> HistoryLine(LineKind.WORKING_AGAIN, str(d, "subject"))
-            "media_server_told" -> HistoryLine(LineKind.MEDIA_TOLD)
-            "media_server_failed" -> HistoryLine(LineKind.MEDIA_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
-            "alert_failed" -> HistoryLine(LineKind.ALERT_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
-            "report_made", "report_reopened" -> HistoryLine(LineKind.REPORT, str(d, "note"))
-            "report_fixed" -> HistoryLine(LineKind.REPORT, str(d, "reply"))
+            "download_vanished" -> HistoryLine(HistoryLineKind.REMOVED_OUTSIDE)
+            "download_not_removed" -> HistoryLine(HistoryLineKind.NOT_REMOVED)
+            "download_not_moved" -> HistoryLine(HistoryLineKind.NOT_MOVED)
+            "import_partly_done" -> HistoryLine(HistoryLineKind.PARTLY)
+            "import_failed", "import_rejected" ->
+                if (reason.isNotEmpty()) {
+                    HistoryLine(
+                        HistoryLineKind.REASON,
+                        reason,
+                    )
+                } else {
+                    HistoryLine(HistoryLineKind.NOTHING_PLACED)
+                }
+            "file_replaced" -> HistoryLine(HistoryLineKind.BETTER)
+            "file_back" -> HistoryLine(HistoryLineKind.FILE_BACK)
+            "file_held" -> HistoryLine(HistoryLineKind.FILE_HELD)
+            "file_hold_failed" -> HistoryLine(HistoryLineKind.HOLD_FAILED)
+            "holding_cleaned" -> HistoryLine(HistoryLineKind.HOLDING_CLEANED)
+            "free_space_low" -> HistoryLine(HistoryLineKind.LOW_SPACE, plainWhy(str(d, "reason").ifEmpty { str(d, "message") }))
+            "needs_decision" -> if (reason.isNotEmpty()) HistoryLine(HistoryLineKind.REASON, reason) else summary(e)
+            "stopped_looking" -> HistoryLine(HistoryLineKind.STOPPED_LOOKING, reason)
+            "health_recovered" -> HistoryLine(HistoryLineKind.WORKING_AGAIN, str(d, "subject"))
+            "media_server_told" -> HistoryLine(HistoryLineKind.MEDIA_TOLD)
+            "media_server_failed" -> HistoryLine(HistoryLineKind.MEDIA_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
+            "alert_failed" -> HistoryLine(HistoryLineKind.ALERT_FAILED, plainWhy(str(d, "reason").ifEmpty { str(d, "error") }))
+            "report_made", "report_reopened" -> HistoryLine(HistoryLineKind.REPORT, str(d, "note"))
+            "report_fixed" -> HistoryLine(HistoryLineKind.REPORT, str(d, "reply"))
             else -> summary(e)
         }
     }
 
-    private fun summary(e: EventRecord): HistoryLine = HistoryLine(LineKind.SUMMARY, withoutTitle(e.summary, e.titleName))
+    private fun summary(e: EventRecord): HistoryLine = HistoryLine(HistoryLineKind.SUMMARY, withoutTitle(e.summary, e.titleName))
 
     fun withoutTitle(
         summary: String,

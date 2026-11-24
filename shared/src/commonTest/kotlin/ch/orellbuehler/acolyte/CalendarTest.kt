@@ -180,7 +180,7 @@ class CalendarTest {
             val server = FakeServer()
             server.json("GET", "/api/v1/calendar", answer)
             server.json("GET", "/api/v1/titles", """{"titles":[]}""")
-            val presenter = CalendarPresenter(server.api(), { testAccount() }, clock, zurich)
+            val presenter = CalendarPresenter(server.api(), { downloadsAccount() }, clock, zurich)
             presenter.load()
             val state = presenter.state.value
             assertEquals(Phase.READY, state.status.phase)
@@ -216,7 +216,7 @@ class CalendarTest {
             server.json("PUT", "/api/v1/titles/5/follow", """{"title_id":5,"following":false}""")
             server.json("DELETE", "/api/v1/titles/5/follow", """{"title_id":5,"following":false}""")
             server.json("POST", "/api/v1/titles/5/search", """{"job_ids":[8]}""", 202)
-            val presenter = CalendarPresenter(server.api(), { testAccount() }, clock, zurich)
+            val presenter = CalendarPresenter(server.api(), { downloadsAccount() }, clock, zurich)
             presenter.load()
             val lost =
                 presenter.state.value.days[0]

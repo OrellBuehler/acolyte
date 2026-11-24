@@ -10,12 +10,12 @@ import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadBadges
+import ch.orellbuehler.acolyte.feature.downloads.DownloadKindFilter
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsBadgeKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsEmptyKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsPresenter
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsSub
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
-import ch.orellbuehler.acolyte.feature.downloads.KindFilter
 import ch.orellbuehler.acolyte.feature.downloads.NoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.StatusWord
 import ch.orellbuehler.acolyte.live.LiveEvent
@@ -49,7 +49,7 @@ internal suspend fun TestScope.eventually(check: () -> Boolean) {
     assertTrue(check())
 }
 
-internal fun testAccount(
+internal fun downloadsAccount(
     role: String = "owner",
     perms: List<String> = listOf("ask", "approve", "manage_library", "settings"),
     id: Long = 1,
@@ -111,7 +111,7 @@ class DownloadsPresenterTest {
         val status: MutableStateFlow<LiveStatus>,
     )
 
-    private fun setup(account: Account = testAccount()): Setup {
+    private fun setup(account: Account = downloadsAccount()): Setup {
         val server = FakeServer()
         server.downloadRoutes()
         val live = MutableSharedFlow<LiveEvent>(extraBufferCapacity = 16)
@@ -183,7 +183,7 @@ class DownloadsPresenterTest {
                     ?.kind,
             )
             s.presenter.setQuery("")
-            s.presenter.setKind(KindFilter.SHOW)
+            s.presenter.setKind(DownloadKindFilter.SHOW)
             assertEquals(
                 listOf("d11", "s71"),
                 s.presenter.state.value.items
@@ -200,7 +200,7 @@ class DownloadsPresenterTest {
     @Test
     fun watchersSeeNoActions() =
         runTest {
-            val s = setup(testAccount(role = "member", perms = listOf("ask")))
+            val s = setup(downloadsAccount(role = "member", perms = listOf("ask")))
             s.presenter.load()
             val state = s.presenter.state.value
             assertFalse(state.manager)
@@ -285,7 +285,7 @@ class DownloadsPresenterTest {
     @Test
     fun keepsOutsideTorrentsWithoutSettings() =
         runTest {
-            val s = setup(testAccount(role = "admin", perms = listOf("manage_library")))
+            val s = setup(downloadsAccount(role = "admin", perms = listOf("manage_library")))
             s.presenter.load()
             val plan = assertNotNull(s.presenter.removePlan(listOf("d12", "c2:bbb")))
             assertEquals(listOf("d12"), plan.keys)

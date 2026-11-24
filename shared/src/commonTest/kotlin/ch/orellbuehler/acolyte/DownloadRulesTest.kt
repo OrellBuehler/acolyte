@@ -14,6 +14,7 @@ import ch.orellbuehler.acolyte.feature.downloads.DetailKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
+import ch.orellbuehler.acolyte.feature.downloads.DownloadStage
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsSub
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
 import ch.orellbuehler.acolyte.feature.downloads.Month
@@ -21,7 +22,6 @@ import ch.orellbuehler.acolyte.feature.downloads.NoteKind
 import ch.orellbuehler.acolyte.feature.downloads.ProblemKind
 import ch.orellbuehler.acolyte.feature.downloads.SortKey
 import ch.orellbuehler.acolyte.feature.downloads.SortOrder
-import ch.orellbuehler.acolyte.feature.downloads.Stage
 import ch.orellbuehler.acolyte.feature.downloads.StatusWord
 import ch.orellbuehler.acolyte.feature.downloads.SubLineKind
 import kotlin.test.Test
@@ -40,20 +40,20 @@ class DownloadRulesTest {
 
     @Test
     fun placesRowsOnStages() {
-        assertEquals(Stage.CHECKING, DownloadRules.stageOf(row("downloading", hint = "moving")))
-        assertEquals(Stage.QUEUED, DownloadRules.stageOf(row("waiting")))
-        assertEquals(Stage.PAUSED, DownloadRules.stageOf(row("paused")))
-        assertEquals(Stage.DOWNLOADING, DownloadRules.stageOf(row("downloading", progress = 0.4)))
-        assertEquals(Stage.IMPORTING, DownloadRules.stageOf(row("downloading", progress = 1.0)))
-        assertEquals(Stage.STALLED, DownloadRules.stageOf(row("stalled")))
-        assertEquals(Stage.IMPORTING, DownloadRules.stageOf(row("waiting_to_import")))
-        assertEquals(Stage.DECIDE, DownloadRules.stageOf(row("needs_a_decision")))
-        assertEquals(Stage.FAILED, DownloadRules.stageOf(row("vanished")))
-        assertEquals(Stage.DONE, DownloadRules.stageOf(row("failed").copy(replaced = true)))
-        assertEquals(Stage.FAILED, DownloadRules.stageOf(row("import_refused")))
-        assertEquals(Stage.SEEDING, DownloadRules.stageOf(row("done", state = "seeding")))
-        assertEquals(Stage.DONE, DownloadRules.stageOf(row("done", state = "finished")))
-        assertEquals(Stage.DONE, DownloadRules.stageOf(row("something_new")))
+        assertEquals(DownloadStage.CHECKING, DownloadRules.stageOf(row("downloading", hint = "moving")))
+        assertEquals(DownloadStage.QUEUED, DownloadRules.stageOf(row("waiting")))
+        assertEquals(DownloadStage.PAUSED, DownloadRules.stageOf(row("paused")))
+        assertEquals(DownloadStage.DOWNLOADING, DownloadRules.stageOf(row("downloading", progress = 0.4)))
+        assertEquals(DownloadStage.IMPORTING, DownloadRules.stageOf(row("downloading", progress = 1.0)))
+        assertEquals(DownloadStage.STALLED, DownloadRules.stageOf(row("stalled")))
+        assertEquals(DownloadStage.IMPORTING, DownloadRules.stageOf(row("waiting_to_import")))
+        assertEquals(DownloadStage.DECIDE, DownloadRules.stageOf(row("needs_a_decision")))
+        assertEquals(DownloadStage.FAILED, DownloadRules.stageOf(row("vanished")))
+        assertEquals(DownloadStage.DONE, DownloadRules.stageOf(row("failed").copy(replaced = true)))
+        assertEquals(DownloadStage.FAILED, DownloadRules.stageOf(row("import_refused")))
+        assertEquals(DownloadStage.SEEDING, DownloadRules.stageOf(row("done", state = "seeding")))
+        assertEquals(DownloadStage.DONE, DownloadRules.stageOf(row("done", state = "finished")))
+        assertEquals(DownloadStage.DONE, DownloadRules.stageOf(row("something_new")))
         assertTrue(DownloadRules.inHistory(row("import_refused")))
         assertFalse(DownloadRules.inHistory(row("stalled")))
     }
@@ -133,7 +133,7 @@ class DownloadRulesTest {
     fun countsAndPicksTabs() {
         val rows =
             listOf(row("waiting"), row("paused"), row("downloading"), row("stalled"), row("failed"), row("needs_a_decision"), row("done"))
-        val counts = DownloadRules.tabCounts(rows, mapOf(Stage.SEEDING to 4)).associate { it.tab to it.count }
+        val counts = DownloadRules.tabCounts(rows, mapOf(DownloadStage.SEEDING to 4)).associate { it.tab to it.count }
         assertEquals(11, counts[DownloadsTab.ALL])
         assertEquals(2, counts[DownloadsTab.WAITING])
         assertEquals(2, counts[DownloadsTab.PROGRESS])
@@ -145,8 +145,8 @@ class DownloadRulesTest {
         val subs = DownloadRules.subCounts(rows, DownloadsTab.WAITING, emptyMap()).associate { it.sub to it.count }
         assertEquals(mapOf(DownloadsSub.QUEUED to 1, DownloadsSub.PAUSED to 1), subs)
         val rest = mapOf("3" to RestOf("torrent", mapOf("seeding" to 4, "queued" to 1)), "4" to RestOf("usenet", mapOf("queued" to 2)))
-        assertEquals(mapOf(Stage.QUEUED to 3, Stage.SEEDING to 4), DownloadRules.restSum(rest, ""))
-        assertEquals(mapOf(Stage.QUEUED to 2), DownloadRules.restSum(rest, "usenet"))
+        assertEquals(mapOf(DownloadStage.QUEUED to 3, DownloadStage.SEEDING to 4), DownloadRules.restSum(rest, ""))
+        assertEquals(mapOf(DownloadStage.QUEUED to 2), DownloadRules.restSum(rest, "usenet"))
     }
 
     @Test
