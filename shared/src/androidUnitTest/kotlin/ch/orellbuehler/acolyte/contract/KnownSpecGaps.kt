@@ -217,6 +217,8 @@ internal object KnownSpecGaps {
             "GET /api/v1/events: query parameter 'source' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go filters by Source id",
+            "POST /api/v1/pick-rules/{id}/trash: sends a body but the spec takes none" to
+                "downloads/routes_trash.go decodes {app, profile_id}; the spec has no request body",
             "GET /api/v1/trash/profiles: query parameter 'app' is not in the spec (it has [])" to
                 "the handler needs app=sonarr|radarr (400 without it); the spec lists no parameters",
             "GET /api/v1/events: query parameter 'feed' is not in the spec " +

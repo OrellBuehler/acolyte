@@ -62,6 +62,8 @@ data class SettingsTrashState(
     val result: SettingsTrashResult? = null,
 ) {
     val choice: SettingsTrashProfile? get() = profiles.firstOrNull { it.id == pick }
+
+    val choiceNote: String get() = choice?.description.orEmpty()
 }
 
 data class SettingsPickRuleEditState(
