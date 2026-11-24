@@ -121,6 +121,7 @@ struct TVSectionScreen: View {
         case .requests: TVRequestsView(account: account)
         case .calendar: TVCalendarView(account: account)
         case .downloads: TVDownloadsView(account: account)
+        case .popular: TVPopularView(account: account)
         case .settings: TVSettingsView(account: account)
         default: TVOpenOnPhoneView(what: section.title)
         }
@@ -136,6 +137,14 @@ struct TVRouteScreen: View {
             TVTitleView(kind: kind, tmdb: tmdb, libraryId: 0)
         case let .libraryTitle(id, kind, tmdb), let .libraryTab(id, kind, tmdb):
             TVTitleView(kind: kind, tmdb: tmdb, libraryId: id)
+        case let .person(id):
+            TVPersonView(id: id)
+        case let .collection(id):
+            TVCollectionView(id: id)
+        case let .genre(type, genre):
+            TVGenreView(type: type, genre: genre)
+        case let .browse(link):
+            TVBrowseListView(link: link)
         default:
             TVOpenOnPhoneView(what: TVRouteName.title(route))
         }
