@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,6 +68,7 @@ import ch.orellbuehler.acolyte.AcolyteSdk
 import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.feature.downloads.Days
 import ch.orellbuehler.acolyte.feature.downloads.DownloadStepKey
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.HistoryFactKind
 import ch.orellbuehler.acolyte.feature.downloads.HistoryFilter
 import ch.orellbuehler.acolyte.feature.downloads.HistoryItem
@@ -79,9 +82,9 @@ import ch.orellbuehler.acolyte.feature.downloads.HistoryVerb
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWhen
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWho
 import ch.orellbuehler.acolyte.feature.downloads.HistoryWhoFilter
+import ch.orellbuehler.acolyte.feature.downloads.LibraryLink
 import ch.orellbuehler.acolyte.feature.downloads.LineKind
 import ch.orellbuehler.acolyte.feature.downloads.StepState
-import ch.orellbuehler.acolyte.feature.downloads.TitleLink
 import ch.orellbuehler.acolyte.feature.downloads.WhoKind
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
@@ -92,6 +95,8 @@ import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.components.errorText
 import ch.orellbuehler.acolyte.ui.components.relativeTime
+import ch.orellbuehler.acolyte.ui.nav.LibraryDeletedRoute
+import ch.orellbuehler.acolyte.ui.nav.LibraryReleasesRoute
 import ch.orellbuehler.acolyte.ui.theme.Radius
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
@@ -134,7 +139,7 @@ class HistoryViewModel(
 
     fun openTitle(
         titleId: Long,
-        open: (TitleLink) -> Unit,
+        open: (DownloadTitleLink) -> Unit,
     ) {
         viewModelScope.launch { presenter.titleLink(titleId)?.let(open) }
     }
@@ -148,8 +153,9 @@ fun HistoryScreen(
     titleId: Long,
     episodeId: Long,
     onBack: (() -> Unit)?,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
     onOpenDownload: (String) -> Unit,
+    onOpenRoute: (Any) -> Unit,
 ) {
     val sdk = LocalSdk.current
     val viewModel = viewModel(key = "history-$titleId-$episodeId") { HistoryViewModel(sdk, titleId, episodeId) }
@@ -227,7 +233,7 @@ fun HistoryScreen(
         if (item == null) {
             LaunchedEffect(key) { openKey = null }
         } else {
-            HistorySheet(item, state, viewModel, onOpenTitle, onOpenDownload) { openKey = null }
+            HistorySheet(item, state, viewModel, onOpenTitle, onOpenDownload, onOpenRoute) { openKey = null }
         }
     }
 }
@@ -528,14 +534,15 @@ private fun HistoryFactKind.label(): Int =
         HistoryFactKind.ALBUM -> R.string.downloads_history_fact_album
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun HistorySheet(
     item: HistoryItem,
     state: HistoryState,
     viewModel: HistoryViewModel,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
     onOpenDownload: (String) -> Unit,
+    onOpenRoute: (Any) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var confirm by remember { mutableStateOf(false) }
@@ -605,7 +612,10 @@ private fun HistorySheet(
                     }
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Spacing.Small),
+                verticalArrangement = Arrangement.spacedBy(Spacing.Small),
+            ) {
                 item.redo?.let { redo ->
                     Button(onClick = { confirm = true }, enabled = item.key !in state.busy) {
                         Text(
@@ -630,6 +640,21 @@ private fun HistorySheet(
                     OutlinedButton(
                         onClick = { onOpenDownload("d${item.downloadId}") },
                     ) { Text(stringResource(R.string.downloads_history_open_downloads)) }
+                }
+                when (item.libraryLink) {
+                    LibraryLink.TURNED_DOWN ->
+                        OutlinedButton(onClick = { onOpenRoute(LibraryReleasesRoute(turnedDown = true)) }) {
+                            Text(stringResource(R.string.downloads_history_open_turned_down))
+                        }
+                    LibraryLink.HELD ->
+                        OutlinedButton(onClick = { onOpenRoute(LibraryReleasesRoute(turnedDown = false)) }) {
+                            Text(stringResource(R.string.downloads_history_open_held))
+                        }
+                    LibraryLink.DELETED ->
+                        OutlinedButton(onClick = { onOpenRoute(LibraryDeletedRoute(item.head.titleId)) }) {
+                            Text(stringResource(R.string.downloads_history_open_deleted))
+                        }
+                    LibraryLink.NONE -> Unit
                 }
             }
         }

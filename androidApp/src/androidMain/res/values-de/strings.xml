@@ -3218,7 +3218,8 @@
     <string name="downloads_decide_has_copy">Eine Kopie ist schon in der Mediathek.</string>
     <string name="downloads_decide_release">Release: %1$s</string>
     <string name="downloads_decide_hint_path">Richte zuerst den Download-Ordner ein: ein Pfadpaar unter Einstellungen > Downloader oder HOLYARRS_SAVE_PATH. Dann erneut importieren.</string>
-    <string name="downloads_decide_hint_match">Um die Dateien von Hand zuzuordnen, nutze Mediathek > Dateien importieren in der HolyArrs-Web-App.</string>
+    <string name="downloads_decide_hint_match">Um die Dateien von Hand zuzuordnen, nutze Mediathek-Werkzeuge > Dateien von Hand importieren.</string>
+    <string name="downloads_decide_import_files">Dateien von Hand importieren</string>
     <string name="downloads_decide_edition_label">Edition, z. B. Kinofassung</string>
     <string name="downloads_decide_edition_save">Speichern und erneut versuchen</string>
     <string name="downloads_decide_import_confirm">%1$s als %2$s importieren?</string>
@@ -3413,6 +3414,9 @@
     <string name="downloads_history_redo_confirm">Dieses Release blockieren und erneut suchen?</string>
     <string name="downloads_history_redo_button">Blockieren und suchen</string>
     <string name="downloads_history_open_downloads">In Downloads öffnen</string>
+    <string name="downloads_history_open_turned_down">Abgelehnte Releases</string>
+    <string name="downloads_history_open_held">Zurückgehaltene Releases</string>
+    <string name="downloads_history_open_deleted">Kürzlich gelöscht</string>
     <string name="downloads_history_replacing">Release abgelehnt · wird erneut gesucht</string>
     <string name="downloads_history_no_release">Release nicht gefunden</string>
     <string name="downloads_history_copy">Kopieren</string>

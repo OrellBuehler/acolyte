@@ -76,12 +76,12 @@ import ch.orellbuehler.acolyte.feature.downloads.CalendarRules
 import ch.orellbuehler.acolyte.feature.downloads.CalendarState
 import ch.orellbuehler.acolyte.feature.downloads.CalendarType
 import ch.orellbuehler.acolyte.feature.downloads.Day
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.EntryDot
 import ch.orellbuehler.acolyte.feature.downloads.EntryTag
 import ch.orellbuehler.acolyte.feature.downloads.EntryWhen
 import ch.orellbuehler.acolyte.feature.downloads.EpisodeSpan
 import ch.orellbuehler.acolyte.feature.downloads.MovieDateKind
-import ch.orellbuehler.acolyte.feature.downloads.TitleLink
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
@@ -155,7 +155,7 @@ class CalendarViewModel(
 @Composable
 fun CalendarScreen(
     onBack: (() -> Unit)?,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
 ) {
     val sdk = LocalSdk.current
     val viewModel = viewModel { CalendarViewModel(sdk) }
@@ -539,7 +539,7 @@ private fun EntrySheet(
     g: CalendarGroup,
     state: CalendarState,
     viewModel: CalendarViewModel,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var texts by remember(g.key) { mutableStateOf<Map<String, String>>(emptyMap()) }

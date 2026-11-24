@@ -69,17 +69,20 @@ import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailState
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
 import ch.orellbuehler.acolyte.feature.downloads.FactKind
 import ch.orellbuehler.acolyte.feature.downloads.InfoFact
 import ch.orellbuehler.acolyte.feature.downloads.InfoGroupKind
 import ch.orellbuehler.acolyte.feature.downloads.ReasonLine
 import ch.orellbuehler.acolyte.feature.downloads.ReasonLineKind
-import ch.orellbuehler.acolyte.feature.downloads.TitleLink
 import ch.orellbuehler.acolyte.feature.downloads.WhyKind
 import ch.orellbuehler.acolyte.feature.downloads.groupDecisions
+import ch.orellbuehler.acolyte.nav.LibraryTool
+import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.components.relativeTime
+import ch.orellbuehler.acolyte.ui.nav.LibraryImportFilesRoute
 import ch.orellbuehler.acolyte.ui.theme.Radius
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
@@ -97,7 +100,8 @@ internal fun DownloadDetailSheet(
     viewModel: DownloadsViewModel,
     onDismiss: () -> Unit,
     onAction: (DownloadAction) -> Unit,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
+    onOpenRoute: (Any) -> Unit,
 ) {
     val presenter = remember(item.key) { viewModel.detail(item.row) }
     val state by presenter.state.collectAsStateWithLifecycle()
@@ -191,7 +195,7 @@ internal fun DownloadDetailSheet(
                     }
                 }
             }
-            if (item.decisions.isNotEmpty()) DecisionPanel(item.decisions, list, viewModel, onOpenTitle)
+            if (item.decisions.isNotEmpty()) DecisionPanel(item.decisions, list, viewModel, onOpenTitle, onOpenRoute)
             DetailTabs(state, presenter) { password, code ->
                 val ok = viewModel.reauth(password, code)
                 if (ok) presenter.clearActionError()
@@ -742,7 +746,8 @@ private fun DecisionPanel(
     decisions: List<Decision>,
     list: DownloadsState,
     viewModel: DownloadsViewModel,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
+    onOpenRoute: (Any) -> Unit,
 ) {
     var confirm by remember { mutableStateOf<DecisionConfirm?>(null) }
     val groups = remember(decisions) { groupDecisions(decisions) }
@@ -751,7 +756,7 @@ private fun DecisionPanel(
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.acolyte.failText,
     )
-    groups.forEach { group -> DecisionCard(group, list, viewModel, onOpenTitle) { confirm = it } }
+    groups.forEach { group -> DecisionCard(group, list, viewModel, onOpenTitle, onOpenRoute) { confirm = it } }
     when (val c = confirm) {
         null -> Unit
         is DecisionConfirm.ImportFile -> {
@@ -821,7 +826,8 @@ private fun DecisionCard(
     group: DecisionGroup,
     list: DownloadsState,
     viewModel: DownloadsViewModel,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
+    onOpenRoute: (Any) -> Unit,
     onConfirm: (DecisionConfirm) -> Unit,
 ) {
     val d = group.lead
@@ -839,7 +845,8 @@ private fun DecisionCard(
             DecisionStep.IMPORT_AGAIN -> viewModel.importAgain(d)
             DecisionStep.IMPORT_FILE -> onConfirm(DecisionConfirm.ImportFile(d))
             DecisionStep.SET_EDITION -> editing = true
-            DecisionStep.OPEN_VERSIONS, DecisionStep.OPEN_RELEASES -> viewModel.openTitle(d.titleId, onOpenTitle)
+            DecisionStep.OPEN_VERSIONS, DecisionStep.OPEN_RELEASES ->
+                viewModel.openTitle(d.titleId) { onOpenTitle(it.copy(openLibrary = true)) }
         }
     }
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
@@ -880,12 +887,18 @@ private fun DecisionCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.acolyte.waitText,
                     )
-                DecisionHint.MATCH_BY_HAND ->
+                DecisionHint.MATCH_BY_HAND -> {
                     Text(
                         stringResource(R.string.downloads_decide_hint_match),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.acolyte.waitText,
                     )
+                    if (LibraryTool.IMPORT_FILES in LocalSdk.current.libraryTools()) {
+                        OutlinedButton(onClick = { onOpenRoute(LibraryImportFilesRoute()) }) {
+                            Text(stringResource(R.string.downloads_decide_import_files))
+                        }
+                    }
+                }
                 DecisionHint.NONE -> Unit
             }
             if (editing) {

@@ -3220,7 +3220,8 @@
     <string name="downloads_decide_has_copy">A copy is already in the Library.</string>
     <string name="downloads_decide_release">Release: %1$s</string>
     <string name="downloads_decide_hint_path">Set up the download folder first: a path pair in Settings > Downloaders, or HOLYARRS_SAVE_PATH. Then import again.</string>
-    <string name="downloads_decide_hint_match">To match the files by hand, use Library > Import files in the HolyArrs web app.</string>
+    <string name="downloads_decide_hint_match">To match the files by hand, use Library tools > Import files by hand.</string>
+    <string name="downloads_decide_import_files">Import files by hand</string>
     <string name="downloads_decide_edition_label">Edition, e.g. Theatrical</string>
     <string name="downloads_decide_edition_save">Save and try again</string>
     <string name="downloads_decide_import_confirm">Import %1$s as %2$s?</string>
@@ -3415,6 +3416,9 @@
     <string name="downloads_history_redo_confirm">Block this release and search again?</string>
     <string name="downloads_history_redo_button">Block and search</string>
     <string name="downloads_history_open_downloads">Open in Downloads</string>
+    <string name="downloads_history_open_turned_down">Turned-down releases</string>
+    <string name="downloads_history_open_held">Held releases</string>
+    <string name="downloads_history_open_deleted">Recently deleted</string>
     <string name="downloads_history_replacing">Release turned down · searching again</string>
     <string name="downloads_history_no_release">Release not found</string>
     <string name="downloads_history_copy">Copy</string>

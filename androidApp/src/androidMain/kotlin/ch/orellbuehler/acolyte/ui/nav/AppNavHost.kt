@@ -75,11 +75,12 @@ fun AppNavHost(
                 show = "",
                 open = "",
                 onBack = back(Section.DOWNLOADS),
-                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenTitle = { nav.navigate(Routes.downloadTitle(it)) },
+                onOpenRoute = open,
             )
         }
         composable<CalendarRoute> {
-            CalendarScreen(onBack = back(Section.CALENDAR), onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) })
+            CalendarScreen(onBack = back(Section.CALENDAR), onOpenTitle = { nav.navigate(Routes.downloadTitle(it)) })
         }
         composable<RequestsRoute> { RequestsScreen(account, onBack = back(Section.REQUESTS), onNavigate = { nav.navigate(it) }) }
         composable<HistoryRoute> {
@@ -87,8 +88,9 @@ fun AppNavHost(
                 titleId = 0,
                 episodeId = 0,
                 onBack = back(Section.HISTORY),
-                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenTitle = { nav.navigate(Routes.downloadTitle(it)) },
                 onOpenDownload = { nav.navigate(Routes.downloads(open = it)) },
+                onOpenRoute = open,
             )
         }
         composable<DownloadsFocusRoute> { entry ->
@@ -97,7 +99,8 @@ fun AppNavHost(
                 show = route.show,
                 open = route.open,
                 onBack = { nav.popBackStack() },
-                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenTitle = { nav.navigate(Routes.downloadTitle(it)) },
+                onOpenRoute = open,
             )
         }
         composable<HistoryScopeRoute> { entry ->
@@ -106,8 +109,9 @@ fun AppNavHost(
                 titleId = route.titleId,
                 episodeId = route.episodeId,
                 onBack = { nav.popBackStack() },
-                onOpenTitle = { nav.navigate(Routes.title(it.kind, it.tmdb)) },
+                onOpenTitle = { nav.navigate(Routes.downloadTitle(it)) },
                 onOpenDownload = { nav.navigate(Routes.downloads(open = it)) },
+                onOpenRoute = open,
             )
         }
         composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }

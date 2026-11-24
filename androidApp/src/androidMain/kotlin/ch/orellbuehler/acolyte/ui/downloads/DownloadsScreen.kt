@@ -80,6 +80,7 @@ import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
 import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsEmptyKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsNotice
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
@@ -91,7 +92,6 @@ import ch.orellbuehler.acolyte.feature.downloads.NoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.RemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.SortKey
 import ch.orellbuehler.acolyte.feature.downloads.SortOrder
-import ch.orellbuehler.acolyte.feature.downloads.TitleLink
 import ch.orellbuehler.acolyte.feature.downloads.TrackerFilterKind
 import ch.orellbuehler.acolyte.feature.downloads.UsenetPriority
 import ch.orellbuehler.acolyte.ui.LocalSdk
@@ -145,7 +145,8 @@ fun DownloadsScreen(
     show: String,
     open: String,
     onBack: (() -> Unit)?,
-    onOpenTitle: (TitleLink) -> Unit,
+    onOpenTitle: (DownloadTitleLink) -> Unit,
+    onOpenRoute: (Any) -> Unit,
 ) {
     val sdk = LocalSdk.current
     val viewModel = viewModel(key = "downloads-$show") { DownloadsViewModel(sdk, show) }
@@ -275,6 +276,7 @@ fun DownloadsScreen(
                     onDismiss = { sheet = null },
                     onAction = { handle(item, it) },
                     onOpenTitle = onOpenTitle,
+                    onOpenRoute = onOpenRoute,
                 )
             }
         }

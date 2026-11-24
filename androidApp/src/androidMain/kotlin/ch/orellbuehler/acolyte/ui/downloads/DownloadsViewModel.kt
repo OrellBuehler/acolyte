@@ -9,10 +9,10 @@ import ch.orellbuehler.acolyte.api.model.TorrentUpload
 import ch.orellbuehler.acolyte.feature.downloads.DecideAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadDetailPresenter
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
 import ch.orellbuehler.acolyte.feature.downloads.RemovePlan
 import ch.orellbuehler.acolyte.feature.downloads.SpeedTarget
-import ch.orellbuehler.acolyte.feature.downloads.TitleLink
 import ch.orellbuehler.acolyte.feature.downloads.UsenetPriority
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -172,7 +172,7 @@ class DownloadsViewModel(
 
     fun openTitle(
         titleId: Long,
-        open: (TitleLink) -> Unit,
+        open: (DownloadTitleLink) -> Unit,
     ) {
         viewModelScope.launch { presenter.titleLink(titleId)?.let(open) }
     }

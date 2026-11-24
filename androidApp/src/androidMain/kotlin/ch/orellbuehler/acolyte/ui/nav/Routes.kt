@@ -1,5 +1,6 @@
 package ch.orellbuehler.acolyte.ui.nav
 
+import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -184,6 +185,9 @@ object Routes {
     ): TitleRoute = TitleRoute(kind, tmdb)
 
     fun libraryTitle(id: Long): TitleRoute = TitleRoute("", "", id)
+
+    fun downloadTitle(link: DownloadTitleLink): Any =
+        TitleRoute(link.kind, link.tmdb, link.libraryId, if (link.openLibrary) "library" else "")
 
     fun downloads(
         show: String = "",
