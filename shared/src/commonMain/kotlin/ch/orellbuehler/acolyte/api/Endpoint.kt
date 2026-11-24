@@ -114,6 +114,14 @@ internal sealed class EndpointGroup {
         query: List<String> = emptyList(),
     ): Endpoint<B, R> = add(Endpoint(HttpMethod.Post, path, need, part, query, body, response))
 
+    protected fun <R> put(
+        path: String,
+        response: KSerializer<R>,
+        need: Need,
+        part: Part = Part.CORE,
+        query: List<String> = emptyList(),
+    ): Endpoint<Unit, R> = add(Endpoint(HttpMethod.Put, path, need, part, query, null, response))
+
     protected fun <B, R> put(
         path: String,
         body: KSerializer<B>,

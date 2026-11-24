@@ -1,5 +1,6 @@
 package ch.orellbuehler.acolyte
 
+import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.health.HealthPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryCopiesPresenter
@@ -14,6 +15,7 @@ import ch.orellbuehler.acolyte.feature.library.LibraryReleasesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
+import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
 import ch.orellbuehler.acolyte.session.SecureStore
@@ -75,4 +77,11 @@ class AcolyteSdk internal constructor(
             { password, code -> session.reauth(password, code) },
             { session.refresh() },
         )
+
+    fun title(
+        kind: String,
+        tmdb: String,
+        libraryId: Long,
+        openLibrary: Boolean,
+    ): TitlePresenter = TitlePresenter(session.api, kind, tmdb, libraryId, openLibrary, session.account, deviceLanguage())
 }

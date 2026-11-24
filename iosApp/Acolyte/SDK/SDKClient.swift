@@ -95,6 +95,10 @@ final class SDKClient: @unchecked Sendable {
         LibraryFoldersDriver(presenter: sdk.libraryFolders())
     }
 
+    func makeTitle(kind: String, tmdb: String, libraryId: Int64, openLibrary: Bool) -> TitleDriver {
+        TitleDriver(presenter: sdk.title(kind: kind, tmdb: tmdb, libraryId: libraryId, openLibrary: openLibrary), images: sdk.images)
+    }
+
     func imageRequest(_ source: String?, size: ImageSizeKind) -> ImageRequestInfo? {
         guard let text = sdk.images.url(source: source, size: Mapping.kotlinSize(size)), let url = URL(string: text) else {
             return nil

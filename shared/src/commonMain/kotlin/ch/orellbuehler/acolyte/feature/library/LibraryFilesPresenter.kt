@@ -13,11 +13,11 @@ import ch.orellbuehler.acolyte.api.model.ByHandImport
 import ch.orellbuehler.acolyte.api.model.ByHandItem
 import ch.orellbuehler.acolyte.api.model.ByHandResult
 import ch.orellbuehler.acolyte.api.model.ByHandScanRequest
-import ch.orellbuehler.acolyte.api.model.EpisodeRow
 import ch.orellbuehler.acolyte.api.model.FolderBrowseRequest
+import ch.orellbuehler.acolyte.api.model.OwnedEpisode
+import ch.orellbuehler.acolyte.api.model.OwnedTitle
+import ch.orellbuehler.acolyte.api.model.OwnedVersion
 import ch.orellbuehler.acolyte.api.model.SearchTitle
-import ch.orellbuehler.acolyte.api.model.TitleVersion
-import ch.orellbuehler.acolyte.api.model.TitleVersions
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -100,11 +100,11 @@ data class EditorState(
     val titleKind: String = "",
     val year: Int = 0,
     val loading: Boolean = false,
-    val versions: List<TitleVersion> = emptyList(),
+    val versions: List<OwnedVersion> = emptyList(),
     val versionId: Long = 0,
     val seasons: List<Int> = emptyList(),
     val season: Int = -1,
-    val episodes: List<EpisodeRow> = emptyList(),
+    val episodes: List<OwnedEpisode> = emptyList(),
     val episode: Int = -1,
 ) {
     val canUse: Boolean get() = titleId > 0 && !loading && (titleKind != "show" || (season >= 0 && episode >= 0))
@@ -147,8 +147,8 @@ class LibraryFilesPresenter internal constructor(
     private var ticked: Set<String> = emptySet()
     private var replace: Set<String> = emptySet()
     private var results: Map<String, ByHandResult> = emptyMap()
-    private var editorTitle: TitleVersions? = null
-    private var allEpisodes: List<EpisodeRow> = emptyList()
+    private var editorTitle: OwnedTitle? = null
+    private var allEpisodes: List<OwnedEpisode> = emptyList()
 
     val state: StateFlow<LibraryFilesState> = mutableState.asStateFlow()
 

@@ -60,6 +60,8 @@ data object MoreRoute
 data class TitleRoute(
     val kind: String,
     val tmdb: String,
+    val libraryId: Long = 0,
+    val tab: String = "",
 )
 
 @Serializable
@@ -95,11 +97,45 @@ data class LibraryImportFilesRoute(
 @Serializable
 data object SettingsLibraryFoldersRoute
 
+@Serializable
+data class PersonRoute(
+    val id: String,
+)
+
+@Serializable
+data class CollectionRoute(
+    val id: String,
+)
+
+@Serializable
+data class AskRoute(
+    val kind: String,
+    val tmdb: String,
+)
+
+@Serializable
+data class ReportRoute(
+    val titleId: Long,
+)
+
 object Routes {
     fun title(
         kind: String,
         tmdb: String,
-    ): Any = TitleRoute(kind, tmdb)
+    ): TitleRoute = TitleRoute(kind, tmdb)
+
+    fun libraryTitle(id: Long): TitleRoute = TitleRoute("", "", id)
+
+    fun person(id: String): PersonRoute = PersonRoute(id)
+
+    fun collection(id: String): CollectionRoute = CollectionRoute(id)
+
+    fun ask(
+        kind: String,
+        tmdb: String,
+    ): AskRoute = AskRoute(kind, tmdb)
+
+    fun report(titleId: Long): ReportRoute = ReportRoute(titleId)
 
     val settingsLibraryFolders: Any = SettingsLibraryFoldersRoute
 }

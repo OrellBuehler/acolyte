@@ -104,17 +104,13 @@ struct SectionScreen: View {
     }
 }
 
-struct PlaceholderView: View {
-    let section: SectionID
-
-    var body: some View {
-        EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: section.symbol)
-            .navigationTitle(section.title)
-    }
-}
-
 enum Route: Hashable, Sendable {
     case title(kind: String, tmdb: String)
+    case libraryTitle(id: Int64, kind: String, tmdb: String)
+    case person(id: String)
+    case collection(id: String)
+    case ask(kind: String, tmdb: String)
+    case report(titleId: Int64)
     case libraryTools
     case libraryDeleted(titleId: Int64)
     case libraryCopies
@@ -128,12 +124,20 @@ enum Route: Hashable, Sendable {
 
 struct RouteScreen: View {
     let route: Route
-    let account: AccountInfo
+    var account: AccountInfo?
 
     var body: some View {
         switch route {
         case let .title(kind, tmdb):
-            TitlePlaceholderView(kind: kind, tmdb: tmdb)
+            TitleView(kind: kind, tmdb: tmdb, libraryId: 0)
+        case let .libraryTitle(id, kind, tmdb):
+            TitleView(kind: kind, tmdb: tmdb, libraryId: id)
+        case .person:
+            PlaceholderView(section: .explore)
+        case .collection:
+            PlaceholderView(section: .movies)
+        case .ask, .report:
+            PlaceholderView(section: .requests)
         case .libraryTools:
             LibraryToolsView()
         case let .libraryDeleted(titleId):
@@ -156,11 +160,11 @@ struct RouteScreen: View {
     }
 }
 
-struct TitlePlaceholderView: View {
-    let kind: String
-    let tmdb: String
+struct PlaceholderView: View {
+    let section: SectionID
 
     var body: some View {
-        EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: kind == "show" ? "tv" : "film")
+        EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: section.symbol)
+            .navigationTitle(section.title)
     }
 }
