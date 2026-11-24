@@ -24,7 +24,7 @@ extension Mapping {
             label: k.label,
             hint: k.hint,
             createdAt: Format.date(iso: k.createdAt),
-            lastUsedAt: Format.date(iso: k.lastUsedAt),
+            lastUsedAt: k.lastUsedAt.flatMap { Format.date(iso: $0) },
             groups: k.groups
         )
     }
