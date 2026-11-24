@@ -51,6 +51,7 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServersPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -219,4 +220,7 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsMediaServers(): SettingsMediaServersPresenter =
+        SettingsMediaServersPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
 }
