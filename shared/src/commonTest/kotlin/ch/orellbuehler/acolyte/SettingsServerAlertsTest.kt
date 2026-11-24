@@ -378,7 +378,7 @@ class SettingsServerAlertsTest {
             assertEquals(1L, opened?.id)
             assertEquals(SettingsServerAlertKind.TELEGRAM, opened?.kind)
             assertTrue(opened?.botTokenStored == true)
-            assertEquals("@news", opened?.chatId)
+            assertEquals("@news", opened.chatId)
             presenter.setText(SettingsServerAlertField.CHAT_ID, "-100123")
             presenter.setEnabled(false)
             presenter.setAllowLocalNetwork(true)

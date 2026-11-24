@@ -89,7 +89,7 @@ class SettingsServerBackupsTest {
             assertFalse(s.restoreWaiting)
             assertEquals("ab12cd34", s.keyKit?.fingerprint)
             assertTrue(s.keyKit?.needed == true)
-            assertTrue(s.keyKit?.warn == true)
+            assertTrue(s.keyKit.warn)
             assertTrue(s.isOwner)
             assertTrue(s.canChange)
             assertTrue(s.canDownloadKit)
