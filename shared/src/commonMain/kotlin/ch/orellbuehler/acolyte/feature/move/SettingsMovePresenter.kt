@@ -238,7 +238,19 @@ class SettingsMovePresenter internal constructor(
     }
 
     suspend fun probe(form: MoveReadForm) {
-        commit { it.copy(sheet = it.sheet.copy(probing = true, probe = null, detected = "", linked = emptyList(), linkedFrom = "", readProblem = null)) }
+        commit {
+            it.copy(
+                sheet =
+                    it.sheet.copy(
+                        probing = true,
+                        probe = null,
+                        detected = "",
+                        linked = emptyList(),
+                        linkedFrom = "",
+                        readProblem = null,
+                    ),
+            )
+        }
         when (val r = api.result(MoveEndpoints.probe, source(form))) {
             is ApiResult.Ok -> {
                 val app = r.value.app
@@ -304,10 +316,20 @@ class SettingsMovePresenter internal constructor(
                         problem = MoveProblem(ApiError(ApiErrorCode.UNKNOWN, 0, f.error), MoveVocabulary.reachFailure(0, f.error)),
                     )
                 }
-                val done = r.value.read.map { it.snapshot.address }.toSet()
+                val done =
+                    r.value.read
+                        .map { it.snapshot.address }
+                        .toSet()
                 commit { s ->
                     val left = s.sheet.linked.filter { it.address !in done }
-                    s.copy(sheet = s.sheet.copy(addingLinked = false, linked = left, linkedFrom = if (left.isEmpty()) "" else s.sheet.linkedFrom))
+                    s.copy(
+                        sheet =
+                            s.sheet.copy(
+                                addingLinked = false,
+                                linked = left,
+                                linkedFrom = if (left.isEmpty()) "" else s.sheet.linkedFrom,
+                            ),
+                    )
                 }
             }
             is ApiResult.Failed -> commit { it.copy(sheet = it.sheet.copy(addingLinked = false, readProblem = problem(r.error))) }
@@ -321,8 +343,11 @@ class SettingsMovePresenter internal constructor(
         if (!inner.owner) return
         commit { it.copy(sheet = it.sheet.copy(finding = true, findProblem = null)) }
         val addresses =
-            (listOf(MoveVocabulary.normalizeAddress(form.address)) + inner.snapshots.map { it.address } + inner.savedKeys.map { it.address })
-                .filter { it.isNotEmpty() }
+            (
+                listOf(
+                    MoveVocabulary.normalizeAddress(form.address),
+                ) + inner.snapshots.map { it.address } + inner.savedKeys.map { it.address }
+            ).filter { it.isNotEmpty() }
                 .distinct()
                 .take(MAX_FIND_ADDRESSES)
         val body = MoveFindBody(host.ifEmpty { null }, addresses.ifEmpty { null })
@@ -341,7 +366,12 @@ class SettingsMovePresenter internal constructor(
                                 searched = result.value.searched,
                                 found =
                                     found.map {
-                                        MoveFoundRow(it.kind, MoveVocabulary.appName(it.kind), it.address.removePrefix("http://"), it.version)
+                                        MoveFoundRow(
+                                            it.kind,
+                                            MoveVocabulary.appName(it.kind),
+                                            it.address.removePrefix("http://"),
+                                            it.version,
+                                        )
                                     },
                             ),
                     )
@@ -426,11 +456,16 @@ class SettingsMovePresenter internal constructor(
         val s0 = inner
         var s = step
         if (s == SettingsMoveStep.DONE && s0.current == null) s = SettingsMoveStep.READ
-        if ((s == SettingsMoveStep.CHOOSE || s == SettingsMoveStep.IMPORT) && s0.picked.isEmpty()) s = SettingsMoveStep.READ
-        if (s == SettingsMoveStep.IMPORT && s0.current == null) s = SettingsMoveStep.CHOOSE
+        if ((s == SettingsMoveStep.CHOOSE || s == SettingsMoveStep.RUN) && s0.picked.isEmpty()) s = SettingsMoveStep.READ
+        if (s == SettingsMoveStep.RUN && s0.current == null) s = SettingsMoveStep.CHOOSE
         commit {
             var next = it.copy(step = s, problem = null)
-            if (s != SettingsMoveStep.CHOOSE) next = next.copy(tryNotice = false, dialog = MoveDialog.NONE, planning = false, trying = false, note = null)
+            if (s !=
+                SettingsMoveStep.CHOOSE
+            ) {
+                next =
+                    next.copy(tryNotice = false, dialog = MoveDialog.NONE, planning = false, trying = false, note = null)
+            }
             if (s == SettingsMoveStep.READ) next = next.copy(gone = false)
             next
         }
@@ -477,7 +512,13 @@ class SettingsMovePresenter internal constructor(
         from: String,
         to: String,
     ) = commit { s ->
-        if (index !in s.extra.indices) s else changed(s.copy(extra = s.extra.mapIndexed { n, r -> if (n == index) MovePathRule(from, to) else r }))
+        if (index !in
+            s.extra.indices
+        ) {
+            s
+        } else {
+            changed(s.copy(extra = s.extra.mapIndexed { n, r -> if (n == index) MovePathRule(from, to) else r }))
+        }
     }
 
     fun removeRule(index: Int) {
@@ -610,7 +651,14 @@ class SettingsMovePresenter internal constructor(
             var people = s.people
             var defaulted = s.defaulted
             val peopleGroup = plan.groups.firstOrNull { it.name == "people" }
-            val owners = if (peopleGroup != null && "people" !in s.skip) peopleGroup.items.filter { it.person?.wasOwner == true } else emptyList()
+            val owners =
+                if (peopleGroup != null &&
+                    "people" !in s.skip
+                ) {
+                    peopleGroup.items.filter { it.person?.wasOwner == true }
+                } else {
+                    emptyList()
+                }
             if (owners.size == 1) {
                 val key = owners[0].key
                 if (key !in defaulted) {
@@ -657,7 +705,14 @@ class SettingsMovePresenter internal constructor(
                     if (seq == drySeq) {
                         val report = r.value.report
                         commit { s ->
-                            val seen = s.seenChoose + (report?.lines.orEmpty().filter { it.choose.isNotEmpty() }.associateBy { it.key })
+                            val seen =
+                                s.seenChoose + (
+                                    report
+                                        ?.lines
+                                        .orEmpty()
+                                        .filter { it.choose.isNotEmpty() }
+                                        .associateBy { it.key }
+                                )
                             s.copy(dry = report, planHash = r.value.planHash, dryAt = at, seenChoose = seen)
                         }
                         rerun = (report?.checking ?: 0) > 0
@@ -717,7 +772,7 @@ class SettingsMovePresenter internal constructor(
                         progressNote = "",
                         lost = false,
                         moves = listOf(m) + st.moves.filter { it.id != m.id },
-                        step = SettingsMoveStep.IMPORT,
+                        step = SettingsMoveStep.RUN,
                         dialog = MoveDialog.NONE,
                         followId = if (m.running) m.id else 0,
                         needsPassword = false,
@@ -779,7 +834,7 @@ class SettingsMovePresenter internal constructor(
                         progress = a.progress,
                         progressNote = a.progressNote,
                         lost = false,
-                        step = if (a.move.running && a.move.undoState.isEmpty()) SettingsMoveStep.IMPORT else SettingsMoveStep.DONE,
+                        step = if (a.move.running && a.move.undoState.isEmpty()) SettingsMoveStep.RUN else SettingsMoveStep.DONE,
                         followId = if (a.move.running) id else 0,
                     )
                 }
@@ -893,7 +948,7 @@ class SettingsMovePresenter internal constructor(
             }
             if (next.current?.id == m.id) {
                 next = next.copy(current = m, progress = 1.0)
-                if (next.step == SettingsMoveStep.IMPORT || next.step == SettingsMoveStep.DONE) next = next.copy(step = SettingsMoveStep.DONE)
+                if (next.step == SettingsMoveStep.RUN || next.step == SettingsMoveStep.DONE) next = next.copy(step = SettingsMoveStep.DONE)
             }
             next
         }

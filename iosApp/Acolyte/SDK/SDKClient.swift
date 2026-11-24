@@ -99,6 +99,10 @@ final class SDKClient: @unchecked Sendable {
         LibraryFoldersDriver(presenter: sdk.libraryFolders())
     }
 
+    func makeSettingsMove() -> SettingsMoveDriver {
+        SettingsMoveDriver(presenter: sdk.settingsMove())
+    }
+
     func makeTitle(kind: String, tmdb: String, libraryId: Int64, openLibrary: Bool) -> TitleDriver {
         TitleDriver(presenter: sdk.title(kind: kind, tmdb: tmdb, libraryId: libraryId, openLibrary: openLibrary), images: sdk.images)
     }

@@ -119,7 +119,10 @@ class AcolyteSdk internal constructor(
             { session.refresh() },
         )
 
-    fun settingsMove(): SettingsMovePresenter = SettingsMovePresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsMove(): SettingsMovePresenter =
+        SettingsMovePresenter(session.api, {
+            session.account
+        }, { password, code -> session.reauth(password, code) })
 
     fun title(
         kind: String,

@@ -97,7 +97,9 @@ internal data class MoveInner(
             val tried = dryLines.filter { it.choose.isNotEmpty() }
             val extraSeen =
                 seenChoose.values.filter { l ->
-                    tried.none { it.key == l.key } && people[l.key].let { it == "merge" || it == "skip" } && dryLines.any { it.key == l.key }
+                    tried.none { it.key == l.key } &&
+                        people[l.key].let { it == "merge" || it == "skip" } &&
+                        dryLines.any { it.key == l.key }
                 }
             return tried + extraSeen
         }
@@ -269,12 +271,26 @@ internal object MoveView {
         val shown = plan.groups.filter { it.items.isNotEmpty() || it.name in i.skip }
         val emptyGroups = plan.groups.filter { it.items.isEmpty() && it.name !in i.skip && it.name != "other" }.map { it.label }
         val on = shown.filter { it.items.isNotEmpty() && it.name !in i.skip }
-        val peopleItems = plan.groups.firstOrNull { it.name == "people" }?.items.orEmpty()
+        val peopleItems =
+            plan.groups
+                .firstOrNull { it.name == "people" }
+                ?.items
+                .orEmpty()
         val peopleOn = peopleItems.isNotEmpty() && "people" !in i.skip
-        val invitees = peopleItems.filter { it.person?.signIn.orEmpty().isEmpty() }
+        val invitees =
+            peopleItems.filter {
+                it.person
+                    ?.signIn
+                    .orEmpty()
+                    .isEmpty()
+            }
         val inviteOn = peopleOn && invitees.isNotEmpty()
         val asked = peopleItems.filter { it.person?.wasOwner == true || it.person?.wasAdmin == true }
-        val kindOf = plan.groups.firstOrNull { it.name == "folders" }?.items.orEmpty().associate { (it.folder?.oldPath ?: "") to (it.folder?.kind ?: "") }
+        val kindOf =
+            plan.groups.firstOrNull { it.name == "folders" }?.items.orEmpty().associate {
+                (it.folder?.oldPath ?: "") to
+                    (it.folder?.kind ?: "")
+            }
         val oldRows = i.oldRows
         val shared = MoveRules.sharedTargets(i.picks, i.others)
         val needPaths = oldRows.filter { it in i.held || (i.picks[it]?.kind ?: MovePickKind.NONE) == MovePickKind.NONE }
@@ -285,10 +301,31 @@ internal object MoveView {
             }
         val tiles = lead.map { MoveTile(it.name, MoveVocabulary.group(it.name), it.label, it.items.size) }
         val also = on.filter { it !in lead }.map { MoveVocabulary.group(it.name) }
-        val sourceKeys = on.firstOrNull { it.name == "sources" }?.items.orEmpty().count { it.needs.isNotEmpty() }
-        val downloaderKeys = on.firstOrNull { it.name == "downloaders" }?.items.orEmpty().count { it.needs.isNotEmpty() }
-        val formatsAsk = i.noFormats || plan.groups.firstOrNull { it.name == "pick_rules" }?.items.orEmpty().any { it.rules?.hasBody == true }
-        val namesAsk = plan.groups.firstOrNull { it.name == "naming" }?.items.orEmpty().any { it.key.startsWith("names:") }
+        val sourceKeys =
+            on
+                .firstOrNull { it.name == "sources" }
+                ?.items
+                .orEmpty()
+                .count { it.needs.isNotEmpty() }
+        val downloaderKeys =
+            on
+                .firstOrNull { it.name == "downloaders" }
+                ?.items
+                .orEmpty()
+                .count { it.needs.isNotEmpty() }
+        val formatsAsk =
+            i.noFormats ||
+                plan.groups
+                    .firstOrNull { it.name == "pick_rules" }
+                    ?.items
+                    .orEmpty()
+                    .any { it.rules?.hasBody == true }
+        val namesAsk =
+            plan.groups
+                .firstOrNull { it.name == "naming" }
+                ?.items
+                .orEmpty()
+                .any { it.key.startsWith("names:") }
         val groupRows =
             shown.map { g ->
                 val (note, noteCount) = groupNote(g, i, toCheck)
@@ -316,7 +353,10 @@ internal object MoveView {
                     l.key,
                     l.name,
                     MoveVocabulary.chooseWhy(l.choose),
-                    i.people[l.key]?.let { MoveRules.personChoice(it) }?.takeIf { it == MovePersonChoice.MERGE || it == MovePersonChoice.SKIP },
+                    i.people[l.key]?.let { MoveRules.personChoice(it) }?.takeIf {
+                        it == MovePersonChoice.MERGE ||
+                            it == MovePersonChoice.SKIP
+                    },
                 )
             }
         return base.copy(
@@ -328,7 +368,15 @@ internal object MoveView {
             folders = oldRows.filter { it !in needPaths }.map(rowFor),
             people =
                 if (peopleOn) {
-                    asked.map { MovePersonRow(it.key, it.name, it.person?.app ?: it.from.substringBefore(' '), it.person?.wasOwner == true, i.people[it.key] == if (it.person?.wasOwner == true) "owner" else "admin") }
+                    asked.map {
+                        MovePersonRow(
+                            it.key,
+                            it.name,
+                            it.person?.app ?: it.from.substringBefore(' '),
+                            it.person?.wasOwner == true,
+                            i.people[it.key] == if (it.person?.wasOwner == true) "owner" else "admin",
+                        )
+                    }
                 } else {
                     emptyList()
                 },
@@ -351,7 +399,12 @@ internal object MoveView {
             choices = choices,
             before = before(dryLines),
             outcome = outcome,
-            apps = i.dry?.apps.orEmpty().map { MoveVocabulary.appName(it) }.distinct(),
+            apps =
+                i.dry
+                    ?.apps
+                    .orEmpty()
+                    .map { MoveVocabulary.appName(it) }
+                    .distinct(),
             toCheck = toCheck.size,
         )
     }
@@ -376,7 +429,14 @@ internal object MoveView {
         val (word, tone) = MoveVocabulary.stateWord(m.state, m.undoState)
         val seasons = MoveRules.seasonsShows(lines)
         val failed = counts["failed"] ?: 0
-        val look = if (failed > 0) MoveDoneLook.FAILED else if (seasons.isNotEmpty()) MoveDoneLook.PENDING else MoveDoneLook.READY
+        val look =
+            if (failed > 0) {
+                MoveDoneLook.FAILED
+            } else if (seasons.isNotEmpty()) {
+                MoveDoneLook.PENDING
+            } else {
+                MoveDoneLook.READY
+            }
         val isUndo = rep?.undo == true
         val plainNext = rep == null || isUndo || rep.lines.isEmpty()
         val noFolder = MoveRules.noFolderCount(lines)
@@ -387,7 +447,12 @@ internal object MoveView {
             lines
                 .groupBy { it.group }
                 .map { (g, list) ->
-                    MoveResultGroup(g, MoveVocabulary.group(g), g, MoveVocabulary.summary(list.groupingBy { it.result }.eachCount(), true, isUndo))
+                    MoveResultGroup(
+                        g,
+                        MoveVocabulary.group(g),
+                        g,
+                        MoveVocabulary.summary(list.groupingBy { it.result }.eachCount(), true, isUndo),
+                    )
                 }
         val needsYou =
             if (plainNext) {
@@ -438,7 +503,12 @@ internal object MoveView {
             when (kind) {
                 MoveListKind.PLAN_GROUP -> {
                     val toCheck = MoveRules.seasonsShows(i.dryLines).associateBy { it.key }
-                    i.plan?.groups?.firstOrNull { it.name == id }?.items.orEmpty().map { planRow(it, toCheck) }
+                    i.plan
+                        ?.groups
+                        ?.firstOrNull { it.name == id }
+                        ?.items
+                        .orEmpty()
+                        .map { planRow(it, toCheck) }
                 }
                 MoveListKind.INVITEES -> {
                     i.plan
@@ -450,14 +520,23 @@ internal object MoveView {
                 }
                 MoveListKind.REPORT_GROUP -> {
                     val rep = i.current?.report
-                    rep?.lines.orEmpty().filter { it.group == id }.mapIndexed { n, l -> lineRow(l, n, true, rep?.undo == true) }
+                    rep
+                        ?.lines
+                        .orEmpty()
+                        .filter { it.group == id }
+                        .mapIndexed { n, l -> lineRow(l, n, true, rep?.undo == true) }
                 }
                 MoveListKind.BEFORE_GROUP -> {
                     val group = id.substringBefore(':')
                     val result = id.substringAfter(':')
                     i.dryLines.filter { it.group == group && it.result == result }.mapIndexed { n, l -> lineRow(l, n, false, false) }
                 }
-                MoveListKind.NOT_MOVED -> i.current?.report?.notMoved.orEmpty().mapIndexed { n, x -> notMovedRow(x, n) }
+                MoveListKind.NOT_MOVED ->
+                    i.current
+                        ?.report
+                        ?.notMoved
+                        .orEmpty()
+                        .mapIndexed { n, x -> notMovedRow(x, n) }
                 MoveListKind.NOT_MOVED_APP -> {
                     val reasons = LinkedHashMap<String, MutableList<MoveNotMoved>>()
                     i.plan?.notMoved.orEmpty().filter { it.from.substringBefore(' ') == id }.forEach {
@@ -467,8 +546,19 @@ internal object MoveView {
                         MoveItemRow(key = "nm$n", name = list.first().what, hint = list.first().why, n = list.size)
                     }
                 }
-                MoveListKind.KEYS_AGAIN -> keysAgainRows(i.current?.report?.needsInput.orEmpty())
-                MoveListKind.NOTES -> i.current?.report?.notes.orEmpty().mapIndexed { n, t -> MoveItemRow(key = "note$n", name = t) }
+                MoveListKind.KEYS_AGAIN ->
+                    keysAgainRows(
+                        i.current
+                            ?.report
+                            ?.needsInput
+                            .orEmpty(),
+                    )
+                MoveListKind.NOTES ->
+                    i.current
+                        ?.report
+                        ?.notes
+                        .orEmpty()
+                        .mapIndexed { n, t -> MoveItemRow(key = "note$n", name = t) }
                 MoveListKind.SOURCE_KEYS -> keyRows(i, "sources")
                 MoveListKind.DOWNLOADER_KEYS -> keyRows(i, "downloaders")
             },
@@ -534,7 +624,14 @@ internal object MoveView {
             val at = cuts.minOrNull() ?: -1
             val head = if (at > 0) line.substring(0, at).trim() else ""
             val rest = if (at > 0) line.substring(at).replace(Regex("^:\\s*"), "").trim() else line
-            val label = if (head.isEmpty()) "" else if (MoveVocabulary.apps.any { it.kind == head }) MoveVocabulary.appName(head) else head
+            val label =
+                if (head.isEmpty()) {
+                    ""
+                } else if (MoveVocabulary.apps.any { it.kind == head }) {
+                    MoveVocabulary.appName(head)
+                } else {
+                    head
+                }
             MoveItemRow(key = "k$n", name = rest.ifEmpty { line }, section = label)
         }
 
@@ -544,12 +641,23 @@ internal object MoveView {
     ): List<MoveItemRow> {
         val plan = i.plan ?: return emptyList()
         val clean = { n: String -> n.replace(Regex("\\s*\\((Prowlarr|Jackett)\\)$", RegexOption.IGNORE_CASE), "") }
+
         fun need(it: MovePlanItem) = if (Regex("password", RegexOption.IGNORE_CASE).containsMatchIn(it.needs)) "password" else "key"
         if (which == "downloaders") {
-            val dls = plan.groups.firstOrNull { it.name == "downloaders" && it.name !in i.skip }?.items.orEmpty().filter { it.needs.isNotEmpty() }
+            val dls =
+                plan.groups
+                    .firstOrNull { it.name == "downloaders" && it.name !in i.skip }
+                    ?.items
+                    .orEmpty()
+                    .filter { it.needs.isNotEmpty() }
             return dls.map { MoveItemRow(key = it.key, name = clean(it.name), needs = need(it), section = "downloaders") }
         }
-        val src = plan.groups.firstOrNull { it.name == "sources" && it.name !in i.skip }?.items.orEmpty().filter { it.needs.isNotEmpty() }
+        val src =
+            plan.groups
+                .firstOrNull { it.name == "sources" && it.name !in i.skip }
+                ?.items
+                .orEmpty()
+                .filter { it.needs.isNotEmpty() }
         val usenet = src.filter { Regex("newznab|usenet", RegexOption.IGNORE_CASE).containsMatchIn(it.detail) }
         val torrent = src.filter { it !in usenet }
         return usenet.map { MoveItemRow(key = it.key, name = clean(it.name), section = "usenet") } +

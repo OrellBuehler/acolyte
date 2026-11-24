@@ -6,7 +6,7 @@ import ch.orellbuehler.acolyte.feature.Tone
 enum class SettingsMoveStep {
     READ,
     CHOOSE,
-    IMPORT,
+    RUN,
     DONE,
 }
 
@@ -502,8 +502,11 @@ object MoveVocabulary {
             lower.contains("only the owner") -> MoveReachFailure.NOT_OWNER
             lower.contains("took too long") || status == 504 -> MoveReachFailure.TIMEOUT
             lower.contains("not the app") || lower.contains("not a ") && lower.contains("backup") -> MoveReachFailure.WRONG_APP
-            lower.contains("refused the key") || lower.contains("key or password") || lower.contains("api key") ||
-                lower.contains("sign-in") || lower.contains("unauthorized") -> MoveReachFailure.REFUSED_KEY
+            lower.contains("refused the key") ||
+                lower.contains("key or password") ||
+                lower.contains("api key") ||
+                lower.contains("sign-in") ||
+                lower.contains("unauthorized") -> MoveReachFailure.REFUSED_KEY
             lower.contains("version") && (lower.contains("not one") || lower.contains("unsupported")) -> MoveReachFailure.UNSUPPORTED
             CANT_REACH.containsMatchIn(lower) || status == 502 -> MoveReachFailure.CANT_REACH
             else -> MoveReachFailure.OTHER

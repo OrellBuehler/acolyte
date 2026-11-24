@@ -150,7 +150,14 @@ class MoveVocabularyTest {
         assertEquals(MovePathProblem.NONE, MoveRules.folderProblem("/4k", picks["/4k"], null))
         val rules = MoveRules.rulesFrom(picks, others, listOf(MovePathRule("/movies", "/skipped"), MovePathRule("/x", "/y")))
         assertEquals(listOf(MovePathRule("/movies", "/data/movies"), MovePathRule("/tv", "/data/tv"), MovePathRule("/x", "/y")), rules)
-        val twins = MoveRules.sharedTargets(mapOf("/a" to FolderPick(MovePickKind.PATH, "/d/m/"), "/b" to FolderPick(MovePickKind.PATH, "/d/m")), emptyMap())
+        val twins =
+            MoveRules.sharedTargets(
+                mapOf(
+                    "/a" to FolderPick(MovePickKind.PATH, "/d/m/"),
+                    "/b" to FolderPick(MovePickKind.PATH, "/d/m"),
+                ),
+                emptyMap(),
+            )
         assertEquals(listOf("/b"), twins["/a"])
         assertEquals(listOf("/a"), twins["/b"])
     }
@@ -169,9 +176,9 @@ class MoveVocabularyTest {
         assertEquals(MoveGateReason.NOTHING_NEW, gate(ready.copy(groupsWithItems = 0)).reason)
         assertEquals(MoveGateReason.TURN_ON_GROUP, gate(ready.copy(groupsOn = 0)).reason)
         assertEquals(MoveGateReason.SAFE_MODE, gate(ready.copy(safeMode = true)).reason)
-        val tried = GateInput(SettingsMoveStep.IMPORT, 1, tried = true)
+        val tried = GateInput(SettingsMoveStep.RUN, 1, tried = true)
         assertTrue(gate(tried).ok)
-        assertEquals(MoveGateReason.TRYING, gate(GateInput(SettingsMoveStep.IMPORT, 1, trying = true)).reason)
+        assertEquals(MoveGateReason.TRYING, gate(GateInput(SettingsMoveStep.RUN, 1, trying = true)).reason)
         assertEquals(MoveGateReason.UPDATING, gate(tried.copy(trying = true)).reason)
         assertEquals(MoveGateReason.TEST_FAILED, gate(tried.copy(failed = true)).reason)
         assertEquals(MoveGateReason.CHANGED_SINCE_TEST, gate(tried.copy(stale = true)).reason)

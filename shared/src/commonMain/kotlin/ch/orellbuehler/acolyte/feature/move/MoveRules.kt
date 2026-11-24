@@ -129,7 +129,11 @@ internal object MoveRules {
         picks: Map<String, FolderPick>,
     ): List<String> =
         plan?.oldPaths.orEmpty().filter { p ->
-            p !in here && (picks[p]?.kind == MovePickKind.LEAVE || (picks[p].let { it == null || it.kind == MovePickKind.NONE } && !unseenFolder(plan, p)))
+            p !in here &&
+                (
+                    picks[p]?.kind == MovePickKind.LEAVE ||
+                        (picks[p].let { it == null || it.kind == MovePickKind.NONE } && !unseenFolder(plan, p))
+                )
         }
 
     fun instanceKey(s: MoveSnapshot): String = "${s.kind} ${s.address}"
@@ -206,7 +210,7 @@ internal object MoveRules {
         when (input.step) {
             SettingsMoveStep.READ -> if (input.picked > 0) ok() else MoveGate(false, MoveGateReason.TURN_ON_READ)
             SettingsMoveStep.CHOOSE -> chooseGate(input)
-            SettingsMoveStep.IMPORT -> importGate(input)
+            SettingsMoveStep.RUN -> importGate(input)
             SettingsMoveStep.DONE -> ok()
         }
 
@@ -228,7 +232,16 @@ internal object MoveRules {
     private fun importGate(s: GateInput): MoveGate {
         if (s.moving) return MoveGate(false, MoveGateReason.NONE)
         if (s.trying) {
-            return MoveGate(false, if (s.hasProgress) MoveGateReason.PROGRESS else if (s.tried) MoveGateReason.UPDATING else MoveGateReason.TRYING)
+            return MoveGate(
+                false,
+                if (s.hasProgress) {
+                    MoveGateReason.PROGRESS
+                } else if (s.tried) {
+                    MoveGateReason.UPDATING
+                } else {
+                    MoveGateReason.TRYING
+                },
+            )
         }
         return when {
             s.failed -> MoveGate(false, MoveGateReason.TEST_FAILED)

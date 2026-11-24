@@ -1,12 +1,17 @@
 package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.ApiErrorCode
+import ch.orellbuehler.acolyte.feature.move.MoveBadge
 import ch.orellbuehler.acolyte.feature.move.MoveDialog
+import ch.orellbuehler.acolyte.feature.move.MoveItemRow
+import ch.orellbuehler.acolyte.feature.move.MoveItemsList
+import ch.orellbuehler.acolyte.feature.move.MoveListKind
 import ch.orellbuehler.acolyte.feature.move.MoveNoticeKind
 import ch.orellbuehler.acolyte.feature.move.MovePersonChoice
 import ch.orellbuehler.acolyte.feature.move.MovePickKind
 import ch.orellbuehler.acolyte.feature.move.MoveReadForm
 import ch.orellbuehler.acolyte.feature.move.MoveStateWord
+import ch.orellbuehler.acolyte.feature.move.MoveWord
 import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
 import ch.orellbuehler.acolyte.feature.move.SettingsMoveStep
 import ch.orellbuehler.acolyte.session.Role
@@ -56,7 +61,8 @@ class MovePresenterTest {
     private fun dryDone(
         hash: String,
         checking: Int = 0,
-    ) = """{"check_id":"c2","kind":"dry_run","state":"done","plan_hash":"$hash","report":{"dry":true,"apps":["radarr"],"counts":{"create":2},
+    ) =
+        """{"check_id":"c2","kind":"dry_run","state":"done","plan_hash":"$hash","report":{"dry":true,"apps":["radarr"],"counts":{"create":2},
         "checking":$checking,"lines":[{"group":"titles","key":"title:1","name":"Heat (1995)","result":"create"},
         {"group":"titles","key":"title:2","name":"Alien (1979)","result":"not_found"}]}}"""
 
@@ -72,7 +78,11 @@ class MovePresenterTest {
         val server = FakeServer()
         server.json("GET", "/api/v1/migrate/snapshots", snapshots)
         server.json("GET", "/api/v1/migrate/moves", """{"moves":[]}""")
-        server.json("GET", "/api/v1/migrate/saved-keys", """{"saved":[{"kind":"sonarr","address":"http://sonarr:8989","allow_local_network":true}]}""")
+        server.json(
+            "GET",
+            "/api/v1/migrate/saved-keys",
+            """{"saved":[{"kind":"sonarr","address":"http://sonarr:8989","allow_local_network":true}]}""",
+        )
         server.json("GET", "/api/v1/library-folders", libraryFolders)
         return server
     }
@@ -100,7 +110,10 @@ class MovePresenterTest {
             val presenter = presenter(server, Role.ADMIN)
             presenter.load()
             assertFalse(presenter.state.value.owner)
-            assertTrue(presenter.state.value.savedKeys.isEmpty())
+            assertTrue(
+                presenter.state.value.savedKeys
+                    .isEmpty(),
+            )
             assertTrue(server.requests.none { it.path.endsWith("saved-keys") })
             presenter.find("radarr.example", MoveReadForm("radarr"))
             assertTrue(server.requests.none { it.path.endsWith("/find") })
@@ -155,7 +168,13 @@ class MovePresenterTest {
             val sent = server.request("POST", "/api/v1/migrate/read").body.orEmpty()
             assertTrue(sent.contains("\"url\":\"http://sonarr:8989\""))
             assertTrue(sent.contains("\"key\":\"abc\""))
-            assertTrue(server.request("POST", "/api/v1/migrate/downloaders").body.orEmpty().contains("[9]"))
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/migrate/downloaders")
+                    .body
+                    .orEmpty()
+                    .contains("[9]"),
+            )
         }
 
     @Test
@@ -221,7 +240,13 @@ class MovePresenterTest {
             assertTrue(state.reads.any { it.id == 11L && it.picked })
             assertEquals(listOf(MoveNoticeKind.READ_DONE, MoveNoticeKind.LINKED_FAILED), state.notices.map { it.kind })
             assertTrue(state.sheet.linked.isEmpty())
-            assertTrue(server.request("POST", "/api/v1/migrate/linked").body.orEmpty().contains("\"add\":[\"http://new:8989\"]"))
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/migrate/linked")
+                    .body
+                    .orEmpty()
+                    .contains("\"add\":[\"http://new:8989\"]"),
+            )
         }
 
     @Test
@@ -246,7 +271,13 @@ class MovePresenterTest {
             assertEquals(2, calls)
             assertEquals(listOf("192.168.1.10:7878"), sheet.found.map { it.address })
             assertTrue(sheet.findRan)
-            assertTrue(server.request("POST", "/api/v1/migrate/find").body.orEmpty().contains("media.example.com"))
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/migrate/find")
+                    .body
+                    .orEmpty()
+                    .contains("media.example.com"),
+            )
         }
 
     @Test
@@ -257,7 +288,11 @@ class MovePresenterTest {
             val presenter = presenter(server)
             presenter.load()
             assertTrue(presenter.forget(3))
-            assertEquals(listOf(2L, 1L), presenter.state.value.reads.map { it.id })
+            assertEquals(
+                listOf(2L, 1L),
+                presenter.state.value.reads
+                    .map { it.id },
+            )
             assertEquals(1, presenter.state.value.pickedCount)
         }
 
@@ -270,7 +305,15 @@ class MovePresenterTest {
         var polls = 0
         server.on("GET", "/api/v1/migrate/checks/c1") {
             polls++
-            if (polls == 1) respondJson("""{"check_id":"c1","state":"running","step":"titles","done":2,"total":10,"now":"Heat","counts":{"not_found":1}}""") else respondJson(planDone())
+            if (polls ==
+                1
+            ) {
+                respondJson(
+                    """{"check_id":"c1","state":"running","step":"titles","done":2,"total":10,"now":"Heat","counts":{"not_found":1}}""",
+                )
+            } else {
+                respondJson(planDone())
+            }
         }
         var dry = 0
         server.on("POST", "/api/v1/migrate/dry-run") {
@@ -301,9 +344,18 @@ class MovePresenterTest {
             assertEquals("/data/movies", movies.path)
             assertEquals(listOf("/data/movies"), movies.options)
             assertEquals(listOf("Titles", "People"), state.choose.tiles.map { it.label })
-            assertEquals(2, state.choose.tiles.first { it.id == "titles" }.n)
+            assertEquals(
+                2,
+                state.choose.tiles
+                    .first { it.id == "titles" }
+                    .n,
+            )
             assertEquals(1, state.choose.people.size)
-            assertTrue(state.choose.people.single().on)
+            assertTrue(
+                state.choose.people
+                    .single()
+                    .on,
+            )
             assertEquals(1, state.choose.sourceKeys)
             assertEquals(1, state.choose.notMovedCount)
             val sent = server.request("POST", "/api/v1/migrate/plan").body.orEmpty()
@@ -360,7 +412,12 @@ class MovePresenterTest {
             presenter.setGroup("sources", false)
             val choose = presenter.state.value.choose
             assertTrue(choose.stale)
-            assertTrue(choose.groups.first { it.id == "sources" }.on.not())
+            assertTrue(
+                choose.groups
+                    .first { it.id == "sources" }
+                    .on
+                    .not(),
+            )
             assertFalse(presenter.state.value.canStart)
         }
 
@@ -384,12 +441,18 @@ class MovePresenterTest {
             assertEquals(MoveDialog.BEFORE, presenter.state.value.dialog)
             presenter.start()
             val state = presenter.state.value
-            assertEquals(SettingsMoveStep.IMPORT, state.step)
+            assertEquals(SettingsMoveStep.RUN, state.step)
             assertEquals(MoveDialog.NONE, state.dialog)
             assertEquals(7L, state.run?.id)
             assertTrue(state.run?.running == true)
             assertEquals(MoveStateWord.WAITING, state.run?.word)
-            assertTrue(server.request("POST", "/api/v1/migrate/moves").body.orEmpty().contains("\"plan_hash\":\"h1\""))
+            assertTrue(
+                server
+                    .request("POST", "/api/v1/migrate/moves")
+                    .body
+                    .orEmpty()
+                    .contains("\"plan_hash\":\"h1\""),
+            )
         }
 
     @Test
@@ -429,10 +492,11 @@ class MovePresenterTest {
                 }
             }
             var asked = ""
-            val presenter = presenter(server, reauth = { password, code ->
-                asked = "$password/$code"
-                null
-            })
+            val presenter =
+                presenter(server, reauth = { password, code ->
+                    asked = "$password/$code"
+                    null
+                })
             presenter.load()
             presenter.enter(SettingsMoveStep.CHOOSE)
             presenter.runPlan()
@@ -443,7 +507,11 @@ class MovePresenterTest {
             presenter.confirmPassword("secret", "")
             assertEquals("secret/null", asked)
             assertFalse(presenter.state.value.needsPassword)
-            assertEquals(8L, presenter.state.value.run?.id)
+            assertEquals(
+                8L,
+                presenter.state.value.run
+                    ?.id,
+            )
             assertEquals(2, starts)
         }
 
@@ -464,7 +532,12 @@ class MovePresenterTest {
             presenter.importNow()
             presenter.start()
             assertTrue(presenter.state.value.safeMode)
-            assertEquals(ApiErrorCode.CONFLICT, presenter.state.value.problem?.error?.code)
+            assertEquals(
+                ApiErrorCode.CONFLICT,
+                presenter.state.value.problem
+                    ?.error
+                    ?.code,
+            )
         }
 
     @Test
@@ -476,17 +549,24 @@ class MovePresenterTest {
                 polls++
                 when {
                     polls == 1 ->
-                        respondJson("""{"move":{"id":7,"state":"running","snapshots":[3]},"progress":0.1,"progress_note":"1 of 10 imported."}""")
+                        respondJson(
+                            """{"move":{"id":7,"state":"running","snapshots":[3]},"progress":0.1,"progress_note":"1 of 10 imported."}""",
+                        )
                     polls <= 5 -> respondJson("""{"error":"down"}""", 502)
                     polls == 6 ->
-                        respondJson("""{"move":{"id":7,"state":"running","snapshots":[3]},"progress":0.5,"progress_note":"5 of 10 imported."}""")
+                        respondJson(
+                            """{"move":{"id":7,"state":"running","snapshots":[3]},"progress":0.5,"progress_note":"5 of 10 imported."}""",
+                        )
                     else -> respondJson("""{"move":{"id":7,"state":"done","snapshots":[3]},"progress":1,"progress_note":""}""")
                 }
             }
             val presenter = presenter(server)
             presenter.load()
             presenter.openMove(7)
-            assertTrue(presenter.state.value.run?.running == true)
+            assertTrue(
+                presenter.state.value.run
+                    ?.running == true,
+            )
             val before = testScheduler.currentTime
             presenter.follow(7)
             assertEquals(7, polls)
@@ -494,7 +574,12 @@ class MovePresenterTest {
             val run = presenter.state.value.run
             assertEquals(MoveStateWord.IMPORTED, run?.word)
             assertEquals(SettingsMoveStep.DONE, presenter.state.value.step)
-            assertEquals(MoveNoticeKind.IMPORT_FINISHED, presenter.state.value.notices.last().kind)
+            assertEquals(
+                MoveNoticeKind.IMPORT_FINISHED,
+                presenter.state.value.notices
+                    .last()
+                    .kind,
+            )
             assertFalse(run?.lost == true)
         }
 
@@ -543,10 +628,55 @@ class MovePresenterTest {
             presenter.enter(SettingsMoveStep.CHOOSE)
             presenter.runPlan()
             presenter.setPerson("person:seerr:1", null)
-            assertFalse(presenter.state.value.choose.people.single().on)
+            assertFalse(
+                presenter.state.value.choose.people
+                    .single()
+                    .on,
+            )
             presenter.setPerson("person:seerr:2", MovePersonChoice.MERGE)
             presenter.runPlan()
             val sent = server.request("POST", "/api/v1/migrate/plan").body.orEmpty()
             assertTrue(sent.contains("\"person:seerr:2\":\"merge\""))
         }
+
+    @Test
+    fun theSheetListsCarryTheirRows() =
+        runTest {
+            val server = chooseServer()
+            val presenter = presenter(server)
+            presenter.load()
+            presenter.enter(SettingsMoveStep.CHOOSE)
+            presenter.runPlan()
+            presenter.runDry()
+            val titles = presenter.items(MoveListKind.PLAN_GROUP, "titles").rows
+            assertEquals(listOf("Heat (1995)", "Alien (1979)"), titles.map { it.name })
+            val keys = presenter.items(MoveListKind.SOURCE_KEYS, "").rows
+            assertEquals(listOf("torrent"), keys.map { it.section })
+            val invitees = presenter.items(MoveListKind.INVITEES, "people").rows
+            assertEquals(listOf(MoveBadge.YOU), invitees.map { it.badge })
+            val before = presenter.items(MoveListKind.BEFORE_GROUP, "titles:not_found").rows
+            assertEquals(listOf("Alien (1979)"), before.map { it.name })
+            assertEquals(MoveWord.NO_FOLDER_HERE, before.single().word)
+            val apps = presenter.items(MoveListKind.NOT_MOVED_APP, "radarr").rows
+            assertEquals(listOf("UI language"), apps.map { it.name })
+        }
+
+    @Test
+    fun theItemsListFiltersAndPages() {
+        val rows =
+            (1..250).map { MoveItemRow(key = "k$it", name = "Show $it", hint = if (it % 100 == 0) "odd" else "", look = it % 50 == 0) } +
+                MoveItemRow(key = "x", name = "Zebra", look = false)
+        val list = MoveItemsList(rows)
+        assertTrue(list.showFilter)
+        val looks = list.page("", onlyLook = true, limit = 100)
+        assertEquals(5, looks.total)
+        assertEquals("Show 50", looks.rows.first().name)
+        val all = list.page("", onlyLook = false, limit = 100)
+        assertEquals(251, all.total)
+        assertEquals(100, all.rows.size)
+        assertEquals(5, all.rows.take(5).count { it.look })
+        assertEquals(1, list.page("zebra", onlyLook = false, limit = 100).total)
+        assertEquals(2, list.page("odd", onlyLook = false, limit = 100).total)
+        assertFalse(MoveItemsList(rows.filter { it.look }).showFilter)
+    }
 }
