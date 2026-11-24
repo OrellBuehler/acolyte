@@ -71,6 +71,30 @@ class AcolyteColors(
     val onArt: Color = Color.White
     val artScrim: Color = Color.Black.copy(alpha = 0.55f)
 
+    val markHave: Color = Color(0xFF1F9D48)
+    val markDownloading: Color = Color(0xFF4F46E5)
+    val markAsked: Color = Color(0xFFF0A020)
+    val markAskedGlyph: Color = Color(0xFF2A1A00)
+    val markNo: Color = Color(0xFFD92D20)
+    val markRing: Color = Color.Black.copy(alpha = 0.22f)
+    val artScrimStrong: Color = Color.Black.copy(alpha = 0.86f)
+    val artFill: Color = Color.White.copy(alpha = 0.16f)
+    val tileHues: List<Color> =
+        listOf(
+            0xFFD0202A,
+            0xFFB3123E,
+            0xFF8E1F4F,
+            0xFF6D2A8A,
+            0xFFC2410C,
+            0xFF9F1D35,
+            0xFF3F6A8A,
+            0xFFB91C1C,
+            0xFF7A1D6B,
+            0xFF2C7A7B,
+            0xFFC0263F,
+            0xFFA3402B,
+        ).map { Color(it) }
+
     fun dot(tone: Tone): Color =
         when (tone) {
             Tone.OK -> ok

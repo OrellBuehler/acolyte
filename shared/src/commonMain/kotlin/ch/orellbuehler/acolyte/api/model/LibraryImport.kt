@@ -2,6 +2,10 @@ package ch.orellbuehler.acolyte.api.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 
 @Serializable
 internal data class AdoptScanRequest(
@@ -169,6 +173,7 @@ data class LookupMovie(
     @SerialName("ask_4k") val ask4k: TitleAsk? = null,
     @SerialName("has_4k") val has4k: Boolean = false,
     val hidden: Boolean = false,
+    val genres: List<String> = emptyList(),
 )
 
 @Serializable
@@ -190,6 +195,8 @@ data class LookupShow(
     val seasons: List<AskShowSeason> = emptyList(),
     val ask: TitleAsk? = null,
     val hidden: Boolean = false,
+    val backdrop: String = "",
+    val genres: List<String> = emptyList(),
 )
 
 @Serializable
@@ -310,6 +317,8 @@ data class BrowseFolder(
 @Serializable
 data class LibrarySearch(
     val titles: List<SearchTitle> = emptyList(),
+    val albums: List<SearchAlbum> = emptyList(),
+    val people: List<SearchPerson> = emptyList(),
 )
 
 @Serializable
@@ -319,4 +328,14 @@ data class SearchTitle(
     val name: String = "",
     val year: Int = 0,
     val artwork: List<String> = emptyList(),
-)
+    val backdrop: String? = null,
+    val logo: String? = null,
+    val genres: List<String> = emptyList(),
+    val ids: JsonElement? = null,
+    val slots: List<SearchSlot> = emptyList(),
+    val show: SearchShowInfo? = null,
+    val artist: SearchArtistInfo? = null,
+) {
+    val tmdb: String
+        get() = ((ids as? JsonObject)?.get("tmdb") as? JsonPrimitive)?.contentOrNull.orEmpty()
+}

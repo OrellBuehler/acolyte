@@ -94,6 +94,14 @@ struct SectionScreen: View {
             LibraryView(kind: .show)
         case .stats:
             LibraryStatsView()
+        case .home:
+            HomeView(account: account)
+        case .explore:
+            ExploreView(account: account)
+        case .search:
+            SearchView(account: account)
+        case .popular:
+            PopularView(account: account)
         case .health:
             HealthView()
         case .requests:
@@ -127,6 +135,10 @@ enum Route: Hashable, Sendable, Identifiable {
     case settingsRequests
     case settingsOutsideLists
     case settingsNeverAdd
+    case genre(type: ExploreTypeID, genre: Int)
+    case browse(BrowseLinkInfo)
+    case hidden
+    case exploreStats
 
     var id: Self { self }
 
@@ -170,7 +182,16 @@ extension EnvironmentValues {
 struct RoutedStack<Root: View>: View {
     let account: AccountInfo
     @ViewBuilder var root: () -> Root
-    @State private var router = Router()
+    @State private var router: Router
+    @State private var navigator: Navigator
+
+    init(account: AccountInfo, tabs: TabSelection, @ViewBuilder root: @escaping () -> Root) {
+        self.account = account
+        self.root = root
+        let router = Router()
+        _router = State(initialValue: router)
+        _navigator = State(initialValue: Navigator(account: account, router: router, tabs: tabs))
+    }
 
     var body: some View {
         let current = router
@@ -181,9 +202,11 @@ struct RoutedStack<Root: View>: View {
                 .navigationDestination(for: Route.self) { RouteScreen(route: $0, account: account) }
         }
         .environment(\.openRoute, open)
+        .environment(navigator)
         .sheet(item: $router.sheet) { route in
             RouteScreen(route: route, account: account)
                 .environment(\.openRoute, open)
+                .environment(navigator)
         }
     }
 }
@@ -191,6 +214,9 @@ struct RoutedStack<Root: View>: View {
 struct RouteScreen: View {
     let route: Route
     var account: AccountInfo?
+    @Environment(Navigator.self) private var navigator
+
+    private var resolved: AccountInfo { account ?? navigator.account }
 
     var body: some View {
         switch route {
@@ -198,10 +224,10 @@ struct RouteScreen: View {
             TitleView(kind: kind, tmdb: tmdb, libraryId: 0)
         case let .libraryTitle(id, kind, tmdb):
             TitleView(kind: kind, tmdb: tmdb, libraryId: id)
-        case .person:
-            PlaceholderView(section: .explore)
-        case .collection:
-            PlaceholderView(section: .movies)
+        case let .person(id):
+            PersonView(id: id, account: resolved)
+        case let .collection(id):
+            SeriesView(id: id)
         case .libraryTools:
             LibraryToolsView()
         case let .libraryDeleted(titleId):
@@ -234,6 +260,14 @@ struct RouteScreen: View {
             OutsideListsView()
         case .settingsNeverAdd:
             NeverAddView()
+        case let .genre(type, genre):
+            GenreView(type: type, genre: genre, account: resolved)
+        case let .browse(link):
+            BrowseView(link: link, account: resolved)
+        case .hidden:
+            HiddenView()
+        case .exploreStats:
+            ExploreStatsView()
         }
     }
 }

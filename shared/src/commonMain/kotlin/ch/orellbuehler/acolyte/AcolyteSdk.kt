@@ -2,7 +2,26 @@ package ch.orellbuehler.acolyte
 
 import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.platformEngine
+import ch.orellbuehler.acolyte.feature.discover.BrowseLink
+import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
+import ch.orellbuehler.acolyte.feature.discover.BrowseViewPresenter
+import ch.orellbuehler.acolyte.feature.discover.CardKind
+import ch.orellbuehler.acolyte.feature.discover.DiscoverPrefs
+import ch.orellbuehler.acolyte.feature.discover.ExplorePresenter
+import ch.orellbuehler.acolyte.feature.discover.ExploreStatsPresenter
+import ch.orellbuehler.acolyte.feature.discover.ExploreType
+import ch.orellbuehler.acolyte.feature.discover.GenrePresenter
+import ch.orellbuehler.acolyte.feature.discover.HiddenPresenter
+import ch.orellbuehler.acolyte.feature.discover.HideSheetPresenter
+import ch.orellbuehler.acolyte.feature.discover.OwnedLibrary
+import ch.orellbuehler.acolyte.feature.discover.PeopleBrowsePresenter
+import ch.orellbuehler.acolyte.feature.discover.PersonPresenter
+import ch.orellbuehler.acolyte.feature.discover.PopularPresenter
+import ch.orellbuehler.acolyte.feature.discover.SearchPresenter
+import ch.orellbuehler.acolyte.feature.discover.SeriesPresenter
 import ch.orellbuehler.acolyte.feature.health.HealthPresenter
+import ch.orellbuehler.acolyte.feature.home.HomePresenter
+import ch.orellbuehler.acolyte.feature.home.localToday
 import ch.orellbuehler.acolyte.feature.library.LibraryCopiesPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryDeletedPresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryFilesPresenter
@@ -37,7 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
 class AcolyteSdk internal constructor(
-    store: SecureStore,
+    private val store: SecureStore,
     appVersion: String,
     engineFactory: () -> HttpClientEngine,
     scope: CoroutineScope,
@@ -131,4 +150,47 @@ class AcolyteSdk internal constructor(
     fun outsideLists(): OutsideListsPresenter = OutsideListsPresenter(session.api) { session.account }
 
     fun neverAdd(): NeverAddPresenter = NeverAddPresenter(session.api) { session.account }
+
+    private val discoverWho: () -> String = { session.account?.let { "${it.serverUrl}|${it.userId}" }.orEmpty() }
+    private val ownedLibrary = OwnedLibrary(session.api, discoverWho)
+    private val discoverPrefs = DiscoverPrefs(store, discoverWho)
+
+    fun home(utcOffsetSeconds: Int): HomePresenter = HomePresenter(session.api, { session.account }, ownedLibrary, utcOffsetSeconds)
+
+    fun explore(
+        region: String,
+        timeZone: String,
+    ): ExplorePresenter = ExplorePresenter(session.api, { session.account }, ownedLibrary, discoverPrefs, region, timeZone)
+
+    fun exploreGenre(
+        type: ExploreType,
+        genre: Int,
+        region: String,
+    ): GenrePresenter = GenrePresenter(session.api, { session.account }, ownedLibrary, type, genre, region)
+
+    fun popular(utcOffsetSeconds: Int): PopularPresenter =
+        PopularPresenter(session.api, { session.account }, ownedLibrary, discoverPrefs) { localToday(utcOffsetSeconds) }
+
+    fun search(): SearchPresenter = SearchPresenter(session.api, { session.account }, ownedLibrary, discoverPrefs)
+
+    fun browse(): BrowsePresenter = BrowsePresenter(session.api) { session.account }
+
+    fun browseView(link: BrowseLink): BrowseViewPresenter = BrowseViewPresenter(session.api, { session.account }, ownedLibrary, link)
+
+    fun peopleBrowse(): PeopleBrowsePresenter = PeopleBrowsePresenter(session.api)
+
+    fun person(id: String): PersonPresenter = PersonPresenter(session.api, { session.account }, ownedLibrary, discoverPrefs, id)
+
+    fun movieSeries(id: String): SeriesPresenter = SeriesPresenter(session.api, { session.account }, id)
+
+    fun hidden(userId: Long): HiddenPresenter = HiddenPresenter(session.api, userId.takeIf { it >= 0 })
+
+    fun hideTitle(
+        kind: CardKind,
+        tmdb: String,
+        name: String,
+        genres: List<String>,
+    ): HideSheetPresenter = HideSheetPresenter(session.api, { session.account }, tmdb, kind, name, genres)
+
+    fun exploreStats(): ExploreStatsPresenter = ExploreStatsPresenter(session.api) { session.account }
 }

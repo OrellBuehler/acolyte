@@ -11,7 +11,13 @@ import ch.orellbuehler.acolyte.feature.library.LibraryKind
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.ui.account.AccountScreen
+import ch.orellbuehler.acolyte.ui.discover.ExploreScreen
+import ch.orellbuehler.acolyte.ui.discover.PopularScreen
+import ch.orellbuehler.acolyte.ui.discover.SearchScreen
+import ch.orellbuehler.acolyte.ui.discover.discoverRoutes
+import ch.orellbuehler.acolyte.ui.discover.rememberDiscoverNav
 import ch.orellbuehler.acolyte.ui.health.HealthScreen
+import ch.orellbuehler.acolyte.ui.home.HomeScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryCopiesScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryDeletedScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryFilesScreen
@@ -49,13 +55,14 @@ fun AppNavHost(
 
     val open: (Any) -> Unit = { nav.navigate(it) }
     val pop: () -> Unit = { nav.popBackStack() }
+    val discover = rememberDiscoverNav(nav, account)
 
     NavHost(navController = nav, startDestination = start, modifier = modifier) {
-        composable<HomeRoute> { PlaceholderScreen(Section.HOME, back(Section.HOME)) }
-        composable<ExploreRoute> { PlaceholderScreen(Section.EXPLORE, back(Section.EXPLORE)) }
+        composable<HomeRoute> { HomeScreen(discover, back(Section.HOME)) }
+        composable<ExploreRoute> { ExploreScreen(discover, back(Section.EXPLORE)) }
         composable<LibraryRoute> { LibraryScreen(null, back(Section.LIBRARY), open) }
-        composable<SearchRoute> { PlaceholderScreen(Section.SEARCH, back(Section.SEARCH)) }
-        composable<PopularRoute> { PlaceholderScreen(Section.POPULAR, back(Section.POPULAR)) }
+        composable<SearchRoute> { SearchScreen(discover, back(Section.SEARCH)) }
+        composable<PopularRoute> { PopularScreen(discover, back(Section.POPULAR)) }
         composable<MoviesRoute> { LibraryScreen(LibraryKind.MOVIE, back(Section.MOVIES), open) }
         composable<ShowsRoute> { LibraryScreen(LibraryKind.SHOW, back(Section.SHOWS), open) }
         composable<MusicRoute> { PlaceholderScreen(Section.MUSIC, back(Section.MUSIC)) }
@@ -98,7 +105,6 @@ fun AppNavHost(
         composable<LibraryImportRoute> { LibraryImportScreen(pop, open) }
         composable<LibraryImportFilesRoute> { LibraryFilesScreen(it.toRoute<LibraryImportFilesRoute>().path, pop) }
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
-        composable<PersonRoute> { PlaceholderScreen(Section.EXPLORE, onBack = { nav.popBackStack() }) }
-        composable<CollectionRoute> { PlaceholderScreen(Section.MOVIES, onBack = { nav.popBackStack() }) }
+        discoverRoutes(nav, account, discover)
     }
 }

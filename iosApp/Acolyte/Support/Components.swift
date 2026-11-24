@@ -79,6 +79,8 @@ struct PosterCard<Badges: View>: View {
     let image: String?
     var width: CGFloat = 120
     var progress: Double?
+    var mark: CardMarkInfo?
+    var fresh: String?
     @ViewBuilder var badges: () -> Badges
 
     var body: some View {
@@ -95,6 +97,13 @@ struct PosterCard<Badges: View>: View {
                     ProgressView(value: min(max(progress, 0), 1))
                         .tint(Theme.accent)
                         .padding(8)
+                } else if let fresh {
+                    FreshTabView(text: fresh)
+                }
+            }
+            .overlay(alignment: .topTrailing) {
+                if let mark {
+                    OwnedMarkView(mark: mark).padding(8)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.poster, style: .continuous))

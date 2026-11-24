@@ -141,6 +141,65 @@ final class SDKClient: @unchecked Sendable {
         NeverAddDriver(presenter: sdk.neverAdd())
     }
 
+    func makeHome() -> HomeDriver {
+        HomeDriver(presenter: sdk.home(utcOffsetSeconds: Int32(TimeZone.current.secondsFromGMT())))
+    }
+
+    func makeExplore() -> ExploreDriver {
+        ExploreDriver(presenter: sdk.explore(region: SDKClient.region, timeZone: TimeZone.current.identifier))
+    }
+
+    func makeGenre(type: ExploreTypeID, genre: Int) -> GenreDriver {
+        GenreDriver(presenter: sdk.exploreGenre(type: Mapping.kotlinType(type), genre: Int32(genre), region: SDKClient.region))
+    }
+
+    func makePopular() -> PopularDriver {
+        PopularDriver(presenter: sdk.popular(utcOffsetSeconds: Int32(TimeZone.current.secondsFromGMT())))
+    }
+
+    func makeSearch() -> SearchDriver {
+        SearchDriver(search: sdk.search(), browse: sdk.browse(), people: sdk.peopleBrowse())
+    }
+
+    func makeBrowseView(_ link: BrowseLinkInfo) -> BrowseViewDriver {
+        BrowseViewDriver(presenter: sdk.browseView(link: Mapping.kotlinLink(link)))
+    }
+
+    func makePerson(_ id: String) -> PersonDriver {
+        PersonDriver(presenter: sdk.person(id: id))
+    }
+
+    func makeSeries(_ id: String) -> SeriesDriver {
+        SeriesDriver(presenter: sdk.movieSeries(id: id))
+    }
+
+    func makeHidden() -> HiddenDriver {
+        HiddenDriver(presenter: sdk.hidden(userId: -1))
+    }
+
+    func makeHideSheet(_ target: HideTarget) -> HideSheetDriver {
+        HideSheetDriver(
+            presenter: sdk.hideTitle(kind: Mapping.kotlinKind(target.kind), tmdb: target.tmdb, name: target.name, genres: target.genres)
+        )
+    }
+
+    func makeExploreStats() -> ExploreStatsDriver {
+        ExploreStatsDriver(presenter: sdk.exploreStats())
+    }
+
+    func genreOptions(_ type: ExploreTypeID) -> [GenreOption] {
+        DiscoverKit.shared.genres(type: Mapping.kotlinType(type)).map { GenreOption(id: Int($0.id), name: $0.name) }
+    }
+
+    func genreName(_ id: Int, type: ExploreTypeID) -> String {
+        DiscoverKit.shared.genreName(id: Int32(id), type: Mapping.kotlinType(type))
+    }
+
+    static var region: String {
+        let code = Locale.current.region?.identifier ?? ""
+        return code.count == 2 ? code : "US"
+    }
+
     func imageRequest(_ source: String?, size: ImageSizeKind) -> ImageRequestInfo? {
         guard let text = sdk.images.url(source: source, size: Mapping.kotlinSize(size)), let url = URL(string: text) else {
             return nil

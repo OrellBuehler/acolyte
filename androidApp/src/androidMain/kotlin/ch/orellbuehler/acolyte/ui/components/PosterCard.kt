@@ -1,6 +1,6 @@
 package ch.orellbuehler.acolyte.ui.components
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ch.orellbuehler.acolyte.feature.discover.CardMark
 import ch.orellbuehler.acolyte.image.ImageSize
 import ch.orellbuehler.acolyte.ui.theme.Radius
 import ch.orellbuehler.acolyte.ui.theme.acolyte
@@ -36,12 +37,20 @@ fun PosterCard(
     progress: Float? = null,
     badges: (@Composable () -> Unit)? = null,
     onClick: (() -> Unit)? = null,
+    mark: CardMark? = null,
+    markLabel: String = "",
+    fresh: String? = null,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     Column(
         modifier
             .width(width)
             .clip(RoundedCornerShape(Radius.Poster))
-            .let { if (onClick != null) it.clickable(onClick = onClick) else it },
+            .let {
+                if (onClick != null || onLongClick != null) it.combinedClickable(onLongClick = onLongClick) { onClick?.invoke() } else it
+            },
     ) {
         Box(
             Modifier
@@ -67,6 +76,11 @@ fun PosterCard(
                     strokeCap = StrokeCap.Round,
                     modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(8.dp),
                 )
+            }
+            if (mark != null) OwnedMark(mark, markLabel, Modifier.align(Alignment.TopEnd).padding(8.dp))
+            if (fresh != null && progress == null) FreshTab(fresh, Modifier.align(Alignment.BottomCenter))
+            if (onAction != null && actionLabel != null) {
+                CardActionButton(actionLabel, onAction, Modifier.align(Alignment.BottomEnd).padding(6.dp))
             }
         }
         Text(

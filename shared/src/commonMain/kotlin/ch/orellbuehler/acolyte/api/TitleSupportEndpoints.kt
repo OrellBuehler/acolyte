@@ -7,7 +7,6 @@ import ch.orellbuehler.acolyte.api.model.TitleAddDefaults
 import ch.orellbuehler.acolyte.api.model.TitleEvents
 import ch.orellbuehler.acolyte.api.model.TitleGateDefaults
 import ch.orellbuehler.acolyte.api.model.TitleHide
-import ch.orellbuehler.acolyte.api.model.TitlePersonPage
 import ch.orellbuehler.acolyte.api.model.TitleShowDefaults
 import ch.orellbuehler.acolyte.api.model.TitleUsers
 
@@ -21,7 +20,5 @@ internal data object TitleSupportEndpoints : EndpointGroup() {
     val users = get("/api/v1/users", TitleUsers.serializer(), Need.USERS, Part.CORE)
     val hide = post("/api/v1/hidden", HideBody.serializer(), TitleHide.serializer(), Need.USERS, Part.MEDIA)
     val unhide = delete("/api/v1/hidden/{id}", NoContent, Need.USERS, Part.MEDIA)
-    val person =
-        get("/api/v1/people/{id}", TitlePersonPage.serializer(), Need.SIGNED_IN, Part.MOVIES, query = listOf("role", "page", "page_size"))
     val translator = get("/api/v1/settings/subtitles/translator", SubtitleTranslator.serializer(), Need.SETTINGS, Part.SUBTITLES)
 }

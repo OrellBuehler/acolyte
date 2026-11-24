@@ -110,11 +110,94 @@ internal object KnownSpecGaps {
             "POST /api/v1/asks body.quality: sent by the model but not in the spec" to NEW_ASK,
             "POST /api/v1/asks/{id}/approve body.quality: sent by the model but not in the spec" to
                 "Go ApproveOptions (requests/approve.go) takes quality to approve as another line; the spec body lags",
+            "GET /api/v1/explore/head: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/head: query parameter 'tz' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/head: query parameter 'services' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/head: query parameter 'region' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/tail: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/tail: query parameter 'tz' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/tail: query parameter 'services' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/tail: query parameter 'region' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/tail: query parameter 'page' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/service-top: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/service-top: query parameter 'region' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/top: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/top: query parameter 'chip' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/top: query parameter 'region' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/top: query parameter 'services' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/top: query parameter 'genre' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new/services: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/genre-row: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/strip: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/strip: query parameter 'row' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/strip: query parameter 'tz' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "POST /api/v1/explore/strip/counts: sends a body but the spec takes none" to
+                "the Go handler reads a JSON body; the spec has no request body",
+            "POST /api/v1/explore/counts: sends a body but the spec takes none" to
+                "the Go handler reads a JSON body; the spec has no request body",
+            "GET /api/v1/explore/genre: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/genre: query parameter 'genre' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/browse: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/browse/section: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/browse/section: query parameter 'section' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/browse/category: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/browse/category: query parameter 'id' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new: query parameter 'page' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new/service: query parameter 'id' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new/service: query parameter 'type' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/explore/new/service: query parameter 'row' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/search: query parameter 'q' is not in the spec (it has [])" to
+                "the Go handler reads this query parameter; the spec lists none",
+            "GET /api/v1/people/{id}: query parameter 'sort' is not in the spec (it has [role, page, page_size])" to
+                "the Go handler reads sort (oldest, newest, popular); the spec lists only role, page and page_size",
         )
 
     val liveSkips: Map<String, String> =
         mapOf(
             "GET /api/v1/watch-services" to
                 "needs ?region=, which the spec does not list as a parameter (the handler answers 400 without it)",
+            "GET /api/v1/explore/tail" to "needs type and page; the spec lists no query parameters",
+            "GET /api/v1/explore/service-top" to "needs type and region; the spec lists no query parameters",
+            "GET /api/v1/explore/top" to "needs chip and region; the spec lists no query parameters",
+            "GET /api/v1/explore/genre" to "needs a genre id; the spec lists no query parameters",
+            "GET /api/v1/explore/browse/section" to "needs a section id; the spec lists no query parameters",
+            "GET /api/v1/explore/browse/category" to "needs a category id; the spec lists no query parameters",
+            "GET /api/v1/explore/new/service" to "needs a service id; the spec lists no query parameters",
+            "GET /api/v1/people/popular" to "asks TMDB; on a server without TMDB access it answers after the client's 20 s socket timeout",
+            "GET /api/v1/explore/title-stats" to "held back in this release (404 while row_title_stats is held)",
         )
 }

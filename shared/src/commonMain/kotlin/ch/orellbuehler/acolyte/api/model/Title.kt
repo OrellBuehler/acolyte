@@ -130,6 +130,7 @@ data class TitleHide(
     val genre: String = "",
     val name: String = "",
     @SerialName("user_id") val userId: Long = 0,
+    @SerialName("created_at") val createdAt: String = "",
 )
 
 @Serializable
@@ -165,23 +166,6 @@ data class TitleMoreFrom(
     val person: String = "",
     val role: String = "",
     val items: List<TitleCard> = emptyList(),
-)
-
-@Serializable
-data class TitlePersonPage(
-    val movies: List<TitlePersonMovie> = emptyList(),
-    @SerialName("known_for") val knownFor: List<TitlePersonMovie> = emptyList(),
-)
-
-@Serializable
-data class TitlePersonMovie(
-    val ids: Map<String, String> = emptyMap(),
-    val name: String = "",
-    val year: Int = 0,
-    val poster: String = "",
-    val backdrop: String = "",
-    @SerialName("title_id") val titleId: Long = 0,
-    val ask: TitleAsk? = null,
 )
 
 @Serializable
