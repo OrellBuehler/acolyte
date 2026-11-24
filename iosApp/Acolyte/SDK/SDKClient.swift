@@ -137,6 +137,14 @@ final class SDKClient: @unchecked Sendable {
         RequestRulesDriver(presenter: sdk.requestSettings())
     }
 
+    func makeSettingsPickRules() -> QualityListDriver {
+        QualityListDriver(presenter: sdk.settingsPickRules())
+    }
+
+    func makeSettingsPickRuleEdit(id: Int64, from: Int64) -> QualityEditDriver {
+        QualityEditDriver(presenter: sdk.settingsPickRuleEdit(id: id, from: from))
+    }
+
     func makeOutsideLists() -> OutsideListsDriver {
         OutsideListsDriver(presenter: sdk.outsideLists())
     }
