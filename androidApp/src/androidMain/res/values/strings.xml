@@ -2299,7 +2299,6 @@
     <!-- /requests -->
 
 
-<<<<<<< HEAD
     <string name="discover_action_add">Add %1$s</string>
     <string name="discover_action_add_short">Add</string>
     <string name="discover_action_ask">Ask for %1$s</string>
@@ -2804,7 +2803,6 @@
         <item quantity="one">%1$d track</item>
         <item quantity="other">%1$d tracks</item>
     </plurals>
-=======
 
     <string name="downloads_search_hint">Search downloads</string>
     <string name="downloads_search">Search</string>
@@ -3481,5 +3479,4 @@
     <string name="downloads_calendar_go_movie">Go to movie</string>
     <string name="downloads_calendar_no_description">No description yet.</string>
     <string name="downloads_calendar_followed_by">Followed by %1$s</string>
->>>>>>> bf30dbb (add downloads, history and calendar screens on android)
 </resources>
