@@ -3,7 +3,6 @@ import SwiftUI
 struct TitleHeroView: View {
     let info: TitleInfo
     let store: TitleStore
-    @Environment(\.openRoute) private var openRoute
 
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.small) {
@@ -122,6 +121,7 @@ private struct HeroActionsView: View {
     let info: TitleInfo
     let store: TitleStore
     @Environment(\.openURL) private var openURL
+    @Environment(\.openRoute) private var openRoute
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {

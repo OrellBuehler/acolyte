@@ -34,7 +34,7 @@ data class SeasonRow(
     val asked: List<Int>?,
 )
 
-data class SeasonPick(
+data class AskSeasonPick(
     val number: Int,
     val all: List<Int>,
     val asked: List<Int>,
@@ -198,7 +198,7 @@ fun askSeasonRows(
 fun seasonPick(
     row: SeasonRow,
     ticked: List<Int>?,
-): SeasonPick {
+): AskSeasonPick {
     val all = row.episodes
     val asked = row.asked ?: all
     val kept = (ticked ?: asked).filter { all.isEmpty() || it in all }.toSet().sorted()
@@ -209,10 +209,10 @@ fun seasonPick(
             kept.size < all.size -> Tick.SOME
             else -> Tick.ALL
         }
-    return SeasonPick(row.number, all, asked, kept, tick)
+    return AskSeasonPick(row.number, all, asked, kept, tick)
 }
 
-internal fun seasonsChoice(picks: List<SeasonPick>): PartsChoice {
+internal fun seasonsChoice(picks: List<AskSeasonPick>): PartsChoice {
     if (picks.isEmpty()) return PartsChoice()
     val empty = picks.all { it.tick == Tick.NONE }
     val changed = picks.any { it.changed || (it.all.isEmpty() && it.tick == Tick.NONE) }
