@@ -221,6 +221,38 @@ final class SDKClient: @unchecked Sendable {
         DownloadBadgesDriver(badges: sdk.downloadBadges)
     }
 
+    func makeReauth() -> ReauthDriver {
+        ReauthDriver(gate: sdk.reauthGate())
+    }
+
+    func makeInvite(_ target: InviteTargetInfo) -> InviteDriver {
+        InviteDriver(flow: sdk.invite(target: Mapping.kotlinInviteTarget(target)))
+    }
+
+    func parseInvite(_ text: String) -> InviteTargetInfo? {
+        InviteLink.shared.parse(text: text).map { Mapping.inviteTarget($0) }
+    }
+
+    func makeAccountWizard() -> AccountWizardDriver {
+        AccountWizardDriver(wizard: sdk.accountWizard(), security: sdk.accountSecurity())
+    }
+
+    func cleanName(_ raw: String) -> String {
+        AccountRules.shared.cleanName(raw: raw)
+    }
+
+    func validName(_ name: String) -> Bool {
+        AccountRules.shared.validName(name: name)
+    }
+
+    func validPassword(_ password: String, minimum: Int) -> Bool {
+        AccountRules.shared.validPassword(password: password, minimum: Int32(minimum))
+    }
+
+    func validDisplayName(_ name: String) -> Bool {
+        AccountRules.shared.validDisplayName(name: name)
+    }
+
     func reauth(password: String, code: String) async -> Bool {
         do {
             let failure = try await sdk.session.reauth(password: password, code: code.isEmpty ? nil : code)

@@ -45,6 +45,14 @@ fun SignInErrorCode.messageRes(): Int =
         SignInErrorCode.NOT_ALLOWED -> R.string.signin_error_not_allowed
         SignInErrorCode.WAY_OFF -> R.string.signin_error_way_off
         SignInErrorCode.RATE_LIMITED -> R.string.error_rate_limited
+        SignInErrorCode.INVALID_NAME -> R.string.signin_error_invalid_name
+        SignInErrorCode.PASSWORD_SHORT -> R.string.signin_error_password_short
+        SignInErrorCode.NAME_TAKEN -> R.string.signin_error_name_taken
+        SignInErrorCode.OWNER_EXISTS -> R.string.signin_error_owner_exists
+        SignInErrorCode.PLEX_TIMEOUT -> R.string.signin_error_plex_timeout
+        SignInErrorCode.RESET_CODE_WRONG -> R.string.signin_error_reset_code_wrong
+        SignInErrorCode.INVITE_GONE -> R.string.signin_error_invite_gone
+        SignInErrorCode.LINKED -> R.string.signin_error_linked
         SignInErrorCode.SERVER -> R.string.signin_error_server
     }
 
