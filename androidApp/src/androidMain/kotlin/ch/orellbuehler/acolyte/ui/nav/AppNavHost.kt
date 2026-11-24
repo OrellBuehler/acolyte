@@ -176,7 +176,7 @@ fun AppNavHost(
         composable<SettingsNamingRoute> { SettingsNamingScreen(account, pop) }
         composable<SettingsSubtitlesRoute> { SettingsSubtitlesScreen(account, pop) }
         composable<SettingsSearchRoute> { SettingsSearchScreen(account, pop) }
-        composable<SettingsMoveRoute> { SettingsMoveScreen(account, pop) }
+        composable<SettingsMoveRoute> { SettingsMoveScreen(account, pop, open) }
         discoverRoutes(nav, account, discover)
     }
 }

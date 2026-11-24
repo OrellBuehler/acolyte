@@ -50,6 +50,7 @@ import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRuleEditPresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRulesPresenter
+import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
 import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskReviewPresenter
@@ -124,6 +125,11 @@ class AcolyteSdk internal constructor(
             { password, code -> session.reauth(password, code) },
             { session.refresh() },
         )
+
+    fun settingsMove(): SettingsMovePresenter =
+        SettingsMovePresenter(session.api, {
+            session.account
+        }, { password, code -> session.reauth(password, code) })
 
     fun title(
         kind: String,
