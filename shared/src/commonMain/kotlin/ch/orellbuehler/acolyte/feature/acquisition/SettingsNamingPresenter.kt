@@ -3,8 +3,8 @@ package ch.orellbuehler.acolyte.feature.acquisition
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
-import ch.orellbuehler.acolyte.api.NamingEndpoints
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
+import ch.orellbuehler.acolyte.api.NamingEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.model.FileSettings
 import ch.orellbuehler.acolyte.api.model.SettingsNamingExampleBody
@@ -53,7 +53,8 @@ data class SettingsNamingState(
     val cleanError: ApiError? = null,
 ) {
     val dirty: Boolean get() =
-        draft != saved || files != savedFiles ||
+        draft != saved ||
+            files != savedFiles ||
             typed.any { (field, text) -> settingsNamingParseNumber(field, text) != numberOf(field, saved, savedFiles) }
 
     val numbersValid: Boolean get() = SettingsNamingNumber.entries.all { numberError(it) == null }
@@ -133,7 +134,13 @@ data class SettingsNamingState(
     fun numberError(field: SettingsNamingNumber): SettingsNamingNumberError? = settingsNamingNumberError(field, number(field))
 
     fun numberErrorKey(wire: String): String =
-        SettingsNamingNumber.of(wire)?.let { numberError(it) }?.name?.lowercase()?.replace("_", "").orEmpty()
+        SettingsNamingNumber
+            .of(wire)
+            ?.let { numberError(it) }
+            ?.name
+            ?.lowercase()
+            ?.replace("_", "")
+            .orEmpty()
 
     fun words(
         field: SettingsNamingText,
@@ -144,6 +151,26 @@ data class SettingsNamingState(
         wire: String,
         query: String,
     ): List<SettingsNamingWord> = SettingsNamingText.of(wire)?.let { words(it, query) }.orEmpty()
+
+    fun exampleFor(field: SettingsNamingText): String {
+        val episodes = exampleEpisodes
+        val music = exampleMusic
+        return when (field) {
+            SettingsNamingText.FILE_PATTERN, SettingsNamingText.FOLDER_PATTERN ->
+                if (exampleFolder.isEmpty()) example else "$exampleFolder/$example"
+            SettingsNamingText.SHOW_FOLDER_PATTERN -> episodes["show_folder"].orEmpty()
+            SettingsNamingText.SEASON_FOLDER_PATTERN, SettingsNamingText.EPISODE_PATTERN -> episodes["episode"].orEmpty()
+            SettingsNamingText.SPECIALS_FOLDER -> episodes["special"].orEmpty()
+            SettingsNamingText.DAILY_PATTERN -> episodes["daily"].orEmpty()
+            SettingsNamingText.ANIME_PATTERN -> episodes["anime"].orEmpty()
+            SettingsNamingText.ARTIST_FOLDER_PATTERN -> music["artist_folder"].orEmpty()
+            SettingsNamingText.ALBUM_FOLDER_PATTERN -> music["album_folder"].orEmpty()
+            SettingsNamingText.TRACK_PATTERN -> music["track"].orEmpty()
+            SettingsNamingText.MULTI_DISC_TRACK_PATTERN, SettingsNamingText.DISC_FOLDER_PATTERN -> music["multi_disc"].orEmpty()
+        }
+    }
+
+    fun exampleFor(wire: String): String = SettingsNamingText.of(wire)?.let { exampleFor(it) }.orEmpty()
 
     internal fun exampleBody(): SettingsNamingExampleBody? = if (status.phase == Phase.READY) draft.toExampleBody() else null
 }
@@ -410,7 +437,11 @@ class SettingsNamingPresenter internal constructor(
             }
         mutableState.update {
             it.withView(view).copy(
-                typed = it.typed.filterKeys { field -> field == SettingsNamingNumber.HOLDING_DAYS || field == SettingsNamingNumber.MIN_FREE_MB },
+                typed =
+                    it.typed.filterKeys { field ->
+                        field == SettingsNamingNumber.HOLDING_DAYS ||
+                            field == SettingsNamingNumber.MIN_FREE_MB
+                    },
             )
         }
         when (val result = api.result(NamingEndpoints.saveFiles, s.files)) {

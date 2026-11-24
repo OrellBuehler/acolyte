@@ -130,7 +130,13 @@ data class SettingsSearchState(
 
     fun numberError(field: SettingsSearchNumber): SettingsSearchNumberError? = settingsSearchNumberError(field, number(field))
 
-    fun numberErrorKey(wire: String): String = SettingsSearchNumber.of(wire)?.let { numberError(it) }?.name?.lowercase().orEmpty()
+    fun numberErrorKey(wire: String): String =
+        SettingsSearchNumber
+            .of(wire)
+            ?.let { numberError(it) }
+            ?.name
+            ?.lowercase()
+            .orEmpty()
 
     fun isOn(field: SettingsSearchSwitch): Boolean =
         when (field) {

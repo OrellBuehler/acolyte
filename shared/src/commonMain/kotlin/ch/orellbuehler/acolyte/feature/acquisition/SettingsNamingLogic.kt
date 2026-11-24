@@ -234,7 +234,10 @@ internal fun settingsNamingWords(
 internal fun settingsNamingRows(
     examples: Map<String, String>,
     keys: List<String>,
-): List<SettingsNamingExampleRow> = keys.mapNotNull { key -> examples[key]?.takeIf { it.isNotEmpty() }?.let { SettingsNamingExampleRow(key, it) } }
+): List<SettingsNamingExampleRow> =
+    keys.mapNotNull { key ->
+        examples[key]?.takeIf { it.isNotEmpty() }?.let { SettingsNamingExampleRow(key, it) }
+    }
 
 internal val SETTINGS_NAMING_EPISODE_KEYS = listOf("show_folder", "episode", "multi", "special", "daily", "anime")
 internal val SETTINGS_NAMING_MUSIC_KEYS = listOf("artist_folder", "album_folder", "track", "multi_disc", "various")

@@ -3,7 +3,7 @@ package ch.orellbuehler.acolyte.contract
 internal object KnownSpecGaps {
     private const val OUTSIDE_LIST = "Go OutsideListInput (outside_lists.go) takes title_kind, seasons and new_seasons; ListInput lags"
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
-    private const val NAMING_SETTINGS = "Go NamingSettings has 34 fields; the spec lists 27 (show and music colon, illegal, rename; title_language)"
+    private const val NAMING_SETTINGS = "Go NamingSettings has 34 fields; the spec lists 27 (part colon, illegal, rename, language)"
     private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
 
     val problems: Map<String, String> =

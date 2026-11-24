@@ -81,6 +81,10 @@ class SettingsNamingTest {
             assertEquals(listOf("show_folder", "episode", "special", "daily", "anime"), s.episodeRows.map { it.key })
             assertEquals(listOf("artist_folder", "album_folder", "track", "multi_disc", "various"), s.musicRows.map { it.key })
             assertTrue(s.canClean)
+            assertEquals("Dune - Part Two (2024)/Dune - Part Two (2024) Bluray-1080p", s.exampleFor(SettingsNamingText.FILE_PATTERN))
+            assertEquals("Copper Valley (2020)", s.exampleFor("show_folder_pattern"))
+            assertEquals("2-03 - Glow", s.exampleFor("disc_folder_pattern"))
+            assertEquals("Specials/x", s.exampleFor("specials_folder"))
         }
 
     @Test
@@ -180,7 +184,10 @@ class SettingsNamingTest {
             p.load()
             val s = p.state.value
             assertEquals(listOf("edition", "quality", "title", "tmdb", "year"), s.words(SettingsNamingText.FILE_PATTERN, "").map { it.key })
-            assertEquals(listOf("episode", "season"), s.words("daily_pattern", "").map { it.key }.filter { it in listOf("episode", "season") })
+            assertEquals(
+                listOf("episode", "season"),
+                s.words("daily_pattern", "").map { it.key }.filter { it in listOf("episode", "season") },
+            )
             assertEquals(listOf("season"), s.words(SettingsNamingText.SEASON_FOLDER_PATTERN, "").map { it.key })
             assertEquals(listOf("artist", "edition", "track", "year"), s.words(SettingsNamingText.TRACK_PATTERN, "").map { it.key })
             assertEquals(listOf("tmdb"), s.words(SettingsNamingText.FILE_PATTERN, "TMDB").map { it.key })
@@ -188,7 +195,11 @@ class SettingsNamingTest {
             assertTrue(s.words(SettingsNamingText.SPECIALS_FOLDER, "").isEmpty())
             val cursor = p.insertWord("file_pattern", "edition", 0, 0)
             assertEquals(9, cursor)
-            assertTrue(p.state.value.text("file_pattern").startsWith("{edition}{title}"))
+            assertTrue(
+                p.state.value
+                    .text("file_pattern")
+                    .startsWith("{edition}{title}"),
+            )
             assertEquals(0, p.insertWord("specials_folder", "x", 0, 0))
         }
 
@@ -283,7 +294,11 @@ class SettingsNamingTest {
             assertTrue(posted[0].body.orEmpty().contains(""""file_pattern":"{title} ab""""))
             assertFalse(posted[0].body.orEmpty().contains("adopt_scan_limit"))
             assertEquals("F1", p.state.value.exampleFolder)
-            assertEquals(listOf("episode"), p.state.value.episodeRows.map { it.key })
+            assertEquals(
+                listOf("episode"),
+                p.state.value.episodeRows
+                    .map { it.key },
+            )
             job.cancel()
         }
 
@@ -299,7 +314,11 @@ class SettingsNamingTest {
             p.setText(SettingsNamingText.FILE_PATTERN, "{year}")
             advanceTimeBy(300)
             eventually { p.state.value.exampleError != null }
-            assertEquals("the file name pattern needs {title}", p.state.value.exampleError?.message)
+            assertEquals(
+                "the file name pattern needs {title}",
+                p.state.value.exampleError
+                    ?.message,
+            )
             assertTrue(p.state.value.dirty)
             assertFalse(p.state.value.canSave)
             server.json("POST", "/api/v1/settings/naming/example", example)
