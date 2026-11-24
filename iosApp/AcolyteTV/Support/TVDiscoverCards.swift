@@ -4,6 +4,7 @@ struct TVDiscoverCard: View {
     let card: DiscoverCardInfo
     var wide = false
     var typed = false
+    var subtitle: String?
     var badge: String?
     var showsText = true
     var focus: TVFocusKey?
@@ -13,25 +14,40 @@ struct TVDiscoverCard: View {
         if wide {
             TVBackdropCard(
                 title: card.name,
-                subtitle: DiscoverText.line(card, typed: typed),
+                subtitle: subtitle ?? DiscoverText.line(card, typed: typed),
                 image: card.wideImage,
                 logo: card.logo,
                 mark: card.mark,
                 fresh: DiscoverText.fresh(card.fresh),
                 badge: badge,
+                menu: menu,
                 showsText: showsText,
                 focus: focus
             ) { navigator.openCard(card) }
         } else {
             TVPosterCard(
                 title: card.name,
-                subtitle: DiscoverText.line(card, typed: typed),
+                subtitle: subtitle ?? DiscoverText.line(card, typed: typed),
                 image: card.posterImage,
                 mark: card.mark,
                 fresh: DiscoverText.fresh(card.fresh),
+                badge: badge,
+                menu: menu,
                 focus: focus
             ) { navigator.openCard(card) }
         }
+    }
+
+    private var menu: [TVMenuAction] {
+        guard let action = card.action, let title = DiscoverText.action(card) else { return [] }
+        return [
+            TVMenuAction(id: "action", title: title, systemImage: "plus") {
+                switch action {
+                case .add: navigator.open(.title(kind: card.kind.wire, tmdb: card.tmdb))
+                case .ask: navigator.open(.ask(kind: card.kind.wire, tmdb: card.tmdb))
+                }
+            }
+        ]
     }
 }
 
