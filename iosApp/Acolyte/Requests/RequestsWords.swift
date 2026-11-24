@@ -299,4 +299,48 @@ enum RequestsWords {
         case .noSeasons: L10n.tr("requests.outside.seasons.none")
         }
     }
+
+    static func note(_ note: RequestsNoteInfo) -> String {
+        let error = note.error.map { RequestsWords.error($0) } ?? ""
+        switch note.kind {
+        case .approved: return L10n.format("requests.note.approved", note.name)
+        case .declined: return L10n.format("requests.note.declined", note.name)
+        case .approvedMany: return L10n.plural("requests.note.approved.many", note.count)
+        case .approveFailed: return L10n.format("requests.note.approve.failed", note.name, error)
+        case .declineFailed: return L10n.format("requests.note.decline.failed", note.name, error)
+        case .alreadyDecided:
+            let key = switch note.state {
+            case "turned_down": "requests.note.already.declined"
+            case "approved", "available": "requests.note.already.approved"
+            default: "requests.note.already.answered"
+            }
+            let head = L10n.format(key, note.name)
+            return note.by.isEmpty ? head : L10n.format("requests.note.by", head, note.by)
+        case .notice: return note.text
+        case .removed: return L10n.plural("requests.note.removed", note.count)
+        case .nothingToRemove: return L10n.tr("requests.note.nothing.removed")
+        case .removeFailed, .takeBackFailed: return L10n.format("requests.note.remove.failed", error)
+        case .takenBack: return L10n.format("requests.note.taken.back", note.name)
+        }
+    }
+
+    static func calm(_ info: RequestsInfo) -> (title: String, message: String?) {
+        if info.approver, info.filtersOn > 0 {
+            let title = info.stage.map { L10n.format("requests.filtered.stage", stage($0)) }
+                ?? L10n.format("requests.filtered.kind", kindFilter(info.kind))
+            return (title, L10n.tr("requests.filtered.hidden"))
+        }
+        if info.approver {
+            switch info.approverTab {
+            case .waiting: return (L10n.tr("requests.calm.caught.up"), L10n.tr("requests.calm.waiting"))
+            case .processing: return (L10n.tr("requests.calm.processing.title"), L10n.tr("requests.calm.processing"))
+            case .done: return (L10n.tr("requests.calm.done.title"), L10n.tr("requests.calm.done"))
+            }
+        }
+        switch info.memberTab {
+        case .waiting: return (L10n.tr("requests.calm.caught.up"), nil)
+        case .failed: return (L10n.tr("requests.calm.nothing.failed"), nil)
+        default: return (L10n.format("requests.calm.nothing.yet", memberTab(info.memberTab)), nil)
+        }
+    }
 }

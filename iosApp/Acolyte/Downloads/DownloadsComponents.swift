@@ -1,37 +1,6 @@
 import Observation
 import SwiftUI
 
-struct DlToastMessage: Identifiable, Equatable {
-    let id: Int
-    let text: String
-    let tone: ToneKind
-}
-
-@MainActor
-@Observable
-final class DlToastModel {
-    private(set) var message: DlToastMessage?
-
-    @ObservationIgnored private var counter = 0
-    @ObservationIgnored private var task: Task<Void, Never>?
-
-    func show(_ text: String, tone: ToneKind) {
-        counter += 1
-        let id = counter
-        message = DlToastMessage(id: id, text: text, tone: tone)
-        task?.cancel()
-        task = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(3.5))
-            guard !Task.isCancelled else { return }
-            self?.dismiss(id)
-        }
-    }
-
-    func dismiss(_ id: Int) {
-        if message?.id == id { message = nil }
-    }
-}
-
 struct DownloadsToast: View {
     let message: DlToastMessage
 
@@ -143,15 +112,6 @@ struct DlChipRow<Content: View>: View {
             .padding(.horizontal, Theme.Spacing.screen)
             .padding(.vertical, Theme.Spacing.xSmall)
         }
-    }
-}
-
-extension DlTitleLink {
-    var route: Route {
-        if libraryId > 0 {
-            return openLibrary ? .libraryTab(id: libraryId, kind: kind, tmdb: tmdb) : .libraryTitle(id: libraryId, kind: kind, tmdb: tmdb)
-        }
-        return .title(kind: kind, tmdb: tmdb)
     }
 }
 
@@ -305,11 +265,5 @@ struct DlDayHeader: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
-    }
-}
-
-extension ErrorInfo {
-    var detailed: String {
-        message.isEmpty ? localized : localized + " " + message
     }
 }
