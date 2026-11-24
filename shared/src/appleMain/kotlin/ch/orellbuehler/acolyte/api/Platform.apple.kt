@@ -14,5 +14,3 @@ internal actual fun platformEngine(): HttpClientEngine =
     }
 
 internal actual fun deviceLanguage(): String = (NSLocale.preferredLanguages.firstOrNull() as? String ?: "en").lowercase()
-
-internal actual val platformName: String = "iOS"
