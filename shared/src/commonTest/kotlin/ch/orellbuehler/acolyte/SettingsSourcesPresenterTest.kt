@@ -26,6 +26,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonNull
@@ -269,6 +270,7 @@ class SettingsSourcesPresenterTest {
     fun liveSourceEventsRefreshTheRows() =
         runTest {
             val server = FakeServer()
+            server.dispatcher = StandardTestDispatcher(testScheduler)
             server.sourcesRoutes(source(1, "A"))
             val live = MutableSharedFlow<LiveEvent>(extraBufferCapacity = 4)
             val client =
