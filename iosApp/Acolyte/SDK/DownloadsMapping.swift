@@ -445,7 +445,7 @@ extension Mapping {
             names: p.names,
             more: Int(p.more),
             single: p.single,
-            release: p.release,
+            release: p.releaseName,
             doneLine: p.doneLine.flatMap { RemoveDoneLineKind(rawValue: key($0)) },
             downloader: p.downloader,
             showDeleteFiles: p.showDeleteFiles,

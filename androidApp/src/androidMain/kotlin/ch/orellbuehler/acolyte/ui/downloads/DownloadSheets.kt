@@ -95,8 +95,8 @@ internal fun RemoveDialog(
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(Spacing.Small)) {
                 if (current.single.isNotEmpty()) {
                     Text(current.single, style = MaterialTheme.typography.titleSmall)
-                    if (current.release.isNotEmpty() && current.release != current.single) {
-                        Text(current.release, style = MaterialTheme.typography.bodySmall, color = muted)
+                    if (current.releaseName.isNotEmpty() && current.releaseName != current.single) {
+                        Text(current.releaseName, style = MaterialTheme.typography.bodySmall, color = muted)
                     }
                 } else {
                     current.names.forEach {
