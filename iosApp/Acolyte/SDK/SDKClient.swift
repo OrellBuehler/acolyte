@@ -260,5 +260,7 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsLookMetadata() -> SettingsLookMetadataDriver {
         SettingsLookMetadataDriver(presenter: sdk.settingsLookMetadata())
+    func makeSettingsMediaServers() -> SettingsMediaServersDriver {
+        SettingsMediaServersDriver(presenter: sdk.settingsMediaServers())
     }
 }

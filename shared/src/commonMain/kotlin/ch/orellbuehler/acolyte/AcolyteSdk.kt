@@ -55,6 +55,7 @@ import ch.orellbuehler.acolyte.feature.settings.SettingsHomePresenter
 import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookAppearancePresenter
 import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookDefaultsPresenter
 import ch.orellbuehler.acolyte.feature.settings.look.SettingsLookMetadataPresenter
+import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServersPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -230,4 +231,6 @@ class AcolyteSdk internal constructor(
     fun settingsLookDefaults(): SettingsLookDefaultsPresenter = SettingsLookDefaultsPresenter(session.api) { session.account }
 
     fun settingsLookMetadata(): SettingsLookMetadataPresenter = SettingsLookMetadataPresenter(session.api) { session.account }
+    fun settingsMediaServers(): SettingsMediaServersPresenter =
+        SettingsMediaServersPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
 }
