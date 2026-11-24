@@ -43,8 +43,8 @@ class SignInFlowTest {
             flow.connect("https://media.example.com/holyarrs/login")
             assertEquals(SignInStep.CREDENTIALS, flow.state.value.step)
             assertEquals(BASE, flow.state.value.serverUrl)
-            assertEquals(listOf(SignInWay.PASSWORD, SignInWay.JELLYFIN), flow.state.value.ways)
-            assertEquals(listOf(SignInWay.PLEX), flow.state.value.otherWays)
+            assertEquals(listOf(SignInWay.PASSWORD, SignInWay.PLEX, SignInWay.JELLYFIN), flow.state.value.ways)
+            assertEquals(emptyList(), flow.state.value.otherWays)
             assertEquals("nas.lan", flow.state.value.hostRefused)
 
             flow.signIn(" admin ", "secret")
@@ -108,18 +108,14 @@ class SignInFlowTest {
         }
 
     @Test
-    fun serverThatNeedsSetupIsRefused() =
+    fun serverThatNeedsSetupOpensTheOwnerStep() =
         runTest {
             val server = FakeServer()
             server.json("GET", "/api/v1/auth/state", """{"needs_setup":true,"ways":["password"]}""")
             val flow = server.sdk(backgroundScope).signIn()
             flow.connect(BASE)
-            assertEquals(
-                SignInErrorCode.NEEDS_SETUP,
-                flow.state.value.error
-                    ?.code,
-            )
-            assertEquals(SignInStep.SERVER, flow.state.value.step)
+            assertEquals(SignInStep.SETUP, flow.state.value.step)
+            assertEquals(null, flow.state.value.error)
         }
 
     @Test

@@ -25,11 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.AcolyteSdk
 import ch.orellbuehler.acolyte.R
+import ch.orellbuehler.acolyte.session.Role
 import ch.orellbuehler.acolyte.session.SessionState
 import ch.orellbuehler.acolyte.ui.connect.ConnectScreen
 import ch.orellbuehler.acolyte.ui.shell.MainShell
 import ch.orellbuehler.acolyte.ui.theme.AcolyteTheme
 import ch.orellbuehler.acolyte.ui.theme.isDark
+import ch.orellbuehler.acolyte.ui.wizard.FirstRunScreen
 
 val LocalSdk = staticCompositionLocalOf<AcolyteSdk> { error("AcolyteSdk is not provided") }
 
@@ -46,7 +48,12 @@ fun AcolyteApp(
                 when (val current = state) {
                     SessionState.Restoring -> Splash()
                     is SessionState.SignedOut -> ConnectScreen(expired = current.expired)
-                    is SessionState.SignedIn -> MainShell(current.account, session)
+                    is SessionState.SignedIn ->
+                        if (current.account.setupOpen && current.account.role == Role.OWNER) {
+                            FirstRunScreen()
+                        } else {
+                            MainShell(current.account, session)
+                        }
                 }
             }
         }

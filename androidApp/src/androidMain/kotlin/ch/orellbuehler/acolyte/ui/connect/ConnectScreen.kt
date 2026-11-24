@@ -1,9 +1,11 @@
 package ch.orellbuehler.acolyte.ui.connect
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -58,7 +61,10 @@ import ch.orellbuehler.acolyte.session.SignInStep
 import ch.orellbuehler.acolyte.session.SignInWay
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.NoticeBanner
+import ch.orellbuehler.acolyte.ui.components.OpenInBrowserOnce
+import ch.orellbuehler.acolyte.ui.components.PlexWaitingPanel
 import ch.orellbuehler.acolyte.ui.components.signInErrorText
+import ch.orellbuehler.acolyte.ui.invite.InviteScreen
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
 
@@ -67,8 +73,38 @@ fun ConnectScreen(expired: Boolean) {
     val sdk = LocalSdk.current
     val viewModel = viewModel { ConnectViewModel(sdk) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val invite by viewModel.invite.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { viewModel.restartIfDone() }
+    OpenInBrowserOnce(state.plexUrl)
 
+    val target = invite
+    if (target != null) {
+        InviteScreen(target, onClose = viewModel::closeInvite)
+        return
+    }
+    BackHandler(enabled = state.step != SignInStep.SERVER && state.step != SignInStep.DONE) { viewModel.back() }
+
+    var resetCode by rememberSaveable { mutableStateOf("") }
+    AuthFrame {
+        when (state.step) {
+            SignInStep.SERVER, SignInStep.DONE -> ServerStep(state, expired, viewModel)
+            SignInStep.CREDENTIALS -> CredentialsStep(state, viewModel)
+            SignInStep.TWO_FACTOR -> TwoFactorStep(state, viewModel)
+            SignInStep.SETUP -> SetupStep(state, viewModel)
+            SignInStep.RESET_CODE -> ResetCodeStep(state, viewModel, resetCode) { resetCode = it }
+            SignInStep.RESET_PASSWORD -> ResetPasswordStep(state, viewModel, resetCode)
+        }
+        state.error?.let { ErrorLine(signInErrorText(it)) }
+    }
+}
+
+@Composable
+internal fun ErrorLine(text: String) {
+    Text(text, color = MaterialTheme.acolyte.failText, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+}
+
+@Composable
+internal fun AuthFrame(content: @Composable ColumnScope.() -> Unit) {
     Box(Modifier.fillMaxSize().safeDrawingPadding().imePadding(), contentAlignment = Alignment.Center) {
         Column(
             Modifier
@@ -84,25 +120,13 @@ fun ConnectScreen(expired: Boolean) {
                 contentDescription = null,
                 modifier = Modifier.size(72.dp).clip(RoundedCornerShape(16.dp)),
             )
-            when (state.step) {
-                SignInStep.SERVER, SignInStep.DONE -> ServerStep(state, expired, viewModel)
-                SignInStep.CREDENTIALS -> CredentialsStep(state, viewModel)
-                SignInStep.TWO_FACTOR -> TwoFactorStep(state, viewModel)
-            }
-            state.error?.let {
-                Text(
-                    signInErrorText(it),
-                    color = MaterialTheme.acolyte.failText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            content()
         }
     }
 }
 
 @Composable
-private fun Heading(
+internal fun Heading(
     title: String,
     subtitle: String?,
 ) {
@@ -136,6 +160,37 @@ private fun ServerStep(
         modifier = Modifier.fillMaxWidth(),
     )
     BusyButton(stringResource(R.string.connect_continue), state.busy, enabled = address.isNotBlank()) { viewModel.connect(address) }
+    InviteEntry(viewModel)
+}
+
+@Composable
+private fun InviteEntry(viewModel: ConnectViewModel) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    var link by rememberSaveable { mutableStateOf("") }
+    var invalid by rememberSaveable { mutableStateOf(false) }
+    if (!open) {
+        TextButton(onClick = { open = true }) { Text(stringResource(R.string.invite_entry)) }
+        return
+    }
+    val submit = { invalid = !viewModel.openInvite(link) }
+    OutlinedTextField(
+        value = link,
+        onValueChange = {
+            link = it
+            invalid = false
+        },
+        label = { Text(stringResource(R.string.invite_link)) },
+        placeholder = { Text(stringResource(R.string.invite_link_hint), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        isError = invalid,
+        supportingText = { Text(stringResource(if (invalid) R.string.invite_link_invalid else R.string.invite_link_help)) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Go, autoCorrectEnabled = false),
+        keyboardActions = KeyboardActions(onGo = { submit() }),
+        modifier = Modifier.fillMaxWidth(),
+    )
+    OutlinedButton(onClick = submit, enabled = link.isNotBlank(), modifier = Modifier.fillMaxWidth().height(48.dp)) {
+        Text(stringResource(R.string.invite_open))
+    }
 }
 
 @Composable
@@ -147,7 +202,10 @@ private fun CredentialsStep(
     var name by rememberSaveable { mutableStateOf(state.userName) }
     var password by rememberSaveable { mutableStateOf("") }
     var key by rememberSaveable { mutableStateOf("") }
-    var way by rememberSaveable { mutableStateOf(SignInWay.PASSWORD) }
+    var chosen by rememberSaveable { mutableStateOf(SignInWay.PASSWORD) }
+    val formWays = state.ways.filter { it != SignInWay.PLEX }
+    val way = if (chosen in formWays) chosen else formWays.firstOrNull() ?: SignInWay.PASSWORD
+    val plexWaiting = state.plexUrl != null
 
     Heading(stringResource(R.string.signin_title), null)
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -159,6 +217,10 @@ private fun CredentialsStep(
             modifier = Modifier.weight(1f, fill = false),
         )
         TextButton(onClick = viewModel::back, enabled = !state.busy) { Text(stringResource(R.string.connect_change_server)) }
+    }
+    if (plexWaiting) {
+        PlexWaitingPanel(onCancel = viewModel::cancelPlex)
+        return
     }
     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
         SegmentedButton(selected = !useKey, onClick = { useKey = false }, shape = SegmentedButtonDefaults.itemShape(0, 2)) {
@@ -182,58 +244,106 @@ private fun CredentialsStep(
         )
         BusyButton(stringResource(R.string.signin_submit), state.busy, enabled = key.isNotBlank()) { viewModel.useApiKey(key) }
     } else {
-        if (state.ways.size > 1) {
-            var open by rememberSaveable { mutableStateOf(false) }
-            Box(Modifier.fillMaxWidth()) {
-                OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(way.label()), maxLines = 1, modifier = Modifier.weight(1f))
-                    Icon(Icons.Rounded.ArrowDropDown, contentDescription = stringResource(R.string.signin_account))
-                }
-                DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                    state.ways.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(option.label())) },
-                            onClick = {
-                                way = option
-                                open = false
-                            },
-                        )
-                    }
-                }
-            }
+        if (SignInWay.PLEX in state.ways) {
+            BusyButton(stringResource(R.string.signin_plex_continue), state.busy, enabled = true, onClick = viewModel::startPlex)
+            if (formWays.isNotEmpty()) PlexDivider()
         }
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text(stringResource(R.string.signin_name)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrectEnabled = false),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text(stringResource(R.string.signin_password)) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { viewModel.signIn(name, password, way) }),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        BusyButton(stringResource(R.string.signin_submit), state.busy, enabled = name.isNotBlank() && password.isNotEmpty()) {
-            viewModel.signIn(name, password, way)
+        if (formWays.isNotEmpty()) {
+            PasswordForm(state, viewModel, name, password, way, formWays, { name = it }, { password = it }) {
+                chosen =
+                    it
+            }
         }
     }
     state.hostRefused?.let { NoticeBanner(stringResource(R.string.signin_host_refused, it)) }
-    if (state.otherWays.isNotEmpty()) {
-        val names = state.otherWays.map { stringResource(it.label()) }.joinToString()
+    if (state.ownerReset && !useKey) {
+        TextButton(onClick = viewModel::startReset, enabled = !state.busy) { Text(stringResource(R.string.signin_reset_link)) }
+    }
+    OtherWays(state)
+}
+
+@Composable
+private fun PlexDivider() {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Spacing.Medium),
+    ) {
+        HorizontalDivider(Modifier.weight(1f))
         Text(
-            stringResource(R.string.signin_other_ways, names),
+            stringResource(R.string.signin_or),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
         )
+        HorizontalDivider(Modifier.weight(1f))
     }
+}
+
+@Composable
+private fun PasswordForm(
+    state: SignInState,
+    viewModel: ConnectViewModel,
+    name: String,
+    password: String,
+    way: SignInWay,
+    formWays: List<SignInWay>,
+    onName: (String) -> Unit,
+    onPassword: (String) -> Unit,
+    onWay: (SignInWay) -> Unit,
+) {
+    if (formWays.size > 1) {
+        var open by rememberSaveable { mutableStateOf(false) }
+        Box(Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = { open = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(way.label()), maxLines = 1, modifier = Modifier.weight(1f))
+                Icon(Icons.Rounded.ArrowDropDown, contentDescription = stringResource(R.string.signin_account))
+            }
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+                formWays.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(option.label())) },
+                        onClick = {
+                            onWay(option)
+                            open = false
+                        },
+                    )
+                }
+            }
+        }
+    }
+    OutlinedTextField(
+        value = name,
+        onValueChange = onName,
+        label = { Text(stringResource(R.string.signin_name)) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrectEnabled = false),
+        modifier = Modifier.fillMaxWidth(),
+    )
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPassword,
+        label = { Text(stringResource(R.string.signin_password)) },
+        singleLine = true,
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { viewModel.signIn(name, password, way) }),
+        modifier = Modifier.fillMaxWidth(),
+    )
+    BusyButton(stringResource(R.string.signin_submit), state.busy, enabled = name.isNotBlank() && password.isNotEmpty()) {
+        viewModel.signIn(name, password, way)
+    }
+}
+
+@Composable
+private fun OtherWays(state: SignInState) {
+    if (state.otherWays.isEmpty()) return
+    val names = state.otherWays.map { stringResource(it.label()) }.joinToString()
+    Text(
+        stringResource(R.string.signin_other_ways, names),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+    )
 }
 
 @Composable
@@ -257,7 +367,7 @@ private fun TwoFactorStep(
 }
 
 @Composable
-private fun BusyButton(
+internal fun BusyButton(
     text: String,
     busy: Boolean,
     enabled: Boolean,

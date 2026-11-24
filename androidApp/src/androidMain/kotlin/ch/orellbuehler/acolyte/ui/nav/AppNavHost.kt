@@ -2,15 +2,22 @@ package ch.orellbuehler.acolyte.ui.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.toRoute
+import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.feature.library.LibraryKind
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.ui.account.AccountScreen
+import ch.orellbuehler.acolyte.ui.account.AiConnectScreen
+import ch.orellbuehler.acolyte.ui.account.AlertsScreen
+import ch.orellbuehler.acolyte.ui.account.DevicesScreen
+import ch.orellbuehler.acolyte.ui.account.ProfileScreen
+import ch.orellbuehler.acolyte.ui.account.SecurityScreen
 import ch.orellbuehler.acolyte.ui.discover.ExploreScreen
 import ch.orellbuehler.acolyte.ui.discover.PopularScreen
 import ch.orellbuehler.acolyte.ui.discover.SearchScreen
@@ -32,6 +39,8 @@ import ch.orellbuehler.acolyte.ui.library.LibraryScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryStatsScreen
 import ch.orellbuehler.acolyte.ui.library.LibrarySubtitlesScreen
 import ch.orellbuehler.acolyte.ui.library.LibraryToolsScreen
+import ch.orellbuehler.acolyte.ui.people.PeopleDetailScreen
+import ch.orellbuehler.acolyte.ui.people.PeopleScreen
 import ch.orellbuehler.acolyte.ui.requests.AskMusicSheet
 import ch.orellbuehler.acolyte.ui.requests.AskSheet
 import ch.orellbuehler.acolyte.ui.requests.NeverAddScreen
@@ -115,9 +124,19 @@ fun AppNavHost(
             )
         }
         composable<HealthRoute> { HealthScreen(onBack = back(Section.HEALTH)) }
-        composable<PeopleRoute> { PlaceholderScreen(Section.PEOPLE, back(Section.PEOPLE)) }
+        composable<PeopleRoute> { PeopleScreen(account, onOpen = open, onBack = back(Section.PEOPLE)) }
+        composable<PeopleDetailRoute> { PeopleDetailScreen(it.toRoute<PeopleDetailRoute>().id, account, open, pop) }
+        composable<PeopleDevicesRoute> {
+            val route = it.toRoute<PeopleDevicesRoute>()
+            DevicesScreen(route.id, route.name, pop)
+        }
+        composable<AccountProfileRoute> { ProfileScreen(pop) }
+        composable<AccountSecurityRoute> { SecurityScreen(pop) }
+        composable<AccountAlertsRoute> { AlertsScreen(pop) }
+        composable<AccountDevicesRoute> { DevicesScreen(null, stringResource(R.string.myaccount_devices), pop) }
+        composable<AiConnectRoute> { AiConnectScreen(pop) }
         composable<SettingsRoute> { PlaceholderScreen(Section.SETTINGS, back(Section.SETTINGS)) }
-        composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT)) }
+        composable<AccountRoute> { AccountScreen(account, onSignOut = onSignOut, onBack = back(Section.ACCOUNT), onOpen = open) }
         dialog<AskRoute> { entry ->
             val route = entry.toRoute<AskRoute>()
             AskSheet(route.kind, route.tmdb, route.fourK, onClose = { nav.popBackStack() })

@@ -53,7 +53,18 @@ data class Account(
     val safeMode: Boolean,
     val handsOff: Boolean = false,
     val savedViews: Map<String, String> = emptyMap(),
+    val twoFactor: Boolean = false,
+    val hasPassword: Boolean = true,
+    val authMethod: String = "",
+    val via: String = "",
+    val setupOpen: Boolean = false,
+    val setupSkipped: Boolean = false,
+    val held: List<String> = emptyList(),
 ) {
+    val aiAppsAvailable: Boolean get() = "ai_apps" !in held
+
+    val usesCookies: Boolean get() = method != SignInMethod.API_KEY
+
     fun can(need: Need): Boolean =
         when {
             role == Role.OWNER -> true
@@ -163,6 +174,13 @@ data class Account(
                 isKid = me.maxRating.isNotBlank(),
                 safeMode = me.safeMode || snapshot.parts.safeMode,
                 handsOff = me.handsOff,
+                twoFactor = me.twoFactor,
+                hasPassword = me.hasPassword,
+                authMethod = me.authMethod,
+                via = me.via,
+                setupOpen = me.setupOpen,
+                setupSkipped = me.setupSkipped,
+                held = me.held,
                 savedViews = me.views.mapNotNull { (name, value) -> (value as? JsonPrimitive)?.contentOrNull?.let { name to it } }.toMap(),
             )
         }

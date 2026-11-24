@@ -43,7 +43,15 @@ enum Mapping {
                 SectionGroupID(rawValue: key(group.group)).map { id in
                     MoreGroupInfo(group: id, sections: group.sections.compactMap { SectionID(rawValue: key($0)) })
                 }
-            }
+            },
+            twoFactor: a.twoFactor,
+            hasPassword: a.hasPassword,
+            authMethod: a.authMethod,
+            via: a.via,
+            setupOpen: a.setupOpen,
+            setupSkipped: a.setupSkipped,
+            aiAppsAvailable: a.aiAppsAvailable,
+            usesCookies: a.usesCookies
         )
     }
 
@@ -97,10 +105,15 @@ enum Mapping {
             otherWays: s.otherWays.compactMap { SignInWayKind(rawValue: key($0)) },
             userName: s.userName,
             hostRefused: s.hostRefused,
+            minPasswordLength: Int(s.minPasswordLength),
+            configUnmapped: s.configUnmapped,
+            ownerReset: s.ownerReset,
+            ownerResetEnv: s.ownerResetEnv,
+            resetCodeMade: s.resetCodeMade,
+            resetName: s.resetName,
+            plexURL: browserURL(s.plexUrl),
             busy: s.busy,
-            error: s.error.map {
-                SignInErrorInfo(kind: SignInErrorKind(rawValue: key($0.code)) ?? .server, retryAfter: $0.retryAfterSeconds?.intValue)
-            }
+            error: s.error.map { signInError($0) }
         )
     }
 

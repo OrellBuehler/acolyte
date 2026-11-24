@@ -283,12 +283,26 @@ data class TitleOutcomeSource(
 @Serializable
 data class TitleUsers(
     val users: List<TitleUser> = emptyList(),
+    val perms: List<String> = emptyList(),
 )
 
 @Serializable
 data class TitleUser(
     val id: Long = 0,
     val name: String = "",
+    val role: String = "",
+    val state: String = "",
+    val perms: List<String> = emptyList(),
+    @SerialName("two_factor") val twoFactor: Boolean = false,
+    val password: Boolean = false,
+    val links: List<PeopleLink> = emptyList(),
+    @SerialName("sso_links") val ssoLinks: List<AccountSsoLink> = emptyList(),
+    @SerialName("created_at") val createdAt: String = "",
+    val avatar: String? = null,
+    @SerialName("last_seen_at") val lastSeenAt: String = "",
+    @SerialName("max_rating") val maxRating: String = "",
+    @SerialName("rating_country") val ratingCountry: String = "",
+    @SerialName("off_reason") val offReason: String = "",
 )
 
 @Serializable
