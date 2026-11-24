@@ -54,6 +54,7 @@ data class Me(
     @SerialName("hands_off") val handsOff: Boolean = false,
     @SerialName("setup_open") val setupOpen: Boolean = false,
     val views: JsonObject = JsonObject(emptyMap()),
+    @SerialName("setup_skipped") val setupSkipped: Boolean = false,
 )
 
 @Serializable

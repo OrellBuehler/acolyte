@@ -46,6 +46,7 @@ class LiveContractTest {
                 endpoint.key !in KnownSpecGaps.liveSkips &&
                 endpoint.pathParams.isEmpty() &&
                 endpoint.response !== NoContent &&
+                endpoint.key !in KnownSpecGaps.liveSkips &&
                 op != null &&
                 checker.requiredQuery(op).isEmpty()
         }

@@ -4,6 +4,7 @@ import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
 import ch.orellbuehler.acolyte.api.ApiResult
+import ch.orellbuehler.acolyte.api.DiscoverEndpoints
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
 import ch.orellbuehler.acolyte.api.RequestsEndpoints
 import ch.orellbuehler.acolyte.api.TitleEndpoints
@@ -201,18 +202,18 @@ class TitlePresenter internal constructor(
             launch {
                 val lead = current.leadPerson ?: return@launch
                 api
-                    .result(TitleSupportEndpoints.person, "id" to lead.id, "role" to "actor", "page" to 1, "page_size" to 24)
+                    .result(DiscoverEndpoints.person, "id" to lead.id, "role" to "actor", "page" to 1, "page_size" to 24)
                     .onSuccess { page ->
                         val movies =
                             page.knownFor.ifEmpty { page.movies }.mapNotNull { m ->
-                                val id = m.ids["tmdb"] ?: return@mapNotNull null
+                                val id = m.ids.tmdb.ifEmpty { return@mapNotNull null }
                                 TitleCard(
                                     tmdbId = id,
                                     kind = "movie",
                                     name = m.name,
                                     year = m.year,
-                                    poster = m.poster,
-                                    backdrop = m.backdrop,
+                                    poster = m.poster.orEmpty(),
+                                    backdrop = m.backdrop.orEmpty(),
                                     titleId = m.titleId,
                                     inLibrary = m.titleId > 0,
                                     ask = m.ask,

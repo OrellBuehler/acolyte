@@ -55,6 +55,20 @@ enum Theme {
     static let onArt = Color.white
     static let artScrim = Color.black.opacity(0.55)
 
+    static let markHave = Color(hex: 0x1F9D48)
+    static let markDownloading = Color(hex: 0x4F46E5)
+    static let markAsked = Color(hex: 0xF0A020)
+    static let markAskedGlyph = Color(hex: 0x2A1A00)
+    static let markNo = Color(hex: 0xD92D20)
+    static let markRing = Color.black.opacity(0.22)
+    static let artScrimStrong = Color.black.opacity(0.86)
+    static let artFill = Color.white.opacity(0.16)
+    static let tileHues: [Color] = [
+        Color(hex: 0xD0202A), Color(hex: 0xB3123E), Color(hex: 0x8E1F4F), Color(hex: 0x6D2A8A),
+        Color(hex: 0xC2410C), Color(hex: 0x9F1D35), Color(hex: 0x3F6A8A), Color(hex: 0xB91C1C),
+        Color(hex: 0x7A1D6B), Color(hex: 0x2C7A7B), Color(hex: 0xC0263F), Color(hex: 0xA3402B),
+    ]
+
     static func dotColor(_ tone: ToneKind) -> Color {
         switch tone {
         case .ok: ok

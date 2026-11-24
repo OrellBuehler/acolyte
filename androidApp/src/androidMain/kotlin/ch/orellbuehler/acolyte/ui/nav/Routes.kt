@@ -144,6 +144,27 @@ data object OutsideListsRoute
 @Serializable
 data object NeverAddRoute
 
+@Serializable
+data class DiscoverGenreRoute(
+    val type: String,
+    val genre: Int,
+)
+
+@Serializable
+data class DiscoverBrowseRoute(
+    val target: String,
+    val type: String,
+    val genre: Int,
+    val category: String,
+    val mood: String,
+)
+
+@Serializable
+data object DiscoverHiddenRoute
+
+@Serializable
+data object DiscoverStatsRoute
+
 object Routes {
     fun title(
         kind: String,
