@@ -53,7 +53,11 @@ data class Account(
     val safeMode: Boolean,
     val handsOff: Boolean = false,
     val savedViews: Map<String, String> = emptyMap(),
+    val held: List<String> = emptyList(),
+    val setupSkipped: Boolean = false,
 ) {
+    fun isHeld(feature: String): Boolean = feature in held
+
     fun can(need: Need): Boolean =
         when {
             role == Role.OWNER -> true
@@ -163,6 +167,8 @@ data class Account(
                 isKid = me.maxRating.isNotBlank(),
                 safeMode = me.safeMode || snapshot.parts.safeMode,
                 handsOff = me.handsOff,
+                held = me.held,
+                setupSkipped = me.setupSkipped,
                 savedViews = me.views.mapNotNull { (name, value) -> (value as? JsonPrimitive)?.contentOrNull?.let { name to it } }.toMap(),
             )
         }

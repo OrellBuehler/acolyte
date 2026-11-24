@@ -40,6 +40,7 @@ import ch.orellbuehler.acolyte.ui.requests.ReportProblemSheet
 import ch.orellbuehler.acolyte.ui.requests.ReportsScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestRulesScreen
 import ch.orellbuehler.acolyte.ui.requests.RequestsScreen
+import ch.orellbuehler.acolyte.ui.settings.settingsRoutes
 import ch.orellbuehler.acolyte.ui.shell.MoreScreen
 import ch.orellbuehler.acolyte.ui.shell.PlaceholderScreen
 import ch.orellbuehler.acolyte.ui.title.TitleScreen
@@ -156,5 +157,6 @@ fun AppNavHost(
         composable<LibraryImportFilesRoute> { LibraryFilesScreen(it.toRoute<LibraryImportFilesRoute>().path, pop) }
         composable<SettingsLibraryFoldersRoute> { LibraryFoldersScreen(pop) }
         discoverRoutes(nav, account, discover)
+        settingsRoutes(nav)
     }
 }

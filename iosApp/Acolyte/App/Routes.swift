@@ -144,6 +144,30 @@ enum Route: Hashable, Sendable, Identifiable {
     case settingsRequests
     case settingsOutsideLists
     case settingsNeverAdd
+    case settingsSignIn
+    case settingsApi
+    case settingsAi
+    case settingsRemoteAccess
+    case settingsAppearance
+    case settingsTitleDefaults
+    case settingsMetadata
+    case settingsAlerts
+    case settingsBackups
+    case settingsLogs
+    case settingsHealth
+    case settingsParts
+    case settingsThisApp
+    case settingsDanger
+    case settingsSchedules
+    case settingsMediaServers
+    case settingsSources
+    case settingsDownloaders
+    case settingsPickRules
+    case settingsNaming
+    case settingsSubtitles
+    case settingsSearch
+    case settingsMove
+    case settingsMusic
     case genre(type: ExploreTypeID, genre: Int)
     case browse(BrowseLinkInfo)
     case hidden
@@ -275,6 +299,54 @@ struct RouteScreen: View {
             OutsideListsView()
         case .settingsNeverAdd:
             NeverAddView()
+        case .settingsSignIn:
+            SettingsSignInView()
+        case .settingsApi:
+            SettingsApiView()
+        case .settingsAi:
+            SettingsAiView()
+        case .settingsRemoteAccess:
+            SettingsRemoteAccessView()
+        case .settingsAppearance:
+            SettingsAppearanceView()
+        case .settingsTitleDefaults:
+            SettingsTitleDefaultsView()
+        case .settingsMetadata:
+            SettingsMetadataView()
+        case .settingsAlerts:
+            SettingsAlertsView()
+        case .settingsBackups:
+            SettingsBackupsView()
+        case .settingsLogs:
+            SettingsLogsView()
+        case .settingsHealth:
+            SettingsHealthView()
+        case .settingsParts:
+            SettingsPartsView()
+        case .settingsThisApp:
+            SettingsThisAppView()
+        case .settingsDanger:
+            SettingsDangerView()
+        case .settingsSchedules:
+            SettingsSchedulesView()
+        case .settingsMediaServers:
+            SettingsMediaServersView()
+        case .settingsSources:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.sources"))
+        case .settingsDownloaders:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.downloaders"))
+        case .settingsPickRules:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.pick.rules"))
+        case .settingsNaming:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.naming"))
+        case .settingsSubtitles:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.subtitles"))
+        case .settingsSearch:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.search"))
+        case .settingsMove:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.move"))
+        case .settingsMusic:
+            SettingsPlaceholderView(title: L10n.tr("settings.page.music"))
         case let .genre(type, genre):
             GenreView(type: type, genre: genre, account: resolved)
         case let .browse(link):

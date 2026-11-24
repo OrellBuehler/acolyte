@@ -111,6 +111,78 @@ data class LibraryImportFilesRoute(
 data object SettingsLibraryFoldersRoute
 
 @Serializable
+data object SettingsSignInRoute
+
+@Serializable
+data object SettingsApiRoute
+
+@Serializable
+data object SettingsAiRoute
+
+@Serializable
+data object SettingsRemoteAccessRoute
+
+@Serializable
+data object SettingsAppearanceRoute
+
+@Serializable
+data object SettingsTitleDefaultsRoute
+
+@Serializable
+data object SettingsMetadataRoute
+
+@Serializable
+data object SettingsAlertsRoute
+
+@Serializable
+data object SettingsBackupsRoute
+
+@Serializable
+data object SettingsLogsRoute
+
+@Serializable
+data object SettingsHealthRoute
+
+@Serializable
+data object SettingsPartsRoute
+
+@Serializable
+data object SettingsThisAppRoute
+
+@Serializable
+data object SettingsDangerRoute
+
+@Serializable
+data object SettingsSchedulesRoute
+
+@Serializable
+data object SettingsMediaServersRoute
+
+@Serializable
+data object SettingsSourcesRoute
+
+@Serializable
+data object SettingsDownloadersRoute
+
+@Serializable
+data object SettingsPickRulesRoute
+
+@Serializable
+data object SettingsNamingRoute
+
+@Serializable
+data object SettingsSubtitlesRoute
+
+@Serializable
+data object SettingsSearchRoute
+
+@Serializable
+data object SettingsMoveRoute
+
+@Serializable
+data object SettingsMusicRoute
+
+@Serializable
 data class PersonRoute(
     val id: String,
 )

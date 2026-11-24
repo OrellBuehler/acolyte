@@ -18,5 +18,17 @@ internal class Api(
         vararg params: Pair<String, Any?>,
     ): ApiResult<R> = client()?.result(endpoint, body, *params) ?: signedOut
 
+    suspend fun download(
+        endpoint: Endpoint<Unit, Unit>,
+        fallbackName: String,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<TransferredFile> = client()?.download(endpoint, fallbackName, *params) ?: signedOut
+
+    suspend fun <R> upload(
+        endpoint: Endpoint<Unit, R>,
+        path: String,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<R> = client()?.upload(endpoint, path, *params) ?: signedOut
+
     private val signedOut = ApiResult.Failed(ApiError(ApiErrorCode.UNAUTHORIZED, 401))
 }

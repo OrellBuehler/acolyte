@@ -13,6 +13,7 @@ import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
+import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -21,8 +22,12 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.readAvailable
 import io.ktor.utils.io.readLine
+import io.ktor.utils.io.writeFully
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -101,6 +106,18 @@ internal class ApiClient(
         body: B,
         vararg params: Pair<String, Any?>,
     ): ApiResult<R> = capture { execute(endpoint, body, params.toMap(), retried = false) }
+
+    suspend fun download(
+        endpoint: Endpoint<Unit, Unit>,
+        fallbackName: String,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<TransferredFile> = capture { transfer(endpoint, fallbackName, params.toMap()) }
+
+    suspend fun <R> upload(
+        endpoint: Endpoint<Unit, R>,
+        path: String,
+        vararg params: Pair<String, Any?>,
+    ): ApiResult<R> = capture { send(endpoint, path, params.toMap()) }
 
     fun imageHeaders(): Map<String, String> {
         credentials.apiKey?.let { return mapOf(API_KEY_HEADER to it) }
@@ -194,6 +211,99 @@ internal class ApiClient(
         throw error
     }
 
+    private suspend fun transfer(
+        endpoint: Endpoint<Unit, Unit>,
+        fallbackName: String,
+        params: Map<String, Any?>,
+        retried: Boolean = false,
+    ): TransferredFile {
+        val url = endpoint.url(baseUrl, params)
+        try {
+            return http
+                .prepareRequest(url) {
+                    method = endpoint.method
+                    accept(ContentType.Any)
+                    authenticate(endpoint.isUnsafe)
+                    timeout { requestTimeoutMillis = TRANSFER_MILLIS }
+                }.execute { response ->
+                    val status = response.status.value
+                    if (status !in 200..299) throw failure(response, response.bodyAsText(), endpoint.path)
+                    val path = transferPath(response.attachmentName(fallbackName))
+                    val channel = response.bodyAsChannel()
+                    val buffer = ByteArray(COPY_BUFFER)
+                    var total = 0L
+                    openSink(path).use { sink ->
+                        while (true) {
+                            val read = channel.readAvailable(buffer, 0, buffer.size)
+                            if (read < 0) break
+                            sink.write(buffer, 0, read)
+                            total += read
+                        }
+                    }
+                    TransferredFile(path, path.substringAfterLast('/'), total)
+                }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: ApiException) {
+            val usesSession = endpoint.isUnsafe && credentials.apiKey == null
+            if (e.error.status == 403 && !retried && usesSession && e.error.message.contains("csrf", ignoreCase = true)) {
+                refreshCsrf()
+                return transfer(endpoint, fallbackName, params, retried = true)
+            }
+            throw e
+        } catch (e: Throwable) {
+            throw ApiException(errorForThrowable(e), e)
+        }
+    }
+
+    private suspend fun <R> send(
+        endpoint: Endpoint<Unit, R>,
+        path: String,
+        params: Map<String, Any?>,
+    ): R {
+        val url = endpoint.url(baseUrl, params)
+        val size = fileSize(path)
+        val response: HttpResponse
+        val text: String
+        try {
+            response =
+                http.request(url) {
+                    method = endpoint.method
+                    accept(ContentType.Application.Json)
+                    authenticate(endpoint.isUnsafe)
+                    timeout {
+                        requestTimeoutMillis = TRANSFER_MILLIS
+                        socketTimeoutMillis = UPLOAD_IDLE_MILLIS
+                    }
+                    setBody(
+                        object : OutgoingContent.WriteChannelContent() {
+                            override val contentType: ContentType = ContentType.Application.OctetStream
+                            override val contentLength: Long = size
+
+                            override suspend fun writeTo(channel: ByteWriteChannel) {
+                                val buffer = ByteArray(COPY_BUFFER)
+                                openSource(path).use { source ->
+                                    while (true) {
+                                        val read = source.readAtMostTo(buffer)
+                                        if (read < 0) break
+                                        channel.writeFully(buffer, 0, read)
+                                    }
+                                }
+                            }
+                        },
+                    )
+                }
+            text = response.bodyAsText()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            throw ApiException(errorForThrowable(e), e)
+        }
+        val status = response.status.value
+        if (status in 200..299) return decode(endpoint, text, status)
+        throw failure(response, text, endpoint.path)
+    }
+
     private fun multipart(form: FormBody): MultiPartFormDataContent =
         MultiPartFormDataContent(
             formData {
@@ -267,6 +377,9 @@ internal class ApiClient(
         const val LAST_EVENT_ID_HEADER = "Last-Event-ID"
         const val LIVE_PATH = "/live"
         const val LIVE_IDLE_MILLIS = 45_000L
+        const val TRANSFER_MILLIS = 6L * 60 * 60 * 1000
+        const val UPLOAD_IDLE_MILLIS = 60_000L
+        const val COPY_BUFFER = 64 * 1024
 
         private val QUIET_401 =
             listOf("login", "state", "setup", "media-server", "plex", "invites", "two-factor", "password", "oidc", "forward", "reauth")

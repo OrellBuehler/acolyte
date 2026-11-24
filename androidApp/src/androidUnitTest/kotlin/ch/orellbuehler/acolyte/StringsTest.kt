@@ -9,13 +9,17 @@ import kotlin.test.assertTrue
 
 class StringsTest {
     private fun strings(folder: String): Map<String, String> {
-        val file = File("src/androidMain/res/$folder/strings.xml")
-        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
-        val nodes = document.getElementsByTagName("string")
-        return (0 until nodes.length)
-            .map { nodes.item(it) as Element }
-            .filter { it.getAttribute("translatable") != "false" }
-            .associate { it.getAttribute("name") to it.textContent }
+        val files = File("src/androidMain/res/$folder").listFiles { file -> file.name.matches(Regex("strings.*\\.xml")) }.orEmpty()
+        return files
+            .sortedBy { it.name }
+            .flatMap { file ->
+                val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+                val nodes = document.getElementsByTagName("string")
+                (0 until nodes.length)
+                    .map { nodes.item(it) as Element }
+                    .filter { it.getAttribute("translatable") != "false" }
+                    .map { it.getAttribute("name") to it.textContent }
+            }.toMap()
     }
 
     private val placeholder = Regex("%\\d\\$[sd]")

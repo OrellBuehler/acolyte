@@ -5,7 +5,19 @@ internal object KnownSpecGaps {
     private const val ASK_SETTINGS = "Go requests.Settings has 25 fields; the spec's AskSettings lists 12"
     private const val NEW_ASK = "Go makeAsk body (requests/routes_asks.go) takes follow, quality, four_k and editions; the spec body lags"
 
-    val problems: Map<String, String> =
+    val problems: Map<String, String>
+        get() =
+            base +
+                GapsSignIn.problems +
+                GapsKeys.problems +
+                GapsLook.problems +
+                GapsServer.problems +
+                GapsStatus.problems +
+                GapsControls.problems +
+                GapsMediaServers.problems +
+                GapsAccountKeys.problems
+
+    private val base: Map<String, String> =
         mapOf(
             "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
                 "presence flag read with Query().Has(\"grid\") in cmd/holyarrs/wire_titles.go; the Library grid shape",
