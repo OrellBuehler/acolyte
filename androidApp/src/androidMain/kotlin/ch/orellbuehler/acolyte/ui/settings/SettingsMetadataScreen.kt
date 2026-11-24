@@ -1,12 +1,12 @@
 package ch.orellbuehler.acolyte.ui.settings
 
 import androidx.compose.runtime.Composable
-import ch.orellbuehler.acolyte.R
+import ch.orellbuehler.acolyte.ui.settings.look.SettingsLookMetadataScreen
 
 @Composable
 fun SettingsMetadataScreen(
     onBack: () -> Unit,
     onOpen: (Any) -> Unit,
 ) {
-    SettingsPagePlaceholder(R.string.settings_page_metadata, onBack)
+    SettingsLookMetadataScreen(onBack, onOpen)
 }

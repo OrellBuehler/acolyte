@@ -250,5 +250,15 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsHome() -> SettingsHomeDriver {
         SettingsHomeDriver(presenter: sdk.settingsHome())
+    func makeSettingsLookAppearance() -> SettingsLookAppearanceDriver {
+        SettingsLookAppearanceDriver(presenter: sdk.settingsLookAppearance())
+    }
+
+    func makeSettingsLookDefaults() -> SettingsLookDefaultsDriver {
+        SettingsLookDefaultsDriver(presenter: sdk.settingsLookDefaults())
+    }
+
+    func makeSettingsLookMetadata() -> SettingsLookMetadataDriver {
+        SettingsLookMetadataDriver(presenter: sdk.settingsLookMetadata())
     }
 }

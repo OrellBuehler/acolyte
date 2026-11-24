@@ -163,6 +163,8 @@ data class TitleKindDefaults(
 @Serializable
 data class TitleGateDefaults(
     @SerialName("release_gate") val releaseGate: String = "",
+    @SerialName("gate_delay_days") val gateDelayDays: Int = 0,
+    @SerialName("bulk_search_respects_gate") val bulkSearchRespectsGate: Boolean = true,
 )
 
 @Serializable
@@ -171,6 +173,8 @@ data class TitleShowDefaults(
     @SerialName("new_seasons") val newSeasons: String = "",
     @SerialName("episode_order") val episodeOrder: String = "",
     @SerialName("details_source") val detailsSource: String = "",
+    @SerialName("keep_specials") val keepSpecials: Boolean = false,
+    @SerialName("episode_wait_minutes") val episodeWaitMinutes: Int = 0,
 )
 
 @Serializable
