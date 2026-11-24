@@ -40,6 +40,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+internal fun FakeServer.recorded(): List<Recorded> {
+    repeat(20) {
+        try {
+            return requests.toList()
+        } catch (_: ConcurrentModificationException) {
+        }
+    }
+    return emptyList()
+}
+
 internal suspend fun TestScope.eventually(check: () -> Boolean) {
     repeat(200) {
         runCurrent()
@@ -343,7 +353,7 @@ class DownloadsPresenterTest {
                     .first { it.key == "d12" }
                     .row.progress,
             )
-            val before = s.server.requests.count { it.path == "/api/v1/downloads/view" }
+            val before = s.server.recorded().count { it.path == "/api/v1/downloads/view" }
             s.live.emit(
                 LiveEvent("download", ApiJson.lenient.parseToJsonElement("""{"ID":12,"State":"failed","StateReason":"no seeds"}"""), null),
             )
@@ -359,10 +369,10 @@ class DownloadsPresenterTest {
                     ?.text,
             )
             advanceTimeBy(500)
-            eventually { s.server.requests.count { it.path == "/api/v1/downloads/view" } > before }
+            eventually { s.server.recorded().count { it.path == "/api/v1/downloads/view" } > before }
             val gap = """{"kind":"patch","boot":"b1","client":2,"fromRev":9,"toRev":10}"""
             s.live.emit(LiveEvent("dl", ApiJson.lenient.parseToJsonElement(gap), null))
-            eventually { s.server.requests.any { it.path == "/api/v1/downloads/view" && it.query == "limit=100&client=2" } }
+            eventually { s.server.recorded().any { it.path == "/api/v1/downloads/view" && it.query == "limit=100&client=2" } }
             job.cancel()
         }
 
@@ -374,13 +384,13 @@ class DownloadsPresenterTest {
             s.presenter.load()
             val job = backgroundScope.launch { s.presenter.watch() }
             runCurrent()
-            val before = s.server.requests.count { it.path == "/api/v1/downloads/view" }
+            val before = s.server.recorded().count { it.path == "/api/v1/downloads/view" }
             advanceTimeBy(10_500)
-            eventually { s.server.requests.count { it.path == "/api/v1/downloads/view" } > before }
-            assertTrue(s.server.requests.none { it.path == "/api/v1/live/interest" })
+            eventually { s.server.recorded().count { it.path == "/api/v1/downloads/view" } > before }
+            assertTrue(s.server.recorded().none { it.path == "/api/v1/live/interest" })
             s.status.value = LiveStatus.LIVE
             advanceTimeBy(30_500)
-            eventually { s.server.requests.any { it.path == "/api/v1/live/interest" } }
+            eventually { s.server.recorded().any { it.path == "/api/v1/live/interest" } }
             job.cancel()
         }
 
