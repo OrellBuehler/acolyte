@@ -38,7 +38,8 @@ internal val SOURCE_CHOICES: List<String> = listOf("tmdb", "tvmaze", "tvdb")
 
 internal const val MAX_GATE_DAYS = 365
 
-fun settingsLookGateDays(text: String): Int? = if (text.isBlank()) 0 else text.trim().toIntOrNull()?.takeIf { it in 0..MAX_GATE_DAYS }
+internal fun settingsLookGateDays(text: String): Int? =
+    if (text.isBlank()) 0 else text.trim().toIntOrNull()?.takeIf { it in 0..MAX_GATE_DAYS }
 
 data class SettingsLookOption(
     val id: Long,
@@ -107,11 +108,21 @@ data class SettingsLookDefaultsState(
 
     fun searchOnAdd(show: Boolean): Boolean = kind(show).searchOnAdd
 
+    val releaseGate: String get() = gate.releaseGate
+
+    val seasonChoice: String get() = shows.seasonChoice
+
+    val laterSeasons: String get() = shows.newSeasons
+
+    val episodeOrder: String get() = shows.episodeOrder
+
+    val detailsSource: String get() = shows.detailsSource
+
     val gateChoices: List<String> get() = choices(GATE_CHOICES, gate.releaseGate)
 
     val seasonChoices: List<String> get() = choices(SEASON_CHOICES, shows.seasonChoice)
 
-    val newSeasonChoices: List<String> get() = choices(NEW_SEASON_CHOICES, shows.newSeasons)
+    val laterSeasonChoices: List<String> get() = choices(NEW_SEASON_CHOICES, shows.newSeasons)
 
     val orderChoices: List<String> get() = choices(ORDER_CHOICES, shows.episodeOrder)
 
