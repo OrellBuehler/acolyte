@@ -5,6 +5,8 @@ import ch.orellbuehler.acolyte.api.deviceLanguage
 import ch.orellbuehler.acolyte.api.model.DownloadRow
 import ch.orellbuehler.acolyte.api.platformEngine
 import ch.orellbuehler.acolyte.feature.acquisition.AcquisitionPage
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsNamingPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.SettingsSearchPresenter
 import ch.orellbuehler.acolyte.feature.acquisition.acquisitionPages
 import ch.orellbuehler.acolyte.feature.discover.BrowseLink
 import ch.orellbuehler.acolyte.feature.discover.BrowsePresenter
@@ -223,4 +225,8 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsNaming(): SettingsNamingPresenter = SettingsNamingPresenter(session.api) { session.account }
+
+    fun settingsSearch(): SettingsSearchPresenter = SettingsSearchPresenter(session.api) { session.account }
 }
