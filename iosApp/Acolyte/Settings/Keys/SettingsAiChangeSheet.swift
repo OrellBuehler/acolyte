@@ -66,7 +66,7 @@ struct SettingsAiChangeSheet: View {
                     }
                 }
             }
-            .settingsReauth(info.reauth, confirm: { store.confirmReauth($0, $1) }, cancel: { store.cancelReauth() })
+            .reauthSheet(store.reauth)
         }
         .presentationDetents([.large])
         .onChange(of: info.changedCount) { _, count in

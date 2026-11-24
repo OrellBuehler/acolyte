@@ -1,11 +1,14 @@
 @preconcurrency import shared
 import Foundation
 
-final class SettingsMediaServersDriver: @unchecked Sendable {
+final class SettingsMediaServersDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsMediaServersPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsMediaServersPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsMediaServersInfo) -> Void) async {
@@ -161,14 +164,6 @@ final class SettingsMediaServersDriver: @unchecked Sendable {
 
     func saveTracks() async {
         do { try await presenter.saveTracks() } catch {}
-    }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
     }
 
     func dismissNotice(_ id: Int64) {

@@ -305,13 +305,11 @@ class AcolyteSdk internal constructor(
     fun settingsLookMetadata(): SettingsLookMetadataPresenter = SettingsLookMetadataPresenter(session.api) { session.account }
 
     fun settingsMediaServers(): SettingsMediaServersPresenter =
-        SettingsMediaServersPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+        SettingsMediaServersPresenter(session.api, { session.account }, reauthGate())
 
-    fun settingsApi(): SettingsApiPresenter =
-        SettingsApiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsApi(): SettingsApiPresenter = SettingsApiPresenter(session.api, { session.account }, reauthGate())
 
-    fun settingsAi(): SettingsAiPresenter =
-        SettingsAiPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsAi(): SettingsAiPresenter = SettingsAiPresenter(session.api, { session.account }, reauthGate())
 
     fun settingsRemoteAccessUrl(): String = session.account?.let { SettingsKeysAddresses.remoteAccess(it.serverUrl) }.orEmpty()
 
@@ -321,18 +319,18 @@ class AcolyteSdk internal constructor(
         SettingsControlsPartsPresenter(
             session.api,
             { session.account },
-            { password, code -> session.reauth(password, code) },
+            reauthGate(),
             { session.refresh() },
         )
 
     fun settingsControlsThisApp(): SettingsControlsThisAppPresenter =
-        SettingsControlsThisAppPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+        SettingsControlsThisAppPresenter(session.api, { session.account }, reauthGate())
 
     fun settingsControlsDanger(): SettingsControlsDangerPresenter =
         SettingsControlsDangerPresenter(
             session.api,
             { session.account },
-            { password, code -> session.reauth(password, code) },
+            reauthGate(),
             { session.refresh() },
         )
 
@@ -341,14 +339,11 @@ class AcolyteSdk internal constructor(
 
     fun settingsAlerts(): SettingsServerAlertsPresenter = SettingsServerAlertsPresenter(session.api) { session.account }
 
-    fun settingsBackups(): SettingsServerBackupsPresenter =
-        SettingsServerBackupsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsBackups(): SettingsServerBackupsPresenter = SettingsServerBackupsPresenter(session.api, { session.account }, reauthGate())
 
-    fun settingsLogs(): SettingsServerLogsPresenter =
-        SettingsServerLogsPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+    fun settingsLogs(): SettingsServerLogsPresenter = SettingsServerLogsPresenter(session.api, { session.account }, reauthGate())
 
-    fun settingsSignIn(): SettingsSignInPresenter =
-        SettingsSignInPresenter(session.api, { session.account }) { password, code -> session.reauth(password, code) }
+    fun settingsSignIn(): SettingsSignInPresenter = SettingsSignInPresenter(session.api, { session.account }, reauthGate())
 
     fun settingsSubtitles(): SettingsSubtitlePresenter = SettingsSubtitlePresenter(session.api) { session.account }
 
@@ -444,5 +439,16 @@ class AcolyteSdk internal constructor(
         name: String,
         albumId: Long,
     ): RemovePresenter =
-        RemovePresenter(session.api, titleId, name, false, -1, emptyList(), session.account?.handsOff == true, albumId, emptyList()) {}
+        RemovePresenter(
+            session.api,
+            titleId,
+            name,
+            false,
+            -1,
+            emptyList(),
+            session.account?.handsOff == true,
+            albumId,
+            emptyList(),
+            true,
+        ) {}
 }

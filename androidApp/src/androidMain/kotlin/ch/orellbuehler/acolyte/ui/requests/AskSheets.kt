@@ -250,7 +250,7 @@ private fun chooseSummary(state: AskSheetState): String {
     val parts = mutableListOf<String>()
     if (state.pickedSeasons.isNotEmpty()) parts += seasonsText(state.pickedSeasons)
     if (state.pickedEpisodes > 0) {
-        parts += pluralStringResource(R.plurals.requests_episodes, state.pickedEpisodes, state.pickedEpisodes)
+        parts += pluralStringResource(R.plurals.requests_episodes_count, state.pickedEpisodes, state.pickedEpisodes)
     }
     return parts.joinToString(" + ")
 }

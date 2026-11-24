@@ -7,6 +7,7 @@ import ch.orellbuehler.acolyte.api.SessionCookies
 import ch.orellbuehler.acolyte.api.StoredCookie
 import ch.orellbuehler.acolyte.session.MemoryStore
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
@@ -15,6 +16,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.sync.Mutex
@@ -53,8 +55,12 @@ internal class FakeServer {
         vararg headers: Pair<String, String>,
     ) = on(method, path) { respondJson(body, status, *headers) }
 
-    fun engine(): MockEngine =
-        MockEngine { request ->
+    var dispatcher: CoroutineDispatcher? = null
+
+    fun engine(): MockEngine {
+        val config = MockEngineConfig()
+        dispatcher?.let { config.dispatcher = it }
+        config.addHandler { request ->
             val path = request.url.encodedPath.removePrefix("/holyarrs")
             val recorded =
                 Recorded(
@@ -68,6 +74,8 @@ internal class FakeServer {
             val handler = routes["${request.method.value} $path"]
             handler?.invoke(this, request) ?: respondJson("""{"error":"not found"}""", 404)
         }
+        return MockEngine(config)
+    }
 
     fun request(
         method: String,

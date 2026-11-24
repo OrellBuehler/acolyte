@@ -19,6 +19,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.buffered
 import kotlinx.io.files.Path
@@ -57,7 +59,10 @@ class SettingsServerBackupsTest {
         role: Role = Role.OWNER,
         method: SignInMethod = SignInMethod.PASSWORD,
         reauth: suspend (String, String?) -> ApiError? = { _, _ -> null },
-    ) = SettingsServerBackupsPresenter(server.api(), { testAccount(role, listOf("settings")).copy(method = method) }, reauth)
+    ): SettingsServerBackupsPresenter {
+        val account = testAccount(role, listOf("settings")).copy(method = method)
+        return SettingsServerBackupsPresenter(server.api(), { account }, testGate(account, reauth))
+    }
 
     private fun MockRequestHandleScope.file(
         name: String,
@@ -123,7 +128,10 @@ class SettingsServerBackupsTest {
             assertTrue(withKey.state.value.keyKitNeedsSession)
             assertFalse(withKey.state.value.canDownloadKit)
             val server = server()
-            val admin = SettingsServerBackupsPresenter(server.api(), { testAccount(Role.ADMIN, listOf("settings")) }) { _, _ -> null }
+            val admin =
+                SettingsServerBackupsPresenter(server.api(), {
+                    testAccount(Role.ADMIN, listOf("settings"))
+                }, testGate(testAccount(Role.ADMIN, listOf("settings"))))
             admin.load()
             assertFalse(admin.state.value.isOwner)
             assertTrue(admin.state.value.canChange)
@@ -135,7 +143,10 @@ class SettingsServerBackupsTest {
     fun peopleWithoutTheSettingsPermissionGetNothing() =
         runTest {
             val server = server()
-            val presenter = SettingsServerBackupsPresenter(server.api(), { testAccount(Role.ADMIN, listOf("approve")) }) { _, _ -> null }
+            val presenter =
+                SettingsServerBackupsPresenter(server.api(), {
+                    testAccount(Role.ADMIN, listOf("approve"))
+                }, testGate(testAccount(Role.ADMIN, listOf("approve"))))
             presenter.load()
             assertFalse(presenter.state.value.allowed)
             assertEquals(0, server.recorded().size)
@@ -273,15 +284,16 @@ class SettingsServerBackupsTest {
                     null
                 })
             presenter.load()
-            presenter.download(newest)
+            val job = async { presenter.download(newest) }
+            presenter.reauth.state.first { it.visible }
             var s = presenter.state.value
-            assertTrue(s.reauth.needed)
             assertNull(s.file)
             assertTrue(s.backups.first().busy)
-            presenter.confirmReauth("secret", "123456")
+            presenter.reauth.confirm("secret", "123456")
+            job.await()
             s = presenter.state.value
             assertEquals("secret/123456", asked)
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertNotNull(s.file)
             assertEquals(2, attempts)
             assertFalse(s.backups.first().busy)
@@ -294,11 +306,12 @@ class SettingsServerBackupsTest {
             server.json("DELETE", "/api/v1/backups/$newest", reauthBody, 403)
             val presenter = presenter(server)
             presenter.load()
-            presenter.delete(newest)
-            assertTrue(presenter.state.value.reauth.needed)
-            presenter.cancelReauth()
+            val job = async { presenter.delete(newest) }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.cancel()
+            job.await()
             val s = presenter.state.value
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertTrue(s.backups.none { it.busy })
             assertEquals(2, s.backups.size)
         }
@@ -310,11 +323,14 @@ class SettingsServerBackupsTest {
             server.json("DELETE", "/api/v1/backups/$newest", reauthBody, 403)
             val presenter = presenter(server, reauth = { _, _ -> ApiError(ApiErrorCode.FORBIDDEN, 403) })
             presenter.load()
-            presenter.delete(newest)
-            presenter.confirmReauth("nope", "")
-            val s = presenter.state.value
-            assertTrue(s.reauth.needed)
-            assertEquals(ApiErrorCode.FORBIDDEN, s.reauth.error?.code)
+            val job = async { presenter.delete(newest) }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.confirm("nope", "")
+            val prompt = presenter.reauth.state.value
+            assertTrue(prompt.visible)
+            assertEquals(ApiErrorCode.FORBIDDEN, prompt.error?.code)
+            presenter.reauth.cancel()
+            job.await()
         }
 
     @Test
@@ -474,11 +490,12 @@ class SettingsServerBackupsTest {
             presenter.load()
             val path = presenter.stagingPath("b.zip")
             SystemFileSystem.sink(Path(path)).buffered().use { it.write(byteArrayOf(1, 2)) }
-            presenter.restore(path, "b.zip")
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.restore(path, "b.zip") }
+            presenter.reauth.state.first { it.visible }
             assertEquals(SettingsServerRestoreStage.UPLOADING, presenter.state.value.restore)
             assertTrue(SystemFileSystem.exists(Path(path)))
-            presenter.confirmReauth("pw", "")
+            presenter.reauth.confirm("pw", "")
+            job.await()
             assertEquals(SettingsServerRestoreStage.IDLE, presenter.state.value.restore)
             assertTrue(presenter.state.value.restoreWaiting)
             assertEquals(2, attempts)

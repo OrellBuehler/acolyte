@@ -1,11 +1,14 @@
 @preconcurrency import shared
 import Foundation
 
-final class SettingsControlsPartsDriver: @unchecked Sendable {
+final class SettingsControlsPartsDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsControlsPartsPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsControlsPartsPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsControlsPartsInfo) -> Void) async {
@@ -54,21 +57,16 @@ final class SettingsControlsPartsDriver: @unchecked Sendable {
     func cancel() {
         presenter.cancel()
     }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
-    }
 }
 
-final class SettingsControlsDangerDriver: @unchecked Sendable {
+final class SettingsControlsDangerDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsControlsDangerPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsControlsDangerPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsControlsDangerInfo) -> Void) async {
@@ -94,14 +92,6 @@ final class SettingsControlsDangerDriver: @unchecked Sendable {
         presenter.cancel()
     }
 
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
-    }
-
     func dismissStopped() {
         presenter.dismissStopped()
     }
@@ -111,11 +101,14 @@ final class SettingsControlsDangerDriver: @unchecked Sendable {
     }
 }
 
-final class SettingsControlsThisAppDriver: @unchecked Sendable {
+final class SettingsControlsThisAppDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsControlsThisAppPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsControlsThisAppPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsControlsThisAppInfo) -> Void) async {
@@ -155,14 +148,6 @@ final class SettingsControlsThisAppDriver: @unchecked Sendable {
 
     func proveStorage() async {
         do { try await presenter.proveStorage() } catch {}
-    }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
     }
 
     func setUrlBase(_ text: String) {

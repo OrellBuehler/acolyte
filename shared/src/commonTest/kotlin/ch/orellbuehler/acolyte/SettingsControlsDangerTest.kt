@@ -29,7 +29,7 @@ class SettingsControlsDangerTest {
         val client = server.client(listOf(FakeServer.SESSION), csrf = "token")
         val refreshed = intArrayOf(0)
         val presenter =
-            SettingsControlsDangerPresenter(Api({ client }, emptyFlow()), { account }, { _, _ -> null }, { refreshed[0]++ })
+            SettingsControlsDangerPresenter(Api({ client }, emptyFlow()), { account }, testGate(account), { refreshed[0]++ })
         return Setup(server, presenter, refreshed)
     }
 

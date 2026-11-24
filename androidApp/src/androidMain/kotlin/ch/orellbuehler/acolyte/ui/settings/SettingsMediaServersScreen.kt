@@ -51,6 +51,7 @@ import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServer
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
@@ -176,7 +177,7 @@ fun SettingsMediaServersScreen(
             onDismiss = { askWatchOff = false },
         )
     }
-    SettingsReauthDialog(state.reauth, viewModel::confirmReauth, viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

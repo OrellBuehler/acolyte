@@ -9,6 +9,8 @@ import ch.orellbuehler.acolyte.feature.settings.mediaservers.SettingsMediaServer
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.Role
 import ch.orellbuehler.acolyte.session.SignInMethod
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -68,7 +70,7 @@ class SettingsMediaServersTest {
         server: FakeServer,
         account: Account? = owner(),
         reauth: suspend (String, String?) -> ApiError? = { _, _ -> null },
-    ) = SettingsMediaServersPresenter(server.api(), { account }, reauth, { "de" })
+    ) = SettingsMediaServersPresenter(server.api(), { account }, testGate(account, reauth), { "de" })
 
     @Test
     fun loadsTheServersAndTheOwnerCards() =
@@ -553,19 +555,23 @@ class SettingsMediaServersTest {
             presenter.setName("Jelly")
             presenter.setUrl("http://j:8096")
             presenter.setToken("key")
-            presenter.save()
+            val job = async { presenter.save() }
+            presenter.reauth.state.first { it.visible }
             var s = presenter.state.value
-            assertTrue(s.reauth.needed)
             assertTrue(s.formOpen)
             assertFalse(s.saving)
             assertNull(s.formError)
-            presenter.confirmReauth("wrong", "")
+            presenter.reauth.confirm("wrong", "")
+            assertTrue(presenter.reauth.state.value.visible)
+            assertEquals(
+                ApiErrorCode.UNAUTHORIZED,
+                presenter.reauth.state.value.error
+                    ?.code,
+            )
+            presenter.reauth.confirm("secret", "123456")
+            job.await()
             s = presenter.state.value
-            assertTrue(s.reauth.needed)
-            assertEquals(ApiErrorCode.UNAUTHORIZED, s.reauth.error?.code)
-            presenter.confirmReauth("secret", "123456")
-            s = presenter.state.value
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertFalse(s.formOpen)
             assertEquals(SettingsMediaServersNoticeKind.SAVED, s.notice?.kind)
             assertEquals(2, count(server, "POST", "/api/v1/media-servers"))
@@ -578,15 +584,16 @@ class SettingsMediaServersTest {
             server.json("DELETE", "/api/v1/media-servers/3", """{"error":"confirm your password","code":"reauth"}""", 403)
             val presenter = presenter(server)
             presenter.load()
-            presenter.remove(3)
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.remove(3) }
+            presenter.reauth.state.first { it.visible }
             assertNull(presenter.state.value.notice)
             assertFalse(
                 presenter.state.value.servers
                     .any { it.busy },
             )
-            presenter.cancelReauth()
-            assertFalse(presenter.state.value.reauth.needed)
+            presenter.reauth.cancel()
+            job.await()
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(1, count(server, "DELETE", "/api/v1/media-servers/3"))
         }
 

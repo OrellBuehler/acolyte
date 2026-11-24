@@ -149,7 +149,7 @@ fun AskReviewSheet(
 private fun PartsHead(state: AskReviewState) {
     if (state.seasons.isNotEmpty()) {
         val seasons = pluralStringResource(R.plurals.requests_seasons, state.seasons.size, state.seasons.size)
-        val episodes = pluralStringResource(R.plurals.requests_episodes, state.keptEpisodes, state.keptEpisodes)
+        val episodes = pluralStringResource(R.plurals.requests_episodes_count, state.keptEpisodes, state.keptEpisodes)
         val head =
             if (state.keptSeasons == state.seasons.size) {
                 stringResource(R.string.requests_parts_all, seasons)
@@ -163,7 +163,7 @@ private fun PartsHead(state: AskReviewState) {
         val songs =
             when {
                 state.allSongs == 0 -> ""
-                state.keptSongs == state.allSongs -> pluralStringResource(R.plurals.requests_songs, state.allSongs, state.allSongs)
+                state.keptSongs == state.allSongs -> pluralStringResource(R.plurals.requests_songs_count, state.allSongs, state.allSongs)
                 else -> stringResource(R.string.requests_some_songs, state.keptSongs, state.allSongs)
             }
         Hint(listOf(counts, songs).filter { it.isNotEmpty() }.joinToString(" · "))
@@ -252,7 +252,7 @@ private fun AlbumRowView(
                         row.editions.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.requests_editions, it, it) },
                         row.songs.size
                             .takeIf { it > 0 }
-                            ?.let { pluralStringResource(R.plurals.requests_songs, it, it) },
+                            ?.let { pluralStringResource(R.plurals.requests_songs_count, it, it) },
                     )
                 Hint(facts.joinToString(" · "))
                 if (!editable && row.tick == Tick.NONE) Hint(stringResource(R.string.requests_left_out))

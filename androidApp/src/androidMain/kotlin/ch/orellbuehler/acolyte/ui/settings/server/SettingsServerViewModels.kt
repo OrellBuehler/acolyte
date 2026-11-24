@@ -85,6 +85,7 @@ class SettingsBackupsViewModel(
     private val presenter = sdk.settingsBackups()
 
     val state: StateFlow<SettingsServerBackupsState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -129,15 +130,6 @@ class SettingsBackupsViewModel(
 
     fun dismissNotice(seq: Int) = presenter.dismissNotice(seq)
 
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
-
     override fun onCleared() {
         presenter.release()
     }
@@ -149,6 +141,7 @@ class SettingsLogsViewModel(
     private val presenter = sdk.settingsLogs()
 
     val state: StateFlow<SettingsServerLogsState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -186,15 +179,6 @@ class SettingsLogsViewModel(
     fun fileDelivered() = presenter.fileDelivered()
 
     fun dismissDownloadError() = presenter.dismissDownloadError()
-
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
 
     override fun onCleared() {
         presenter.release()

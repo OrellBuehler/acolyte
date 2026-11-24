@@ -13,7 +13,9 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsStageAc
 import ch.orellbuehler.acolyte.live.LiveEvent
 import ch.orellbuehler.acolyte.session.Role
 import io.ktor.http.content.TextContent
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -71,7 +73,7 @@ class SettingsControlsPartsTest {
             SettingsControlsPartsPresenter(
                 Api({ client }, live),
                 { account },
-                { password, code ->
+                testGate(account) { password, code ->
                     reauths += password to code
                     reauthError
                 },
@@ -380,14 +382,16 @@ class SettingsControlsPartsTest {
                     respondJson("""{"error":"confirm your local password again","code":"reauth"}""", 403)
                 }
             }
-            s.presenter.turnOn("music")
-            assertTrue(s.presenter.state.value.reauth.needed)
+            val job = async { s.presenter.turnOn("music") }
+            s.presenter.reauth.state
+                .first { it.visible }
             assertNull(s.presenter.state.value.notice)
             assertEquals("", s.presenter.state.value.busyKey)
             allowed = true
-            s.presenter.confirmReauth("secret", " 123456 ")
+            s.presenter.reauth.confirm("secret", " 123456 ")
+            job.await()
             assertEquals<List<Pair<String, String?>>>(listOf("secret" to "123456"), s.reauths)
-            assertFalse(s.presenter.state.value.reauth.needed)
+            assertFalse(s.presenter.reauth.state.value.visible)
             assertEquals(
                 SettingsControlsKind.PART_ON,
                 s.presenter.state.value.notice
@@ -402,13 +406,16 @@ class SettingsControlsPartsTest {
             val s = setup(reauthError = ApiError(ApiErrorCode.FORBIDDEN, 403, "wrong password"))
             s.presenter.load()
             s.server.json("POST", "/api/v1/parts/music/on", """{"error":"confirm","code":"reauth"}""", 403)
-            s.presenter.turnOn("music")
-            s.presenter.confirmReauth("nope", "")
-            val reauth = s.presenter.state.value.reauth
-            assertTrue(reauth.needed)
+            val job = async { s.presenter.turnOn("music") }
+            s.presenter.reauth.state
+                .first { it.visible }
+            s.presenter.reauth.confirm("nope", "")
+            val reauth = s.presenter.reauth.state.value
+            assertTrue(reauth.visible)
             assertEquals(ApiErrorCode.FORBIDDEN, reauth.error?.code)
-            s.presenter.cancelReauth()
-            assertFalse(s.presenter.state.value.reauth.needed)
+            s.presenter.reauth.cancel()
+            job.await()
+            assertFalse(s.presenter.reauth.state.value.visible)
         }
 
     @Test

@@ -34,11 +34,7 @@ struct SettingsMediaServersFormSheet: View {
             }
         }
         .interactiveDismissDisabled(info.saving)
-        .settingsReauth(
-            info.reauth,
-            confirm: { password, code in store.confirmReauth(password, code) },
-            cancel: { store.cancelReauth() }
-        )
+        .reauthSheet(store.reauth)
     }
 
     private var title: String {

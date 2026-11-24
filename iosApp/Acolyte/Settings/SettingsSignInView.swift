@@ -17,11 +17,7 @@ struct SettingsSignInView: View {
             form
         }
         .navigationTitle(L10n.tr("settings.page.sign.in"))
-        .settingsReauth(
-            info.reauth,
-            confirm: { password, code in store.confirmReauth(password, code) },
-            cancel: { store.cancelReauth() }
-        )
+        .reauthSheet(store.reauth, enabled: store.info.importSheet == nil)
         .sheet(isPresented: importPresented) {
             SettingsSignInImportView(store: store)
         }

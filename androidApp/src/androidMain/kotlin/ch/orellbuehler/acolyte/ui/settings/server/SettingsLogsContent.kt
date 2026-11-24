@@ -67,13 +67,13 @@ import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerLogsState
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
 import ch.orellbuehler.acolyte.ui.components.NoticeBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.requests.Hint
 import ch.orellbuehler.acolyte.ui.requests.NotAllowed
 import ch.orellbuehler.acolyte.ui.requests.PickerField
-import ch.orellbuehler.acolyte.ui.settings.SettingsReauthDialog
 import ch.orellbuehler.acolyte.ui.settings.shareTransferredFile
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import java.time.Instant
@@ -144,7 +144,7 @@ fun SettingsLogsContent(onBack: () -> Unit) {
             viewModel.clear()
         }, onClose = { filterOpen = false })
     }
-    SettingsReauthDialog(state.reauth, onConfirm = viewModel::confirmReauth, onCancel = viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

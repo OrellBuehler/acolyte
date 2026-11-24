@@ -120,8 +120,7 @@ extension Mapping {
             events: events,
             busyKey: s.busyKey,
             ask: controlAsk(s.ask),
-            notice: controlNotice(s.notice),
-            reauth: settingsReauth(s.reauth)
+            notice: controlNotice(s.notice)
         )
     }
 
@@ -141,8 +140,7 @@ extension Mapping {
             busyKind: busyKind,
             ask: controlAsk(s.ask),
             notice: controlNotice(s.notice),
-            stopped: controlStopped(s.stopped),
-            reauth: settingsReauth(s.reauth)
+            stopped: controlStopped(s.stopped)
         )
     }
 
@@ -233,8 +231,7 @@ extension Mapping {
             proxyOn: s.proxyOn,
             proxyValid: s.proxyValid,
             canSaveProxy: s.canSaveProxy,
-            saved: controlSaved(s.saved),
-            reauth: settingsReauth(s.reauth)
+            saved: controlSaved(s.saved)
         )
     }
 

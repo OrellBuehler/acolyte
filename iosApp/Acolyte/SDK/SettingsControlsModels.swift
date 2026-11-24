@@ -179,7 +179,6 @@ struct SettingsControlsPartsInfo: Hashable, Sendable {
     let busyKey: String
     let ask: SettingsControlsAskInfo?
     let notice: SettingsControlsNoticeInfo?
-    let reauth: SettingsReauthInfo
 
     var busy: Bool { !busyKey.isEmpty }
 
@@ -193,8 +192,7 @@ struct SettingsControlsPartsInfo: Hashable, Sendable {
         events: [],
         busyKey: "",
         ask: nil,
-        notice: nil,
-        reauth: .idle
+        notice: nil
     )
 }
 
@@ -210,7 +208,6 @@ struct SettingsControlsDangerInfo: Hashable, Sendable {
     let ask: SettingsControlsAskInfo?
     let notice: SettingsControlsNoticeInfo?
     let stopped: SettingsControlsStoppedInfo?
-    let reauth: SettingsReauthInfo
 
     var busy: Bool { busyKind != nil }
 
@@ -219,8 +216,7 @@ struct SettingsControlsDangerInfo: Hashable, Sendable {
         busyKind: nil,
         ask: nil,
         notice: nil,
-        stopped: nil,
-        reauth: .idle
+        stopped: nil
     )
 }
 
@@ -320,7 +316,6 @@ struct SettingsControlsThisAppInfo: Hashable, Sendable {
     let proxyValid: Bool
     let canSaveProxy: Bool
     let saved: SettingsControlsSavedInfo?
-    let reauth: SettingsReauthInfo
 
     var canChangeHistory: Bool { isOwner }
 
@@ -359,8 +354,7 @@ struct SettingsControlsThisAppInfo: Hashable, Sendable {
         proxyOn: false,
         proxyValid: true,
         canSaveProxy: false,
-        saved: nil,
-        reauth: .idle
+        saved: nil
     )
 }
 

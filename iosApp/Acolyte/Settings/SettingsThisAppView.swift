@@ -15,7 +15,7 @@ struct SettingsThisAppView: View {
         }
         .navigationTitle(L10n.tr("settings.page.this.app"))
         .settingsControlsToast(store.toaster)
-        .settingsReauth(info.reauth, confirm: { store.confirmReauth($0, $1) }, cancel: { store.cancelReauth() })
+        .reauthSheet(store.reauth)
         .task { await store.watch() }
         .task { await store.load() }
         .task { await store.followLive() }

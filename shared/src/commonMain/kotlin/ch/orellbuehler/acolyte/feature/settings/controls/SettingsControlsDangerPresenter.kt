@@ -1,13 +1,11 @@
 package ch.orellbuehler.acolyte.feature.settings.controls
 
 import ch.orellbuehler.acolyte.api.Api
-import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AuthEndpoints
 import ch.orellbuehler.acolyte.api.Need
 import ch.orellbuehler.acolyte.api.SettingsControlsEndpoints
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +31,6 @@ data class SettingsControlsDangerState(
     val ask: SettingsControlsAsk? = null,
     val notice: SettingsControlsNotice? = null,
     val stopped: SettingsControlsStopped? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val busy: Boolean get() = busyKind != null
 }
@@ -41,7 +38,7 @@ data class SettingsControlsDangerState(
 class SettingsControlsDangerPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
     private val refreshSession: suspend () -> Unit,
 ) {
     private val mutableState = MutableStateFlow(SettingsControlsDangerState(allowed = account()?.can(Need.USERS) == true))
@@ -49,7 +46,7 @@ class SettingsControlsDangerPresenter internal constructor(
 
     private val flow =
         SettingsControlFlow(
-            gate = SettingsReauthGate(reauth) { value -> mutableState.update { it.copy(reauth = value) } },
+            gate = reauth,
             onBusy = { call -> mutableState.update { it.copy(busyKind = call?.kind) } },
             onAsk = { call, ask ->
                 mutableState.update { it.copy(ask = SettingsControlsAsk(call.kind, call.name, ask.text, ask.expiresInSeconds)) }
@@ -89,13 +86,6 @@ class SettingsControlsDangerPresenter internal constructor(
         flow.cancel()
         mutableState.update { it.copy(ask = null) }
     }
-
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = flow.confirmReauth(password, code)
-
-    fun cancelReauth() = flow.cancelReauth()
 
     fun dismissStopped() {
         mutableState.update { it.copy(stopped = null) }

@@ -7,7 +7,7 @@ import ch.orellbuehler.acolyte.api.Endpoint
 import ch.orellbuehler.acolyte.api.model.SettingsControlAnswer
 import ch.orellbuehler.acolyte.api.model.SettingsControlConfirm
 import ch.orellbuehler.acolyte.api.model.SettingsLinkTest
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 
 internal sealed interface SettingsControlOutcome {
     data class Done(
@@ -79,7 +79,7 @@ internal class SettingsControlCall(
 )
 
 internal class SettingsControlFlow(
-    private val gate: SettingsReauthGate,
+    private val gate: ReauthGate,
     private val onBusy: (SettingsControlCall?) -> Unit,
     private val onAsk: (SettingsControlCall, SettingsControlOutcome.Asking) -> Unit,
     private val onDone: suspend (SettingsControlCall, SettingsControlOutcome.Done) -> Unit,
@@ -106,23 +106,13 @@ internal class SettingsControlFlow(
         pending = null
     }
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = gate.confirm(password, code)
-
-    fun cancelReauth() {
-        pending = null
-        gate.cancel()
-    }
-
     private suspend fun run(
         call: SettingsControlCall,
         confirm: String?,
     ) {
         running = true
         try {
-            gate.guard(onFailure = { error -> fail(call, error) }) {
+            gate.guardError(onFailure = { error -> fail(call, error) }, onCancel = { pending = null }) {
                 onBusy(call)
                 when (val outcome = call.send(confirm)) {
                     is SettingsControlOutcome.Asking -> {

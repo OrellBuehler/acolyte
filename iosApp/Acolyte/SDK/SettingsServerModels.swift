@@ -255,7 +255,6 @@ struct SettingsServerBackupsInfo: Hashable, Sendable {
     let restoreName: String
     let file: SettingsServerFileInfo?
     let notice: SettingsServerBackupsNoticeInfo?
-    let reauth: SettingsReauthInfo
 
     static let initial = SettingsServerBackupsInfo(
         load: .loading,
@@ -277,8 +276,7 @@ struct SettingsServerBackupsInfo: Hashable, Sendable {
         restore: .idle,
         restoreName: "",
         file: nil,
-        notice: nil,
-        reauth: .idle
+        notice: nil
     )
 }
 
@@ -314,7 +312,6 @@ struct SettingsServerLogsInfo: Hashable, Sendable {
     let downloading: Bool
     let downloadError: ErrorInfo?
     let file: SettingsServerFileInfo?
-    let reauth: SettingsReauthInfo
 
     static let initial = SettingsServerLogsInfo(
         load: .loading,
@@ -331,7 +328,6 @@ struct SettingsServerLogsInfo: Hashable, Sendable {
         noLogFile: false,
         downloading: false,
         downloadError: nil,
-        file: nil,
-        reauth: .idle
+        file: nil
     )
 }

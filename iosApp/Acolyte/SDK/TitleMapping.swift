@@ -670,6 +670,8 @@ extension Mapping {
             episodeCount: s.episodeIds.count,
             handsOff: s.handsOff,
             whole: s.whole,
+            album: s.album,
+            artist: s.artist,
             deleteFiles: s.deleteFiles,
             neverAdd: s.neverAdd,
             hasPlan: plan != nil,

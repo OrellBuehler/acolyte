@@ -39,6 +39,7 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsStopped
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsWait
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.MessageView
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.requests.ConfirmDialog
 import ch.orellbuehler.acolyte.ui.requests.Hint
@@ -83,7 +84,7 @@ fun SettingsDangerScreen(
             danger = true,
         )
     }
-    SettingsReauthDialog(state.reauth, viewModel::confirmReauth, viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

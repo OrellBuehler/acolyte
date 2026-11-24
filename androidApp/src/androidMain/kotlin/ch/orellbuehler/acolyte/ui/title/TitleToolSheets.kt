@@ -415,6 +415,8 @@ fun RemoveContent(
                     when {
                         state.season >= 0 -> stringResource(R.string.title_delete_season, seasonName(state.season))
                         state.episodeIds.isNotEmpty() -> stringResource(R.string.title_delete_episode)
+                        state.album -> stringResource(R.string.title_delete_album)
+                        state.artist -> stringResource(R.string.title_delete_artist)
                         state.show -> stringResource(R.string.title_delete_show)
                         else -> stringResource(R.string.title_delete_movie)
                     },

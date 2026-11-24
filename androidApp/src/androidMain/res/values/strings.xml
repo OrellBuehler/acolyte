@@ -101,16 +101,6 @@
     <string name="signin_error_rate_limited">Too many attempts. Try again in %1$d s.</string>
     <string name="signin_error_server">The server ran into a problem. Try again later.</string>
 
-    <string name="health_run">Run checks now</string>
-    <string name="health_empty_title">No checks yet</string>
-    <string name="health_empty_message">HolyArrs has not checked anything yet.</string>
-    <string name="health_overall_ok">Everything is fine</string>
-    <string name="health_overall_warning">Needs attention</string>
-    <string name="health_overall_error">Something is wrong</string>
-    <string name="health_state_ok">OK</string>
-    <string name="health_state_warning">Warning</string>
-    <string name="health_state_error">Error</string>
-    <string name="health_state_unknown">Unknown</string>
 
     <string name="account_summary">%1$s · %2$s</string>
     <string name="account_server">Server</string>
@@ -121,7 +111,6 @@
     <string name="account_sign_out">Sign out</string>
     <string name="account_sign_out_title">Sign out?</string>
     <string name="account_sign_out_message">You can sign in again any time.</string>
-    <string name="account_two_factor_needed">Your server requires two-factor sign-in for your account. Turn it on in the HolyArrs web app under My account.</string>
     <string name="account_safe_mode">The server runs in safe mode: only the core is on.</string>
     <string name="role_owner">Owner</string>
     <string name="role_admin">Admin</string>
@@ -146,7 +135,6 @@
         <item quantity="one">%1$d TV show</item>
         <item quantity="other">%1$d TV shows</item>
     </plurals>
-    <string name="library_count_of">%1$d of %2$d</string>
     <string name="library_search">Search</string>
     <string name="library_search_movie">Search movies</string>
     <string name="library_search_show">Search TV shows</string>
@@ -219,7 +207,6 @@
     <string name="library_fact_runtime">%1$dh %2$dm</string>
     <string name="library_fact_score">★ %1$s</string>
     <string name="library_sort_title">Sort by</string>
-    <string name="library_sort_order">Order</string>
     <string name="library_sort_ascending">Ascending</string>
     <string name="library_sort_descending">Descending</string>
     <string name="library_sort_status">Status</string>
@@ -413,7 +400,6 @@
     <string name="library_close">Close</string>
     <string name="library_save">Save</string>
     <string name="library_start">Start</string>
-    <string name="library_retry">Try again</string>
     <string name="library_previous">Previous</string>
     <string name="library_next">Next</string>
     <string name="library_page">%1$d–%2$d of %3$d</string>
@@ -776,7 +762,6 @@
     <string name="library_folders_side_types">File types</string>
     <string name="library_folders_side_types_hint">Separate types with commas, such as srt, ass.</string>
     <string name="library_folders_edit">Edit %1$s</string>
-    <string name="library_grid_sort_filter_n">Sort and filter · %1$d</string>
     <string name="library_import_step_pick">1. Pick a folder</string>
     <string name="library_import_step_check">2. Check and approve</string>
     <string name="library_import_folder_label">%1$s (%2$s)</string>
@@ -786,57 +771,11 @@
     <string name="library_import_empty_message">Add the folder that holds your movies, shows or music first.</string>
     <string name="library_import_progress_reading">Reading the folder and looking each one up.</string>
     <string name="library_import_progress_folders">Looked up %1$d of %2$d folders.</string>
-    <string name="library_import_progress_files">Looked up %1$d of %2$d files.</string>
-    <plurals name="library_import_in_folders">
-        <item quantity="one">%1$d folder in %2$s. Tick the ones to adopt. Matched ones are ticked for you.</item>
-        <item quantity="other">%1$d folders in %2$s. Tick the ones to adopt. Matched ones are ticked for you.</item>
-    </plurals>
-    <plurals name="library_import_in_files">
-        <item quantity="one">%1$d file in %2$s. Tick the ones to adopt. Matched ones are ticked for you.</item>
-        <item quantity="other">%1$d files in %2$s. Tick the ones to adopt. Matched ones are ticked for you.</item>
-    </plurals>
-    <plurals name="library_import_part_folders">
-        <item quantity="one">%1$d folder in %2$s. This part shows %3$d to %4$d. Matched ones are ticked for you.</item>
-        <item quantity="other">%1$d folders in %2$s. This part shows %3$d to %4$d. Matched ones are ticked for you.</item>
-    </plurals>
-    <plurals name="library_import_part_files">
-        <item quantity="one">%1$d file in %2$s. This part shows %3$d to %4$d. Matched ones are ticked for you.</item>
-        <item quantity="other">%1$d files in %2$s. This part shows %3$d to %4$d. Matched ones are ticked for you.</item>
-    </plurals>
-    <string name="library_import_stopped">Stopped after %1$s.</string>
-    <string name="library_import_part_next">Adopt the ticked ones first, then scan the rest. Scanning the rest now clears the ticks here.</string>
     <plurals name="library_import_scan_rest_ask_folders">
         <item quantity="one">%1$d ticked folder is not adopted yet. Scanning the rest clears its tick. Scan the rest?</item>
         <item quantity="other">%1$d ticked folders are not adopted yet. Scanning the rest clears their ticks. Scan the rest?</item>
     </plurals>
-    <plurals name="library_import_scan_rest_ask_files">
-        <item quantity="one">%1$d ticked file is not adopted yet. Scanning the rest clears its tick. Scan the rest?</item>
-        <item quantity="other">%1$d ticked files are not adopted yet. Scanning the rest clears their ticks. Scan the rest?</item>
-    </plurals>
-    <string name="library_import_none">Nothing found in this folder.</string>
-    <string name="library_import_none_match">No folders match.</string>
-    <string name="library_import_adopt_folder">Adopt %1$s</string>
     <string name="library_import_status_score">%1$s · %2$d%%</string>
-    <plurals name="library_import_show_episodes">
-        <item quantity="one">%1$d episode</item>
-        <item quantity="other">%1$d episodes</item>
-    </plurals>
-    <plurals name="library_import_show_in_files">
-        <item quantity="one">in %1$d file</item>
-        <item quantity="other">in %1$d files</item>
-    </plurals>
-    <plurals name="library_import_show_left_alone">
-        <item quantity="one">%1$d file with no episode left alone</item>
-        <item quantity="other">%1$d files with no episode left alone</item>
-    </plurals>
-    <plurals name="library_import_music_albums">
-        <item quantity="one">%1$d album</item>
-        <item quantity="other">%1$d albums</item>
-    </plurals>
-    <plurals name="library_import_music_tracks">
-        <item quantity="one">%1$d track</item>
-        <item quantity="other">%1$d tracks</item>
-    </plurals>
     <string name="library_import_lookup_button">Look up</string>
     <string name="library_import_lookup_movie">Name and year, or tmdb:123</string>
     <string name="library_import_lookup_show">Name, or tvdb:123</string>
@@ -850,30 +789,10 @@
     <string name="library_import_tidy_open">Tidy my folders</string>
     <string name="library_import_tidy_undo_note">Files the last tidy moved: %1$d. Undo puts them back where they were.</string>
     <string name="library_import_tidy_undo">Undo last tidy</string>
-    <string name="library_import_tidy_now">Now</string>
-    <string name="library_import_tidy_new">New</string>
     <string name="library_import_tidy_why_exists">%1$s is already there</string>
     <string name="library_import_tidy_why_two">Two files would get the name %1$s</string>
     <string name="library_import_tidy_why_has_movie">The folder %1$s already has a movie in it</string>
-    <plurals name="library_import_done_movie">
-        <item quantity="one">%1$d movie is now in the Library. Its files were not moved.</item>
-        <item quantity="other">%1$d movies are now in the Library. Their files were not moved.</item>
-    </plurals>
-    <plurals name="library_import_done_show">
-        <item quantity="one">%1$d TV show is now in the Library. Its files were not moved.</item>
-        <item quantity="other">%1$d TV shows are now in the Library. Their files were not moved.</item>
-    </plurals>
-    <plurals name="library_import_done_artist">
-        <item quantity="one">%1$d artist is now in the Library. Their files were not moved.</item>
-        <item quantity="other">%1$d artists are now in the Library. Their files were not moved.</item>
-    </plurals>
-    <string name="library_import_not_count">%1$d not adopted. The reasons are in the list below.</string>
-    <string name="library_import_unknown_count">%1$d sent, but how it went is not known yet. Check the Library.</string>
-    <string name="library_import_left_hint">Some folders did not go through. Scan again to bring them in; folders already in the Library are left as they are.</string>
-    <string name="library_import_scan_again">Scan again</string>
     <string name="library_import_not_adopted_why">Not adopted: %1$s</string>
-    <string name="library_import_go_library">Go to the Library</string>
-    <string name="library_import_ticked">%1$d ticked</string>
     <plurals name="library_import_adopt_artist">
         <item quantity="one">Adopt %1$d artist</item>
         <item quantity="other">Adopt %1$d artists</item>
@@ -883,30 +802,18 @@
     <string name="library_files_step_check">2. Check and import</string>
     <string name="library_files_path_label">Folder or file on the server</string>
     <string name="library_files_where">A Library, Downloader or extra import folder.</string>
-    <string name="library_files_no_files">No video or music files here</string>
-    <string name="library_files_no_files_hint">Pick the folder that holds the files, or one file.</string>
     <plurals name="library_files_in">
         <item quantity="one">%1$d file in %2$s. Sure matches are ticked. Fix the rest with Change.</item>
         <item quantity="other">%1$d files in %2$s. Sure matches are ticked. Fix the rest with Change.</item>
     </plurals>
-    <string name="library_files_only_first">Only the first %1$d files are listed. Pick a smaller folder for the rest.</string>
-    <string name="library_files_tick">Import %1$s</string>
-    <string name="library_files_pick_album">pick the album</string>
-    <string name="library_files_pick_track">pick the track</string>
-    <string name="library_files_pick_episode">pick the episode</string>
     <string name="library_files_blocker_no_slot">No track in the Library matches this file yet.</string>
     <string name="library_files_result_moved">Moved to the Library</string>
     <string name="library_files_result_copied">Copied to the Library (uses extra space)</string>
     <string name="library_files_result_linked">Added to the Library (no extra space used)</string>
     <string name="library_files_result_recorded">Recorded</string>
-    <string name="library_files_result_placed_error">%1$s. %2$s</string>
     <string name="library_files_result_failed">Failed: %1$s</string>
     <string name="library_files_result_refused">Not imported: %1$s</string>
-    <string name="library_files_result_no_reason">no reason given</string>
     <string name="library_files_mode_title">How files go into the Library</string>
-    <string name="library_files_mode_copy_text">Import puts each file in its title’s folder in the Library, or straight into the Library folder when that folder keeps movies as loose files: as a link when the drive allows it, otherwise as a copy. The original file stays where it is.</string>
-    <string name="library_files_mode_move_text">Import puts each file in its title’s folder in the Library, or straight into the Library folder when that folder keeps movies as loose files. The original file is removed once the Library file is checked. Pick Copy or link while a torrent still seeds it.</string>
-    <string name="library_files_ticked">%1$d ticked</string>
     <string name="library_files_import_confirm">Import</string>
     <plurals name="library_files_replace_ask">
         <item quantity="one">%1$d file replaces a file already in the Library. The old file goes to Recently deleted. Import?</item>
@@ -915,45 +822,27 @@
     <string name="library_files_editor_look_up">Look up</string>
     <string name="library_files_season_specials">Specials</string>
     <string name="library_files_season_n">Season %1$d</string>
-    <string name="library_files_kind_movie">Movie</string>
-    <string name="library_files_kind_show">TV show</string>
     <string name="library_files_browser_places">Import places on the server</string>
-    <string name="library_folders_add_title">Add a Library folder</string>
     <string name="library_folders_quality_default">Default</string>
-    <string name="library_folders_for_movie">For movies</string>
-    <string name="library_folders_for_show">For shows</string>
-    <string name="library_folders_for_music">For music</string>
     <string name="library_folders_checked_at">Checked %1$s</string>
     <string name="library_folders_health_copies_expected">Full copies, as you chose</string>
-    <string name="library_folders_details">Details</string>
-    <string name="library_folders_remove_confirm">Remove %1$s? Files stay on disk.</string>
-    <string name="library_folders_full_path">Full path</string>
     <string name="library_folders_hands_off">Hands-off mode</string>
     <string name="library_folders_hands_off_text">HolyArrs picks a release and sends it to the Downloader, then leaves the files alone. For when another app handles your files.</string>
     <string name="library_folders_hands_off_label">Use hands-off mode</string>
     <string name="library_folders_password_label">Password</string>
-    <string name="library_folders_code_label">Two-factor code (if you use one)</string>
     <string name="library_folders_password_confirm">Confirm</string>
     <string name="library_folders_import">Extra import folders</string>
-    <string name="library_folders_import_text">Import can also read from these</string>
     <string name="library_folders_import_folders_hint">One path per line, e.g. /data/imports. Up to 32.</string>
     <string name="library_folders_import_watch">Watched folders</string>
     <string name="library_folders_import_watch_hint">New files here that match a wanted title with no file yet move into the Library every few minutes. The rest wait for Import files by hand.</string>
     <string name="library_folders_owner_only">Owner and admins only</string>
     <string name="library_folders_side">Subtitle files</string>
-    <string name="library_folders_side_text">Subtitle files that come with a download can be brought into the Library beside their video.</string>
     <string name="library_folders_side_on">Bring subtitle files along</string>
     <string name="library_folders_side_on_hint">A file already in the Library is never replaced.</string>
-    <string name="library_folders_name_field">Name</string>
-    <string name="library_stats_kind">Kind</string>
     <string name="library_stats_tile_titles">Titles</string>
     <string name="library_stats_tile_files">Files</string>
     <string name="library_stats_tile_disk">On disk</string>
     <string name="library_stats_tile_unchecked">Not checked yet</string>
-    <plurals name="library_stats_bucket">
-        <item quantity="one">%1$d file · %2$s</item>
-        <item quantity="other">%1$d files · %2$s</item>
-    </plurals>
     <string name="library_stats_empty_text">Stats show up once titles have files.</string>
     <string name="library_stats_off_title">Watch history is off</string>
     <string name="library_stats_off_text">The owner can turn it on in Settings › Media servers.</string>
@@ -961,7 +850,6 @@
     <string name="library_stats_first_text">The first read comes within 30 minutes.</string>
     <string name="library_stats_help">From Plex, Jellyfin and Emby play history. Plex counts plays only, so titles marked watched by hand don’t show.</string>
     <string name="library_stats_last_read">Last read %1$s.</string>
-    <string name="library_stats_no_match">Read %1$s. Nothing watched matches your Library yet.</string>
     <plurals name="library_stats_unit_episode">
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
@@ -972,33 +860,19 @@
     </plurals>
     <string name="library_stats_cleanup_desc">Titles everyone you pick has finished, biggest first. Requested titles wait until the person who asked has watched them. Nothing is removed until you confirm each one.</string>
     <string name="library_stats_cleanup_who">Wait for</string>
-    <plurals name="library_stats_cleanup_nothing">
-        <item quantity="one">Nothing finished by everyone you picked at least %1$d day ago.</item>
-        <item quantity="other">Nothing finished by everyone you picked at least %1$d days ago.</item>
-    </plurals>
     <string name="library_stats_cleanup_nobody">Pick at least one person.</string>
     <string name="library_stats_cleanup_last">Last watched %1$s · %2$s</string>
     <string name="library_stats_remove_button">Delete</string>
-    <string name="library_stats_remove_note">The title leaves the Library. Its files stay on disk unless you also delete them.</string>
     <plurals name="library_codecs_files">
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>
-    </plurals>
-    <plurals name="library_codecs_review_n">
-        <item quantity="one">Review %1$d copy</item>
-        <item quantity="other">Review %1$d copies</item>
     </plurals>
     <plurals name="library_deleted_files">
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>
     </plurals>
-    <string name="library_deleted_show">Show</string>
     <string name="library_deleted_note_unknown">Deleted and replaced files wait here before they’re erased for good.</string>
     <string name="library_deleted_note_forever">Files stay here until you set how many days to keep them.</string>
-    <plurals name="library_deleted_note_days">
-        <item quantity="one">Files stay here %1$d day, then they’re erased for good.</item>
-        <item quantity="other">Files stay here %1$d days, then they’re erased for good.</item>
-    </plurals>
     <string name="library_deleted_only_title">Only %1$s</string>
     <string name="library_deleted_none">Nothing deleted.</string>
     <string name="library_deleted_on">deleted %1$s</string>
@@ -1006,45 +880,22 @@
     <string name="library_deleted_replaced_by">replaced %1$s by %2$s</string>
     <string name="library_deleted_kept">Kept until you empty it</string>
     <string name="library_deleted_today">Goes today</string>
-    <plurals name="library_deleted_days_left">
-        <item quantity="one">%1$d day left</item>
-        <item quantity="other">%1$d days left</item>
-    </plurals>
     <string name="library_deleted_taken_body">Another file is where %1$s goes. Nothing gets overwritten.</string>
     <string name="library_deleted_keep_both">Keep both</string>
     <string name="library_deleted_keep_both_hint">Put it back beside the other file, with (2) added to its name.</string>
-    <string name="library_deleted_hint_line">%1$s: %2$s</string>
-    <string name="library_releases_lists">Release lists</string>
     <string name="library_releases_none_held">Nothing held.</string>
     <string name="library_releases_none_held_hint">Waiting out a Pick rule delay.</string>
     <string name="library_releases_none_turned">Nothing turned down.</string>
     <string name="library_releases_none_turned_hint">Releases you turn down and wrong downloads land here.</string>
     <string name="library_releases_stop_holding">Stop holding</string>
     <string name="library_releases_clear_all">Clear all</string>
-    <string name="library_releases_action_for">%1$s %2$s</string>
-    <plurals name="library_releases_point_count">
-        <item quantity="one">%1$d point</item>
-        <item quantity="other">%1$d points</item>
-    </plurals>
     <string name="library_subs_every">Every language</string>
     <string name="library_subs_kind_both">Movies and episodes</string>
     <string name="library_subs_movie_or_show">Movie or show</string>
-    <string name="library_subs_progress_label">Subtitle searches done</string>
     <string name="library_subs_searched">Searched %1$d of %2$d files.</string>
-    <plurals name="library_subs_done">
-        <item quantity="one">Done: searched %1$d file.</item>
-        <item quantity="other">Done: searched %1$d files.</item>
-    </plurals>
     <string name="library_subs_none">Nothing missing.</string>
-    <string name="library_subs_hearing_only">hearing-impaired only</string>
-    <string name="library_subs_forced_only">forced only</string>
-    <string name="library_subs_try_next">next try %1$s</string>
-    <string name="library_subs_search_for">Search %1$s subtitles for %2$s</string>
     <string name="library_rename_sub_moves">Subtitle %1$s: → %2$s</string>
     <string name="library_rename_sub_stays">Subtitle %1$s: stays, %2$s</string>
-    <string name="library_rename_already_right">%1$d already right.</string>
-    <string name="library_rename_confirm_note">Nothing is renamed if files changed since this preview.</string>
-    <string name="library_rename_progress">Rename progress</string>
     <string name="library_rename_renaming">Renaming.</string>
     <string name="library_rename_unfinished">The rename did not finish. Nothing was half-done; try again.</string>
     <!-- library:end -->
@@ -1137,6 +988,8 @@
     <string name="title_collapse_all">Collapse all</string>
     <string name="title_contains">Contains</string>
     <string name="title_created_by">Created by</string>
+    <string name="title_delete_album">Delete album</string>
+    <string name="title_delete_artist">Delete artist</string>
     <string name="title_delete_episode">Delete episode</string>
     <string name="title_delete_files">Also delete the files</string>
     <string name="title_delete_files_hint">Kept in the holding folder for a while</string>
@@ -2244,7 +2097,7 @@
         <item quantity="one">%1$d more edition</item>
         <item quantity="other">%1$d more editions</item>
     </plurals>
-    <plurals name="requests_episodes">
+    <plurals name="requests_episodes_count">
         <item quantity="one">%1$d episode</item>
         <item quantity="other">%1$d episodes</item>
     </plurals>
@@ -2292,7 +2145,7 @@
         <item quantity="one">%1$d single or EP</item>
         <item quantity="other">%1$d singles and EPs</item>
     </plurals>
-    <plurals name="requests_songs">
+    <plurals name="requests_songs_count">
         <item quantity="one">%1$d song</item>
         <item quantity="other">%1$d songs</item>
     </plurals>
@@ -2323,7 +2176,6 @@
     <string name="discover_day_today">Today</string>
     <string name="discover_day_tomorrow">Tomorrow</string>
     <string name="discover_day_yesterday">Yesterday</string>
-    <string name="discover_done">Done</string>
     <string name="discover_explore_building_message">Rows fill in within a few minutes.</string>
     <string name="discover_explore_building_title">Explore is getting ready</string>
     <string name="discover_fresh_new_episode">New episode</string>
@@ -3493,13 +3345,6 @@
     <string name="acq_page_subtitles">Subtitles</string>
     <string name="acq_page_search">Search</string>
     <string name="acq_page_move">Import from other apps</string>
-    <string name="acq_hint_sources">Feeds HolyArrs asks for Releases</string>
-    <string name="acq_hint_downloaders">Torrent and Usenet apps</string>
-    <string name="acq_hint_quality">Which Release to take</string>
-    <string name="acq_hint_naming">File names and free space</string>
-    <string name="acq_hint_subtitles">Languages and Subtitle sites</string>
-    <string name="acq_hint_search">When and how HolyArrs searches</string>
-    <string name="acq_hint_move">Copies titles and settings from old apps</string>
     <string name="acq_sub_retry">Try again</string>
     <string name="acq_sub_save">Save</string>
     <string name="acq_sub_discard">Discard</string>
@@ -4019,7 +3864,6 @@
     <string name="acq_q_e_good_enough_points_hint">A file at the good enough step also needs this many points. Leave empty to go by the step alone.</string>
     <string name="acq_q_e_move_up">Move up</string>
     <string name="acq_q_e_move_down">Move down</string>
-    <string name="acq_q_e_step_allowed">Allow %1$s</string>
     <string name="acq_q_e_traits">Traits and points</string>
     <string name="acq_q_e_traits_desc">Most points wins on the same step</string>
     <string name="acq_q_e_no_traits">No traits; all Releases on a step tie</string>
@@ -4028,7 +3872,6 @@
     <string name="acq_q_e_trait_n">Trait %1$d</string>
     <string name="acq_q_e_points_for">Points for %1$s</string>
     <string name="acq_q_e_remove_trait">Remove %1$s</string>
-    <string name="acq_q_e_points">Points</string>
     <string name="acq_q_e_advanced">Advanced</string>
     <string name="acq_q_e_your_traits">Your traits</string>
     <string name="acq_q_e_removed_trait">A trait of yours that was removed</string>
@@ -4123,7 +3966,6 @@
     <string name="acq_q_e_original_hint">Even if not ticked above</string>
     <string name="acq_q_e_lang_wait">Wait for a picked language (days)</string>
     <string name="acq_q_e_lang_wait_hint">0: no wait. After the wait the original is taken, and a copy in a picked language replaces it later.</string>
-    <string name="acq_q_e_loading">Loading…</string>
     <string name="acq_q_err_rules_name">Give these Pick rules a name.</string>
     <string name="acq_q_err_name_200">A name can be at most 200 characters.</string>
     <string name="acq_q_err_name_60">A name can be at most 60 characters.</string>
@@ -4468,7 +4310,6 @@
     <string name="acq_mv_rail_choose">Choose</string>
     <string name="acq_mv_rail_import">Import</string>
     <string name="acq_mv_rail_done">Done</string>
-    <string name="acq_mv_rail_step">Step %1$d of 4</string>
     <string name="acq_mv_step1_title">Read your apps</string>
     <string name="acq_mv_step2_title">What to import</string>
     <string name="acq_mv_step3_title">Import</string>
@@ -4515,7 +4356,6 @@
     <string name="acq_mv_empty_title">Bring your old apps over</string>
     <string name="acq_mv_empty_text">Read Sonarr, Radarr and the others. Your media files are never moved.</string>
     <string name="acq_mv_add_app">Add an app</string>
-    <string name="acq_mv_your_apps">Your apps</string>
     <string name="acq_mv_reading_now">Reading now. You can keep going.</string>
     <string name="acq_mv_reading_chip">Reading…</string>
     <string name="acq_mv_nothing_found">Nothing found</string>
@@ -4524,7 +4364,6 @@
     <string name="acq_mv_version_tag">v%1$s</string>
     <string name="acq_mv_read_tag">Read</string>
     <string name="acq_mv_read_on">Read %1$s</string>
-    <string name="acq_mv_pick_read">Use %1$s</string>
     <string name="acq_mv_forget_title">Forget this %1$s read?</string>
     <string name="acq_mv_forget_text">Finished imports stay. You can read it again.</string>
     <string name="acq_mv_earlier">Earlier imports</string>
@@ -4554,7 +4393,6 @@
     <string name="acq_mv_use_saved">Use the saved key</string>
     <string name="acq_mv_sent_only_to">Sent only to %1$s.</string>
     <string name="acq_mv_saved_key">Saved key</string>
-    <string name="acq_mv_other_key">Use a different key</string>
     <string name="acq_mv_username">User name</string>
     <string name="acq_mv_password">Password</string>
     <string name="acq_mv_api_key">API key</string>
@@ -4605,7 +4443,6 @@
     <string name="acq_mv_p_dots">Paths can\'t contain \"..\".</string>
     <string name="acq_mv_p_fill_both">Fill in both paths.</string>
     <string name="acq_mv_gone_note">HolyArrs can\'t see %1$s. Use the path inside its container: the right side of the Docker volume.</string>
-    <string name="acq_mv_sees">It can see: %1$s</string>
     <string name="acq_mv_twins">Same folder as %1$s. Their titles end up together; give 4K or other copies their own folder.</string>
     <string name="acq_mv_add_rule">Add a path rule</string>
     <string name="acq_mv_rule_from">Old app\'s path</string>
@@ -4746,8 +4583,6 @@
     <string name="acq_mv_traits">Traits: %1$s</string>
     <string name="acq_mv_left_out_list">Left out: %1$s</string>
     <string name="acq_mv_needs_what">Needs %1$s</string>
-    <string name="acq_mv_needs_key_word">key</string>
-    <string name="acq_mv_needs_password_word">password</string>
     <plurals name="acq_mv_c_movie">
         <item quantity="one">%1$d movie</item>
         <item quantity="other">%1$d movies</item>
@@ -4857,7 +4692,6 @@
     <string name="acq_mv_need_attention_why">Their old folder is not on this server, so they come over as wanted into a folder here. Fix the folder or add a path rule: %1$s</string>
     <string name="acq_mv_left_out_unchecked">Left out: %1$d</string>
     <string name="acq_mv_left_out_unchecked_why">%1$s is set to \"Don\'t bring them\"; pick a folder for it and import again</string>
-    <string name="acq_mv_importing">Importing</string>
     <string name="acq_mv_progress_of">%1$d of %2$d</string>
     <string name="acq_mv_busy_wait">The metadata server is busy. HolyArrs tries the last %1$d again in %2$d min.</string>
     <string name="acq_mv_leave_page">You can leave this page. The import keeps going.</string>
@@ -4894,7 +4728,6 @@
     <string name="acq_mv_undo_again">Try undo again</string>
     <string name="acq_mv_report">Download the report</string>
     <string name="acq_mv_report_title">Import report</string>
-    <string name="acq_mv_start_over">Start over</string>
     <string name="acq_mv_undo_title">Undo this import?</string>
     <string name="acq_mv_undo_text">Removes what this import added; your later changes stay. Download the report first if you want it.</string>
     <string name="acq_mv_undo_confirm">Undo import</string>
@@ -5580,7 +5413,6 @@
     <string name="music_artist_coming">Coming soon</string>
     <string name="music_artist_videos">Music videos</string>
     <string name="music_artist_video_caption">Music video</string>
-    <string name="music_artist_video_play">Play %1$s</string>
     <string name="music_artist_appears_on">Appears on</string>
     <string name="music_artist_related">Bands and collaborators</string>
     <string name="music_artist_similar">Similar artists</string>
@@ -5607,7 +5439,6 @@
     <string name="music_artist_bio_source">Text from %1$s</string>
     <string name="music_artist_bio_licence">Licence: %1$s</string>
     <string name="music_artist_bio_read">Read more</string>
-    <string name="music_artist_your_library">Your Library</string>
     <string name="music_artist_progress_albums">%1$d of %2$d albums included; tracks come with the next refresh.</string>
     <string name="music_artist_progress_missing">%1$d missing</string>
     <string name="music_artist_progress_not_out">%1$d not out yet</string>

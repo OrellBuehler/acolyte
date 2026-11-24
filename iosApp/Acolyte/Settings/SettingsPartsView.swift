@@ -22,7 +22,7 @@ struct SettingsPartsView: View {
         .navigationTitle(L10n.tr("settings.page.parts"))
         .settingsControlsToast(store.toaster)
         .settingsControlsAsk(info.ask, busy: info.busy, confirm: { store.confirm() }, cancel: { store.cancel() })
-        .settingsReauth(info.reauth, confirm: { store.confirmReauth($0, $1) }, cancel: { store.cancelReauth() })
+        .reauthSheet(store.reauth)
         .task { await store.watch() }
         .task { await store.load() }
         .task { await store.followLive() }

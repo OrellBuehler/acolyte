@@ -88,11 +88,14 @@ final class SettingsServerAlertsDriver: @unchecked Sendable {
     }
 }
 
-final class SettingsServerBackupsDriver: @unchecked Sendable {
+final class SettingsServerBackupsDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsServerBackupsPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsServerBackupsPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsServerBackupsInfo) -> Void) async {
@@ -145,21 +148,16 @@ final class SettingsServerBackupsDriver: @unchecked Sendable {
     func dismissNotice(_ seq: Int) {
         presenter.dismissNotice(seq: Int32(seq))
     }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
-    }
 }
 
-final class SettingsServerLogsDriver: @unchecked Sendable {
+final class SettingsServerLogsDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsServerLogsPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsServerLogsPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsServerLogsInfo) -> Void) async {
@@ -203,13 +201,5 @@ final class SettingsServerLogsDriver: @unchecked Sendable {
 
     func dismissDownloadError() {
         presenter.dismissDownloadError()
-    }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
     }
 }

@@ -28,7 +28,7 @@ import ch.orellbuehler.acolyte.api.model.TitleUsers
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.async
@@ -120,17 +120,15 @@ private fun describe(
 class SettingsSignInPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsSignInState())
     private val lock = Mutex()
-    private val gate = SettingsReauthGate(reauth) { r -> mutableState.update { it.copy(reauth = r) } }
     private var snapshot: SettingsSignInWire? = null
     private var seq = 0
     private var linkId = 0L
     private var linkRound = 0
     private var linkWaited = 0L
-    private var linkParked = false
 
     val state: StateFlow<SettingsSignInState> = mutableState.asStateFlow()
 
@@ -147,7 +145,7 @@ class SettingsSignInPresenter internal constructor(
                 apiKey = me?.method == SignInMethod.API_KEY,
             )
         }
-        gate.guard(onFailure = { error -> mutableState.update { it.copy(status = it.status.failed(error)) } }) { fetch() }
+        guarded({ error -> mutableState.update { it.copy(status = it.status.failed(error)) } }) { fetch() }
     }
 
     private suspend fun fetch(): ApiError? =
@@ -337,31 +335,30 @@ class SettingsSignInPresenter internal constructor(
 
     private val owner: Boolean get() = mutableState.value.isOwner
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        linkParked = false
-        gate.confirm(password, code)
-        val s = mutableState.value
-        if (linkId != 0L && s.plex.phase == SettingsSignInLinkPhase.WAITING && !s.reauth.needed) followLink()
-    }
-
-    fun cancelReauth() {
-        gate.cancel()
+    private fun cancelled() {
         mutableState.update { s ->
             val restored = restore(s)
             val loading = restored.status.phase == Phase.LOADING
-            val status = if (loading) restored.status.failed(ApiError(ApiErrorCode.REAUTH, 403)) else restored.status
-            val plex = if (linkParked) restored.plex.copy(phase = SettingsSignInLinkPhase.IDLE) else restored.plex
-            restored.copy(status = status, plex = plex)
-        }
-        if (linkParked) {
-            linkParked = false
-            linkRound++
-            linkId = 0
+            restored.copy(status = if (loading) restored.status.failed(ApiError(ApiErrorCode.REAUTH, 403)) else restored.status)
         }
     }
+
+    private fun linkCancelled() {
+        cancelled()
+        editPlex { it.copy(phase = SettingsSignInLinkPhase.IDLE) }
+        linkRound++
+        linkId = 0
+    }
+
+    private suspend fun guarded(
+        onFailure: (ApiError) -> Unit,
+        action: suspend () -> ApiError?,
+    ) = reauth.guardError(onFailure, ::cancelled, action)
+
+    private suspend fun guardedLink(
+        onFailure: (ApiError) -> Unit,
+        action: suspend () -> ApiError?,
+    ) = reauth.guardError(onFailure, ::linkCancelled, action)
 
     fun setMinLength(text: String) = edit { it.copy(minLengthText = text.filter { c -> c.isDigit() }.take(2)) }
 
@@ -369,7 +366,7 @@ class SettingsSignInPresenter internal constructor(
         val value = mutableState.value.minLengthValue
         if (!mutableState.value.canSaveMinLength || value == null) return
         edit { it.copy(minLengthSaving = true) }
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(SettingsSignInChange(minPasswordLength = value), setOf(Block.MIN_LENGTH)) {
                 notice(SettingsSignInNoticeKind.MIN_SAVED, count = value)
             }
@@ -380,7 +377,7 @@ class SettingsSignInPresenter internal constructor(
         val s = mutableState.value
         if (!s.isOwner || s.requireTwoFactorSaving) return
         edit { it.copy(requireTwoFactor = on, requireTwoFactorSaving = true) }
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(SettingsSignInChange(requireTwoFactorAdmins = on)) {
                 notice(if (on) SettingsSignInNoticeKind.TWO_FACTOR_REQUIRED else SettingsSignInNoticeKind.TWO_FACTOR_OPTIONAL)
             }
@@ -391,7 +388,7 @@ class SettingsSignInPresenter internal constructor(
         val s = mutableState.value
         if (!s.isOwner || s.forgotLinkSaving) return
         edit { it.copy(forgotLink = on, forgotLinkSaving = true) }
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(SettingsSignInChange(ownerResetLink = on)) {
                 notice(if (on) SettingsSignInNoticeKind.FORGOT_SHOWN else SettingsSignInNoticeKind.FORGOT_HIDDEN)
             }
@@ -469,7 +466,7 @@ class SettingsSignInPresenter internal constructor(
         edit { it.copy(everyoneAsk = null) }
         editWay(kind) { it.copy(saving = true) }
         val body = wayChange(kind, way, confirmed)
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(body, setOf(kind.block)) {
                 val saved = mutableState.value.way(kind)
                 if (kind != SettingsSignInWayKind.PLEX && saved.url.isNotEmpty() && saved.test?.ok != true) {
@@ -516,7 +513,7 @@ class SettingsSignInPresenter internal constructor(
         if (mutableState.value.plex.linking || !owner) return
         linkId = 0
         editPlex { it.copy(phase = SettingsSignInLinkPhase.STARTING, error = null, servers = emptyList()) }
-        gate.guard(onFailure = { linkFailed(it) }) { startLink() }
+        guardedLink({ linkFailed(it) }) { startLink() }
         followLink()
     }
 
@@ -536,17 +533,12 @@ class SettingsSignInPresenter internal constructor(
                 }
                 null
             }
-            is ApiResult.Failed -> parked(result.error)
+            is ApiResult.Failed -> result.error
         }
-
-    private fun parked(error: ApiError): ApiError {
-        if (error.code == ApiErrorCode.REAUTH) linkParked = true
-        return error
-    }
 
     private suspend fun followLink() {
         val id = linkId
-        if (id == 0L || mutableState.value.reauth.needed) return
+        if (id == 0L) return
         val round = linkRound
         while (linkWaited < LINK_LIMIT_MILLIS) {
             delay(LINK_POLL_MILLIS)
@@ -556,13 +548,12 @@ class SettingsSignInPresenter internal constructor(
             when {
                 failure == null || round != linkRound -> Unit
                 failure.code == ApiErrorCode.REAUTH -> {
-                    gate.guard(onFailure = { error -> if (round == linkRound) linkFailed(error) }) { checkLink(id, round) }
-                    if (!mutableState.value.reauth.needed) linkParked = false
+                    guardedLink({ error -> if (round == linkRound) linkFailed(error) }) { checkLink(id, round) }
                 }
                 else -> linkFailed(failure)
             }
             val s = mutableState.value
-            if (round != linkRound || s.plex.phase != SettingsSignInLinkPhase.WAITING || s.reauth.needed) return
+            if (round != linkRound || s.plex.phase != SettingsSignInLinkPhase.WAITING) return
         }
         if (round == linkRound) {
             linkId = 0
@@ -582,7 +573,7 @@ class SettingsSignInPresenter internal constructor(
             is ApiResult.Failed ->
                 when (result.error.code) {
                     ApiErrorCode.RATE_LIMITED, ApiErrorCode.OFFLINE, ApiErrorCode.TIMEOUT -> null
-                    else -> parked(result.error)
+                    else -> result.error
                 }
         }
 
@@ -629,7 +620,7 @@ class SettingsSignInPresenter internal constructor(
         val s = mutableState.value
         if (!s.isOwner || s.plex.unlinking) return
         editPlex { it.copy(unlinking = true) }
-        gate.guard(onFailure = { failed(it, SettingsSignInNoticeKind.UNLINK_FAILED) }) {
+        guarded({ failed(it, SettingsSignInNoticeKind.UNLINK_FAILED) }) {
             lock.withLock {
                 when (val result = api.result(SettingsSignInEndpoints.plexUnlink)) {
                     is ApiResult.Ok -> {
@@ -721,7 +712,7 @@ class SettingsSignInPresenter internal constructor(
         }
         editImport { it.copy(busy = true, confirmAdults = emptyList(), error = null) }
         val body = AccountImportBody(picks.map { AccountImportPick(it.id, it.asKid, if (it.kid && !it.asKid) true else null) })
-        gate.guard(onFailure = { error -> editImport { it.copy(busy = false, error = error) } }) {
+        guarded({ error -> editImport { it.copy(busy = false, error = error) } }) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.importPeople, body, "kind" to sheet.kind.key)) {
                     is ApiResult.Ok -> {
@@ -788,7 +779,7 @@ class SettingsSignInPresenter internal constructor(
         val s = mutableState.value
         if (!s.isOwner || s.apiKey || s.sso.phase == SettingsSignInSsoPhase.LOADING) return
         editSso { it.copy(phase = SettingsSignInSsoPhase.LOADING, loadError = null) }
-        gate.guard(onFailure = { error -> editSso { it.copy(phase = SettingsSignInSsoPhase.FAILED, loadError = error) } }) {
+        guarded({ error -> editSso { it.copy(phase = SettingsSignInSsoPhase.FAILED, loadError = error) } }) {
             when (val result = api.result(SettingsSignInEndpoints.sso)) {
                 is ApiResult.Ok -> {
                     showSso(result.value)
@@ -822,7 +813,7 @@ class SettingsSignInPresenter internal constructor(
         val issuer = sso.issuer.trim()
         if (issuer.isEmpty() || sso.testing || sso.phase != SettingsSignInSsoPhase.READY) return
         editSso { it.copy(testing = true, test = null) }
-        gate.guard(onFailure = { error -> editSso { it.copy(testing = false, test = SettingsSignInTest(false, error = error)) } }) {
+        guarded({ error -> editSso { it.copy(testing = false, test = SettingsSignInTest(false, error = error)) } }) {
             when (val result = api.result(SettingsSignInEndpoints.testSso, SettingsSignInSsoTest(issuer))) {
                 is ApiResult.Ok -> {
                     editSso { it.copy(testing = false, test = SettingsSignInTest(result.value.ok, issuer)) }
@@ -864,7 +855,7 @@ class SettingsSignInPresenter internal constructor(
                 groupsClaim = sso.groupsClaim.trim(),
                 groupRoles = sso.groupRoles.trim(),
             )
-        gate.guard(onFailure = { error -> ssoSaveFailed(error) }) {
+        guarded({ error -> ssoSaveFailed(error) }) {
             lock.withLock {
                 when (val result = api.result(SettingsSignInEndpoints.saveSso, body)) {
                     is ApiResult.Ok -> {
@@ -902,7 +893,7 @@ class SettingsSignInPresenter internal constructor(
             } else {
                 SettingsSignInChange(skipLoginLocalNetwork = false)
             }
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(body) { notice(if (on) SettingsSignInNoticeKind.LOCAL_ON else SettingsSignInNoticeKind.LOCAL_OFF) }
         }
     }
@@ -938,7 +929,7 @@ class SettingsSignInPresenter internal constructor(
                 localPerson = local.person,
                 trustedProxies = if (proxiesChanged && !s.apiKey) SettingsSignInLines.lines(local.proxies) else null,
             )
-        gate.guard(onFailure = { error -> editLocal { it.copy(saving = false, saveError = error) } }) {
+        guarded({ error -> editLocal { it.copy(saving = false, saveError = error) } }) {
             write(body, setOf(Block.LOCAL)) { notice(SettingsSignInNoticeKind.LOCAL_SAVED) }
         }
     }
@@ -949,7 +940,7 @@ class SettingsSignInPresenter internal constructor(
         val s = mutableState.value
         if (!s.isOwner || s.apiKey || s.hosts.saving) return
         edit { it.copy(hosts = it.hosts.copy(saving = true)) }
-        gate.guard(onFailure = { failed(it) }) {
+        guarded({ failed(it) }) {
             write(SettingsSignInChange(allowedHosts = SettingsSignInLines.lines(s.hosts.text)), setOf(Block.HOSTS)) {
                 notice(SettingsSignInNoticeKind.HOSTS_SAVED)
             }

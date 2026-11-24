@@ -1,11 +1,14 @@
 @preconcurrency import shared
 import Foundation
 
-final class SettingsApiDriver: @unchecked Sendable {
+final class SettingsApiDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsApiPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsApiPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsApiInfo) -> Void) async {
@@ -59,24 +62,19 @@ final class SettingsApiDriver: @unchecked Sendable {
         presenter.dismissSeerrFresh()
     }
 
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
-    }
-
     func dismissNotice(_ seq: Int) {
         presenter.dismissNotice(seq: Int32(seq))
     }
 }
 
-final class SettingsAiDriver: @unchecked Sendable {
+final class SettingsAiDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsAiPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsAiPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsAiInfo) -> Void) async {
@@ -116,14 +114,6 @@ final class SettingsAiDriver: @unchecked Sendable {
 
     func dismissFresh() {
         presenter.dismissFresh()
-    }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
     }
 
     func dismissNotice(_ seq: Int) {

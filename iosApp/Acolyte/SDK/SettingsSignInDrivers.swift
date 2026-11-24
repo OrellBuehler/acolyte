@@ -1,11 +1,14 @@
 @preconcurrency import shared
 import Foundation
 
-final class SettingsSignInDriver: @unchecked Sendable {
+final class SettingsSignInDriver: @unchecked Sendable, ReauthHosting {
     private let presenter: SettingsSignInPresenter
+
+    let reauth: ReauthDriver
 
     init(presenter: SettingsSignInPresenter) {
         self.presenter = presenter
+        reauth = ReauthDriver(gate: presenter.reauth)
     }
 
     func watch(deliver: @MainActor @Sendable (SettingsSignInInfo) -> Void) async {
@@ -21,14 +24,6 @@ final class SettingsSignInDriver: @unchecked Sendable {
 
     func refresh() async {
         do { try await presenter.refresh() } catch {}
-    }
-
-    func confirmReauth(_ password: String, _ code: String) async {
-        do { try await presenter.confirmReauth(password: password, code: code) } catch {}
-    }
-
-    func cancelReauth() {
-        presenter.cancelReauth()
     }
 
     func dismissNotice(_ seq: Int) {

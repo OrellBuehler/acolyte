@@ -3,7 +3,6 @@ package ch.orellbuehler.acolyte.feature.settings.signin
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.model.SettingsSignInSsoView
 import ch.orellbuehler.acolyte.feature.LoadStatus
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
 
 private const val DEFAULT_CGNAT = "100.64.0.0/10"
 private const val MIN_PASSWORD = 4
@@ -319,7 +318,6 @@ data class SettingsSignInState(
     val sso: SettingsSignInSso = SettingsSignInSso(),
     val local: SettingsSignInLocal = SettingsSignInLocal(),
     val hosts: SettingsSignInHosts = SettingsSignInHosts(),
-    val reauth: SettingsReauthState = SettingsReauthState(),
     val notice: SettingsSignInNotice? = null,
 ) {
     val minLengthValue: Int? get() = minLengthText.toIntOrNull()?.takeIf { it in MIN_PASSWORD..MAX_PASSWORD }

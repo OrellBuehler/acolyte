@@ -6,7 +6,15 @@ import Observation
 final class SettingsMediaServersStore {
     private(set) var info: SettingsMediaServersInfo = .initial
 
-    private let driver = SDKClient.shared.makeSettingsMediaServers()
+    let reauth: ReauthStore
+
+    private let driver: SettingsMediaServersDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsMediaServers()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -111,13 +119,6 @@ final class SettingsMediaServersStore {
         let driver = self.driver
         Task { await driver.saveTracks() }
     }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 
     func dismissNotice(_ id: Int64) { driver.dismissNotice(id) }
 }

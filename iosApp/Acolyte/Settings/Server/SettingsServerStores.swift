@@ -71,7 +71,15 @@ final class SettingsServerAlertsStore {
 final class SettingsServerBackupsStore {
     private(set) var info: SettingsServerBackupsInfo = .initial
 
-    private let driver = SDKClient.shared.makeSettingsBackups()
+    let reauth: ReauthStore
+
+    private let driver: SettingsServerBackupsDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsBackups()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -118,13 +126,6 @@ final class SettingsServerBackupsStore {
     func release() { driver.release() }
 
     func dismissNotice(_ seq: Int) { driver.dismissNotice(seq) }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 }
 
 @MainActor
@@ -132,7 +133,15 @@ final class SettingsServerBackupsStore {
 final class SettingsServerLogsStore {
     private(set) var info: SettingsServerLogsInfo = .initial
 
-    private let driver = SDKClient.shared.makeSettingsLogs()
+    let reauth: ReauthStore
+
+    private let driver: SettingsServerLogsDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsLogs()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -172,11 +181,4 @@ final class SettingsServerLogsStore {
     func release() { driver.release() }
 
     func dismissDownloadError() { driver.dismissDownloadError() }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 }

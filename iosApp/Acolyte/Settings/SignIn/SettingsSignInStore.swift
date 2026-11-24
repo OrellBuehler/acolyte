@@ -6,8 +6,16 @@ import Observation
 final class SettingsSignInStore {
     private(set) var info: SettingsSignInInfo = .initial
 
-    @ObservationIgnored private let driver = SDKClient.shared.makeSettingsSignIn()
+    let reauth: ReauthStore
+
+    @ObservationIgnored private let driver: SettingsSignInDriver
     @ObservationIgnored private var linkTask: Task<Void, Never>?
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsSignIn()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -18,13 +26,6 @@ final class SettingsSignInStore {
     func load() async { await driver.load() }
 
     func refresh() async { await driver.refresh() }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 
     func dismissNotice(_ seq: Int) { driver.dismissNotice(seq) }
 

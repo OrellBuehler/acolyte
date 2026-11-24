@@ -13,6 +13,7 @@ class SettingsMediaServersViewModel(
     private val presenter = sdk.settingsMediaServers()
 
     val state: StateFlow<SettingsMediaServersState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -118,15 +119,6 @@ class SettingsMediaServersViewModel(
     fun saveTracks() {
         viewModelScope.launch { presenter.saveTracks() }
     }
-
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
 
     fun dismissNotice(id: Long) = presenter.dismissNotice(id)
 }

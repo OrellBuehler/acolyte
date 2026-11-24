@@ -18,6 +18,7 @@ class SettingsPartsViewModel(
     private val presenter = sdk.settingsControlsParts()
 
     val state: StateFlow<SettingsControlsPartsState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -56,15 +57,6 @@ class SettingsPartsViewModel(
 
     fun cancel() = presenter.cancel()
 
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
-
     suspend fun watch() = presenter.watch()
 }
 
@@ -74,6 +66,7 @@ class SettingsDangerViewModel(
     private val presenter = sdk.settingsControlsDanger()
 
     val state: StateFlow<SettingsControlsDangerState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         presenter.load()
@@ -89,15 +82,6 @@ class SettingsDangerViewModel(
 
     fun cancel() = presenter.cancel()
 
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
-
     fun dismissStopped() = presenter.dismissStopped()
 
     suspend fun waitForServer() = presenter.waitForServer()
@@ -109,6 +93,7 @@ class SettingsThisAppViewModel(
     private val presenter = sdk.settingsControlsThisApp()
 
     val state: StateFlow<SettingsControlsThisAppState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -137,15 +122,6 @@ class SettingsThisAppViewModel(
     fun proveStorage() {
         viewModelScope.launch { presenter.proveStorage() }
     }
-
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
 
     fun setUrlBase(text: String) = presenter.setUrlBase(text)
 

@@ -9,6 +9,7 @@ import ch.orellbuehler.acolyte.feature.title.LibraryKind
 import ch.orellbuehler.acolyte.feature.title.ReleaseEmpty
 import ch.orellbuehler.acolyte.feature.title.ReleaseScope
 import ch.orellbuehler.acolyte.feature.title.ReleaseScopeKind
+import ch.orellbuehler.acolyte.feature.title.RemoveState
 import ch.orellbuehler.acolyte.feature.title.TitleAccess
 import ch.orellbuehler.acolyte.feature.title.TitleAction
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
@@ -293,6 +294,18 @@ class TitlePresenterTest {
                     ?.count,
             )
         }
+
+    @Test
+    fun theRemoveSheetNamesWhatItDeletes() {
+        val state = RemoveState("Abbey Road", show = false, season = -1, episodeIds = emptyList(), handsOff = false)
+        assertFalse(state.album)
+        assertFalse(state.artist)
+        assertTrue(state.copy(music = true).artist)
+        val album = state.copy(albumId = 4, music = true)
+        assertTrue(album.album)
+        assertFalse(album.artist)
+        assertFalse(album.whole)
+    }
 
     @Test
     fun addMovieSendsTheChoices() =

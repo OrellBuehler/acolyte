@@ -6,7 +6,15 @@ import Observation
 final class SettingsApiStore {
     private(set) var info: SettingsApiInfo = .initial
 
-    private let driver = SDKClient.shared.makeSettingsApi()
+    let reauth: ReauthStore
+
+    private let driver: SettingsApiDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsApi()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -57,13 +65,6 @@ final class SettingsApiStore {
 
     func dismissSeerrFresh() { driver.dismissSeerrFresh() }
 
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
-
     func dismissNotice(_ seq: Int) { driver.dismissNotice(seq) }
 }
 
@@ -72,7 +73,15 @@ final class SettingsApiStore {
 final class SettingsAiStore {
     private(set) var info: SettingsAiInfo = .initial
 
-    private let driver = SDKClient.shared.makeSettingsAi()
+    let reauth: ReauthStore
+
+    private let driver: SettingsAiDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsAi()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -107,13 +116,6 @@ final class SettingsAiStore {
     }
 
     func dismissFresh() { driver.dismissFresh() }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 
     func dismissNotice(_ seq: Int) { driver.dismissNotice(seq) }
 }

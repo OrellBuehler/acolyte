@@ -18,8 +18,7 @@ import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.live.LiveEvent
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.async
@@ -97,7 +96,6 @@ data class SettingsControlsPartsState(
     val busyKey: String = "",
     val ask: SettingsControlsAsk? = null,
     val notice: SettingsControlsNotice? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val busy: Boolean get() = busyKey.isNotEmpty()
 }
@@ -111,7 +109,7 @@ enum class SettingsControlsStageAction {
 class SettingsControlsPartsPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
     private val refreshSession: suspend () -> Unit,
 ) {
     private val mutableState = MutableStateFlow(SettingsControlsPartsState())
@@ -123,7 +121,7 @@ class SettingsControlsPartsPresenter internal constructor(
 
     private val flow =
         SettingsControlFlow(
-            gate = SettingsReauthGate(reauth) { value -> mutableState.update { it.copy(reauth = value) } },
+            gate = reauth,
             onBusy = { call -> mutableState.update { it.copy(busyKey = call?.key.orEmpty()) } },
             onAsk = { call, ask ->
                 mutableState.update { it.copy(ask = SettingsControlsAsk(call.kind, call.name, ask.text, ask.expiresInSeconds)) }
@@ -236,13 +234,6 @@ class SettingsControlsPartsPresenter internal constructor(
         flow.cancel()
         mutableState.update { it.copy(ask = null) }
     }
-
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = flow.confirmReauth(password, code)
-
-    fun cancelReauth() = flow.cancelReauth()
 
     private suspend fun confirmable(
         kind: SettingsControlsKind,

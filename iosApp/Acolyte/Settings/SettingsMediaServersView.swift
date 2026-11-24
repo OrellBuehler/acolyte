@@ -31,11 +31,7 @@ struct SettingsMediaServersView: View {
         .sheet(isPresented: Binding(get: { info.form != nil }, set: { if !$0 { store.cancelForm() } })) {
             SettingsMediaServersFormSheet(store: store)
         }
-        .settingsReauth(
-            info.form == nil ? info.reauth : .idle,
-            confirm: { password, code in store.confirmReauth(password, code) },
-            cancel: { store.cancelReauth() }
-        )
+        .reauthSheet(store.reauth, enabled: info.form == nil)
         .alert(
             L10n.format("settings.mediaservers.remove.title", removing?.name ?? ""),
             isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } })
