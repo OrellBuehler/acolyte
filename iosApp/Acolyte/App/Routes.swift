@@ -86,6 +86,14 @@ struct SectionScreen: View {
 
     var body: some View {
         switch section {
+        case .library:
+            LibraryView(kind: nil)
+        case .movies:
+            LibraryView(kind: .movie)
+        case .shows:
+            LibraryView(kind: .show)
+        case .stats:
+            LibraryStatsView()
         case .health:
             HealthView()
         case .account:
@@ -102,5 +110,57 @@ struct PlaceholderView: View {
     var body: some View {
         EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: section.symbol)
             .navigationTitle(section.title)
+    }
+}
+
+enum Route: Hashable, Sendable {
+    case title(kind: String, tmdb: String)
+    case libraryTools
+    case libraryDeleted(titleId: Int64)
+    case libraryCopies
+    case libraryReleases(turnedDown: Bool)
+    case librarySubtitles
+    case libraryRename
+    case libraryImport
+    case libraryImportFiles(path: String)
+    case settingsLibraryFolders
+}
+
+struct RouteScreen: View {
+    let route: Route
+    let account: AccountInfo
+
+    var body: some View {
+        switch route {
+        case let .title(kind, tmdb):
+            TitlePlaceholderView(kind: kind, tmdb: tmdb)
+        case .libraryTools:
+            LibraryToolsView()
+        case let .libraryDeleted(titleId):
+            LibraryDeletedView(titleId: titleId)
+        case .libraryCopies:
+            LibraryCopiesView()
+        case let .libraryReleases(turnedDown):
+            LibraryReleasesView(turnedDown: turnedDown)
+        case .librarySubtitles:
+            LibrarySubtitlesView()
+        case .libraryRename:
+            LibraryRenameView()
+        case .libraryImport:
+            LibraryImportView()
+        case let .libraryImportFiles(path):
+            LibraryFilesView(path: path)
+        case .settingsLibraryFolders:
+            LibraryFoldersView()
+        }
+    }
+}
+
+struct TitlePlaceholderView: View {
+    let kind: String
+    let tmdb: String
+
+    var body: some View {
+        EmptyStateView(title: L10n.tr("placeholder.title"), message: L10n.tr("placeholder.message"), systemImage: kind == "show" ? "tv" : "film")
     }
 }

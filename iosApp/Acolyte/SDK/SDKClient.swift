@@ -51,6 +51,50 @@ final class SDKClient: @unchecked Sendable {
         HealthDriver(presenter: sdk.health())
     }
 
+    func makeLibrary(kind: LibraryKindID?) -> LibraryDriver {
+        LibraryDriver(presenter: sdk.library(kind: Mapping.kotlinLibraryKind(kind)))
+    }
+
+    func libraryTools() -> [LibraryToolID] {
+        sdk.libraryTools().compactMap { LibraryToolID(rawValue: Mapping.key($0)) }
+    }
+
+    func makeLibraryStats() -> LibraryStatsDriver {
+        LibraryStatsDriver(presenter: sdk.libraryStats())
+    }
+
+    func makeLibraryCopies() -> LibraryCopiesDriver {
+        LibraryCopiesDriver(presenter: sdk.libraryCopies())
+    }
+
+    func makeLibraryDeleted(titleId: Int64) -> LibraryDeletedDriver {
+        LibraryDeletedDriver(presenter: sdk.libraryDeleted(titleId: titleId))
+    }
+
+    func makeLibraryReleases(turnedDown: Bool) -> LibraryReleasesDriver {
+        LibraryReleasesDriver(presenter: sdk.libraryReleases(turnedDown: turnedDown))
+    }
+
+    func makeLibrarySubtitles() -> LibrarySubtitlesDriver {
+        LibrarySubtitlesDriver(presenter: sdk.librarySubtitles())
+    }
+
+    func makeLibraryRename() -> LibraryRenameDriver {
+        LibraryRenameDriver(presenter: sdk.libraryRename())
+    }
+
+    func makeLibraryImport() -> LibraryImportDriver {
+        LibraryImportDriver(presenter: sdk.libraryImport())
+    }
+
+    func makeLibraryFiles(path: String) -> LibraryFilesDriver {
+        LibraryFilesDriver(presenter: sdk.libraryFiles(path: path))
+    }
+
+    func makeLibraryFolders() -> LibraryFoldersDriver {
+        LibraryFoldersDriver(presenter: sdk.libraryFolders())
+    }
+
     func imageRequest(_ source: String?, size: ImageSizeKind) -> ImageRequestInfo? {
         guard let text = sdk.images.url(source: source, size: Mapping.kotlinSize(size)), let url = URL(string: text) else {
             return nil
