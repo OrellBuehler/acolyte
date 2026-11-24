@@ -220,6 +220,46 @@ internal object KnownSpecGaps {
             "GET /api/v1/events: query parameter 'feed' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go hides feed checks with feed=0",
+            "POST /api/v1/migrate/probe body.add: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/probe body.skip_linked: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/read body.add: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/read body.skip_linked: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/linked body.add: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/linked body.skip_linked: sent by the model but not in the spec" to
+                "Source in internal/migrate/routes_read.go takes add and skip_linked",
+            "POST /api/v1/migrate/find: sends a body but the spec takes none" to
+                "FindInput in internal/migrate/routes_find.go takes host, addresses and kinds",
+            "POST /api/v1/migrate/plan body.no_formats: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/plan body.leave_folders: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/plan body.names: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/plan body.quick: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/dry-run body.no_formats: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/dry-run body.leave_folders: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/dry-run body.names: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/dry-run body.quick: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/moves body.no_formats: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/moves body.leave_folders: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/moves body.names: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/moves body.quick: sent by the model but not in the spec" to
+                "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
+            "POST /api/v1/migrate/downloaders: sends a body but the spec takes none" to
+                "bringDownloaders in internal/migrate/routes_move.go reads {snapshots}",
         )
 
     val liveSkips: Map<String, String> =
