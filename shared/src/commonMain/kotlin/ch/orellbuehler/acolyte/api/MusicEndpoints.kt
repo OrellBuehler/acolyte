@@ -46,7 +46,6 @@ internal data object MusicEndpoints : EndpointGroup() {
             Need.SIGNED_IN,
             Part.MUSIC,
         )
-    val unfollowAlbum = delete("/api/v1/metadata/album/{mbid}/follow", MusicAlbumFollow.serializer(), Need.SIGNED_IN, Part.MUSIC)
 
     val settings = get("/api/v1/settings/music", MusicSettings.serializer(), Need.MANAGE_LIBRARY, Part.MUSIC)
     val saveSettings = put("/api/v1/settings/music", MusicSettings.serializer(), MusicSettings.serializer(), Need.SETTINGS, Part.MUSIC)

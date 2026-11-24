@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -64,7 +65,6 @@ import ch.orellbuehler.acolyte.ui.theme.Spacing
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 private const val TRACKS = "np_music_tracks"
 private const val TRACKS_SHOWN = 5
@@ -307,9 +307,10 @@ private fun MusicHeroCard(
 private fun heroEyebrow(item: MusicItem): String {
     val day = runCatching { LocalDate.parse(item.date.take(10)) }.getOrNull()
     val until = day?.let { ChronoUnit.DAYS.between(LocalDate.now(), it) }
+    val locale = LocalConfiguration.current.locales[0]
     return when {
         day != null && until != null && item.upcoming && until in 0..6 ->
-            stringResource(R.string.music_new_out_day, day.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()))
+            stringResource(R.string.music_new_out_day, day.dayOfWeek.getDisplayName(TextStyle.FULL, locale))
         item.badge.isNotEmpty() -> item.badge
         item.kicker.isNotEmpty() && !item.kicker.startsWith("New") -> item.kicker
         else -> stringResource(R.string.music_rows_popular_now)

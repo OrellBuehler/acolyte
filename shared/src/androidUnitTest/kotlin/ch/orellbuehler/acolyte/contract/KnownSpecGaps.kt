@@ -8,28 +8,28 @@ internal object KnownSpecGaps {
     val problems: Map<String, String> =
         AccountSpecGaps.problems +
             mapOf(
-            "GET /api/v1/music/artists/{mbid}: query parameter 'part' is not in the spec (it has [])" to
-                "internal/music/pages_core.go reads part (core, similar, more, videos, video)",
-            "GET /api/v1/music/artists/{mbid}: query parameter 'n' is not in the spec (it has [])" to
-                "internal/music/pages_core.go reads n for the similar list size",
-            "GET /api/v1/music/albums/{mbid}: query parameter 'part' is not in the spec (it has [])" to
-                "internal/music/pages_core.go reads part (core, near)",
-            "GET /api/v1/music/albums/{mbid}: query parameter 'artist' is not in the spec (it has [])" to
-                "internal/music/pages.go reads artist, the MusicBrainz id of the album's artist",
-            "GET /api/v1/music/albums/{mbid}: query parameter 'similar' is not in the spec (it has [])" to
-                "internal/music/pages.go honours similar=0 to leave out the similar list",
-            "GET /api/v1/music/genre/{slug}: query parameter 'region' is not in the spec (it has [])" to
-                "internal/music/genre.go reads region for the chart country",
-            "GET /api/v1/music/browse/{kind}/{slug}: query parameter 'region' is not in the spec (it has [])" to
-                "internal/music/browse.go reads region for the chart country",
-            "GET /api/v1/music/browse-tiles: query parameter 'region' is not in the spec (it has [])" to
-                "internal/music/browse.go reads region for the chart country",
-            "GET /api/v1/explore/new/music: query parameter 'region' is not in the spec (it has [])" to
-                "internal/music/explore_new_music_page.go reads region for the chart country",
-            "PUT /api/v1/metadata/album/{mbid}/follow: sends a body but the spec takes none" to
-                "internal/music/explore_new_music_page.go decodes {name, artist, release_date}",
-            "POST /api/v1/artists body.follow: sent by the model but not in the spec" to
-                "internal/music/music.go reads follow (default true) to put the artist on the calendar",
+                "GET /api/v1/music/artists/{mbid}: query parameter 'part' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads part (core, similar, more, videos, video)",
+                "GET /api/v1/music/artists/{mbid}: query parameter 'n' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads n for the similar list size",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'part' is not in the spec (it has [])" to
+                    "internal/music/pages_core.go reads part (core, near)",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'artist' is not in the spec (it has [])" to
+                    "internal/music/pages.go reads artist, the MusicBrainz id of the album's artist",
+                "GET /api/v1/music/albums/{mbid}: query parameter 'similar' is not in the spec (it has [])" to
+                    "internal/music/pages.go honours similar=0 to leave out the similar list",
+                "GET /api/v1/music/genre/{slug}: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/genre.go reads region for the chart country",
+                "GET /api/v1/music/browse/{kind}/{slug}: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/browse.go reads region for the chart country",
+                "GET /api/v1/music/browse-tiles: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/browse.go reads region for the chart country",
+                "GET /api/v1/explore/new/music: query parameter 'region' is not in the spec (it has [])" to
+                    "internal/music/explore_new_music_page.go reads region for the chart country",
+                "PUT /api/v1/metadata/album/{mbid}/follow: sends a body but the spec takes none" to
+                    "internal/music/explore_new_music_page.go decodes {name, artist, release_date}",
+                "POST /api/v1/artists body.follow: sent by the model but not in the spec" to
+                    "internal/music/music.go reads follow (default true) to put the artist on the calendar",
                 "GET /api/v1/titles: query parameter 'grid' is not in the spec (it has [q])" to
                     "presence flag read with Query().Has(\"grid\") in cmd/holyarrs/wire_titles.go; the Library grid shape",
                 "GET /api/v1/titles: query parameter 'brief' is not in the spec (it has [q])" to

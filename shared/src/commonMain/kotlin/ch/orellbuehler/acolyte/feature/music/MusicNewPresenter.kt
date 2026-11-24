@@ -1,5 +1,6 @@
 package ch.orellbuehler.acolyte.feature.music
 
+import ch.orellbuehler.acolyte.api.AccountEndpoints
 import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.MusicEndpoints
@@ -140,7 +141,7 @@ class MusicNewPresenter internal constructor(
             if (on) {
                 api.result(MusicEndpoints.followAlbum, body, "mbid" to item.mbid)
             } else {
-                api.result(MusicEndpoints.unfollowAlbum, "mbid" to item.mbid)
+                api.result(AccountEndpoints.unfollowAlbum, "mbid" to item.mbid)
             }
         if (result is ApiResult.Failed) {
             setFollowing(item.mbid, !on)
