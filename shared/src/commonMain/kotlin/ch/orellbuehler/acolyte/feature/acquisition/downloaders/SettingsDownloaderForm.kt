@@ -147,8 +147,6 @@ enum class SettingsDownloaderKindField {
     MUSIC,
 }
 
-const val MASKED_SECRET: String = "••••••••"
-
 private const val NAME_MAX = 80
 private const val CATEGORY_MAX = 64
 private const val PRIORITY_MAX = 50
@@ -269,11 +267,13 @@ data class SettingsDownloaderForm(
 
     val usesKindCategories: Boolean get() = kindInfo != null
 
+    val samePairs: List<Boolean> get() = pathMap.map { samePathPair(it) }
+
     val keyPageUrl: String get() = url.trim().trimEnd('/') + "/config/general/"
 
     val canFetchKey: Boolean get() = kind == SettingsDownloaderKind.SABNZBD.wire && looksLikeAddress(url)
 
-    val secretKept: Boolean get() = secret == MASKED_SECRET
+    val hasSecret: Boolean get() = original?.secret?.isNotEmpty() == true
 
     val issues: List<SettingsDownloaderIssue> get() = computeIssues()
 
@@ -381,7 +381,7 @@ data class SettingsDownloaderForm(
         if (kind == SettingsDownloaderKind.QBITTORRENT.wire) {
             if (login && username.isBlank()) found += SettingsDownloaderIssue.USERNAME
             val waySwitched = original?.let { login != it.username.isNotEmpty() } ?: false
-            if ((isNew || waySwitched) && (secret.isBlank() || secretKept)) found += SettingsDownloaderIssue.SECRET
+            if ((isNew || waySwitched) && secret.isBlank()) found += SettingsDownloaderIssue.SECRET
         }
         if (kind == SettingsDownloaderKind.SABNZBD.wire && isNew && secret.isBlank()) found += SettingsDownloaderIssue.SECRET
         return found
@@ -407,7 +407,7 @@ data class SettingsDownloaderForm(
                 name = info.name,
                 url = info.url,
                 username = info.username,
-                secret = info.secret,
+                secret = "",
                 login = info.username.isNotEmpty(),
                 category = info.category,
                 priority = info.priority.toString(),

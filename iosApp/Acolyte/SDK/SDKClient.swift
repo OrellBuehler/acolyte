@@ -225,6 +225,14 @@ final class SDKClient: @unchecked Sendable {
         DownloadBadgesDriver(badges: sdk.downloadBadges)
     }
 
+    func makeDownloaders() -> DownloadersDriver {
+        DownloadersDriver(presenter: sdk.settingsDownloaders())
+    }
+
+    func makeDownloaderRules() -> DownloaderRulesDriver {
+        DownloaderRulesDriver(presenter: sdk.settingsDownloaderRules())
+    }
+
     func reauth(password: String, code: String) async -> Bool {
         do {
             let failure = try await sdk.session.reauth(password: password, code: code.isEmpty ? nil : code)

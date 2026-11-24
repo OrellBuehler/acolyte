@@ -105,6 +105,8 @@ data class SettingsDownloaderRow(
 
     val appName: String get() = kind?.appName ?: info.kind
 
+    val host: String get() = Regex("^[a-zA-Z]+://([^/?#]+)").find(info.url)?.groupValues?.get(1) ?: info.url
+
     val usenet: Boolean get() = kind?.usenet ?: (info.protocol == "usenet")
 
     val tone: Tone get() = health.tone
@@ -118,6 +120,8 @@ data class SettingsDownloaderRow(
     val canChange: Boolean get() = kind != null
 
     val failedTest: Boolean get() = test != null && !test.ok
+
+    val helpUrl: String get() = test?.takeIf { !it.ok }?.let { connectHelpUrl(it.text) }.orEmpty()
 
     val showHealthText: Boolean get() = info.health.text.isNotBlank() && !failedTest
 
@@ -150,6 +154,10 @@ data class SettingsDownloadersState(
     val messageCount: Int = 0,
 ) {
     val isEmpty: Boolean get() = downloaders.isEmpty()
+
+    val torrentKinds: List<SettingsDownloaderKind> get() = SettingsDownloaderKind.torrents
+
+    val usenetKinds: List<SettingsDownloaderKind> get() = SettingsDownloaderKind.usenetKinds
 
     val rows: List<SettingsDownloaderRow>
         get() =
@@ -617,3 +625,19 @@ fun testTag(
 }
 
 private const val VERSION_PARTS = 3
+
+private const val CONNECT_HELP = "https://docs.holyarrs.com/start/connect/#if-it-does-not-work:~:text="
+
+fun connectHelpUrl(text: String): String {
+    val match = Regex("^(\\S+) \u2192 (not found\\.|\\S+ \u2192 (?:refused|no answer) on port )").find(text) ?: return ""
+    val name = match.groupValues[1].lowercase()
+    val row =
+        when {
+            match.groupValues[2] != "not found." -> "Not%20answering"
+            name.endsWith(".local") -> "A%20.local%20name%20like"
+            name.endsWith(".ts.net") -> "A%20Tailscale%20name"
+            name.contains('.') -> "A%20Pi%2Dhole%20or%20router%20name"
+            else -> "A%20container%20name%20like"
+        }
+    return CONNECT_HELP + row
+}

@@ -716,6 +716,10 @@ private struct DecisionCardView: View {
             Text(L10n.tr("downloads.decide.hint.path"))
                 .font(.footnote)
                 .foregroundStyle(Theme.waitText)
+            if SDKClient.shared.acquisitionPages().contains(.downloaders) {
+                Button(L10n.tr("acq.dl.open")) { onOpenRoute(.settingsDownloaders) }
+                    .buttonStyle(.bordered)
+            }
         case .matchByHand:
             Text(L10n.tr("downloads.decide.hint.match"))
                 .font(.footnote)

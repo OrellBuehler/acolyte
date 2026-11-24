@@ -18,6 +18,7 @@ import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloade
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderRulesPresenter
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloaderSwitch
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.SettingsDownloadersPresenter
+import ch.orellbuehler.acolyte.feature.acquisition.downloaders.connectHelpUrl
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.isAbsolutePath
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.samePathPair
 import ch.orellbuehler.acolyte.feature.acquisition.downloaders.testTag
@@ -206,7 +207,8 @@ class SettingsDownloadersTest {
         val typed = form.copy(url = "http://other:1", secret = "new")
         assertTrue(typed.changed)
         assertEquals("new", typed.testBody()?.secret)
-        assertEquals("••••••••", form.body().secret)
+        assertEquals("", form.body().secret)
+        assertTrue(form.hasSecret)
     }
 
     @Test
@@ -282,6 +284,11 @@ class SettingsDownloadersTest {
         assertFalse(samePathPair(SettingsDownloaderPath("", "")))
         assertEquals("qBittorrent v5.0.4", testTag("qBittorrent", "5.0.4.1"))
         assertEquals("SABnzbd", testTag("SABnzbd", ""))
+        assertTrue(connectHelpUrl("nas.local \u2192 not found.").endsWith("A%20.local%20name%20like"))
+        assertTrue(connectHelpUrl("nas \u2192 not found.").endsWith("A%20container%20name%20like"))
+        assertTrue(connectHelpUrl("a.b.c \u2192 not found.").endsWith("Pi%2Dhole%20or%20router%20name"))
+        assertTrue(connectHelpUrl("nas \u2192 10.0.0.1 \u2192 refused on port 8080.").endsWith("Not%20answering"))
+        assertEquals("", connectHelpUrl("It did not answer."))
     }
 
     @Test
@@ -419,7 +426,7 @@ class SettingsDownloadersTest {
             presenter.save()
             val sent = bodyOf(server.request("PUT", "/api/v1/downloaders/1"))
             assertEquals(7, sent["priority"]?.jsonPrimitive?.content?.toInt())
-            assertEquals("••••••••", sent["secret"]?.jsonPrimitive?.content)
+            assertEquals("", sent["secret"]?.jsonPrimitive?.content)
             assertEquals("", sent["category_after_import"]?.jsonPrimitive?.content)
             s = presenter.state.value
             assertNull(s.form)
