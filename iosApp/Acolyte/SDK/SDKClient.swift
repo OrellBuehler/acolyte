@@ -302,6 +302,8 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsHome() -> SettingsHomeDriver {
         SettingsHomeDriver(presenter: sdk.settingsHome())
+    }
+
     func makeSettingsLookAppearance() -> SettingsLookAppearanceDriver {
         SettingsLookAppearanceDriver(presenter: sdk.settingsLookAppearance())
     }
@@ -312,8 +314,12 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsLookMetadata() -> SettingsLookMetadataDriver {
         SettingsLookMetadataDriver(presenter: sdk.settingsLookMetadata())
+    }
+
     func makeSettingsMediaServers() -> SettingsMediaServersDriver {
         SettingsMediaServersDriver(presenter: sdk.settingsMediaServers())
+    }
+
     func makeSettingsApi() -> SettingsApiDriver {
         SettingsApiDriver(presenter: sdk.settingsApi())
     }
@@ -324,8 +330,12 @@ final class SDKClient: @unchecked Sendable {
 
     func settingsRemoteAccessURL() -> URL? {
         URL(string: sdk.settingsRemoteAccessUrl())
+    }
+
     func makeHealthChecks() -> HealthChecksDriver {
         HealthChecksDriver(presenter: sdk.settingsHealthChecks())
+    }
+
     func makeSettingsControlsParts() -> SettingsControlsPartsDriver {
         SettingsControlsPartsDriver(presenter: sdk.settingsControlsParts())
     }
@@ -340,6 +350,8 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsControlsSchedules() -> SettingsControlsSchedulesDriver {
         SettingsControlsSchedulesDriver(presenter: sdk.settingsControlsSchedules())
+    }
+
     func makeSettingsAlerts() -> SettingsServerAlertsDriver {
         SettingsServerAlertsDriver(presenter: sdk.settingsAlerts())
     }
@@ -350,8 +362,12 @@ final class SDKClient: @unchecked Sendable {
 
     func makeSettingsLogs() -> SettingsServerLogsDriver {
         SettingsServerLogsDriver(presenter: sdk.settingsLogs())
+    }
+
     func makeSettingsSignIn() -> SettingsSignInDriver {
         SettingsSignInDriver(presenter: sdk.settingsSignIn())
+    }
+
     // music
     func musicAccess() -> MusicAccessInfo {
         Mapping.musicAccess(sdk.musicAccess())
