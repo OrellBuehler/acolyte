@@ -145,6 +145,22 @@ final class SDKClient: @unchecked Sendable {
         NeverAddDriver(presenter: sdk.neverAdd())
     }
 
+    func makeSources() -> SourcesDriver {
+        SourcesDriver(presenter: sdk.settingsSources())
+    }
+
+    func makeBridges() -> BridgeDriver {
+        BridgeDriver(presenter: sdk.settingsBridges())
+    }
+
+    func makeSourceCheck() -> SourceCheckDriver {
+        SourceCheckDriver(presenter: sdk.settingsSourceCheck())
+    }
+
+    func makeSourceHealth(_ id: Int64) -> SourceHealthDriver {
+        SourceHealthDriver(presenter: sdk.settingsSourceHealth(id: id))
+    }
+
     func makeHome() -> HomeDriver {
         HomeDriver(presenter: sdk.home(utcOffsetSeconds: Int32(TimeZone.current.secondsFromGMT())))
     }

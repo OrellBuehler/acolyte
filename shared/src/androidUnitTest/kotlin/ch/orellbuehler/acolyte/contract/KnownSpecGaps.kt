@@ -220,6 +220,28 @@ internal object KnownSpecGaps {
             "GET /api/v1/events: query parameter 'feed' is not in the spec " +
                 "(it has [title, episode, album, kind, from, to, limit, offset])" to
                 "history_events.go hides feed checks with feed=0",
+            "POST /api/v1/sources body.site: sent by the model but not in the spec" to
+                "built-in site of a site-format Source (sources.Input.Site)",
+            "POST /api/v1/sources body.site_user: sent by the model but not in the spec" to
+                "IPTorrents user id (sources.Input.SiteUser)",
+            "POST /api/v1/sources body.site_login: sent by the model but not in the spec" to
+                "passkey or cookie sign-in (sources.Input.SiteLogin)",
+            "POST /api/v1/sources body.site_agent: sent by the model but not in the spec" to
+                "browser user agent for the cookie (sources.Input.SiteAgent)",
+            "POST /api/v1/sources body.downloader_id: sent by the model but not in the spec" to
+                "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+            "PUT /api/v1/sources/{id} body.site: sent by the model but not in the spec" to
+                "built-in site of a site-format Source (sources.Input.Site)",
+            "PUT /api/v1/sources/{id} body.site_user: sent by the model but not in the spec" to
+                "IPTorrents user id (sources.Input.SiteUser)",
+            "PUT /api/v1/sources/{id} body.site_login: sent by the model but not in the spec" to
+                "passkey or cookie sign-in (sources.Input.SiteLogin)",
+            "PUT /api/v1/sources/{id} body.site_agent: sent by the model but not in the spec" to
+                "browser user agent for the cookie (sources.Input.SiteAgent)",
+            "PUT /api/v1/sources/{id} body.downloader_id: sent by the model but not in the spec" to
+                "the one Downloader a Source sends to (sources.Input.DownloaderID)",
+            "POST /api/v1/sources/check: sends a body but the spec takes none" to
+                "routes_check.go reads {query, kind}; both are optional",
         )
 
     val liveSkips: Map<String, String> =

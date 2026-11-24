@@ -53,6 +53,10 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourceHealthPresenter
+import ch.orellbuehler.acolyte.feature.sources.SettingsSourcesPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -155,6 +159,15 @@ class AcolyteSdk internal constructor(
         albumId: Long,
         versionId: Long,
     ): ReportProblemPresenter = ReportProblemPresenter(session.api, titleId, season, itemId, albumId, versionId)
+
+    fun settingsSources(): SettingsSourcesPresenter = SettingsSourcesPresenter(session.api) { session.account }
+
+    fun settingsBridges(): SettingsBridgePresenter =
+        SettingsBridgePresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsSourceCheck(): SettingsSourceCheckPresenter = SettingsSourceCheckPresenter(session.api)
+
+    fun settingsSourceHealth(id: Long): SettingsSourceHealthPresenter = SettingsSourceHealthPresenter(session.api, { session.account }, id)
 
     fun requestSettings(): RequestSettingsPresenter = RequestSettingsPresenter(session.api) { session.account }
 
