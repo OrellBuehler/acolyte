@@ -4,6 +4,7 @@ options:
   developmentLanguage: en
   deploymentTarget:
     iOS: '18.0'
+    tvOS: '18.0'
   xcodeVersion: '16.2'
 
 settings:
@@ -50,6 +51,51 @@ targets:
           - de
         # Self-hosted servers are often plain HTTP on the home network. Remote
         # servers still need valid HTTPS.
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        NSLocalNetworkUsageDescription: Acolyte connects to your HolyArrs server on your local network.
+    dependencies:
+      - framework: '../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/shared.framework'
+        embed: false
+
+  AcolyteTV:
+    type: application
+    platform: tvOS
+    # Shares the SDK layer, the theme, the string tables and the stores that only
+    # use Foundation with the iOS app; the views are tvOS's own in AcolyteTV/.
+    sources:
+      - path: AcolyteTV
+      - path: Acolyte
+        includes:
+          - SDK/*.swift
+          - Support/Theme.swift
+          - Support/L10n.swift
+          - Support/Format.swift
+          - Support/ErrorText.swift
+          - Support/AuthImage.swift
+          - Connect/ConnectStore.swift
+          - Discover/DiscoverStores.swift
+          - Music/MusicRoutes.swift
+          - PrivacyInfo.xcprivacy
+          - en.lproj/*
+          - de.lproj/*
+    settings:
+      base:
+        TARGETED_DEVICE_FAMILY: '3'
+        PRODUCT_BUNDLE_IDENTIFIER: ch.orellbuehler.acolyte
+        ASSETCATALOG_COMPILER_APPICON_NAME: 'App Icon & Top Shelf Image'
+        FRAMEWORK_SEARCH_PATHS:
+          - '$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)'
+        OTHER_LDFLAGS:
+          - '-framework'
+          - 'shared'
+    info:
+      path: AcolyteTV/Info.plist
+      properties:
+        ITSAppUsesNonExemptEncryption: false
+        CFBundleLocalizations:
+          - en
+          - de
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true
         NSLocalNetworkUsageDescription: Acolyte connects to your HolyArrs server on your local network.
