@@ -247,4 +247,20 @@ final class SDKClient: @unchecked Sendable {
     func placeholder(_ name: String) -> PlaceholderInfo {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
+
+    func makeSettingsControlsParts() -> SettingsControlsPartsDriver {
+        SettingsControlsPartsDriver(presenter: sdk.settingsControlsParts())
+    }
+
+    func makeSettingsControlsThisApp() -> SettingsControlsThisAppDriver {
+        SettingsControlsThisAppDriver(presenter: sdk.settingsControlsThisApp())
+    }
+
+    func makeSettingsControlsDanger() -> SettingsControlsDangerDriver {
+        SettingsControlsDangerDriver(presenter: sdk.settingsControlsDanger())
+    }
+
+    func makeSettingsControlsSchedules() -> SettingsControlsSchedulesDriver {
+        SettingsControlsSchedulesDriver(presenter: sdk.settingsControlsSchedules())
+    }
 }
