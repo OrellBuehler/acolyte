@@ -18,7 +18,7 @@ import ch.orellbuehler.acolyte.feature.Tone
 data class DownloadItem(
     val key: String,
     val row: DownloadRow,
-    val stage: DownloadStage,
+    val stage: QueueStage,
     val name: String,
     val title: String,
     val subLine: SubLine,
@@ -216,16 +216,20 @@ internal object DownloadsDerive {
         if (history) {
             when {
                 r.clientItem -> {
-                    if (stage == DownloadStage.FAILED && r.text.isNotBlank()) note = RowNote(NoteKind.CLIENT_TEXT, text = r.text.trim())
+                    if (stage == QueueStage.FAILED &&
+                        r.text.isNotBlank()
+                    ) {
+                        note = RowNote(DownloadNoteKind.CLIENT_TEXT, text = r.text.trim())
+                    }
                 }
-                stage == DownloadStage.FAILED -> Unit
+                stage == QueueStage.FAILED -> Unit
                 DownloadRules.filesGone(im) -> {
                     word = StatusWord.TAKEN
                     bar = BarTone.HELD
                 }
                 r.clearWaiting != null -> {
                     word = StatusWord.IMPORTED
-                    note = RowNote(NoteKind.STILL_IN, text = r.downloader)
+                    note = RowNote(DownloadNoteKind.STILL_IN, text = r.downloader)
                 }
             }
             if (bar == BarTone.GO) bar = BarTone.DONE
@@ -253,7 +257,7 @@ internal object DownloadsDerive {
             detail = detail,
             bar = bar,
             tone = tone,
-            progress = if (history && stage != DownloadStage.FAILED) 1.0 else r.progress.coerceIn(0.0, 1.0),
+            progress = if (history && stage != QueueStage.FAILED) 1.0 else r.progress.coerceIn(0.0, 1.0),
             moving = DownloadRules.moving(r),
             history = history,
             poster = brief?.artwork?.firstOrNull(),

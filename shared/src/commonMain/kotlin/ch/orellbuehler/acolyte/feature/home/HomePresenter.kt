@@ -4,6 +4,7 @@ import ch.orellbuehler.acolyte.api.Api
 import ch.orellbuehler.acolyte.api.ApiResult
 import ch.orellbuehler.acolyte.api.AuthEndpoints
 import ch.orellbuehler.acolyte.api.DiscoverEndpoints
+import ch.orellbuehler.acolyte.api.DownloadsEndpoints
 import ch.orellbuehler.acolyte.api.HealthEndpoints
 import ch.orellbuehler.acolyte.api.HomeEndpoints
 import ch.orellbuehler.acolyte.api.LibraryEndpoints
@@ -21,6 +22,7 @@ import ch.orellbuehler.acolyte.api.model.HomeHealth
 import ch.orellbuehler.acolyte.api.model.LibraryFolder
 import ch.orellbuehler.acolyte.api.model.Me
 import ch.orellbuehler.acolyte.api.model.PopularAnswer
+import ch.orellbuehler.acolyte.api.model.toHome
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
@@ -330,10 +332,10 @@ class HomePresenter internal constructor(
                 val asker = account?.allows(Need.ASK, Part.WISHLIST) == true && !manager
                 val limitCall = async { if (asker) api.result(RequestsEndpoints.limit) else null }
                 val foldersCall = async { if (manager) api.result(LibraryEndpoints.folders) else null }
-                val downloadsCall = async { if (manager) api.result(HomeEndpoints.downloads, "limit" to DOWNLOAD_LIMIT) else null }
+                val downloadsCall = async { if (manager) api.result(DownloadsEndpoints.view, "limit" to DOWNLOAD_LIMIT) else null }
                 val healthCall = async { if (manager) api.result(HomeEndpoints.health) else null }
                 val checksCall = async { if (manager) api.result(HealthEndpoints.checks) else null }
-                val decisionsCall = async { if (manager) api.result(HomeEndpoints.decisions) else null }
+                val decisionsCall = async { if (manager) api.result(DownloadsEndpoints.decisions) else null }
                 val popularCall = async { api.result(DiscoverEndpoints.popular, "type" to "all", "page" to 0).valueOrNull() }
                 val borrowCall =
                     async {
@@ -353,10 +355,20 @@ class HomePresenter internal constructor(
                 asks = asksCall.await()?.let { (it as? ApiResult.Ok)?.value?.asks }
                 limit = limitCall.await()?.valueOrNull()
                 folders = foldersCall.await()?.valueOrNull()?.libraryFolders
-                downloads = downloadsCall.await()?.valueOrNull()?.downloads
+                downloads =
+                    downloadsCall
+                        .await()
+                        ?.valueOrNull()
+                        ?.downloads
+                        ?.map { it.toHome() }
                 health = healthCall.await()?.valueOrNull()
                 checks = checksCall.await()?.valueOrNull()?.checks
-                decisions = decisionsCall.await()?.valueOrNull()?.items
+                decisions =
+                    decisionsCall
+                        .await()
+                        ?.valueOrNull()
+                        ?.items
+                        ?.map { it.toHome() }
                 popular = popularCall.await() ?: popular
                 val head = borrowCall.await()
                 val rules = CardRules()

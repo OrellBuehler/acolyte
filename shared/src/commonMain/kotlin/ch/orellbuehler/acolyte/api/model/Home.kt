@@ -79,11 +79,6 @@ internal data class HomeDownload(
 )
 
 @Serializable
-internal data class HomeDownloads(
-    val downloads: List<HomeDownload> = emptyList(),
-)
-
-@Serializable
 internal data class HomeHealthPart(
     val name: String = "",
     val state: String = "",
@@ -110,8 +105,25 @@ internal data class HomeDecision(
     val episode: HomeEpisode? = null,
 )
 
-@Serializable
-internal data class HomeDecisions(
-    val items: List<HomeDecision> = emptyList(),
-    val count: Int = 0,
-)
+internal fun DownloadRow.toHome(): HomeDownload =
+    HomeDownload(
+        id = id,
+        phase = phase,
+        state = state,
+        progress = progress,
+        eta = eta,
+        speed = speed.toDouble(),
+        active = active,
+        title = title,
+        name = name,
+        titleId = titleId,
+        replaced = replaced,
+        clientHint = clientHint,
+        clientItem = clientItem,
+        outside = outside,
+        finishedAt = finishedAt,
+        text = text,
+    )
+
+internal fun Decision.toHome(): HomeDecision =
+    HomeDecision(slotId = slotId, title = title, reason = reason, episode = episode?.let { HomeEpisode(it.label) })

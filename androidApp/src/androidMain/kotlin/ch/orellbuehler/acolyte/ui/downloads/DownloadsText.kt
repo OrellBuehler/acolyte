@@ -8,10 +8,10 @@ import ch.orellbuehler.acolyte.api.model.ShareLimits
 import ch.orellbuehler.acolyte.feature.downloads.DetailKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
+import ch.orellbuehler.acolyte.feature.downloads.DownloadNoteKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsSub
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
-import ch.orellbuehler.acolyte.feature.downloads.NoteKind
 import ch.orellbuehler.acolyte.feature.downloads.ProblemKind
 import ch.orellbuehler.acolyte.feature.downloads.RowDetail
 import ch.orellbuehler.acolyte.feature.downloads.RowNote
@@ -101,22 +101,22 @@ fun detailText(detail: RowDetail): String =
 @Composable
 fun noteText(note: RowNote): String =
     when (note.kind) {
-        NoteKind.NEXT_IN_LINE -> stringResource(R.string.downloads_note_next)
-        NoteKind.IN_LINE -> stringResource(R.string.downloads_note_in_line, note.number)
-        NoteKind.VERIFYING -> stringResource(R.string.downloads_note_verifying)
-        NoteKind.REPAIRING -> stringResource(R.string.downloads_note_repairing)
-        NoteKind.UNPACKING -> stringResource(R.string.downloads_note_unpacking)
-        NoteKind.FINISHING -> stringResource(R.string.downloads_note_finishing)
-        NoteKind.SCRIPT -> stringResource(R.string.downloads_note_script)
-        NoteKind.FILES_MISSING -> stringResource(R.string.downloads_note_files_missing)
-        NoteKind.DOWNLOADER_ERROR -> stringResource(R.string.downloads_note_downloader_error)
-        NoteKind.IMPORT_FAILED -> stringResource(R.string.downloads_note_import_failed)
-        NoteKind.REMOVED_OUTSIDE -> stringResource(R.string.downloads_note_removed_outside)
-        NoteKind.NO_MATCH -> stringResource(R.string.downloads_note_no_match)
-        NoteKind.FILES_GONE -> stringResource(R.string.downloads_word_taken)
-        NoteKind.STILL_IN -> stringResource(R.string.downloads_note_still_in, note.text)
-        NoteKind.CLIENT_TEXT -> note.text
-        NoteKind.DETAIL -> note.detail?.let { detailText(it).replaceFirstChar { c -> c.uppercase() } }.orEmpty()
+        DownloadNoteKind.NEXT_IN_LINE -> stringResource(R.string.downloads_note_next)
+        DownloadNoteKind.IN_LINE -> stringResource(R.string.downloads_note_in_line, note.number)
+        DownloadNoteKind.VERIFYING -> stringResource(R.string.downloads_note_verifying)
+        DownloadNoteKind.REPAIRING -> stringResource(R.string.downloads_note_repairing)
+        DownloadNoteKind.UNPACKING -> stringResource(R.string.downloads_note_unpacking)
+        DownloadNoteKind.FINISHING -> stringResource(R.string.downloads_note_finishing)
+        DownloadNoteKind.SCRIPT -> stringResource(R.string.downloads_note_script)
+        DownloadNoteKind.FILES_MISSING -> stringResource(R.string.downloads_note_files_missing)
+        DownloadNoteKind.DOWNLOADER_ERROR -> stringResource(R.string.downloads_note_downloader_error)
+        DownloadNoteKind.IMPORT_FAILED -> stringResource(R.string.downloads_note_import_failed)
+        DownloadNoteKind.REMOVED_OUTSIDE -> stringResource(R.string.downloads_note_removed_outside)
+        DownloadNoteKind.NO_MATCH -> stringResource(R.string.downloads_note_no_match)
+        DownloadNoteKind.FILES_GONE -> stringResource(R.string.downloads_word_taken)
+        DownloadNoteKind.STILL_IN -> stringResource(R.string.downloads_note_still_in, note.text)
+        DownloadNoteKind.CLIENT_TEXT -> note.text
+        DownloadNoteKind.DETAIL -> note.detail?.let { detailText(it).replaceFirstChar { c -> c.uppercase() } }.orEmpty()
     }
 
 @Composable
