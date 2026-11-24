@@ -87,6 +87,7 @@ import ch.orellbuehler.acolyte.ui.components.PosterCard
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
+import ch.orellbuehler.acolyte.ui.music.MusicUnmatchedNote
 import ch.orellbuehler.acolyte.ui.nav.LibraryDeletedRoute
 import ch.orellbuehler.acolyte.ui.nav.LibraryImportRoute
 import ch.orellbuehler.acolyte.ui.nav.LibraryToolsRoute
@@ -134,6 +135,7 @@ fun LibraryScreen(
     fun openItem(item: LibraryItem) {
         when {
             state.selecting -> model.presenter.toggle(item.id)
+            item.kind == LibraryKind.ARTIST -> open(Routes.musicLibraryArtist(item.id))
             item.canOpen -> open(Routes.title(item.kind.wire, item.tmdb))
             else -> dialog = LibraryDialog.CANNOT_OPEN
         }
@@ -199,6 +201,7 @@ fun LibraryScreen(
                         }
                     }
                 }
+                if (state.kind == LibraryKind.ARTIST) MusicUnmatchedNote(open)
                 ChipsRow(state, model, onMissing = { dialog = LibraryDialog.MISSING })
                 if (state.searchFailed) NoticeBanner(stringResource(R.string.library_search_failed))
                 StatusContent(

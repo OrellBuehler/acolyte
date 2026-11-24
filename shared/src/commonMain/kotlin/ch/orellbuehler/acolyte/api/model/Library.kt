@@ -145,7 +145,14 @@ data class GridSeason(
 @Serializable
 data class GridArtist(
     val mbid: String = "",
+    val type: String = "",
+    val disambiguation: String = "",
     val status: String = "",
+    @SerialName("album_choice") val albumChoice: String = "",
+    @SerialName("new_albums") val newAlbums: String = "all",
+    @SerialName("album_types") val albumTypes: List<String> = emptyList(),
+    @SerialName("secondary_types") val secondaryTypes: List<String> = emptyList(),
+    @SerialName("release_statuses") val releaseStatuses: List<String> = emptyList(),
     val albums: Int = 0,
     val included: Int = 0,
     val tracks: Int = 0,
@@ -233,6 +240,8 @@ internal data class TitleRemove(
     val apply: Boolean,
     val season: Int? = null,
     @SerialName("episode_ids") val episodeIds: List<Long>? = null,
+    @SerialName("album_id") val albumId: Long? = null,
+    @SerialName("track_ids") val trackIds: List<Long>? = null,
 )
 
 @Serializable

@@ -15,6 +15,7 @@ import ch.orellbuehler.acolyte.api.model.PlainQuery
 import ch.orellbuehler.acolyte.api.model.SearchTitle
 import ch.orellbuehler.acolyte.api.model.TitleAsk
 import ch.orellbuehler.acolyte.api.valueOrNull
+import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -30,6 +31,7 @@ enum class SearchScope(
     PEOPLE("people"),
     MOVIE("movie"),
     SHOW("show"),
+    MUSIC("music"),
 }
 
 enum class SuggestKind {
@@ -295,6 +297,7 @@ class SearchPresenter internal constructor(
                 if (account?.isOn(Part.MOVIES) != false) add(SearchScope.PEOPLE)
                 if (account?.isOn(Part.MOVIES) != false) add(SearchScope.MOVIE)
                 if (account?.isOn(Part.SHOWS) != false) add(SearchScope.SHOW)
+                if (account?.shows(Section.MUSIC) == true) add(SearchScope.MUSIC)
             }
         mutableState.update {
             it.copy(
@@ -341,7 +344,7 @@ class SearchPresenter internal constructor(
     suspend fun suggest(text: String) {
         val words = text.trim()
         val run = ++suggestRun
-        if (suggestOff || words.length < SUGGEST_MIN || words.length > SUGGEST_MAX) {
+        if (suggestOff || mutableState.value.scope == SearchScope.MUSIC || words.length < SUGGEST_MIN || words.length > SUGGEST_MAX) {
             mutableState.update { it.copy(suggestions = emptyList(), completions = emptyList()) }
             return
         }
@@ -380,7 +383,7 @@ class SearchPresenter internal constructor(
     suspend fun search(text: String) {
         val words = text.trim()
         val run = ++searchRun
-        if (words.isEmpty()) {
+        if (words.isEmpty() || mutableState.value.scope == SearchScope.MUSIC) {
             mutableState.update { it.copy(results = null, searching = false) }
             return
         }

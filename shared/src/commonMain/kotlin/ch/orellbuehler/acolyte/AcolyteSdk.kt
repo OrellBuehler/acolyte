@@ -58,6 +58,19 @@ import ch.orellbuehler.acolyte.feature.library.LibraryRenamePresenter
 import ch.orellbuehler.acolyte.feature.library.LibraryStatsPresenter
 import ch.orellbuehler.acolyte.feature.library.LibrarySubtitlesPresenter
 import ch.orellbuehler.acolyte.feature.move.SettingsMovePresenter
+import ch.orellbuehler.acolyte.feature.music.MusicAccess
+import ch.orellbuehler.acolyte.feature.music.MusicAddPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicAlbumPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicArtistPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicBrowsePresenter
+import ch.orellbuehler.acolyte.feature.music.MusicLeftoversPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicLibraryAlbumPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicLibraryArtistPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicNewPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicRowsPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicSearchPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicSettingsPresenter
+import ch.orellbuehler.acolyte.feature.music.MusicUnmatchedPresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRuleEditPresenter
 import ch.orellbuehler.acolyte.feature.quality.SettingsPickRulesPresenter
 import ch.orellbuehler.acolyte.feature.requests.AskMusicPresenter
@@ -74,6 +87,8 @@ import ch.orellbuehler.acolyte.feature.sources.SettingsBridgePresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceCheckPresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourceHealthPresenter
 import ch.orellbuehler.acolyte.feature.sources.SettingsSourcesPresenter
+import ch.orellbuehler.acolyte.feature.title.RemovePresenter
+import ch.orellbuehler.acolyte.feature.title.RenamePresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -297,4 +312,66 @@ class AcolyteSdk internal constructor(
     fun aiKeys(): AccountKeysPresenter = AccountKeysPresenter(session.api, reauthGate(), true)
 
     fun importPeople(kind: String): AccountImportPresenter = AccountImportPresenter(session.api, reauthGate(), kind)
+
+    fun musicAccess(): MusicAccess = MusicAccess.of(session.account)
+
+    fun musicArtist(
+        mbid: String,
+        utcOffsetSeconds: Int,
+    ): MusicArtistPresenter = MusicArtistPresenter(session.api, { session.account }, mbid) { localToday(utcOffsetSeconds) }
+
+    fun musicAlbum(
+        mbid: String,
+        artist: String,
+    ): MusicAlbumPresenter = MusicAlbumPresenter(session.api, { session.account }, mbid, artist)
+
+    fun musicRows(
+        kind: String,
+        slug: String,
+        region: String,
+        utcOffsetSeconds: Int,
+    ): MusicRowsPresenter = MusicRowsPresenter(session.api, { session.account }, kind, slug, region) { localToday(utcOffsetSeconds) }
+
+    fun musicNew(
+        region: String,
+        utcOffsetSeconds: Int,
+    ): MusicNewPresenter = MusicNewPresenter(session.api, { session.account }, region) { localToday(utcOffsetSeconds) }
+
+    fun musicBrowse(region: String): MusicBrowsePresenter = MusicBrowsePresenter(session.api, region)
+
+    fun musicSearch(): MusicSearchPresenter = MusicSearchPresenter(session.api) { session.account }
+
+    fun musicAdd(
+        mbid: String,
+        name: String,
+    ): MusicAddPresenter = MusicAddPresenter(session.api, { session.account }, mbid, name)
+
+    fun musicSettings(): MusicSettingsPresenter = MusicSettingsPresenter(session.api) { session.account }
+
+    fun musicUnmatched(): MusicUnmatchedPresenter = MusicUnmatchedPresenter(session.api) { session.account }
+
+    fun musicLibraryArtist(
+        titleId: Long,
+        utcOffsetSeconds: Int,
+    ): MusicLibraryArtistPresenter = MusicLibraryArtistPresenter(session.api, { session.account }, titleId) { localToday(utcOffsetSeconds) }
+
+    fun musicLibraryAlbum(
+        titleId: Long,
+        albumId: Long,
+        utcOffsetSeconds: Int,
+    ): MusicLibraryAlbumPresenter =
+        MusicLibraryAlbumPresenter(session.api, {
+            session.account
+        }, titleId, albumId) { localToday(utcOffsetSeconds) }
+
+    fun musicLeftovers(titleId: Long): MusicLeftoversPresenter = MusicLeftoversPresenter(session.api, titleId) {}
+
+    fun musicRename(titleId: Long): RenamePresenter = RenamePresenter(session.api, titleId, -1) {}
+
+    fun musicRemove(
+        titleId: Long,
+        name: String,
+        albumId: Long,
+    ): RemovePresenter =
+        RemovePresenter(session.api, titleId, name, false, -1, emptyList(), session.account?.handsOff == true, albumId, emptyList()) {}
 }

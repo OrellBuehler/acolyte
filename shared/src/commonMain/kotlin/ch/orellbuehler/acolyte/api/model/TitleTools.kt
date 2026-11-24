@@ -176,6 +176,7 @@ data class TitleShowDefaults(
 @Serializable
 data class TitleLeftovers(
     val leftovers: List<TitleLeftover> = emptyList(),
+    val pressings: List<MusicPressingHint> = emptyList(),
 )
 
 @Serializable
@@ -187,6 +188,7 @@ data class TitleLeftover(
     val reason: String = "",
     @SerialName("dropped_season") val droppedSeason: Int = 0,
     val guess: TitleLeftoverGuess? = null,
+    val music: MusicLeftoverMusic? = null,
     val dismissed: Boolean = false,
 ) {
     val fileName: String get() = relativePath.split('/', '\\').lastOrNull { it.isNotEmpty() }.orEmpty()

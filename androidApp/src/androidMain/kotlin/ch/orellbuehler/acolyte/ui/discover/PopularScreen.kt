@@ -18,6 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -46,6 +50,8 @@ import ch.orellbuehler.acolyte.ui.components.NoticeBanner
 import ch.orellbuehler.acolyte.ui.components.RankedPoster
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
+import ch.orellbuehler.acolyte.ui.music.MusicNav
+import ch.orellbuehler.acolyte.ui.music.MusicNewContent
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -93,6 +99,7 @@ class PopularViewModel(
 @Composable
 fun PopularScreen(
     nav: DiscoverNav,
+    music: MusicNav,
     onBack: (() -> Unit)?,
 ) {
     val sdk = LocalSdk.current
@@ -105,7 +112,28 @@ fun PopularScreen(
             viewModel.watch()
         }
     }
+    val showMusic = remember(sdk) { sdk.musicAccess().show }
+    var musicTab by rememberSaveable { mutableStateOf(false) }
     ScreenScaffold(title = stringResource(R.string.section_popular), onBack = onBack) { padding ->
+        if (musicTab && showMusic) {
+            MusicNewContent(
+                nav = music,
+                typeBar = {
+                    TypeBar(
+                        state.type,
+                        { type ->
+                            musicTab = false
+                            viewModel.select(type)
+                        },
+                        onGenre = null,
+                        musicShown = true,
+                        musicSelected = true,
+                    )
+                },
+                modifier = Modifier.padding(padding),
+            )
+            return@ScreenScaffold
+        }
         CardHost(nav, state.canHide, viewModel::refresh, Modifier.padding(padding)) { events ->
             StatusContent(
                 status = state.status,
@@ -124,7 +152,15 @@ fun PopularScreen(
                 val list = rememberLazyListState()
                 LoadMoreEffect(list, state.more && !state.loadingMore) { viewModel.loadMore() }
                 LazyColumn(state = list, contentPadding = PaddingValues(bottom = Spacing.XLarge)) {
-                    item(key = "types") { TypeBar(state.type, viewModel::select, onGenre = null) }
+                    item(key = "types") {
+                        TypeBar(
+                            state.type,
+                            viewModel::select,
+                            onGenre = null,
+                            musicShown = showMusic,
+                            onMusic = { musicTab = true },
+                        )
+                    }
                     state.status.error?.let { item(key = "error") { ErrorBanner(it) } }
                     if (state.sourceOff) item(key = "off") { NoticeBanner(stringResource(R.string.discover_source_off)) }
                     state.hero?.let { hero ->

@@ -4,20 +4,26 @@ struct SearchView: View {
     let account: AccountInfo
     @State private var store = SearchStore()
     @State private var host = CardHost()
+    @State private var musicBrowse = MusicBrowseStore(region: "global")
+    @State private var musicSearch = MusicSearchStore()
     @Environment(Navigator.self) private var navigator
 
     var body: some View {
         @Bindable var store = store
         ScrollView {
             LazyVStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                if store.info.scopes.count > 2 {
+                if store.info.scopes.count > 4 {
+                    MusicScopeChips(scopes: store.info.scopes, selected: store.info.scope, select: { store.selectScope($0) })
+                } else if store.info.scopes.count > 2 {
                     Picker(L10n.tr("discover.scope.people"), selection: Binding(get: { store.info.scope }, set: { store.selectScope($0) })) {
                         ForEach(store.info.scopes) { Text(scopeText($0)).tag($0) }
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal, Theme.Spacing.screen)
                 }
-                if store.text.trimmingCharacters(in: .whitespaces).isEmpty {
+                if store.info.scope == .music {
+                    MusicSearchContent(query: store.text, browse: musicBrowse, search: musicSearch)
+                } else if store.text.trimmingCharacters(in: .whitespaces).isEmpty {
                     if !store.info.recents.isEmpty {
                         RecentsView(recents: store.info.recents, pick: { store.submit($0) }, clear: { store.clearRecents() })
                     }
@@ -42,14 +48,16 @@ struct SearchView: View {
             .padding(.bottom, Theme.Spacing.xLarge)
         }
         .refreshable {
-            if store.text.isEmpty {
+            if store.info.scope == .music {
+                await musicBrowse.refresh()
+            } else if store.text.isEmpty {
                 await store.refreshBrowse()
             } else {
                 await store.run(store.text)
             }
         }
         .navigationTitle(SectionID.search.title)
-        .searchable(text: $store.text, prompt: L10n.tr("discover.search.placeholder"))
+        .searchable(text: $store.text, prompt: L10n.tr(store.info.scope == .music ? "music.search.placeholder" : "discover.search.placeholder"))
         .searchSuggestions {
             ForEach(store.info.completions, id: \.self) { completion in
                 Label(completion, systemImage: "magnifyingglass").searchCompletion(completion)
@@ -62,7 +70,10 @@ struct SearchView: View {
                 }
             }
         }
-        .onSubmit(of: .search) { store.submit(store.text) }
+        .onSubmit(of: .search) {
+            store.submit(store.text)
+            submitMusic()
+        }
         .onChange(of: store.text) { _, value in store.type(value) }
         .task(id: store.text) {
             try? await Task.sleep(for: .milliseconds(150))
@@ -88,6 +99,13 @@ struct SearchView: View {
         .task { await store.refreshOwned() }
     }
 
+    private func submitMusic() {
+        guard store.info.scope == .music else { return }
+        let text = store.text
+        let music = musicSearch
+        Task { await music.search(text) }
+    }
+
     private func open(_ suggestion: SuggestionInfo) {
         switch suggestion.kind {
         case .person:
@@ -108,6 +126,7 @@ func scopeText(_ scope: SearchScopeID) -> String {
     case .people: L10n.tr("discover.scope.people")
     case .movie: L10n.tr("discover.type.movies")
     case .show: L10n.tr("discover.type.shows")
+    case .music: L10n.tr("section.music")
     }
 }
 
@@ -222,7 +241,7 @@ private struct ResultsView: View {
                 CardGrid(cards: results.shows, fallback: { search($0.name) })
             case .people:
                 PeopleGrid(people: results.people)
-            case .all:
+            case .all, .music:
                 EmptyView()
             }
         } else {

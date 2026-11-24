@@ -351,4 +351,80 @@ final class SDKClient: @unchecked Sendable {
     func placeholder(_ name: String) -> PlaceholderInfo {
         PlaceholderInfo(text: ArtPlaceholder.shared.text(name: name), hue: Double(ArtPlaceholder.shared.hue(name: name)))
     }
+
+    // music
+    func musicAccess() -> MusicAccessInfo {
+        Mapping.musicAccess(sdk.musicAccess())
+    }
+
+    func musicOptions() -> MusicOptionLists {
+        MusicOptionLists(
+            albumChoices: Mapping.musicOptions(MusicOptions.shared.albumChoices),
+            newAlbums: Mapping.musicOptions(MusicOptions.shared.newAlbums),
+            albumTypes: Mapping.musicOptions(MusicOptions.shared.albumTypes),
+            secondaryTypes: Mapping.musicOptions(MusicOptions.shared.secondaryTypes),
+            statuses: Mapping.musicOptions(MusicOptions.shared.statuses),
+            pressingRules: Mapping.musicOptions(MusicOptions.shared.pressingRules)
+        )
+    }
+
+    func makeMusicArtist(mbid: String) -> MusicArtistDriver {
+        MusicArtistDriver(presenter: sdk.musicArtist(mbid: mbid, utcOffsetSeconds: Self.utcOffset()))
+    }
+
+    func makeMusicAlbum(mbid: String, artist: String) -> MusicAlbumDriver {
+        MusicAlbumDriver(presenter: sdk.musicAlbum(mbid: mbid, artist: artist))
+    }
+
+    func makeMusicRows(kind: String, slug: String, region: String) -> MusicRowsDriver {
+        MusicRowsDriver(presenter: sdk.musicRows(kind: kind, slug: slug, region: region, utcOffsetSeconds: Self.utcOffset()))
+    }
+
+    func makeMusicNew(region: String) -> MusicNewDriver {
+        MusicNewDriver(presenter: sdk.musicNew(region: region, utcOffsetSeconds: Self.utcOffset()))
+    }
+
+    func makeMusicBrowse(region: String) -> MusicBrowseDriver {
+        MusicBrowseDriver(presenter: sdk.musicBrowse(region: region))
+    }
+
+    func makeMusicSearch() -> MusicSearchDriver {
+        MusicSearchDriver(presenter: sdk.musicSearch())
+    }
+
+    func makeMusicAdd(mbid: String, name: String) -> MusicAddDriver {
+        MusicAddDriver(presenter: sdk.musicAdd(mbid: mbid, name: name))
+    }
+
+    func makeMusicSettings() -> MusicSettingsDriver {
+        MusicSettingsDriver(presenter: sdk.musicSettings())
+    }
+
+    func makeMusicUnmatched() -> MusicUnmatchedDriver {
+        MusicUnmatchedDriver(presenter: sdk.musicUnmatched())
+    }
+
+    func makeMusicLibraryArtist(titleId: Int64) -> MusicLibraryArtistDriver {
+        MusicLibraryArtistDriver(presenter: sdk.musicLibraryArtist(titleId: titleId, utcOffsetSeconds: Self.utcOffset()))
+    }
+
+    func makeMusicLibraryAlbum(titleId: Int64, albumId: Int64) -> MusicLibraryAlbumDriver {
+        MusicLibraryAlbumDriver(presenter: sdk.musicLibraryAlbum(titleId: titleId, albumId: albumId, utcOffsetSeconds: Self.utcOffset()))
+    }
+
+    func makeMusicLeftovers(titleId: Int64) -> MusicLeftoversDriver {
+        MusicLeftoversDriver(presenter: sdk.musicLeftovers(titleId: titleId))
+    }
+
+    func makeMusicRename(titleId: Int64) -> RenameDriver {
+        RenameDriver(presenter: sdk.musicRename(titleId: titleId))
+    }
+
+    func makeMusicRemove(titleId: Int64, name: String, albumId: Int64) -> RemoveDriver {
+        RemoveDriver(presenter: sdk.musicRemove(titleId: titleId, name: name, albumId: albumId))
+    }
+
+    private static func utcOffset() -> Int32 {
+        Int32(TimeZone.current.secondsFromGMT())
+    }
 }
