@@ -14,8 +14,7 @@ import ch.orellbuehler.acolyte.api.model.AccountKeyMake
 import ch.orellbuehler.acolyte.api.model.SettingsKeysAiChange
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.async
@@ -46,7 +45,6 @@ data class SettingsAiState(
     val changeError: ApiError? = null,
     val changedCount: Int = 0,
     val notice: SettingsKeysNotice? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val keysNeedPassword: Boolean get() = keysError?.code == ApiErrorCode.FORBIDDEN
 
@@ -62,12 +60,11 @@ data class SettingsAiState(
 class SettingsAiPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsAiState())
     private val lock = Mutex()
     private val notices = SettingsKeysNotices()
-    private val gate = SettingsReauthGate(reauth) { value -> mutableState.update { it.copy(reauth = value) } }
 
     val state: StateFlow<SettingsAiState> = mutableState.asStateFlow()
 
@@ -160,7 +157,7 @@ class SettingsAiPresenter internal constructor(
         if (mutableState.value.making || !mutableState.value.canManageKeys) return
         val body = AccountKeyMake(name, listOf(SettingsKeysLogic.AI_SCOPE), SettingsKeysLogic.orderedGroups(groups))
         mutableState.update { it.copy(making = true) }
-        gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_MAKE_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_MAKE_FAILED, error = error) }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.makeKey, body)) {
                     is ApiResult.Ok -> {
@@ -185,7 +182,9 @@ class SettingsAiPresenter internal constructor(
         if (mutableState.value.changing || !mutableState.value.canChange) return
         val body = AccountKeyChange(SettingsKeysLogic.orderedGroups(groups, keepPlugins = SettingsKeysLogic.PLUGINS in key.groups))
         mutableState.update { it.copy(changing = true, changeError = null) }
-        gate.guard(onFailure = { error -> mutableState.update { it.copy(changing = false, changeError = error) } }) {
+        reauth.guardError(onFailure = { error ->
+            mutableState.update { it.copy(changing = false, changeError = error) }
+        }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.changeKey, body, "id" to id)) {
                     is ApiResult.Ok -> {
@@ -213,7 +212,9 @@ class SettingsAiPresenter internal constructor(
         val key = mutableState.value.keys.firstOrNull { it.id == id } ?: return
         if (mutableState.value.revokingId != 0L) return
         mutableState.update { it.copy(revokingId = id) }
-        gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_REVOKE_FAILED, key.label, error) }) {
+        reauth.guardError(onFailure = { error ->
+            fail(SettingsKeysNoticeKind.KEY_REVOKE_FAILED, key.label, error)
+        }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.revokeKey, "id" to id)) {
                     is ApiResult.Ok -> {
@@ -235,13 +236,7 @@ class SettingsAiPresenter internal constructor(
 
     fun dismissFresh() = mutableState.update { it.copy(fresh = null) }
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = gate.confirm(password, code)
-
-    fun cancelReauth() {
-        gate.cancel()
+    private fun cancelled() {
         mutableState.update { it.copy(making = false, revokingId = 0, changing = false) }
     }
 

@@ -18,7 +18,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsMediaServersWatch
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.async
@@ -33,12 +33,11 @@ import kotlinx.coroutines.sync.withLock
 class SettingsMediaServersPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
     private val language: () -> String = { deviceLanguage().substringBefore('-') },
 ) {
     private val mutableState = MutableStateFlow(SettingsMediaServersState())
     private val lock = Mutex()
-    private val gate = SettingsReauthGate(reauth) { r -> mutableState.update { it.copy(reauth = r) } }
     private var items: List<SettingsMediaServersItem> = emptyList()
     private var plexItems: List<SettingsMediaServersPlexItem> = emptyList()
     private var results: Map<Long, SettingsMediaServersTag> = emptyMap()
@@ -321,7 +320,7 @@ class SettingsMediaServersPresenter internal constructor(
     suspend fun save() {
         val form = mutableState.value.form ?: return
         if (!form.canSave || mutableState.value.saving) return
-        gate.guard(onFailure = { error -> mutableState.update { it.copy(formError = error) } }) {
+        reauth.guardError(onFailure = { error -> mutableState.update { it.copy(formError = error) } }) {
             lock.withLock {
                 mutableState.update { it.copy(saving = true, formError = null) }
                 val result =
@@ -357,14 +356,14 @@ class SettingsMediaServersPresenter internal constructor(
     suspend fun test(id: Long) {
         val item = items.firstOrNull { it.id == id } ?: return
         if (id in testing) return
-        gate.guard {
+        reauth.guardError {
             testing = testing + id
             rebuild()
             val result = api.result(SettingsMediaServersEndpoints.test, "id" to id)
             testing = testing - id
             if (result is ApiResult.Failed && result.error.code == ApiErrorCode.REAUTH) {
                 rebuild()
-                return@guard result.error
+                return@guardError result.error
             }
             results = results + (id to tagOf(item, result))
             lock.withLock { loadServers() }
@@ -424,7 +423,7 @@ class SettingsMediaServersPresenter internal constructor(
 
     suspend fun remove(id: Long) {
         if (items.none { it.id == id } || id in removing) return
-        gate.guard(onFailure = { error -> notify(SettingsMediaServersNoticeKind.REMOVE_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> notify(SettingsMediaServersNoticeKind.REMOVE_FAILED, error = error) }) {
             lock.withLock {
                 removing = removing + id
                 rebuild()
@@ -447,7 +446,7 @@ class SettingsMediaServersPresenter internal constructor(
 
     suspend fun setWatchHistory(on: Boolean) {
         if (mutableState.value.watchBusy) return
-        gate.guard(onFailure = { error -> notify(SettingsMediaServersNoticeKind.WATCH_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> notify(SettingsMediaServersNoticeKind.WATCH_FAILED, error = error) }) {
             lock.withLock {
                 mutableState.update { it.copy(watchBusy = true) }
                 when (val result = api.result(SettingsMediaServersEndpoints.saveWatchHistory, SettingsMediaServersWatch(on))) {
@@ -486,7 +485,7 @@ class SettingsMediaServersPresenter internal constructor(
         val s = mutableState.value
         if (!s.labelsCanSave) return
         val body = s.labelDraft.copy(label = s.labelDraft.label.trim())
-        gate.guard(onFailure = { error -> notify(SettingsMediaServersNoticeKind.LABELS_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> notify(SettingsMediaServersNoticeKind.LABELS_FAILED, error = error) }) {
             lock.withLock {
                 mutableState.update { it.copy(labelBusy = true) }
                 when (val result = api.result(SettingsMediaServersEndpoints.saveLabels, body)) {
@@ -513,7 +512,7 @@ class SettingsMediaServersPresenter internal constructor(
 
     suspend fun runLabels() {
         if (!mutableState.value.labelsCanRun) return
-        gate.guard(onFailure = { error -> notify(SettingsMediaServersNoticeKind.LABELS_START_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> notify(SettingsMediaServersNoticeKind.LABELS_START_FAILED, error = error) }) {
             lock.withLock {
                 mutableState.update { it.copy(labelRunBusy = true) }
                 when (val result = api.result(SettingsMediaServersEndpoints.runLabels)) {
@@ -577,7 +576,7 @@ class SettingsMediaServersPresenter internal constructor(
         val s = mutableState.value
         if (!s.tracksCanSave) return
         val body = s.trackDraft
-        gate.guard(onFailure = { error -> notify(SettingsMediaServersNoticeKind.TRACKS_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> notify(SettingsMediaServersNoticeKind.TRACKS_FAILED, error = error) }) {
             lock.withLock {
                 mutableState.update { it.copy(trackBusy = true) }
                 when (val result = api.result(SettingsMediaServersEndpoints.saveTracks, body)) {
@@ -607,13 +606,6 @@ class SettingsMediaServersPresenter internal constructor(
             }
         }
     }
-
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = gate.confirm(password, code)
-
-    fun cancelReauth() = gate.cancel()
 
     fun dismissNotice(id: Long) {
         mutableState.update { if (it.notice?.id == id) it.copy(notice = null) else it }

@@ -142,8 +142,7 @@ extension Mapping {
                     name: $0.name,
                     error: error($0.error)
                 )
-            },
-            reauth: settingsReauth(s.reauth)
+            }
         )
     }
 
@@ -178,8 +177,7 @@ extension Mapping {
             noLogFile: s.noLogFile,
             downloading: s.downloading,
             downloadError: error(s.downloadError),
-            file: serverFile(s.file),
-            reauth: settingsReauth(s.reauth)
+            file: serverFile(s.file)
         )
     }
 

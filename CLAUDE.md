@@ -132,6 +132,6 @@ Commit style: lowercase imperative, short first line, details in the body if nee
 ## Settings
 
 - `feature/settings/SettingsCatalog.kt` lists every settings page with its gate (permission, part, held feature); the Settings home, search and attention dots come from `SettingsHomePresenter`. A new page: add it to `SettingsPage`, a `Settings<Page>Route` (Android) / `Route.settings<Page>` (iOS), strings `settings_page_<key>` and `_about`.
-- Risky writes answer `403 reauth`: wrap them in `SettingsReauthGate.guard` (state `SettingsReauthState`, Android `SettingsReauthDialog`, iOS `.settingsReauth`).
+- Risky writes answer `403 reauth`: take the account `ReauthGate` (`AcolyteSdk.reauthGate()`, kept as `val reauth` on the presenter) and wrap them in `reauth.guardError(onFailure, onCancel) { ApiError? }` (or `reauth.guard { ApiResult }`). The call suspends while the prompt shows and retries once. UI: Android `ReauthSheet(presenter.reauth)`, iOS `ReauthStore` + `.reauthSheet(store.reauth)`; there is no settings copy of the prompt.
 - Files go through `Api.download` / `Api.upload` (streamed to the temp folder), then the share sheet (`shareTransferredFile`, `ActivityShareSheet`); call `clearTransfers()` afterwards.
 - Spec gaps of settings endpoints live in `contract/Gaps<Area>.kt`, not in `KnownSpecGaps`.

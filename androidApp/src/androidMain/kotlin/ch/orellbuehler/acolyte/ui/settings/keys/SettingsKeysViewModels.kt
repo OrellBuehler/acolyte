@@ -14,6 +14,7 @@ class SettingsApiViewModel(
     private val presenter = sdk.settingsApi()
 
     val state: StateFlow<SettingsApiState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -55,15 +56,6 @@ class SettingsApiViewModel(
 
     fun dismissSeerrFresh() = presenter.dismissSeerrFresh()
 
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
-
     fun dismissNotice(seq: Int) = presenter.dismissNotice(seq)
 }
 
@@ -73,6 +65,7 @@ class SettingsAiViewModel(
     private val presenter = sdk.settingsAi()
 
     val state: StateFlow<SettingsAiState> = presenter.state
+    val reauth = presenter.reauth
 
     init {
         viewModelScope.launch { presenter.load() }
@@ -107,15 +100,6 @@ class SettingsAiViewModel(
     }
 
     fun dismissFresh() = presenter.dismissFresh()
-
-    fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        viewModelScope.launch { presenter.confirmReauth(password, code) }
-    }
-
-    fun cancelReauth() = presenter.cancelReauth()
 
     fun dismissNotice(seq: Int) = presenter.dismissNotice(seq)
 }

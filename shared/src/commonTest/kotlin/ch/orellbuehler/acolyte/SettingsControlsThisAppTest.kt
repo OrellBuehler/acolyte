@@ -7,7 +7,9 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsSavedKi
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppPresenter
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.Role
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,7 +52,7 @@ class SettingsControlsThisAppTest {
             SettingsControlsThisAppPresenter(
                 Api({ client }, emptyFlow()),
                 { account },
-                { password, code ->
+                testGate(account) { password, code ->
                     reauths += password to code
                     null
                 },
@@ -205,14 +207,16 @@ class SettingsControlsThisAppTest {
             assertNull(state.storage)
             assertTrue(state.storageProof)
             assertNull(state.storageError)
-            assertFalse(state.reauth.needed)
-            s.presenter.proveStorage()
-            assertTrue(s.presenter.state.value.reauth.needed)
+            assertFalse(s.presenter.reauth.state.value.visible)
+            val job = async { s.presenter.proveStorage() }
+            s.presenter.reauth.state
+                .first { it.visible }
             proven = true
-            s.presenter.confirmReauth("secret", "")
+            s.presenter.reauth.confirm("secret", "")
+            job.await()
             assertEquals<List<Pair<String, String?>>>(listOf("secret" to null), s.reauths)
             state = s.presenter.state.value
-            assertFalse(state.reauth.needed)
+            assertFalse(s.presenter.reauth.state.value.visible)
             assertFalse(state.storageProof)
             assertEquals(3, state.storage?.app?.size)
         }

@@ -3227,12 +3227,6 @@
 "settings.group.system.line" = "Keeps it healthy";
 "settings.group.account" = "My account";
 "settings.group.account.line" = "Just you";
-"settings.reauth.title" = "Confirm your password";
-"settings.reauth.text" = "Keys, passwords, people and backups need your password. Good for 10 minutes.";
-"settings.reauth.password" = "Password";
-"settings.reauth.code" = "Two-factor code (if you use one)";
-"settings.reauth.confirm" = "Confirm";
-"settings.reauth.cancel" = "Cancel";
 "settings.home.search" = "Search settings";
 "settings.home.search.empty.title" = "No matching settings";
 "settings.home.search.empty.text" = "Try another word, like folder, key or password.";

@@ -66,13 +66,13 @@ import ch.orellbuehler.acolyte.feature.settings.server.SettingsServerRestoreStag
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.requests.ConfirmDialog
 import ch.orellbuehler.acolyte.ui.requests.Hint
 import ch.orellbuehler.acolyte.ui.requests.NotAllowed
 import ch.orellbuehler.acolyte.ui.requests.SettingsCard
-import ch.orellbuehler.acolyte.ui.settings.SettingsReauthDialog
 import ch.orellbuehler.acolyte.ui.settings.shareTransferredFile
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import kotlinx.coroutines.Dispatchers
@@ -189,7 +189,7 @@ fun SettingsBackupsContent(onBack: () -> Unit) {
             onCancel = viewModel::release,
         )
     }
-    SettingsReauthDialog(state.reauth, onConfirm = viewModel::confirmReauth, onCancel = viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 private fun fileMime(file: SettingsServerFile): String =

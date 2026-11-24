@@ -205,7 +205,6 @@ extension Mapping {
             sso: signInSso(s.sso),
             local: signInLocal(s.local),
             hosts: SettingsSignInHostsInfo(text: s.hosts.text, saving: s.hosts.saving),
-            reauth: settingsReauth(s.reauth),
             notice: signInNotice(s.notice),
             showLocal: s.showLocal
         )

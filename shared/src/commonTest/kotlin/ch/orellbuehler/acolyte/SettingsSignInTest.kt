@@ -19,6 +19,8 @@ import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInSsoPhase
 import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInWayKind
 import ch.orellbuehler.acolyte.session.Role
 import ch.orellbuehler.acolyte.session.SignInMethod
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -80,8 +82,10 @@ class SettingsSignInTest {
         role: Role = Role.OWNER,
         method: SignInMethod = SignInMethod.PASSWORD,
         reauth: suspend (String, String?) -> ApiError? = { _, _ -> null },
-    ): SettingsSignInPresenter =
-        SettingsSignInPresenter(server.api(), { testAccount(role, listOf("settings")).copy(method = method) }, reauth)
+    ): SettingsSignInPresenter {
+        val account = testAccount(role, listOf("settings")).copy(method = method)
+        return SettingsSignInPresenter(server.api(), { account }, testGate(account, reauth))
+    }
 
     private fun body(
         server: FakeServer,
@@ -297,13 +301,14 @@ class SettingsSignInTest {
                     asked += password to code
                     null
                 }
-            presenter.load()
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.load() }
+            presenter.reauth.state.first { it.visible }
             assertEquals(Phase.LOADING, presenter.state.value.status.phase)
             server.json("GET", settingsPath, settingsJson)
-            presenter.confirmReauth("secret", " 123456 ")
+            presenter.reauth.confirm("secret", " 123456 ")
+            job.await()
             assertEquals(listOf<Pair<String, String?>>("secret" to "123456"), asked)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(Phase.READY, presenter.state.value.status.phase)
         }
 
@@ -313,9 +318,11 @@ class SettingsSignInTest {
             val server = server()
             server.json("GET", settingsPath, reauthJson, 403)
             val presenter = presenter(server)
-            presenter.load()
-            presenter.cancelReauth()
-            assertFalse(presenter.state.value.reauth.needed)
+            val job = async { presenter.load() }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.cancel()
+            job.await()
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(Phase.FAILED, presenter.state.value.status.phase)
             assertEquals(
                 ApiErrorCode.REAUTH,
@@ -508,7 +515,11 @@ class SettingsSignInTest {
                 }
             }
             val presenter =
-                SettingsSignInPresenter(server.api(client), { testAccount(Role.OWNER, emptyList()) }, { _, _ -> null })
+                SettingsSignInPresenter(
+                    server.api(client),
+                    { testAccount(Role.OWNER, emptyList()) },
+                    testGate(testAccount(Role.OWNER, emptyList())),
+                )
             presenter.load()
             presenter.setWayServerId(SettingsSignInWayKind.PLEX, "")
             presenter.linkPlex()
@@ -650,14 +661,15 @@ class SettingsSignInTest {
                     null
                 }
             presenter.load()
-            presenter.linkPlex()
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.linkPlex() }
+            presenter.reauth.state.first { it.visible }
             assertEquals(SettingsSignInLinkPhase.STARTING, presenter.state.value.plex.phase)
             assertEquals(0, calls(server, "POST", "/api/v1/auth/plex/link/finish"))
-            presenter.confirmReauth("pw", "")
+            presenter.reauth.confirm("pw", "")
+            job.await()
             val s = presenter.state.value
             assertEquals(listOf("pw"), asked)
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(SettingsSignInLinkPhase.LINKED_PICK, s.plex.phase)
             assertEquals("srv1", s.way(SettingsSignInWayKind.PLEX).serverId)
             assertEquals(2, s.plex.servers.size)
@@ -670,10 +682,12 @@ class SettingsSignInTest {
             server.json("POST", "/api/v1/auth/plex/link/start", reauthJson, 403)
             val presenter = presenter(server)
             presenter.load()
-            presenter.linkPlex()
-            presenter.cancelReauth()
+            val job = async { presenter.linkPlex() }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.cancel()
+            job.await()
             assertEquals(SettingsSignInLinkPhase.IDLE, presenter.state.value.plex.phase)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
         }
 
     @Test
@@ -692,11 +706,12 @@ class SettingsSignInTest {
             }
             val presenter = presenter(server)
             presenter.load()
-            presenter.linkPlex()
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.linkPlex() }
+            presenter.reauth.state.first { it.visible }
             assertEquals(SettingsSignInLinkPhase.WAITING, presenter.state.value.plex.phase)
-            presenter.confirmReauth("pw", "")
-            assertFalse(presenter.state.value.reauth.needed)
+            presenter.reauth.confirm("pw", "")
+            job.await()
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(SettingsSignInLinkPhase.LINKED_NONE, presenter.state.value.plex.phase)
             assertEquals(4, checks)
         }
@@ -727,13 +742,14 @@ class SettingsSignInTest {
             server.json("PUT", settingsPath, reauthJson, 403)
             val presenter = presenter(server)
             presenter.load()
-            presenter.setRequireTwoFactor(true)
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.setRequireTwoFactor(true) }
+            presenter.reauth.state.first { it.visible }
             assertTrue(presenter.state.value.requireTwoFactor)
-            presenter.cancelReauth()
+            presenter.reauth.cancel()
+            job.await()
             assertFalse(presenter.state.value.requireTwoFactor)
             assertFalse(presenter.state.value.requireTwoFactorSaving)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
         }
 
     @Test
@@ -747,9 +763,10 @@ class SettingsSignInTest {
             }
             val presenter = presenter(server)
             presenter.load()
-            presenter.unlinkPlex()
-            assertTrue(presenter.state.value.reauth.needed)
-            presenter.confirmReauth("pw", "")
+            val job = async { presenter.unlinkPlex() }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.confirm("pw", "")
+            job.await()
             val s = presenter.state.value
             assertFalse(s.plex.linked)
             assertFalse(s.plex.canImport)
@@ -888,10 +905,11 @@ class SettingsSignInTest {
             val presenter = presenter(server)
             presenter.load()
             presenter.openImport(SettingsSignInWayKind.PLEX)
-            presenter.runImport()
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.runImport() }
+            presenter.reauth.state.first { it.visible }
             assertTrue(assertNotNull(presenter.state.value.importSheet).busy)
-            presenter.confirmReauth("pw", "")
+            presenter.reauth.confirm("pw", "")
+            job.await()
             assertNull(presenter.state.value.importSheet)
             assertEquals(
                 SettingsSignInNoticeKind.IMPORT_NONE,
@@ -909,14 +927,15 @@ class SettingsSignInTest {
             presenter.load()
             assertEquals(SettingsSignInSsoPhase.LOCKED, presenter.state.value.sso.phase)
             assertEquals(Phase.READY, presenter.state.value.status.phase)
-            presenter.loadSso()
-            assertTrue(presenter.state.value.reauth.needed)
-            presenter.cancelReauth()
+            val job = async { presenter.loadSso() }
+            presenter.reauth.state.first { it.visible }
+            presenter.reauth.cancel()
+            job.await()
             assertEquals(SettingsSignInSsoPhase.LOCKED, presenter.state.value.sso.phase)
             server.json("GET", "/api/v1/auth/sso", ssoJson)
             presenter.loadSso()
             assertEquals(SettingsSignInSsoPhase.READY, presenter.state.value.sso.phase)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
         }
 
     @Test
@@ -1024,7 +1043,7 @@ class SettingsSignInTest {
             presenter.saveSso("bad", "")
             var sso = presenter.state.value.sso
             assertEquals(SettingsSignInSsoError.WRONG_PROOF, sso.saveError)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertFalse(sso.saving)
             server.json("PUT", "/api/v1/auth/sso", """{"error":"check the groups claim","code":"group_roles"}""", 400)
             presenter.saveSso("pw", "")
@@ -1055,10 +1074,11 @@ class SettingsSignInTest {
             val presenter = presenter(server)
             presenter.load()
             presenter.setSsoGroupRoles("admins=admin, family=member")
-            presenter.saveSso("pw", "")
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.saveSso("pw", "") }
+            presenter.reauth.state.first { it.visible }
             assertTrue(presenter.state.value.sso.saving)
-            presenter.confirmReauth("pw", "")
+            presenter.reauth.confirm("pw", "")
+            job.await()
             assertEquals(2, puts)
             assertFalse(presenter.state.value.sso.saving)
             assertEquals(
@@ -1347,21 +1367,22 @@ class SettingsSignInTest {
                     ApiError(ApiErrorCode.FORBIDDEN, 403, "wrong").also { failures += it }
                 }
             presenter.load()
-            presenter.setForgotLink(false)
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.setForgotLink(false) }
+            presenter.reauth.state.first { it.visible }
             assertTrue(presenter.state.value.forgotLinkSaving)
-            presenter.confirmReauth("bad", "")
-            assertTrue(presenter.state.value.reauth.needed)
+            presenter.reauth.confirm("bad", "")
+            assertTrue(presenter.reauth.state.value.visible)
             assertEquals(
                 ApiErrorCode.FORBIDDEN,
-                presenter.state.value.reauth.error
+                presenter.reauth.state.value.error
                     ?.code,
             )
             assertEquals(1, puts)
-            presenter.cancelReauth()
+            presenter.reauth.cancel()
+            job.await()
             assertTrue(presenter.state.value.forgotLink)
             assertFalse(presenter.state.value.forgotLinkSaving)
-            assertFalse(presenter.state.value.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
         }
 
     @Test

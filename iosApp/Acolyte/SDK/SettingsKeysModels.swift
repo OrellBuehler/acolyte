@@ -97,7 +97,6 @@ struct SettingsApiInfo: Hashable, Sendable {
     let seerrSaving: Bool
     let seerrFresh: SettingsSeerrFreshInfo?
     let notice: SettingsKeysNoticeInfo?
-    let reauth: SettingsReauthInfo
     let labelMax: Int
 
     static let initial = SettingsApiInfo(
@@ -117,7 +116,6 @@ struct SettingsApiInfo: Hashable, Sendable {
         seerrSaving: false,
         seerrFresh: nil,
         notice: nil,
-        reauth: .idle,
         labelMax: 64
     )
 }
@@ -143,7 +141,6 @@ struct SettingsAiInfo: Hashable, Sendable {
     let changeDetail: String
     let changedCount: Int
     let notice: SettingsKeysNoticeInfo?
-    let reauth: SettingsReauthInfo
     let offeredGroups: [String]
     let defaultGroups: [String]
     let labelMax: Int
@@ -169,7 +166,6 @@ struct SettingsAiInfo: Hashable, Sendable {
         changeDetail: "",
         changedCount: 0,
         notice: nil,
-        reauth: .idle,
         offeredGroups: [],
         defaultGroups: [],
         labelMax: 64

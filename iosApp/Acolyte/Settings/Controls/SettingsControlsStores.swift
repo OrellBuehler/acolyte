@@ -27,7 +27,15 @@ final class SettingsControlsPartsStore {
 
     @ObservationIgnored private var lastNotice = 0
 
-    private let driver = SDKClient.shared.makeSettingsControlsParts()
+    let reauth: ReauthStore
+
+    private let driver: SettingsControlsPartsDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsControlsParts()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -79,13 +87,6 @@ final class SettingsControlsPartsStore {
     }
 
     func cancel() { driver.cancel() }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 }
 
 @MainActor
@@ -96,7 +97,15 @@ final class SettingsControlsDangerStore {
 
     @ObservationIgnored private var lastNotice = 0
 
-    private let driver = SDKClient.shared.makeSettingsControlsDanger()
+    let reauth: ReauthStore
+
+    private let driver: SettingsControlsDangerDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsControlsDanger()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -127,13 +136,6 @@ final class SettingsControlsDangerStore {
 
     func cancel() { driver.cancel() }
 
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
-
     func dismissStopped() { driver.dismissStopped() }
 }
 
@@ -145,7 +147,15 @@ final class SettingsControlsThisAppStore {
 
     @ObservationIgnored private var lastNotice = 0
 
-    private let driver = SDKClient.shared.makeSettingsControlsThisApp()
+    let reauth: ReauthStore
+
+    private let driver: SettingsControlsThisAppDriver
+
+    init() {
+        let driver = SDKClient.shared.makeSettingsControlsThisApp()
+        self.driver = driver
+        reauth = ReauthStore(driver: driver.reauth)
+    }
 
     func watch() async {
         await driver.watch { [weak self] value in
@@ -190,13 +200,6 @@ final class SettingsControlsThisAppStore {
         let driver = self.driver
         Task { await driver.proveStorage() }
     }
-
-    func confirmReauth(_ password: String, _ code: String) {
-        let driver = self.driver
-        Task { await driver.confirmReauth(password, code) }
-    }
-
-    func cancelReauth() { driver.cancelReauth() }
 
     func setUrlBase(_ text: String) { driver.setUrlBase(text) }
 

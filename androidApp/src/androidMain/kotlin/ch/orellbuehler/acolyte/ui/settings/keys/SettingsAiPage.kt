@@ -45,6 +45,7 @@ import ch.orellbuehler.acolyte.feature.settings.keys.SettingsKeysAiKey
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
 import ch.orellbuehler.acolyte.ui.components.MessageView
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.components.errorText
@@ -53,7 +54,6 @@ import ch.orellbuehler.acolyte.ui.requests.FailText
 import ch.orellbuehler.acolyte.ui.requests.Hint
 import ch.orellbuehler.acolyte.ui.requests.SettingsCard
 import ch.orellbuehler.acolyte.ui.requests.SwitchRow
-import ch.orellbuehler.acolyte.ui.settings.SettingsReauthDialog
 import ch.orellbuehler.acolyte.ui.settings.shareText
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
@@ -83,7 +83,7 @@ fun SettingsAiPage(onBack: () -> Unit) {
         }
     }
     KeysNoticeHost(state.notice, snackbar, viewModel::dismissNotice)
-    SettingsReauthDialog(state.reauth, viewModel::confirmReauth, viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

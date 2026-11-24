@@ -25,7 +25,7 @@ struct SettingsAiView: View {
         }
         .navigationTitle(L10n.tr("settings.page.ai"))
         .settingsKeysMessage(toast: $toast, notice: info.notice) { store.dismissNotice($0) }
-        .settingsReauth(editing == nil ? info.reauth : .idle, confirm: { store.confirmReauth($0, $1) }, cancel: { store.cancelReauth() })
+        .reauthSheet(store.reauth, enabled: editing == nil)
         .confirmationDialog(
             L10n.format("settings.keys.ai.revoke.title", revoking?.label ?? ""),
             isPresented: Binding(get: { revoking != nil }, set: { if !$0 { revoking = nil } }),

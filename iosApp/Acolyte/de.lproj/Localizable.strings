@@ -3227,12 +3227,6 @@
 "settings.group.system.line" = "Hält ihn gesund";
 "settings.group.account" = "Mein Konto";
 "settings.group.account.line" = "Nur du";
-"settings.reauth.title" = "Passwort bestätigen";
-"settings.reauth.text" = "Schlüssel, Passwörter, Personen und Backups brauchen dein Passwort. Gilt 10 Minuten.";
-"settings.reauth.password" = "Passwort";
-"settings.reauth.code" = "Zwei-Faktor-Code (falls verwendet)";
-"settings.reauth.confirm" = "Bestätigen";
-"settings.reauth.cancel" = "Abbrechen";
 "settings.home.search" = "Einstellungen durchsuchen";
 "settings.home.search.empty.title" = "Keine passenden Einstellungen";
 "settings.home.search.empty.text" = "Versuche ein anderes Wort, etwa Ordner, Schlüssel oder Passwort.";

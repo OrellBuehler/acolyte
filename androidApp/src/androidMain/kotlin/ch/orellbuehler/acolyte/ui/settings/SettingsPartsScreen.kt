@@ -54,6 +54,7 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsStageRo
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
 import ch.orellbuehler.acolyte.ui.components.MessageView
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
@@ -112,7 +113,7 @@ fun SettingsPartsScreen(
             danger = true,
         )
     }
-    SettingsReauthDialog(state.reauth, viewModel::confirmReauth, viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

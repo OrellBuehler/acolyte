@@ -7,7 +7,6 @@ import ch.orellbuehler.acolyte.api.model.SettingsMediaServersTracks
 import ch.orellbuehler.acolyte.api.model.SubtitleLanguage
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
 
 internal enum class SettingsMediaServersKind(
     val wire: String,
@@ -214,7 +213,6 @@ data class SettingsMediaServersState(
     val trackBusy: Boolean = false,
     val languages: List<SubtitleLanguage> = emptyList(),
     val notice: SettingsMediaServersNotice? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val isEmpty: Boolean get() = status.phase == Phase.READY && servers.isEmpty()
 

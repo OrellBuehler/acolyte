@@ -11,6 +11,8 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -40,7 +42,7 @@ class SettingsServerLogsTest {
     private fun presenter(
         server: FakeServer,
         role: Role = Role.ADMIN,
-    ) = SettingsServerLogsPresenter(server.api(), { testAccount(role, emptyList()) }) { _, _ -> null }
+    ) = SettingsServerLogsPresenter(server.api(), { testAccount(role, emptyList()) }, testGate(testAccount(role, emptyList())))
 
     @Test
     fun loadsTheNewestLinesWithTheirTones() =
@@ -66,7 +68,10 @@ class SettingsServerLogsTest {
     fun peopleWhoAreNotAdminsGetNothing() =
         runTest {
             val server = FakeServer()
-            val presenter = SettingsServerLogsPresenter(server.api(), { testAccount(Role.MEMBER, listOf("settings")) }) { _, _ -> null }
+            val presenter =
+                SettingsServerLogsPresenter(server.api(), {
+                    testAccount(Role.MEMBER, listOf("settings"))
+                }, testGate(testAccount(Role.MEMBER, listOf("settings"))))
             presenter.load()
             assertFalse(presenter.state.value.allowed)
             assertEquals(0, server.recorded().size)
@@ -251,11 +256,12 @@ class SettingsServerLogsTest {
                 }
             }
             val presenter = presenter(server)
-            presenter.load()
-            assertTrue(presenter.state.value.reauth.needed)
-            assertEquals(Phase.FAILED, presenter.state.value.status.phase)
-            presenter.confirmReauth("pw", "")
-            assertFalse(presenter.state.value.reauth.needed)
+            val job = async { presenter.load() }
+            presenter.reauth.state.first { it.visible }
+            assertEquals(Phase.LOADING, presenter.state.value.status.phase)
+            presenter.reauth.confirm("pw", "")
+            job.await()
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(Phase.READY, presenter.state.value.status.phase)
             assertEquals(2, presenter.state.value.lines.size)
         }

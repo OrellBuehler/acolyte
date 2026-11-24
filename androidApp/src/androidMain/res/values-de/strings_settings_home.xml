@@ -70,12 +70,6 @@
     <string name="settings_group_system_line">Hält ihn gesund</string>
     <string name="settings_group_account">Mein Konto</string>
     <string name="settings_group_account_line">Nur du</string>
-    <string name="settings_reauth_title">Passwort bestätigen</string>
-    <string name="settings_reauth_text">Schlüssel, Passwörter, Personen und Backups brauchen dein Passwort. Gilt 10 Minuten.</string>
-    <string name="settings_reauth_password">Passwort</string>
-    <string name="settings_reauth_code">Zwei-Faktor-Code (falls verwendet)</string>
-    <string name="settings_reauth_confirm">Bestätigen</string>
-    <string name="settings_reauth_cancel">Abbrechen</string>
     <string name="settings_home_search">Einstellungen durchsuchen</string>
     <string name="settings_home_search_empty_title">Keine passenden Einstellungen</string>
     <string name="settings_home_search_empty_text">Versuche ein anderes Wort, etwa Ordner, Schlüssel oder Passwort.</string>

@@ -167,13 +167,12 @@ struct SettingsMediaServersInfo: Hashable, Sendable {
     let tracksCanSave: Bool
     let cardsRevision: Int
     let notice: SettingsMediaServersNoticeInfo?
-    let reauth: SettingsReauthInfo
 
     static let initial = SettingsMediaServersInfo(
         load: .loading, allowed: true, isEmpty: false, servers: [], kinds: [], form: nil, formRevision: 0, formError: nil,
         formDetail: "", canSave: false, saving: false, plex: .initial, showsPlexPicker: false, showWatch: false, watchOn: false,
         watchBusy: false, showLabels: false, labelsEnabled: false, labelsText: "", labelsAskers: false, labelsSavedOn: false,
         labelsCanSave: false, labelsCanRun: false, showTracks: false, tracksEnabled: false, audioRows: [], subtitleRows: [],
-        canAddAudio: false, canAddSubtitle: false, tracksCanSave: false, cardsRevision: 0, notice: nil, reauth: .idle
+        canAddAudio: false, canAddSubtitle: false, tracksCanSave: false, cardsRevision: 0, notice: nil
     )
 }

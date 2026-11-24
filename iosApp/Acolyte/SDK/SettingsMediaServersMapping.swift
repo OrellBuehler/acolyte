@@ -35,8 +35,7 @@ extension Mapping {
             canAddSubtitle: s.canAddSubtitle,
             tracksCanSave: s.tracksCanSave,
             cardsRevision: Int(s.cardsRevision),
-            notice: s.notice.map { mediaServerNotice($0) },
-            reauth: settingsReauth(s.reauth)
+            notice: s.notice.map { mediaServerNotice($0) }
         )
     }
 

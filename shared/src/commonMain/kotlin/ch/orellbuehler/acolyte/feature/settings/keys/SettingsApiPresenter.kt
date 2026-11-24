@@ -14,8 +14,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsKeysOldApp
 import ch.orellbuehler.acolyte.api.model.SettingsKeysOldAppChange
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -42,7 +41,6 @@ data class SettingsApiState(
     val seerrSaving: Boolean = false,
     val seerrFresh: SettingsSeerrFresh? = null,
     val notice: SettingsKeysNotice? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val keysNeedPassword: Boolean get() = keysError?.code == ApiErrorCode.FORBIDDEN
 
@@ -52,12 +50,11 @@ data class SettingsApiState(
 class SettingsApiPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsApiState())
     private val lock = Mutex()
     private val notices = SettingsKeysNotices()
-    private val gate = SettingsReauthGate(reauth) { value -> mutableState.update { it.copy(reauth = value) } }
     private var answer: SettingsKeysOldApp? = null
     private var busySide = ""
 
@@ -154,7 +151,7 @@ class SettingsApiPresenter internal constructor(
         val name = SettingsKeysLogic.cleanLabel(label) ?: return
         if (mutableState.value.making) return
         mutableState.update { it.copy(making = true) }
-        gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_MAKE_FAILED, error = error) }) {
+        reauth.guardError(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_MAKE_FAILED, error = error) }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.makeKey, AccountKeyMake(name))) {
                     is ApiResult.Ok -> {
@@ -175,7 +172,9 @@ class SettingsApiPresenter internal constructor(
         val key = mutableState.value.keys.firstOrNull { it.id == id } ?: return
         if (mutableState.value.revokingId != 0L) return
         mutableState.update { it.copy(revokingId = id) }
-        gate.guard(onFailure = { error -> fail(SettingsKeysNoticeKind.KEY_REVOKE_FAILED, key.label, error) }) {
+        reauth.guardError(onFailure = { error ->
+            fail(SettingsKeysNoticeKind.KEY_REVOKE_FAILED, key.label, error)
+        }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(PeopleEndpoints.revokeKey, "id" to id)) {
                     is ApiResult.Ok -> {
@@ -232,7 +231,9 @@ class SettingsApiPresenter internal constructor(
     suspend fun makeSeerrKey(side: String) {
         if (busySide.isNotEmpty() || answer?.sides?.any { it.side == side } != true) return
         busy(side)
-        gate.guard(onFailure = { error -> failSeerr(SettingsKeysNoticeKind.SEERR_KEY_MAKE_FAILED, side, error) }) {
+        reauth.guardError(onFailure = { error ->
+            failSeerr(SettingsKeysNoticeKind.SEERR_KEY_MAKE_FAILED, side, error)
+        }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(SettingsKeysEndpoints.makeArrKey, "side" to side)) {
                     is ApiResult.Ok -> {
@@ -250,7 +251,9 @@ class SettingsApiPresenter internal constructor(
     suspend fun removeSeerrKey(side: String) {
         if (busySide.isNotEmpty() || answer?.sides?.any { it.side == side } != true) return
         busy(side)
-        gate.guard(onFailure = { error -> failSeerr(SettingsKeysNoticeKind.SEERR_KEY_REMOVE_FAILED, side, error) }) {
+        reauth.guardError(onFailure = { error ->
+            failSeerr(SettingsKeysNoticeKind.SEERR_KEY_REMOVE_FAILED, side, error)
+        }, onCancel = ::cancelled) {
             lock.withLock {
                 when (val result = api.result(SettingsKeysEndpoints.removeArrKey, "side" to side)) {
                     is ApiResult.Ok -> {
@@ -272,13 +275,7 @@ class SettingsApiPresenter internal constructor(
 
     fun dismissSeerrFresh() = mutableState.update { it.copy(seerrFresh = null) }
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = gate.confirm(password, code)
-
-    fun cancelReauth() {
-        gate.cancel()
+    private fun cancelled() {
         busySide = ""
         mutableState.update { it.copy(making = false, revokingId = 0, seerr = card()) }
     }

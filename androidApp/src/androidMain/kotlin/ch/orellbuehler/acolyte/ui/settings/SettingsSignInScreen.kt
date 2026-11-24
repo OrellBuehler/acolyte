@@ -31,6 +31,7 @@ import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInNoticeKind
 import ch.orellbuehler.acolyte.feature.settings.signin.SettingsSignInWayKind
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.library.PresenterViewModel
@@ -118,11 +119,7 @@ fun SettingsSignInScreen(
         }
     }
 
-    SettingsReauthDialog(
-        state = state.reauth,
-        onConfirm = { password, code -> model.run { confirmReauth(password, code) } },
-        onCancel = model.presenter::cancelReauth,
-    )
+    ReauthSheet(model.presenter.reauth)
     state.everyoneAsk?.let { ask -> EveryoneDialog(ask, model) }
     state.importSheet?.let { sheet -> ImportSheet(sheet, model) }
 }

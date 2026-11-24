@@ -46,11 +46,7 @@ struct SettingsBackupsView: View {
                 ActivityShareSheet(items: [URL(fileURLWithPath: file.path)])
             }
         }
-        .settingsReauth(
-            info.reauth,
-            confirm: { store.confirmReauth($0, $1) },
-            cancel: { store.cancelReauth() }
-        )
+        .reauthSheet(store.reauth)
         .safeAreaInset(edge: .bottom) {
             if let note = info.notice {
                 NoteToast(text: noticeText(note), undo: nil)

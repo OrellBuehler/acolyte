@@ -35,6 +35,7 @@ struct SettingsSignInImportView: View {
             }
         }
         .presentationDetents([.large])
+        .reauthSheet(store.reauth)
         .alert(
             L10n.tr("settings.signin.adult.title"),
             isPresented: Binding(

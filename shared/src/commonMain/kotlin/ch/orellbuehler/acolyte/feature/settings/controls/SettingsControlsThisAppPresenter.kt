@@ -18,8 +18,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsUrlBaseChange
 import ch.orellbuehler.acolyte.api.valueOrNull
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.live.LiveEvent
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.async
@@ -116,7 +115,6 @@ data class SettingsControlsThisAppState(
     val proxySaving: Boolean = false,
     val proxyError: ApiError? = null,
     val saved: SettingsControlsSaved? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val canChangeHistory: Boolean get() = isOwner
 
@@ -148,11 +146,10 @@ data class SettingsControlsThisAppState(
 class SettingsControlsThisAppPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsControlsThisAppState())
     private val lock = Mutex()
-    private val gate = SettingsReauthGate(reauth) { value -> mutableState.update { it.copy(reauth = value) } }
     private var notices = 0
 
     val state: StateFlow<SettingsControlsThisAppState> = mutableState.asStateFlow()
@@ -269,19 +266,12 @@ class SettingsControlsThisAppPresenter internal constructor(
         }
 
     suspend fun proveStorage() {
-        gate.guard(onFailure = { error -> mutableState.update { it.copy(storageError = error) } }) {
+        reauth.guardError(onFailure = { error -> mutableState.update { it.copy(storageError = error) } }) {
             val result = api.result(SettingsControlsEndpoints.storage)
             applyStorage(result)
             (result as? ApiResult.Failed)?.error
         }
     }
-
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) = gate.confirm(password, code)
-
-    fun cancelReauth() = gate.cancel()
 
     fun setUrlBase(text: String) {
         mutableState.update { it.copy(urlBaseDraft = text.take(URL_BASE_MAX), urlBaseError = null) }

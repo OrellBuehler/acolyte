@@ -13,8 +13,7 @@ import ch.orellbuehler.acolyte.api.model.SettingsServerPreset
 import ch.orellbuehler.acolyte.api.transferPath
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.SignInMethod
 import kotlinx.coroutines.delay
@@ -102,7 +101,6 @@ data class SettingsServerBackupsState(
     val restoreName: String = "",
     val file: SettingsServerFile? = null,
     val notice: SettingsServerBackupsNotice? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val isEmpty: Boolean get() = status.phase == Phase.READY && !off && backups.isEmpty()
 
@@ -116,7 +114,7 @@ data class SettingsServerBackupsState(
 class SettingsServerBackupsPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsServerBackupsState())
     private val lock = Mutex()
@@ -125,7 +123,6 @@ class SettingsServerBackupsPresenter internal constructor(
     private var seq = 0
     private var following = false
     private var restorePath = ""
-    private val gate = SettingsReauthGate(reauth) { r -> mutableState.update { it.copy(reauth = r) } }
 
     val state: StateFlow<SettingsServerBackupsState> = mutableState.asStateFlow()
 
@@ -149,7 +146,10 @@ class SettingsServerBackupsPresenter internal constructor(
                     keyKitNeedsSession = me.method == SignInMethod.API_KEY,
                 )
             }
-            gate.guard(onFailure = { error -> mutableState.update { it.copy(status = it.status.failed(error)) } }) { fetch() }
+            reauth.guardError(
+                onFailure = { error -> mutableState.update { it.copy(status = it.status.failed(error)) } },
+                onCancel = ::cancelled,
+            ) { fetch() }
         }
     }
 
@@ -164,10 +164,6 @@ class SettingsServerBackupsPresenter internal constructor(
                     ApiErrorCode.NOT_FOUND -> {
                         mutableState.update { it.copy(status = LoadStatus.ready, off = true) }
                         null
-                    }
-                    ApiErrorCode.REAUTH -> {
-                        mutableState.update { it.copy(status = it.status.failed(result.error)) }
-                        result.error
                     }
                     else -> result.error
                 }
@@ -252,7 +248,7 @@ class SettingsServerBackupsPresenter internal constructor(
             mutableState.update { it.copy(file = null) }
             busy = busy + name
             rebuild()
-            gate.guard(onFailure = { error -> downloadFailed(name, error) }) {
+            reauth.guardError(onFailure = { error -> downloadFailed(name, error) }, onCancel = ::cancelled) {
                 when (val result = api.download(SettingsServerEndpoints.downloadBackup, name, "name" to name)) {
                     is ApiResult.Ok -> {
                         busy = busy - name
@@ -283,7 +279,7 @@ class SettingsServerBackupsPresenter internal constructor(
             if (!mutableState.value.isOwner || name in busy) return
             busy = busy + name
             rebuild()
-            gate.guard(onFailure = { error -> deleteFailed(name, error) }) {
+            reauth.guardError(onFailure = { error -> deleteFailed(name, error) }, onCancel = ::cancelled) {
                 when (val result = api.result(SettingsServerEndpoints.deleteBackup, "name" to name)) {
                     is ApiResult.Ok -> {
                         busy = busy - name
@@ -313,7 +309,7 @@ class SettingsServerBackupsPresenter internal constructor(
             if (!current.canDownloadKit || current.keyKitBusy) return
             clearTransfers()
             mutableState.update { it.copy(file = null, keyKitBusy = true) }
-            gate.guard(
+            reauth.guardError(
                 onFailure = { error ->
                     mutableState.update {
                         it.copy(
@@ -322,6 +318,7 @@ class SettingsServerBackupsPresenter internal constructor(
                         )
                     }
                 },
+                onCancel = ::cancelled,
             ) {
                 when (val result = api.download(SettingsServerEndpoints.keyKit, "holyarrs-key-kit.key")) {
                     is ApiResult.Ok -> {
@@ -352,7 +349,7 @@ class SettingsServerBackupsPresenter internal constructor(
             if (!mutableState.value.isOwner || mutableState.value.restoring) return
             restorePath = path
             mutableState.update { it.copy(restore = SettingsServerRestoreStage.UPLOADING, restoreName = name) }
-            gate.guard(onFailure = { error -> restoreFailed(path, error) }) {
+            reauth.guardError(onFailure = { error -> restoreFailed(path, error) }, onCancel = ::cancelled) {
                 when (val result = api.upload(SettingsServerEndpoints.restoreBackup, path)) {
                     is ApiResult.Ok -> {
                         deleteTransfer(path)
@@ -436,16 +433,7 @@ class SettingsServerBackupsPresenter internal constructor(
         clearTransfers()
     }
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        lock.withLock { gate.confirm(password, code) }
-        followRestart()
-    }
-
-    fun cancelReauth() {
-        gate.cancel()
+    private fun cancelled() {
         if (mutableState.value.restore == SettingsServerRestoreStage.UPLOADING && restorePath.isNotEmpty()) deleteTransfer(restorePath)
         busy = emptySet()
         rebuild()

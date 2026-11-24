@@ -10,8 +10,7 @@ import ch.orellbuehler.acolyte.api.clearTransfers
 import ch.orellbuehler.acolyte.feature.LoadStatus
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthGate
-import ch.orellbuehler.acolyte.feature.settings.SettingsReauthState
+import ch.orellbuehler.acolyte.feature.account.ReauthGate
 import ch.orellbuehler.acolyte.session.Account
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,7 +51,6 @@ data class SettingsServerLogsState(
     val downloading: Boolean = false,
     val downloadError: ApiError? = null,
     val file: SettingsServerFile? = null,
-    val reauth: SettingsReauthState = SettingsReauthState(),
 ) {
     val rangeFrom: Int get() = offset + 1
 
@@ -68,13 +66,12 @@ data class SettingsServerLogsState(
 class SettingsServerLogsPresenter internal constructor(
     private val api: Api,
     private val account: () -> Account?,
-    reauth: suspend (String, String?) -> ApiError?,
+    val reauth: ReauthGate,
 ) {
     private val mutableState = MutableStateFlow(SettingsServerLogsState())
     private val lock = Mutex()
     private var files = 0
     private var seq = 0
-    private val gate = SettingsReauthGate(reauth) { r -> mutableState.update { it.copy(reauth = r) } }
 
     val state: StateFlow<SettingsServerLogsState> = mutableState.asStateFlow()
 
@@ -124,7 +121,7 @@ class SettingsServerLogsPresenter internal constructor(
     ) {
         val mine = ++seq
         mutableState.update { it.copy(status = it.status.started(), filter = filter, busy = true, noLogFile = false) }
-        gate.guard(onFailure = { error -> failed(mine, error) }) {
+        reauth.guardError(onFailure = { error -> failed(mine, error) }, onCancel = ::cancelled) {
             val result =
                 api.result(
                     SettingsServerEndpoints.logs,
@@ -151,10 +148,7 @@ class SettingsServerLogsPresenter internal constructor(
                     }
                     null
                 }
-                result is ApiResult.Failed -> {
-                    if (result.error.code == ApiErrorCode.REAUTH) failed(mine, result.error)
-                    result.error
-                }
+                result is ApiResult.Failed -> result.error
                 else -> null
             }
         }
@@ -182,7 +176,10 @@ class SettingsServerLogsPresenter internal constructor(
             if (mutableState.value.downloading) return
             clearTransfers()
             mutableState.update { it.copy(downloading = true, downloadError = null, file = null) }
-            gate.guard(onFailure = { error -> mutableState.update { it.copy(downloading = false, downloadError = error) } }) {
+            reauth.guardError(
+                onFailure = { error -> mutableState.update { it.copy(downloading = false, downloadError = error) } },
+                onCancel = ::cancelled,
+            ) {
                 when (val result = api.download(SettingsServerEndpoints.downloadLogs, "holyarrs-log.txt")) {
                     is ApiResult.Ok -> {
                         val file = result.value
@@ -213,15 +210,7 @@ class SettingsServerLogsPresenter internal constructor(
         mutableState.update { it.copy(downloadError = null) }
     }
 
-    suspend fun confirmReauth(
-        password: String,
-        code: String,
-    ) {
-        lock.withLock { gate.confirm(password, code) }
-    }
-
-    fun cancelReauth() {
-        gate.cancel()
+    private fun cancelled() {
         mutableState.update {
             val status = if (it.status.phase == Phase.LOADING) it.status.failed(ApiError(ApiErrorCode.REAUTH, 403)) else it.status
             it.copy(status = status, busy = false, downloading = false)

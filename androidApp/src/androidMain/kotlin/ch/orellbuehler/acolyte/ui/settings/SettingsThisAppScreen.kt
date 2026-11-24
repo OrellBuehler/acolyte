@@ -49,6 +49,7 @@ import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsPathRow
 import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppState
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
+import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.requests.FailText
@@ -85,7 +86,7 @@ fun SettingsThisAppScreen(
             SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter))
         }
     }
-    SettingsReauthDialog(state.reauth, viewModel::confirmReauth, viewModel::cancelReauth)
+    ReauthSheet(viewModel.reauth)
 }
 
 @Composable

@@ -81,7 +81,6 @@ extension Mapping {
             seerrSaving: s.seerrSaving,
             seerrFresh: s.seerrFresh.map { SettingsSeerrFreshInfo(side: $0.side, key: $0.key) },
             notice: settingsKeysNotice(s.notice),
-            reauth: settingsReauth(s.reauth),
             labelMax: Int(s.labelMax)
         )
     }
@@ -108,7 +107,6 @@ extension Mapping {
             changeDetail: s.changeDetail,
             changedCount: Int(s.changedCount),
             notice: settingsKeysNotice(s.notice),
-            reauth: settingsReauth(s.reauth),
             offeredGroups: s.offeredGroups,
             defaultGroups: s.defaultGroups,
             labelMax: Int(s.labelMax)

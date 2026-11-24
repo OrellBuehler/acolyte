@@ -296,7 +296,6 @@ struct SettingsSignInInfo: Hashable, Sendable {
     let sso: SettingsSignInSsoInfo
     let local: SettingsSignInLocalInfo
     let hosts: SettingsSignInHostsInfo
-    let reauth: SettingsReauthInfo
     let notice: SettingsSignInNoticeInfo?
     let showLocal: Bool
 
@@ -393,7 +392,6 @@ struct SettingsSignInInfo: Hashable, Sendable {
             canSave: false
         ),
         hosts: SettingsSignInHostsInfo(text: "", saving: false),
-        reauth: .idle,
         notice: nil,
         showLocal: true
     )

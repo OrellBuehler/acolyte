@@ -14,6 +14,8 @@ import ch.orellbuehler.acolyte.feature.settings.keys.SettingsKeysNoticeKind
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.session.Role
 import ch.orellbuehler.acolyte.session.SignInMethod
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -47,13 +49,13 @@ class SettingsKeysTest {
         server: FakeServer,
         account: Account = owner(),
         reauth: suspend (String, String?) -> ApiError? = { _, _ -> null },
-    ) = SettingsApiPresenter(server.api(), { account }, reauth)
+    ) = SettingsApiPresenter(server.api(), { account }, testGate(account, reauth))
 
     private fun ai(
         server: FakeServer,
         account: Account = owner(),
         reauth: suspend (String, String?) -> ApiError? = { _, _ -> null },
-    ) = SettingsAiPresenter(server.api(), { account }, reauth)
+    ) = SettingsAiPresenter(server.api(), { account }, testGate(account, reauth))
 
     private fun apiServer(): FakeServer =
         FakeServer().apply {
@@ -213,16 +215,17 @@ class SettingsKeysTest {
                     null
                 }
             presenter.load()
-            presenter.makeKey("Pi")
+            val job = async { presenter.makeKey("Pi") }
+            presenter.reauth.state.first { it.visible }
             var s = presenter.state.value
-            assertTrue(s.reauth.needed)
             assertTrue(s.making)
             assertNull(s.fresh)
-            presenter.confirmReauth("secret", " ")
+            presenter.reauth.confirm("secret", " ")
+            job.await()
             s = presenter.state.value
             assertEquals(listOf<Pair<String, String?>>("secret" to null), proofs)
             assertEquals(2, posts)
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertFalse(s.making)
             assertEquals("hak_secret", s.fresh?.key)
         }
@@ -235,15 +238,16 @@ class SettingsKeysTest {
             val wrong = ApiError(ApiErrorCode.UNAUTHORIZED, 401)
             val presenter = api(server) { _, _ -> wrong }
             presenter.load()
-            presenter.revokeKey(1)
+            val job = async { presenter.revokeKey(1) }
+            presenter.reauth.state.first { it.visible }
             assertEquals(1L, presenter.state.value.revokingId)
-            assertTrue(presenter.state.value.reauth.needed)
-            presenter.confirmReauth("nope", "")
-            assertTrue(presenter.state.value.reauth.needed)
-            assertEquals(wrong, presenter.state.value.reauth.error)
-            presenter.cancelReauth()
+            presenter.reauth.confirm("nope", "")
+            assertTrue(presenter.reauth.state.value.visible)
+            assertEquals(wrong, presenter.reauth.state.value.error)
+            presenter.reauth.cancel()
+            job.await()
             val s = presenter.state.value
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(0L, s.revokingId)
             assertEquals(2, s.keys.size)
             assertNull(s.notice)
@@ -343,13 +347,14 @@ class SettingsKeysTest {
             }
             val presenter = api(server)
             presenter.load()
-            presenter.makeSeerrKey("sonarr")
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.makeSeerrKey("sonarr") }
+            presenter.reauth.state.first { it.visible }
             val parked = presenter.state.value.seerr!!
             assertTrue(parked.sides[0].busy)
-            presenter.confirmReauth("pw", "")
+            presenter.reauth.confirm("pw", "")
+            job.await()
             var s = presenter.state.value
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertTrue(s.seerr!!.sides.none { it.busy })
             assertEquals(SettingsKeysNoticeKind.SEERR_KEY_MAKE_FAILED, s.notice?.kind)
             assertEquals("the key acts as you, and your account may not manage the Library", s.notice?.detail)
@@ -543,13 +548,14 @@ class SettingsKeysTest {
             }
             val presenter = ai(server)
             presenter.load()
-            presenter.revokeKey(2)
-            assertTrue(presenter.state.value.reauth.needed)
+            val job = async { presenter.revokeKey(2) }
+            presenter.reauth.state.first { it.visible }
             assertEquals(2L, presenter.state.value.revokingId)
-            presenter.confirmReauth("pw", "123456")
+            presenter.reauth.confirm("pw", "123456")
+            job.await()
             val s = presenter.state.value
             assertTrue(s.keys.isEmpty())
-            assertFalse(s.reauth.needed)
+            assertFalse(presenter.reauth.state.value.visible)
             assertEquals(SettingsKeysNoticeKind.KEY_REVOKED, s.notice?.kind)
             assertEquals("Claude Desktop", s.notice?.name)
         }

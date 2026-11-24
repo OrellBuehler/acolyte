@@ -24,7 +24,7 @@ struct SettingsApiView: View {
         }
         .navigationTitle(L10n.tr("settings.page.api"))
         .settingsKeysMessage(toast: $toast, notice: info.notice) { store.dismissNotice($0) }
-        .settingsReauth(info.reauth, confirm: { store.confirmReauth($0, $1) }, cancel: { store.cancelReauth() })
+        .reauthSheet(store.reauth)
         .confirmationDialog(
             confirmTitle(confirm),
             isPresented: Binding(get: { confirm != nil }, set: { if !$0 { confirm = nil } }),

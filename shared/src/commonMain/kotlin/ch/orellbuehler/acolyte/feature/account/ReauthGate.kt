@@ -65,6 +65,20 @@ class ReauthGate internal constructor(
         return if (proven) block() else first
     }
 
+    internal suspend fun guardError(
+        onFailure: (ApiError) -> Unit = {},
+        onCancel: () -> Unit = {},
+        action: suspend () -> ApiError?,
+    ) {
+        val result =
+            guard {
+                val failure = action()
+                if (failure == null) ApiResult.Ok(Unit) else ApiResult.Failed(failure)
+            }
+        if (result !is ApiResult.Failed) return
+        if (result.error.code == ApiErrorCode.REAUTH) onCancel() else onFailure(result.error)
+    }
+
     suspend fun confirm(
         password: String,
         code: String,
