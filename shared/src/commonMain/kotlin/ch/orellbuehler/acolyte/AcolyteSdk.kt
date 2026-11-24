@@ -51,6 +51,10 @@ import ch.orellbuehler.acolyte.feature.requests.ReportsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestSettingsPresenter
 import ch.orellbuehler.acolyte.feature.requests.RequestsInbox
 import ch.orellbuehler.acolyte.feature.requests.RequestsPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsDangerPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsPartsPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsSchedulesPresenter
+import ch.orellbuehler.acolyte.feature.settings.controls.SettingsControlsThisAppPresenter
 import ch.orellbuehler.acolyte.feature.title.TitlePresenter
 import ch.orellbuehler.acolyte.image.Images
 import ch.orellbuehler.acolyte.nav.LibraryTool
@@ -219,4 +223,26 @@ class AcolyteSdk internal constructor(
     ): HistoryPresenter = HistoryPresenter(session.api, { session.account }, titleId, episodeId)
 
     fun calendar(): CalendarPresenter = CalendarPresenter(session.api, { session.account })
+
+    fun settingsControlsParts(): SettingsControlsPartsPresenter =
+        SettingsControlsPartsPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsThisApp(): SettingsControlsThisAppPresenter =
+        SettingsControlsThisAppPresenter(session.api, { session.account }, { password, code -> session.reauth(password, code) })
+
+    fun settingsControlsDanger(): SettingsControlsDangerPresenter =
+        SettingsControlsDangerPresenter(
+            session.api,
+            { session.account },
+            { password, code -> session.reauth(password, code) },
+            { session.refresh() },
+        )
+
+    fun settingsControlsSchedules(): SettingsControlsSchedulesPresenter =
+        SettingsControlsSchedulesPresenter(session.api, { session.account })
 }

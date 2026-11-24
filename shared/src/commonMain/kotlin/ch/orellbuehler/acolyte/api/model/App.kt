@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 data class Parts(
     val parts: List<PartView> = emptyList(),
     @SerialName("safe_mode") val safeMode: Boolean = false,
+    @SerialName("safe_screens") val safeScreens: List<String> = emptyList(),
+    val stages: List<String> = emptyList(),
 )
 
 @Serializable
