@@ -75,7 +75,6 @@
     <string name="settings_home_search_empty_text">Versuche ein anderes Wort, etwa Ordner, Schlüssel oder Passwort.</string>
     <string name="settings_home_search_clear">Suche löschen</string>
     <string name="settings_home_unset">Nicht eingerichtet</string>
-    <string name="settings_home_ok">Alles in Ordnung</string>
     <string name="settings_home_finish_setup">Einrichtung abschliessen</string>
     <string name="settings_home_finish_setup_text">Mach dort weiter, wo du aufgehört hast.</string>
     <string name="settings_home_update_title">Update verfügbar</string>
@@ -84,7 +83,6 @@
     <string name="settings_home_requests">Wartende Anfragen: %1$d</string>
     <string name="settings_home_not_allowed">Das darfst du nicht ändern</string>
     <string name="settings_home_not_allowed_text">Nur Personen, die diesen Server verwalten, können die Einstellungen öffnen. Frag den Besitzer.</string>
-    <string name="settings_home_attention_title">Braucht Aufmerksamkeit</string>
     <plurals name="settings_home_attention_count">
         <item quantity="one">%1$d braucht Aufmerksamkeit</item>
         <item quantity="other">%1$d brauchen Aufmerksamkeit</item>
