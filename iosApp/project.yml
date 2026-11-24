@@ -73,9 +73,16 @@ targets:
           - Support/Format.swift
           - Support/ErrorText.swift
           - Support/AuthImage.swift
+          - Support/SectionText.swift
           - Connect/ConnectStore.swift
           - Discover/DiscoverStores.swift
+          - Discover/DiscoverText.swift
+          - Home/HomeText.swift
           - Music/MusicRoutes.swift
+          - Requests/RequestsStores.swift
+          - Requests/RequestsWords.swift
+          - Title/TitleStore.swift
+          - Title/TitleText.swift
           - PrivacyInfo.xcprivacy
           - en.lproj/*
           - de.lproj/*
