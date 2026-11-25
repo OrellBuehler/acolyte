@@ -532,6 +532,15 @@ struct HeroView: View {
     @Environment(CardHost.self) private var host: CardHost?
 
     var body: some View {
+        Color.clear
+            .aspectRatio(4 / 5, contentMode: .fit)
+            .overlay(alignment: .bottomLeading) { content }
+            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
+            .cardActions(card)
+            .padding(.horizontal, Theme.Spacing.screen)
+    }
+
+    private var content: some View {
         ZStack(alignment: .bottomLeading) {
             Theme.surfaceRaised
             AuthImage(source: card.wideImage ?? card.poster, size: .hero) { ArtPlaceholderView(name: card.name) }
@@ -586,10 +595,6 @@ struct HeroView: View {
             }
             .padding(Theme.Spacing.large)
         }
-        .aspectRatio(4 / 5, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
-        .cardActions(card)
-        .padding(.horizontal, Theme.Spacing.screen)
     }
 }
 
