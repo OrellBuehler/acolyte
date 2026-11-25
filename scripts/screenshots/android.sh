@@ -3,7 +3,7 @@
 # launched once per screen with extras that sign it in to the demo server and open the
 # screen (ScreenshotLaunch.kt), so nothing has to be tapped.
 #
-# Usage: android.sh <apk> <output dir>   (demo server on the host, see demo-server.py)
+# Usage: android.sh <apk> <output dir> [log dir]   (demo server on the host, see demo-server.py)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -11,6 +11,10 @@ source "$HERE/screens.sh"
 
 APK="$1"
 OUT="$2"
+LOGS="${3:-$OUT/../android-logs}"
+mkdir -p "$LOGS"
+adb logcat -c
+trap 'adb logcat -d > "$LOGS/logcat.txt" 2>&1 || true' EXIT
 PKG="ch.orellbuehler.acolyte"
 SERVER="http://10.0.2.2:$DEMO_PORT"
 SETTLE_SECONDS="${SETTLE_SECONDS:-12}"
@@ -38,7 +42,7 @@ capture() {
   adb shell am force-stop "$PKG"
   adb shell am start -W -n "$PKG/.MainActivity" \
     --es screenshot_server "$SERVER" --es screenshot_user "$DEMO_USER" \
-    --es screenshot_password "$DEMO_PASSWORD" --es screenshot_open "$open" >/dev/null
+    --es screenshot_password "$DEMO_PASSWORD" --es screenshot_open "$open" | tail -3 >&2
   sleep "$SETTLE_SECONDS"
   mkdir -p "$OUT/$store/phone"
   local file="$OUT/$store/phone/$name.png"
@@ -54,6 +58,10 @@ capture() {
 # The first launch after an install is slow, start the app once and throw that launch away.
 adb shell am start -W -n "$PKG/.MainActivity" >/dev/null
 sleep 15
+if adb logcat -d -b crash | grep -q "FATAL EXCEPTION"; then
+  echo "::error::the app crashed on launch" >&2
+  adb logcat -d -b crash | head -60 >&2
+fi
 
 for entry in "en-US|en-US" "de-CH|de-DE"; do
   tag="${entry%%|*}"

@@ -97,7 +97,7 @@ jobs:
           emulator-boot-timeout: 900
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim
-          script: scripts/screenshots/android.sh androidApp/build/outputs/apk/debug/androidApp-debug.apk ${{ runner.temp }}/store-screenshots
+          script: scripts/screenshots/android.sh androidApp/build/outputs/apk/debug/androidApp-debug.apk ${{ runner.temp }}/store-screenshots ${{ runner.temp }}/android-logs
 
       - name: Show the demo server log
         if: always()
@@ -117,7 +117,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: android-demo-server-log
-          path: ${{ runner.temp }}/demo-server.log
+          path: |
+            ${{ runner.temp }}/demo-server.log
+            ${{ runner.temp }}/android-logs
           retention-days: 7
           if-no-files-found: ignore
 

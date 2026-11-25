@@ -646,6 +646,32 @@ def metadata(c):
     return out
 
 
+@route("GET", "/api/v1/titles/lookup")
+def lookup_movies(c):
+    t = BY_TMDB.get(c.query.get("term", "").replace("tmdb:", ""))
+    if not t or t["kind"] != "movie":
+        return {"movies": []}
+    return {"movies": [{"name": t["name"], "year": t["year"], "ids": {"tmdb": t["tmdb"]}, "poster": poster(t), "title_id": t["id"],
+                        "overview": overview(t), "backdrop": backdrop(t), "genres": genres(t)}]}
+
+
+@route("GET", "/api/v1/shows/lookup")
+def lookup_shows(c):
+    t = BY_TMDB.get(c.query.get("term", "").replace("tmdb:", ""))
+    if not t or t["kind"] != "show":
+        return {"shows": []}
+    return {"shows": [{"source": "tmdb", "name": t["name"], "year": t["year"], "ids": {"tmdb": t["tmdb"]}, "poster": poster(t),
+                       "title_id": t["id"], "overview": overview(t), "backdrop": backdrop(t), "genres": genres(t)}]}
+
+
+@route("GET", r"/api/v1/extras/(?P<kind>movie|show)/(?P<tmdb>\d+)")
+def extras(c):
+    t = BY_TMDB.get(c.m["tmdb"])
+    if not t:
+        return not_found()
+    return {"scores": [{"source": "tmdb", "value": t["score"], "max": 10, "votes": 1200}]}
+
+
 @route("GET", r"/api/v1/artwork/tmdb/(?P<size>[^/]+)/(?P<file>[A-Za-z0-9_.-]+)")
 def artwork(c):
     path = os.path.join(ART, os.path.basename(c.m["file"]))
