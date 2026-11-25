@@ -102,10 +102,10 @@ def ask_of(slug):
 # ------------------------------------------------------------------ people/asks
 
 ASKERS = [
-    {"id": 2, "name": "lena", "display_name": "Lena Moreau"},
-    {"id": 3, "name": "marek", "display_name": "Marek Novak"},
-    {"id": 4, "name": "iris", "display_name": "Iris Calloway"},
-    {"id": 5, "name": "joaquin", "display_name": "Joaquin Reyes"},
+    {"id": 2, "name": "Lena", "display_name": "Lena Moreau"},
+    {"id": 3, "name": "Marek", "display_name": "Marek Novak"},
+    {"id": 4, "name": "Iris", "display_name": "Iris Calloway"},
+    {"id": 5, "name": "Joaquin", "display_name": "Joaquin Reyes"},
 ]
 
 
@@ -319,6 +319,8 @@ def download_rows():
             "title": t["name"],
             "year": t["year"],
             "downloader": "Harbor qBit",
+            "downloader_id": 1,
+            "hash": f"{i:040x}",
             "downloader_kind": "qbittorrent",
             "protocol": "torrent",
             "size": size,

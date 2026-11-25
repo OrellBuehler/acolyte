@@ -31,8 +31,8 @@ demo() { adb shell am broadcast -a com.android.systemui.demo "$@" >/dev/null; }
 demo -e command enter
 demo -e command clock -e hhmm 0941
 demo -e command battery -e level 100 -e plugged false
-demo -e command network -e wifi show -e level 4
-demo -e command network -e mobile show -e datatype none -e level 4
+demo -e command network -e wifi show -e level 4 -e fully true
+demo -e command network -e mobile show -e datatype none -e level 4 -e fully true
 demo -e command notifications -e visible false
 
 # capture <locale tag> <store locale> <file name> <what to open>

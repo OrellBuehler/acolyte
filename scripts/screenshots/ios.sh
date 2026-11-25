@@ -20,7 +20,7 @@ HEIGHT=2868
 
 xcrun simctl status_bar "$DEVICE_ID" override \
   --time "9:41" --dataNetwork wifi --wifiMode active --wifiBars 3 \
-  --cellularMode active --cellularBars 4 --batteryState charged --batteryLevel 100
+  --cellularMode active --cellularBars 4 --batteryState discharging --batteryLevel 100
 xcrun simctl ui "$DEVICE_ID" appearance dark
 
 # capture <language> <apple locale> <store locale> <file name> <what to open>
