@@ -82,6 +82,7 @@ scripts/api/live-server.sh stop
 | `ios.yml` | pull requests and pushes to `main`, manual | `ios-build` (string table check, shared framework and simulator app build, the fast compile signal), then `ios-tests` (Kotlin/Native tests of `shared`). `ios-gate` is the always-reporting required check. |
 | `api.yml` | pull requests and pushes to `main`; weekly and manual for the drift report | `spec`: `api/openapi.json` equals the spec of the release in `api/VERSION`. `contract`: every endpoint the client declares exists in the spec with the same parameters, permission and part, and its models fit the typed schemas. `live`: the published Docker image of that release, set up over the API, answers every read endpoint (password and API key sign-in, strict decoding). `drift` (weekly, manual): compares with the latest HolyArrs release and `main`, writes the job summary and opens or updates an `api-drift` issue when a newer release exists or an endpoint the app uses changed. `api-gate` is the always-reporting required check. |
 | `release.yml` | published GitHub release, manual dispatch | Signed release builds, see below. |
+| `pages.yml` | pushes to `main` that touch `site/**`, manual | Deploys the website in `site/` to GitHub Pages, see Website. |
 
 To move to a new HolyArrs release: `scripts/api/update-spec.sh [tag]` (default: the latest release), then fix what the contract and live tests report. The iOS jobs run on GitHub's `xcode-27` image with the Xcode 27.0 GM pinned and verified by `.github/actions/ios-setup`. Dependabot proposes weekly Gradle and GitHub Actions updates (Kotlin is bumped by hand together with SKIE).
 
@@ -109,6 +110,20 @@ Every store build belongs to a [GitHub release](https://github.com/OrellBuehler/
 | `IOS_PROFILE_APP_BASE64` | iOS | App Store provisioning profile for `ch.orellbuehler.acolyte`, base64 on one line: `openssl base64 -A -in Acolyte_App_Store.mobileprovision \| gh secret set IOS_PROFILE_APP_BASE64` |
 
 One-time iOS setup: register the App ID `ch.orellbuehler.acolyte`, create the app in App Store Connect, and create the App Store provisioning profile with the exact name `Acolyte App Store` (the name `iosApp/ExportOptions.plist` refers to). The app uses no capabilities yet; if it gains some, regenerate the profile and update the secret.
+
+## Website
+
+The public site (landing page, privacy policy, support page, in English and German) is plain static HTML and CSS in `site/`, with no build step and no external requests. English lives at the root (`site/index.html`, `site/privacy/`, `site/support/`), German under `site/de/`, shared files in `site/assets/`. Links are relative, so the site works under the `/acolyte/` path of GitHub Pages and at `/` in a local preview.
+
+It is served at https://orellbuehler.github.io/acolyte/ and deployed by `.github/workflows/pages.yml` on every push to `main` that touches `site/**` (or can be started by hand). Pages must be switched on once in the repository settings (Settings, Pages, Source: GitHub Actions). The store listings use `/privacy/` as the privacy policy URL and `/support/` as the support URL.
+
+Preview locally:
+
+```sh
+python3 -m http.server -d site 8000   # then open http://localhost:8000
+```
+
+When a change in the app alters what it stores or which hosts it contacts, update both privacy pages (`site/privacy/index.html` and `site/de/privacy/index.html`) and the effective date in the same change.
 
 ## Icon
 

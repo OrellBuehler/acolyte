@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Support - Acolyte</title>
+<meta name="description" content="Get help with Acolyte, the unofficial HolyArrs app: where to report problems, which server address to enter, which sign-in methods work, and answers to common questions.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#05080d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<link rel="canonical" href="https://orellbuehler.github.io/acolyte/support/">
+<link rel="alternate" hreflang="en" href="https://orellbuehler.github.io/acolyte/support/">
+<link rel="alternate" hreflang="de" href="https://orellbuehler.github.io/acolyte/de/support/">
+<link rel="alternate" hreflang="x-default" href="https://orellbuehler.github.io/acolyte/support/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Acolyte">
+<meta property="og:title" content="Acolyte support">
+<meta property="og:description" content="Where to get help with Acolyte, and answers to common questions about connecting to your HolyArrs server.">
+<meta property="og:url" content="https://orellbuehler.github.io/acolyte/support/">
+<meta property="og:image" content="https://orellbuehler.github.io/acolyte/assets/icon-512.png">
+<meta property="og:locale" content="en">
+<meta property="og:locale:alternate" content="de">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../"><img src="../assets/icon.svg" width="36" height="36" alt="">Acolyte</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="../privacy/">Privacy</a>
+      <a href="../support/" aria-current="page">Support</a>
+      <a href="https://github.com/OrellBuehler/acolyte">GitHub</a>
+      <a class="lang" href="../de/support/" hreflang="de" lang="de">Deutsch</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="doc">
+  <div class="wrap">
+    <header class="doc-head">
+      <h1>Support</h1>
+      <p class="lead">Acolyte is a one-person project. The best way to get help, report a bug or ask for a feature is a GitHub issue.</p>
+      <p class="cta"><a class="btn btn-primary" href="https://github.com/OrellBuehler/acolyte/issues">Open or search issues</a></p>
+    </header>
+
+    <h2 class="sr-only">Where to ask</h2>
+    <div class="help-grid">
+      <div class="card">
+        <h3>A problem with the app</h3>
+        <p>A crash, a screen that will not load, wrong or missing text, a layout problem, or something that works in the HolyArrs web app but not in Acolyte.</p>
+        <a class="btn btn-ghost" href="https://github.com/OrellBuehler/acolyte/issues">Acolyte issues</a>
+      </div>
+      <div class="card">
+        <h3>A problem with the server</h3>
+        <p>Downloads that do not start, library scans, wrong metadata, server settings. If the same thing fails in the HolyArrs web app in a browser, it is a server matter.</p>
+        <a class="btn btn-ghost" href="https://github.com/HolyArrs/HolyArrs">HolyArrs project</a>
+      </div>
+      <div class="card">
+        <h3>A problem connecting</h3>
+        <p>No answer, certificate or host name errors. These are usually settings on the server or the network. See the questions below.</p>
+        <a class="btn btn-ghost" href="#connect-errors">Jump to the fix list</a>
+      </div>
+    </div>
+
+    <div class="prose">
+      <h2 id="report">What to put in an issue</h2>
+      <ul>
+        <li>The platform and its version (for example Android 15, iOS 18.3 or tvOS 18), and the Acolyte version or release you installed.</li>
+        <li>What you did, what you expected and what happened. A screenshot helps if it shows no private details.</li>
+        <li>The HolyArrs server version, if you know it.</li>
+      </ul>
+      <p>Issues are public. Leave out passwords, API keys, session codes and private server addresses. Search the existing issues first; your problem may already have an answer.</p>
+
+      <h2 id="faq">Frequently asked questions</h2>
+
+      <details>
+        <summary>What does &ldquo;unofficial&rdquo; mean?</summary>
+        <p>Acolyte is written by an independent developer. It is not made, endorsed or supported by the HolyArrs project. It uses the public HolyArrs API, so a new HolyArrs release can occasionally change something before Acolyte has caught up. Please send problems with the app to the Acolyte issues, not to HolyArrs.</p>
+      </details>
+
+      <details>
+        <summary>Do I need a server of my own?</summary>
+        <p>Yes. Acolyte is only an app for a HolyArrs server that you or someone you know runs. It does not include a server and offers no hosted one.</p>
+      </details>
+
+      <details>
+        <summary>Which server address do I type?</summary>
+        <p>The address you use to open HolyArrs in a browser, for example <code>192.168.1.10:6262</code> or <code>media.example.com</code>. If your server lives under a path such as <code>/holyarrs</code>, include it. If you leave out <code>https://</code> or <code>http://</code>, the app tries HTTPS first and then HTTP. You can paste a <code>/login</code> or <code>/api/v1</code> address; the app trims it.</p>
+        <p>Use HTTPS for a server you reach over the internet. On iPhone and Apple TV plain HTTP only works for addresses on your local network.</p>
+      </details>
+
+      <details id="connect-errors">
+        <summary>The app cannot connect, or shows an error</summary>
+        <ul>
+          <li><strong>No server answered:</strong> check the address and the port, and that your phone is on the same network or VPN as the server.</li>
+          <li><strong>The certificate is not trusted:</strong> for a self-signed certificate, install its certificate authority on the device.</li>
+          <li><strong>The server refuses this host name:</strong> a name that is not an IP address must be listed in HolyArrs under Settings, Sign-in and security, Allowed host names.</li>
+          <li><strong>This is not a HolyArrs server:</strong> check the address and any URL base such as <code>/holyarrs</code>.</li>
+          <li><strong>This server is not set up yet:</strong> finish the first-run setup in a browser first.</li>
+        </ul>
+        <p>The HolyArrs documentation has more on <a href="https://docs.holyarrs.com/start/connect/#if-it-does-not-work">connecting when it does not work</a>.</p>
+      </details>
+
+      <details>
+        <summary>Which ways to sign in work?</summary>
+        <p>A HolyArrs account with password (with a two-factor code or a backup code if the account uses one), a Jellyfin account, an Emby account, Plex, and an API key. Plex needs a browser, so it is available on Android and iPhone but not on Apple TV.</p>
+        <p>Single sign-on (OIDC) and proxy sign-in are not supported yet. If your server offers one of them, the app tells you so; use your password or an API key instead. Only accounts with the settings permission can create an API key, in the HolyArrs web app under My account.</p>
+      </details>
+
+      <details>
+        <summary>Why was I signed out?</summary>
+        <p>The server ended the session: it expired, or you signed out somewhere else. The app shows &ldquo;Your session has ended&rdquo; and keeps the server address and your user name, so signing in again is quick. If the same address and password worked before and now fail, check that the server is up.</p>
+      </details>
+
+      <details>
+        <summary>A section is missing</summary>
+        <p>Acolyte shows what your account may use and what your server has switched on. A normal member sees browsing, requests, downloads and the calendar; managers also see history, status, users and settings. If something is missing, ask the person who runs your server about your role and which parts are on.</p>
+      </details>
+
+      <details>
+        <summary>A trailer does not play</summary>
+        <p>Trailers come from your server, which finds them on YouTube. If the server has none for a title, or cannot play it, the app offers the YouTube link instead and opens it in your browser or the YouTube app.</p>
+      </details>
+
+      <details>
+        <summary>Is Acolyte in the App Store or Google Play?</summary>
+        <p>Not yet. It is in testing. Builds are published on the <a href="https://github.com/OrellBuehler/acolyte/releases">GitHub releases page</a>. The Apple TV app is still in development and not in the test builds.</p>
+      </details>
+
+      <details>
+        <summary>What data does the app collect? How do I delete it?</summary>
+        <p>The developer receives no data from the app. Everything the app keeps is on your device, and signing out or uninstalling removes it as described in the <a href="../privacy/">privacy policy</a>.</p>
+      </details>
+
+      <h2 id="more">More</h2>
+      <ul>
+        <li><a href="https://github.com/OrellBuehler/acolyte/issues">Issues</a> for bugs, questions and ideas</li>
+        <li><a href="https://github.com/OrellBuehler/acolyte/releases">Releases</a> for test builds and what changed</li>
+        <li><a href="https://github.com/OrellBuehler/acolyte">Source code</a> (MIT licence)</li>
+        <li><a href="../privacy/">Privacy policy</a></li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="../">Home</a>
+      <a href="../privacy/">Privacy policy</a>
+      <a href="../support/">Support</a>
+      <a href="https://github.com/OrellBuehler/acolyte">Source code</a>
+      <a href="../de/support/" hreflang="de" lang="de">Deutsch</a>
+    </nav>
+    <p>&copy; 2026 Orell B&uuml;hler, Switzerland. Acolyte is an independent project and is not affiliated with HolyArrs, Apple or Google.</p>
+  </div>
+</footer>
+</body>
+</html>
