@@ -104,6 +104,9 @@ struct RoutedStack<Root: View>: View {
         }
         .environment(\.openRoute, open)
         .environment(navigator)
+        #if DEBUG
+        .task { ScreenshotLaunch.open(navigator) }
+        #endif
         .sheet(item: $router.sheet) { route in
             RouteScreen(route: route, account: account)
                 .environment(\.openRoute, open)
