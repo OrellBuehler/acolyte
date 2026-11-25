@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+  <title>Acolyte feature graphic</title>
+  <defs>
+    <radialGradient id="glow" cx="262" cy="250" r="420" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#BF281F" stop-opacity="0.42"/>
+      <stop offset="0.55" stop-color="#BF281F" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#BF281F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#05080D" stop-opacity="0"/>
+      <stop offset="1" stop-color="#05080D" stop-opacity="0.55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="500" fill="#05080D"/>
+  <rect width="1024" height="500" fill="url(#glow)"/>
+  <rect width="1024" height="500" fill="url(#fade)"/>
+  <g fill="#F3F0E9" opacity="0.5">
+    <rect x="600" y="70" width="6" height="6"/><rect x="930" y="120" width="6" height="6"/>
+    <rect x="860" y="400" width="6" height="6"/><rect x="520" y="430" width="6" height="6"/>
+    <rect x="975" y="220" width="6" height="6"/><rect x="700" y="40" width="4" height="4"/>
+    <rect x="470" y="90" width="4" height="4"/><rect x="60" y="60" width="4" height="4"/>
+    <rect x="80" y="430" width="6" height="6"/><rect x="440" y="330" width="4" height="4"/>
+  </g>
+  <g transform="translate(92 80) scale(1.328125)">
+    <g transform="translate(128 128) scale(0.86) translate(-128 -128)">
+      <path fill="#F3F0E9" d="M128,16 Q138.8,59.2 182,70 Q138.8,80.8 128,124 Q117.2,80.8 74,70 Q117.2,59.2 128,16 Z"/>
+      <rect x="100" y="140" width="56" height="96" fill="#BF281F"/>
+      <path fill="#74150F" d="M132,140h8v8h-8zM132,156h8v8h-8zM132,172h8v8h-8zM132,188h8v8h-8zM132,204h8v8h-8zM132,220h8v8h-8zM140,148h8v8h-8zM140,164h8v8h-8zM140,180h8v8h-8zM140,196h8v8h-8zM140,212h8v8h-8zM140,228h8v8h-8zM148,140h8v96h-8z"/>
+      <path fill="#F3F0E9" d="M22,36h8v8h8v8h-8v8h-8v-8h-8v-8h8zM226,96h8v8h8v8h-8v8h-8v-8h-8v-8h8zM34,180h8v8h8v8h-8v8h-8v-8h-8v-8h8zM214,26h8v8h-8zM52,116h8v8h-8zM206,196h8v8h-8z"/>
+    </g>
+  </g>
+  <text x="470" y="248" font-family="Inter, 'Noto Sans', sans-serif" font-weight="700" font-size="104" letter-spacing="-3" fill="#F5F5F7">Acolyte</text>
+  <text x="474" y="306" font-family="Inter, 'Noto Sans', sans-serif" font-weight="500" font-size="30" fill="#A1A1A6">Your HolyArrs server, in your pocket</text>
+  <rect x="474" y="338" width="64" height="5" fill="#BF281F"/>
+</svg>
