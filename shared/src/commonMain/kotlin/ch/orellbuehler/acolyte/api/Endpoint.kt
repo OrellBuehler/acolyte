@@ -78,7 +78,7 @@ internal class Endpoint<B, R>(
     }
 
     private companion object {
-        val PARAM = Regex("\\{([^}]+)}")
+        val PARAM = Regex("\\{([^}]+)\\}")
     }
 }
 
