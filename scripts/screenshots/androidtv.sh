@@ -28,6 +28,11 @@ MIN_SECONDS="${MIN_SECONDS:-8}"
 MAX_WAIT_SECONDS="${MAX_WAIT_SECONDS:-60}"
 FAILED=0
 
+# The keys pressed on the remote after a screen settled, to move the focus onto a card.
+declare -A KEYS=(
+  ["03-title"]=""
+)
+
 adb install -r "$APK" >/dev/null
 adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
@@ -83,7 +88,10 @@ capture() {
   adb shell cmd locale set-app-locales "$PKG" --locales "$tag" >/dev/null
   launch "$open"
   wait_settled "$store/$name"
-  adb shell input keyevent KEYCODE_DPAD_DOWN
+  for key in ${KEYS[$name]-DPAD_DOWN}; do
+    adb shell input keyevent "KEYCODE_$key"
+    sleep 1
+  done
   wait_settled "$store/$name"
   mkdir -p "$OUT/$store"
   local file="$OUT/$store/$name.png"
@@ -112,6 +120,17 @@ for entry in "en-US|en-US" "de-CH|de-DE"; do
 done
 
 adb shell cmd locale set-app-locales "$PKG" --locales en-US >/dev/null
+mkdir -p "$LOGS/probe"
+for screen in "${TV_SCREENS[@]}"; do
+  launch "${screen##*|}"
+  wait_settled "${screen%%|*}"
+  shot "$LOGS/probe/${screen%%|*}-0.png"
+  for press in 1 2 3; do
+    adb shell input keyevent KEYCODE_DPAD_DOWN
+    sleep 3
+    shot "$LOGS/probe/${screen%%|*}-$press.png"
+  done
+done
 launch home
 sleep 15
 for tab in 1 2 3 4 5 6; do

@@ -32,8 +32,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Text
 import ch.orellbuehler.acolyte.feature.downloads.CalendarFollows
+import ch.orellbuehler.acolyte.feature.downloads.CalendarGroup
 import ch.orellbuehler.acolyte.feature.downloads.CalendarState
 import ch.orellbuehler.acolyte.feature.downloads.CalendarType
+import ch.orellbuehler.acolyte.feature.downloads.EntryTag
+import ch.orellbuehler.acolyte.feature.downloads.EntryWhen
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.tv.components.TvActionButton
 import ch.orellbuehler.acolyte.tv.components.TvBackdropCard
@@ -142,7 +145,7 @@ fun TvCalendarContent(
                         items(day.groups, key = { it.key }) { group ->
                             TvBackdropCard(
                                 title = group.title,
-                                subtitle = whenText(group) + " · " + tagText(group),
+                                subtitle = groupSubtitle(group),
                                 detail = captionLines(group).joinToString(" · "),
                                 chip = TvChipInfo(dotText(group.dot), group.dot.tone),
                                 image = group.art,
@@ -158,6 +161,14 @@ fun TvCalendarContent(
         }
     }
 }
+
+@Composable
+private fun groupSubtitle(group: CalendarGroup): String =
+    if (group.whenKind == EntryWhen.IN_THEATERS && group.tag == EntryTag.IN_CINEMAS) {
+        tagText(group)
+    } else {
+        "${whenText(group)} · ${tagText(group)}"
+    }
 
 @Composable
 private fun MonthBar(

@@ -166,7 +166,7 @@ fun TvMainTabs(
                         ),
                 ) {
                     Row(
-                        Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                        Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
