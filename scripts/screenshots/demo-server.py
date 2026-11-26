@@ -830,6 +830,42 @@ def metadata(c):
     return out
 
 
+EPISODE_PLOTS = [
+    ("A letter arrives a day late.", "Ein Brief kommt einen Tag zu spät."),
+    ("Nobody admits who left the gate open, and by the evening the whole street has picked a side.",
+     "Niemand gibt zu, das Tor offen gelassen zu haben, und am Abend hat die ganze Strasse Partei ergriffen."),
+    ("", ""),
+    ("An old promise comes due on the worst possible morning. What starts as a favour turns into a long drive, a borrowed boat "
+     "and a conversation that has waited eleven years.",
+     "Ein altes Versprechen wird am denkbar schlechtesten Morgen fällig. Aus einem Gefallen werden eine lange Fahrt, ein geliehenes Boot "
+     "und ein Gespräch, das elf Jahre gewartet hat."),
+    ("The power goes out and everyone tells a different story about the summer before.",
+     "Der Strom fällt aus, und alle erzählen eine andere Geschichte vom Sommer davor."),
+]
+
+
+@route("GET", r"/api/v1/metadata/show/(?P<tmdb>\d+)/seasons/(?P<number>\d+)")
+def season_episodes(c):
+    t = BY_TMDB.get(c.m["tmdb"])
+    number = int(c.m["number"])
+    counts = t.get("episodes", ()) if t else ()
+    if not 1 <= number <= len(counts):
+        return not_found()
+    first = datetime(t["year"] + number - 1, 3, 4, tzinfo=timezone.utc)
+    episodes = []
+    for n in range(1, counts[number - 1] + 1):
+        plot = EPISODE_PLOTS[(n + number) % len(EPISODE_PLOTS)]
+        episodes.append({
+            "number": n,
+            "name": "" if n % 4 == 0 else L(f"Chapter {n}", f"Kapitel {n}"),
+            "overview": L(*plot),
+            "runtime": t["runtime"] + (n % 3) * 2,
+            "still": "",
+            "air_day": (first + timedelta(days=7 * (n - 1))).strftime("%Y-%m-%d"),
+        })
+    return {"tmdb_id": t["tmdb"], "season": number, "episodes": episodes}
+
+
 @route("GET", "/api/v1/titles/lookup")
 def lookup_movies(c):
     t = BY_TMDB.get(c.query.get("term", "").replace("tmdb:", ""))
