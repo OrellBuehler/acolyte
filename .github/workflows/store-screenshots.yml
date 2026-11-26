@@ -236,48 +236,27 @@ jobs:
         working-directory: iosApp
         run: xcodegen generate
 
-      # The runner image lists the Apple TV device types but ships no tvOS simulator runtime
-      # ("runtime is not available" on boot), so fetch it. Does nothing when it is installed.
-      - name: Install the tvOS simulator runtime
-        run: |
-          xcodebuild -downloadPlatform tvOS
-          xcrun simctl list runtimes
-
-      # The App Store wants 3840 x 2160 for Apple TV. The plain "Apple TV 4K" device types
-      # render at 4K; the "(at 1080p)" variants do not, so they are skipped.
-      - name: Pick an Apple TV 4K simulator
-        run: |
-          DEVICE_ID=$(xcrun simctl list devices available --json | jq -r '
-            [.devices | to_entries[]
-             | select(.key | test("tvOS"))
-             | .value[]
-             | select(.name | test("^Apple TV 4K"))
-             | select(.name | test("1080p") | not)
-             | .udid] | last')
-          if [ -z "$DEVICE_ID" ] || [ "$DEVICE_ID" = "null" ]; then
-            echo "No Apple TV 4K simulator available" >&2
-            xcrun simctl list devices available
-            exit 1
-          fi
-          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
-
       - name: Build tvOS app
         working-directory: iosApp
         run: |
           xcodebuild build \
             -project Acolyte.xcodeproj \
             -scheme AcolyteTV \
-            -destination "id=$DEVICE_ID" \
+            -destination 'generic/platform=tvOS Simulator' \
             -configuration Debug \
             -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             ARCHS=arm64
 
-      - name: Boot simulator and install app
+      # The App Store wants 3840 x 2160 for Apple TV. The plain "Apple TV 4K" device types
+      # render at 4K; the "(at 1080p)" variants do not, so they are skipped. The tvOS runtime
+      # is downloaded first because the runner image does not always carry a usable one.
+      - name: Boot an Apple TV 4K simulator and install the app
         working-directory: iosApp
         run: |
-          xcrun simctl boot "$DEVICE_ID"
-          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcodebuild -downloadPlatform tvOS || true
+          DEVICE_ID=$(../scripts/screenshots/tvos-device.sh)
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
           xcrun simctl install "$DEVICE_ID" build/DerivedData/Build/Products/Debug-appletvsimulator/AcolyteTV.app
 
       - name: Start the demo server
