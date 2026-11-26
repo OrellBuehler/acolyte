@@ -275,13 +275,13 @@ def hero_devices(dst, x, y, w, h, locale):
     n = shot_path
     tv_w = w * 0.52
     place_tv(dst, n("tvos", locale, "01-home"), x, y + h * 0.02, tv_w)
-    place_tv(dst, n("androidtv", locale, "03-title"), x + w * 0.48, y + h * 0.2, tv_w)
+    place_tv(dst, n("androidtv", locale, "02-explore"), x + w * 0.48, y + h * 0.2, tv_w)
     ph = h * 0.8
     sw, _ = phone_size(2868 / 1320, ph)
     px = x + w * 0.27
     place_phone(dst, n("ios", locale, "01-home"), px, y + h - ph, ph, "ios")
     ah = h * 0.68
-    place_phone(dst, n("android", locale, "03-title"), px + sw + w * 0.035, y + h - ah, ah, "android")
+    place_phone(dst, n("android", locale, "04-library"), px + sw + w * 0.035, y + h - ah, ah, "android")
 
 
 def banner(locale, path, W=2400, H=900):
