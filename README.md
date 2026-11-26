@@ -6,7 +6,7 @@ An unofficial app for [HolyArrs](https://github.com/HolyArrs/HolyArrs), the self
 
 Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API: there is no backend of ours in between, no account with us, no analytics and no ads. It is a separate project and is not affiliated with or endorsed by HolyArrs. The logic is Kotlin Multiplatform and shared by all four apps; the screens are native on each platform (Compose, SwiftUI).
 
-[Website](https://orellbuehler.github.io/acolyte/) · [Privacy policy](https://orellbuehler.github.io/acolyte/privacy/) · [Support](https://orellbuehler.github.io/acolyte/support/) · [Releases](https://github.com/OrellBuehler/acolyte/releases)
+[Website](https://orellbuehler.github.io/acolyte/) · [iPhone beta on TestFlight](https://testflight.apple.com/join/v9FwyTym) · [Privacy policy](https://orellbuehler.github.io/acolyte/privacy/) · [Support](https://orellbuehler.github.io/acolyte/support/) · [Releases](https://github.com/OrellBuehler/acolyte/releases)
 
 ## Screenshots
 
@@ -46,9 +46,9 @@ Acolyte is in testing, so there are no store pages yet.
 
 | Platform | How |
 |---|---|
-| iPhone | TestFlight public beta: <https://testflight.apple.com/join/v9FwyTym>. The link opens after Apple has reviewed the first build, which is still waiting. Needs iOS 18. |
+| iPhone | [Join the public beta on TestFlight](https://testflight.apple.com/join/v9FwyTym). The link opens once Apple has reviewed the first build, which is in their queue. Needs iOS 18. |
 | Android | Download `acolyte-<version>.apk` from the [latest release](https://github.com/OrellBuehler/acolyte/releases/latest), open it on the phone and allow installs from that source when asked. Needs Android 8.0. Google Play has an internal testing track only so far (invitation needed). |
-| Apple TV | Prepared for TestFlight with the same app record as the iPhone version, not live yet. Needs tvOS 18. |
+| Apple TV | In internal testing on TestFlight. It will join the same public beta link as the iPhone version. Needs tvOS 18. |
 | Android TV, Google TV | Sideload `acolyte-tv-<version>.apk` from the latest release (steps below). Google Play for TV is prepared but not live. Needs Android 8.0. |
 
 Sideloading on Android TV or Google TV, either way:
