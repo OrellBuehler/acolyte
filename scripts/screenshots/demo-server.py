@@ -20,7 +20,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from catalog import BY_ID, BY_SLUG, BY_TMDB, PEOPLE, TITLES  # noqa: E402
+from catalog import BY_ID, BY_SLUG, BY_TMDB, PEOPLE, TITLES, G, cast_of  # noqa: E402
 
 ART = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art")
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
@@ -71,6 +71,13 @@ def overview(t):
 
 def genres(t):
     return [t["genres"][1] if lang() == "de" else t["genres"][0]]
+
+
+def similar_to(t):
+    same = [s for s in TITLES if s is not t and s["kind"] == t["kind"]]
+    i = TITLES.index(t)
+    same.sort(key=lambda s: (s["genres"][0] != t["genres"][0], (TITLES.index(s) - i) % len(TITLES)))
+    return same[:10]
 
 
 def t_(slug):
@@ -426,29 +433,74 @@ def about(c):
 
 @route("GET", "/api/v1/home")
 def home(c):
+    def h(slug, hours):
+        return card(t_(slug), "arrived", at=iso(-timedelta(hours=hours)))
+
     arrived = [
-        card(t_("orbit-nine"), "arrived", at=iso(-timedelta(hours=3))),
+        h("orbit-nine", 3),
         card(t_("glasshouse"), "arrived", line=L("Season 3 · Episode 6", "Staffel 3 · Folge 6"), at=iso(-timedelta(hours=5))),
-        card(t_("paper-moons"), "arrived", at=iso(-timedelta(hours=8))),
-        card(t_("harbor-lights"), "arrived", at=iso(-timedelta(hours=9))),
+        h("paper-moons", 8),
+        h("harbor-lights", 9),
+        h("kestrel-run", 11),
+        h("cinder-hollow", 14),
+        h("the-weight-of-rain", 20),
+        h("wild-meridian", 26),
+        h("sundial", 30),
+        h("pip-and-the-paper-boat", 41),
     ]
+
+    def season(slug, n, hours):
+        return card(t_(slug), "season", line=L(f"Season {n}", f"Staffel {n}"), season=n, at=iso(-timedelta(hours=hours)))
+
     new_seasons = [
-        card(t_("night-shift-diaries"), "season", line=L("Season 2", "Staffel 2"), season=2, at=iso(-timedelta(hours=4))),
-        card(t_("the-cartographers"), "season", line=L("Season 1", "Staffel 1"), season=1, at=iso(-timedelta(hours=12))),
+        season("night-shift-diaries", 2, 4),
+        season("the-cartographers", 1, 12),
+        season("deep-field", 1, 16),
+        season("wildlight", 2, 22),
+        season("the-long-thaw", 2, 30),
+        season("crownless", 2, 40),
+        season("harrow-and-finch", 3, 52),
     ]
-    following = [card(t_("tidewater"), "following", line=L("Season 4 · Episode 5", "Staffel 4 · Folge 5"))]
-    soon = [card(t_("northern-lines"), "soon", line=L("Season 3", "Staffel 3"), at=iso(timedelta(days=4)))]
+
+    def following(slug, s_, e):
+        return card(t_(slug), "following", line=L(f"Season {s_} · Episode {e}", f"Staffel {s_} · Folge {e}"), at=iso(-timedelta(hours=e * 7)))
+
+    following_rows = [
+        following("tidewater", 4, 5),
+        following("cardigan-club", 2, 3),
+        following("northern-lines", 2, 6),
+        following("harrow-and-finch", 3, 2),
+        following("glasshouse", 3, 6),
+        following("wildlight", 2, 4),
+    ]
+
+    def soon_card(slug, n, days):
+        return card(t_(slug), "soon", line=L(f"Season {n}", f"Staffel {n}"), at=iso(timedelta(days=days)))
+
+    soon = [
+        soon_card("northern-lines", 3, 4),
+        soon_card("cardigan-club", 3, 9),
+        soon_card("harrow-and-finch", 4, 15),
+        soon_card("glasshouse", 4, 21),
+        soon_card("the-long-thaw", 3, 30),
+        soon_card("night-shift-diaries", 3, 40),
+    ]
+    movies = [t for t in TITLES if owned(t) and t["kind"] == "movie"]
+    shows = [t for t in TITLES if owned(t) and t["kind"] == "show"]
     return {
         "rows": ["new_seasons", "arrived", "following", "soon"],
         "owner": True,
         "arrived": arrived,
         "new_seasons": new_seasons,
-        "following": following,
+        "following": following_rows,
         "soon": soon,
         "ask_progress": {},
         "library": {
-            "movie": {"titles": 8, "parts": 8, "items": 8, "on_disk": 6, "missing": 0, "downloading": 3, "size": 118_000_000_000},
-            "show": {"titles": 5, "parts": 14, "items": 112, "on_disk": 108, "missing": 2, "downloading": 2, "size": 396_000_000_000},
+            "movie": {"titles": len(movies), "parts": len(movies), "items": len(movies), "on_disk": len(movies) - 2, "missing": 0, "downloading": 3,
+                      "size": 118_000_000_000 + 4_600_000_000 * (len(movies) - 8)},
+            "show": {"titles": len(shows), "parts": sum(t["seasons"] for t in shows), "items": sum(sum(t["episodes"]) for t in shows),
+                     "on_disk": sum(sum(t["episodes"]) for t in shows) - 4, "missing": 2, "downloading": 2,
+                     "size": 396_000_000_000 + 21_000_000_000 * (len(shows) - 5)},
         },
     }
 
@@ -561,26 +613,50 @@ def collections(c):
 
 
 CALENDAR_PLAN = [
+    (1, "cardigan-club", "episode", 2, 3, "Purl Harbor"),
+    (1, "deep-field", "episode", 1, 4, "Parallax"),
     (2, "glasshouse", "episode", 3, 7, "The Draft in Room Four"),
     (2, "tidewater", "episode", 4, 3, "Slack Water"),
     (2, "the-understudy", "cinema", 0, 0, ""),
+    (3, "harrow-and-finch", "episode", 3, 2, "Second Opinion"),
+    (3, "wildlight", "episode", 2, 3, "First Light, Last Light"),
     (4, "night-shift-diaries", "episode", 2, 5, "Double Shift"),
     (4, "northern-lines", "episode", 3, 1, "Last Train Out"),
     (4, "moth-and-lamp", "cinema", 0, 0, ""),
+    (5, "crownless", "episode", 2, 6, "The Empty Chair"),
+    (6, "the-long-thaw", "episode", 2, 5, "Black Ice"),
+    (6, "brass-and-thunder", "cinema", 0, 0, ""),
     (7, "starling-court", "episode", 2, 4, "Conflict of Interest"),
     (7, "lowlight", "episode", 1, 6, "Long Exposure"),
+    (8, "greenwake", "episode", 2, 2, "Trailhead"),
+    (8, "saffron-road", "cinema", 0, 0, ""),
     (9, "the-cartographers", "episode", 1, 8, "The Edge of the Sheet"),
     (9, "glasshouse", "episode", 3, 8, "Condensation"),
+    (10, "signal-fire", "episode", 2, 3, "Dead Reckoning"),
     (11, "fjord-and-fire", "cinema", 0, 0, ""),
+    (11, "neon-parish", "episode", 1, 4, "Confession Booth"),
     (12, "tidewater", "episode", 4, 4, "Neap"),
+    (12, "paper-planes", "episode", 1, 7, "The Longest Glide"),
+    (13, "cardigan-club", "episode", 2, 4, "Dropped Stitch"),
     (14, "night-shift-diaries", "episode", 2, 6, "Skeleton Crew"),
     (14, "quiet-machines", "cinema", 0, 0, ""),
+    (15, "harrow-and-finch", "episode", 3, 3, "Cold Reading"),
     (16, "starling-court", "episode", 2, 5, "Closing Arguments"),
+    (16, "foxglove-summer", "cinema", 0, 0, ""),
+    (17, "wildlight", "episode", 2, 4, "Salt Flats at Dusk"),
     (18, "ember-tide", "cinema", 0, 0, ""),
+    (18, "deep-field", "episode", 1, 5, "Redshift"),
     (19, "lowlight", "episode", 1, 7, "Contact Sheet"),
+    (20, "crownless", "episode", 2, 7, "Regent"),
     (21, "the-cartographers", "episode", 1, 9, "Terra Incognita"),
+    (22, "the-long-thaw", "episode", 2, 6, "Meltwater"),
+    (22, "aurora-protocol", "cinema", 0, 0, ""),
     (23, "glasshouse", "episode", 3, 9, "Greenhouse Effect"),
+    (24, "salt-marsh", "episode", 1, 3, "Low Tide"),
+    (25, "mister-bumblewick", "cinema", 0, 0, ""),
     (26, "northern-lines", "episode", 3, 2, "Terminus"),
+    (27, "signal-fire", "episode", 2, 4, "Fog Signal"),
+    (28, "neon-parish", "episode", 1, 5, "Vespers"),
 ]
 
 
@@ -615,15 +691,21 @@ def explore_head(c):
 
     return {
         "type": c.query.get("type", "all"),
-        "hero": [discover_item(t_(s)) for s in ("ember-tide", "starling-court", "quiet-machines")],
+        "hero": [discover_item(t_(s)) for s in ("ember-tide", "starling-court", "quiet-machines", "aurora-protocol", "mister-bumblewick")],
         "head": [
             row("cinemas", L("In cinemas now", "Jetzt im Kino"),
-                ["fjord-and-fire", "the-understudy", "moth-and-lamp", "ember-tide", "quiet-machines", "orbit-nine", "velvet-static"]),
+                ["fjord-and-fire", "the-understudy", "moth-and-lamp", "brass-and-thunder", "saffron-road", "foxglove-summer", "the-quiet-hours"]),
             row("because_have", L("Because you have Orbit Nine", "Weil du Orbit Nine hast"),
-                ["the-last-lantern", "paper-moons", "salt-and-ember", "midnight-orchard", "copper-canyon", "harbor-lights"]),
+                ["sundial", "velvet-static", "kestrel-run", "hollow-mile", "the-glass-crown", "the-last-lantern", "salt-and-ember", "copper-canyon"]),
             row("returning", L("Shows that are back", "Serien sind zurück"),
-                ["tidewater", "glasshouse", "night-shift-diaries", "northern-lines", "the-cartographers"]),
-            row("new_seasons", L("New seasons", "Neue Staffeln"), ["lowlight", "starling-court", "the-cartographers", "night-shift-diaries"]),
+                ["tidewater", "glasshouse", "night-shift-diaries", "northern-lines", "the-cartographers", "cardigan-club", "harrow-and-finch", "wildlight"]),
+            row("new_seasons", L("New seasons", "Neue Staffeln"),
+                ["lowlight", "signal-fire", "paper-planes", "neon-parish", "greenwake", "salt-marsh", "the-long-thaw", "crownless", "deep-field"]),
+            row("best", L("Critics' picks", "Tipps der Kritik"),
+                ["paper-moons", "harbor-lights", "pip-and-the-paper-boat", "a-hundred-small-suns", "the-weight-of-rain", "gold-plated-alibi",
+                 "wild-meridian", "the-third-movement"]),
+            row("hidden", L("Hidden gems", "Geheimtipps"),
+                ["ironwood", "cinder-hollow", "midnight-orchard", "orbit-nine", "copper-canyon", "hollow-mile"]),
         ],
     }
 
@@ -639,10 +721,12 @@ def explore_strip(c):
 
 
 GENRE_CARDS = [
-    (18, "Drama", "harbor-lights"), (14, "Fantasy", "the-last-lantern"), (16, "Animation", "paper-moons"),
+    (18, "Drama", "the-weight-of-rain"), (14, "Fantasy", "the-glass-crown"), (16, "Animation", "paper-moons"),
     (878, "Science Fiction", "orbit-nine"), (53, "Thriller", "velvet-static"), (12, "Adventure", "salt-and-ember"),
-    (9648, "Mystery", "midnight-orchard"), (37, "Western", "copper-canyon"), (35, "Comedy", "night-shift-diaries"),
-    (80, "Crime", "tidewater"),
+    (9648, "Mystery", "midnight-orchard"), (37, "Western", "copper-canyon"), (35, "Comedy", "gold-plated-alibi"),
+    (80, "Crime", "harrow-and-finch"), (27, "Horror", "cinder-hollow"), (10749, "Romance", "a-hundred-small-suns"),
+    (99, "Documentary", "wild-meridian"), (10751, "Family", "pip-and-the-paper-boat"), (10402, "Music", "the-third-movement"),
+    (28, "Action", "kestrel-run"),
 ]
 
 
@@ -650,7 +734,7 @@ GENRE_CARDS = [
 def explore_genre_row(c):
     kind = "show" if c.query.get("type") == "shows" else "movie"
     return {"type": c.query.get("type", "all"),
-            "genres": [{"kind": kind, "id": gid, "name": name, "backdrop": backdrop(t_(slug)), "from": "", "both": False}
+            "genres": [{"kind": kind, "id": gid, "name": L(name, G.get(name, name)), "backdrop": backdrop(t_(slug)), "from": "", "both": False}
                        for gid, name, slug in GENRE_CARDS]}
 
 
@@ -664,22 +748,30 @@ def explore_new(c):
         return discover_item(t_(slug), what=what)
 
     rail = [
-        {"day": day(-1), "items": [entry("glasshouse", "On Harbor Stream"), entry("the-understudy", "Out")]},
-        {"day": day(0), "items": [entry("fjord-and-fire", "Out"), entry("starling-court", "On Harbor Stream"), entry("lowlight", "On Harbor Stream")]},
-        {"day": day(1), "items": [entry("moth-and-lamp", "Coming"), entry("ember-tide", "Coming")]},
-        {"day": day(2), "items": [entry("quiet-machines", "Coming"), entry("the-cartographers", "On Harbor Stream")]},
+        {"day": day(-3), "items": [entry("cardigan-club", "On Harbor Stream"), entry("harrow-and-finch", "On Harbor Stream"), entry("saffron-road", "Out")]},
+        {"day": day(-2), "items": [entry("deep-field", "On Harbor Stream"), entry("the-quiet-hours", "Out"), entry("wildlight", "On Harbor Stream")]},
+        {"day": day(-1), "items": [entry("glasshouse", "On Harbor Stream"), entry("the-understudy", "Out"), entry("crownless", "On Harbor Stream")]},
+        {"day": day(0), "items": [entry("fjord-and-fire", "Out"), entry("starling-court", "On Harbor Stream"), entry("lowlight", "On Harbor Stream"),
+                                  entry("brass-and-thunder", "Out")]},
+        {"day": day(1), "items": [entry("moth-and-lamp", "Coming"), entry("ember-tide", "Coming"), entry("paper-planes", "On Harbor Stream")]},
+        {"day": day(2), "items": [entry("quiet-machines", "Coming"), entry("the-cartographers", "On Harbor Stream"), entry("neon-parish", "On Harbor Stream")]},
+        {"day": day(3), "items": [entry("foxglove-summer", "Coming"), entry("signal-fire", "On Harbor Stream"), entry("greenwake", "On Harbor Stream")]},
+        {"day": day(5), "items": [entry("aurora-protocol", "Coming"), entry("the-long-thaw", "On Harbor Stream"), entry("mister-bumblewick", "Coming")]},
     ]
     return {
         "type": c.query.get("type", "all"),
         "page": 0,
         "more": False,
-        "hero": [discover_item(t_(s)) for s in ("starling-court", "ember-tide", "lowlight")],
+        "hero": [discover_item(t_(s)) for s in ("starling-court", "ember-tide", "lowlight", "aurora-protocol", "neon-parish")],
         "rail": rail,
         "rows": [
             row("popular_streaming", L("Popular on Harbor Stream", "Beliebt auf Harbor Stream"),
-                ["starling-court", "lowlight", "glasshouse", "tidewater", "the-cartographers", "northern-lines"]),
+                ["starling-court", "lowlight", "glasshouse", "tidewater", "the-cartographers", "northern-lines", "cardigan-club", "harrow-and-finch",
+                 "signal-fire", "neon-parish"]),
             row("popular_cinemas", L("Popular in cinemas", "Beliebt im Kino"),
-                ["fjord-and-fire", "the-understudy", "ember-tide", "quiet-machines", "moth-and-lamp"]),
+                ["fjord-and-fire", "the-understudy", "ember-tide", "quiet-machines", "moth-and-lamp", "aurora-protocol", "brass-and-thunder", "saffron-road"]),
+            row("popular_week", L("New this week", "Neu diese Woche"),
+                ["crownless", "deep-field", "wildlight", "the-long-thaw", "greenwake", "paper-planes", "salt-marsh", "mister-bumblewick"]),
         ],
     }
 
@@ -701,7 +793,7 @@ def metadata(c):
         return not_found()
     people = [
         {"name": PEOPLE[i], "role": "cast", "character": ch, "profile": f"https://image.tmdb.org/t/p/w185/profile-{i + 1}.jpg", "id": str(5000 + i)}
-        for i, ch in enumerate(["Captain Ines Varga", "Elias Thorne", "The Keeper", "Mayor Dunmore", "Petra", "Old Jonas"])
+        for i, ch in cast_of(t)
     ]
     seasons = [{"number": n + 1, "episode_count": ec, "year": t["year"] + n} for n, ec in enumerate(t.get("episodes", ()))]
     out = {
@@ -721,14 +813,14 @@ def metadata(c):
         "votes": 1200,
         "people": people,
         "status": "Released" if t["kind"] == "movie" else "Returning Series",
-        "tagline": L("Some places keep what you leave behind.", "Manche Orte bewahren, was du zurücklässt."),
+        "tagline": t["tagline_de"] if lang() == "de" else t["tagline"],
         "studios": ["Harbor Pictures"],
         "seasons": seasons,
         "similar": [
             {"tmdb_id": s["tmdb"], "kind": s["kind"], "name": s["name"], "year": s["year"], "poster": poster(s), "backdrop": backdrop(s),
              "in_library": owned(s), "title_id": s["id"]}
-            for s in TITLES if s is not t and s["kind"] == t["kind"]
-        ][:8],
+            for s in similar_to(t)
+        ],
         "in_library": owned(t),
         "title_id": t["id"],
     }

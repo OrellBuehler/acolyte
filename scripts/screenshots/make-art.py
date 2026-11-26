@@ -1,276 +1,229 @@
 #!/usr/bin/env python3
-"""Generates the invented posters, backdrops and title logos in art/ (needs Pillow, run by hand
-when the catalog changes; the generated JPEGs are committed)."""
-import math
+"""Draws the invented posters, backdrops, title logos and cast portraits in art/ for the demo catalog.
+
+    make-art.py [slug ...]        (no arguments: everything)
+
+Needs Pillow and NumPy. Everything is drawn here from shapes, gradients and noise with fixed seeds and the open-licence
+fonts in fonts/ (see fonts/README.md), so a re-run produces the same files. The generated files are committed.
+"""
 import os
-import random
 import sys
+import zlib
+from concurrent.futures import ProcessPoolExecutor
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+import numpy as np
+from PIL import Image, ImageFilter
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from catalog import PALETTES, TITLES  # noqa: E402
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from artgen import scenes, typo  # noqa: E402
+from artgen.canvas import Canvas, P, mix  # noqa: E402
+from artgen.people import portrait  # noqa: E402
+from catalog import BY_SLUG, PEOPLE, TITLES, cast_of  # noqa: E402
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art")
-FONTS = [
-    "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
-    "/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf",
-]
-
-
-def rgb(h):
-    h = h.lstrip("#")
-    return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
-
-
-def mix(a, b, t):
-    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+OUT = os.path.join(HERE, "art")
+POSTER = (800, 1200)
+POSTER_OUT = (600, 900)
+BACKDROP = (1920, 1080)
+PEOPLE_SIZE = 360
 
 
-def gradient(w, h, top, bottom):
-    img = Image.new("RGB", (1, h))
-    px = img.load()
-    for y in range(h):
-        px[0, y] = mix(top, bottom, (y / (h - 1)) ** 1.1)
-    return img.resize((w, h))
+def A(scene, variant, flags, pal, style, **kw):
+    return dict(scene=scene, v=variant, flags=flags, pal=pal, style=style, **kw)
 
 
-def glow(img, cx, cy, radius, color, strength=0.9):
-    layer = Image.new("RGB", img.size, (0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    d.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=tuple(int(c * strength) for c in color))
-    layer = layer.filter(ImageFilter.GaussianBlur(radius / 2.2))
-    return add(img, layer)
+SPEC = {
+    "harbor-lights": A("sea", "lighthouse", (), (210, 42, 200), "playfair"),
+    "the-last-lantern": A("ridges", "", ("night", "fireflies", "lantern", "pines"), (265, 38, 170), "cormorant"),
+    "paper-moons": A("toon", "moon", (), (262, 330, 50), "fredoka"),
+    "orbit-nine": A("space", "ringed", (), (225, 28, 300), "oswald"),
+    "velvet-static": A("noir", "", (), (220, 345, 200), "limelight"),
+    "salt-and-ember": A("sea", "ice", (), (200, 20, 185), "anton"),
+    "midnight-orchard": A("haunt", "orchard", (), (275, 32, 140), "fraktur"),
+    "copper-canyon": A("mesa", "", (), (12, 30, 45), "rye"),
+    "cinder-hollow": A("haunt", "", (), (355, 18, 40), "bebas", lay="top"),
+    "a-hundred-small-suns": A("neon", "dusk", (), (335, 24, 200), "pacifico"),
+    "the-weight-of-rain": A("noir", "", (), (190, 45, 170, 0.9, 1.0), "playfair_i"),
+    "kestrel-run": A("neon", "", (), (285, 18, 190), "bungee"),
+    "wild-meridian": A("ridges", "", ("night", "aurora", "alpine", "pines"), (215, 150, 280), "josefin", lay="top"),
+    "pip-and-the-paper-boat": A("toon", "boat", (), (200, 14, 50), "abril"),
+    "the-glass-crown": A("ridges", "", ("sun", "alpine", "castle", "pines"), (250, 35, 200), "cinzel"),
+    "hollow-mile": A("forest", "road", (), (170, 70, 90, 0.9, 1.0), "grotesk"),
+    "sundial": A("space", "nebula", (), (285, 45, 190), "poiret"),
+    "gold-plated-alibi": A("blocks", "", (), (45, 8, 200), "archivo"),
+    "the-third-movement": A("frame", "hall", (), (240, 48, 20), "playfair"),
+    "ironwood": A("mesa", "night", (), (232, 26, 40), "rye"),
+    "quiet-machines": A("space", "station", (), (195, 180, 220, 0.8, 1.0), "grotesk"),
+    "ember-tide": A("sea", "sunset", (), (10, 28, 350), "bebas"),
+    "the-understudy": A("curtain", "", (), (350, 22, 40), "limelight"),
+    "fjord-and-fire": A("ridges", "", ("sun", "alpine", "lake", "pines"), (190, 12, 40), "oswald"),
+    "moth-and-lamp": A("toon", "moth", (), (150, 52, 100), "fredoka"),
+    "aurora-protocol": A("space", "moonrise", (), (255, 165, 320), "orbitron"),
+    "foxglove-summer": A("ridges", "", ("sun", "birds"), (295, 38, 330), "cormorant"),
+    "brass-and-thunder": A("sea", "ship", (), (225, 38, 200, 0.9, 1.0), "cinzel"),
+    "mister-bumblewick": A("toon", "balloon", (), (190, 12, 50), "pacifico"),
+    "the-quiet-hours": A("haunt", "", (), (200, 165, 40, 0.9, 0.9), "lora"),
+    "saffron-road": A("mesa", "", (), (25, 42, 12), "abril"),
+    "glasshouse": A("glass", "", (), (165, 95, 60), "playfair"),
+    "night-shift-diaries": A("blocks", "", (), (310, 352, 200), "bungee"),
+    "tidewater": A("sea", "sunset", (), (200, 175, 40, 0.8, 0.9), "cormorant"),
+    "the-cartographers": A("mapchart", "parch", (), (35, 28, 20), "cinzel"),
+    "northern-lines": A("rail", "", (), (215, 35, 190), "oswald"),
+    "cardigan-club": A("blocks", "", (), (20, 175, 60), "abril"),
+    "the-long-thaw": A("ridges", "", ("night", "moon", "alpine", "pines"), (205, 190, 270, 0.9, 1.0), "josefin"),
+    "deep-field": A("space", "ringed", (), (175, 290, 40), "orbitron"),
+    "harrow-and-finch": A("noir", "", (), (30, 38, 20, 0.8, 0.9), "anton"),
+    "wildlight": A("ridges", "", ("sun", "alpine", "lake"), (205, 22, 50), "lora"),
+    "crownless": A("ridges", "", ("night", "castle", "moon", "pines"), (350, 40, 20, 1.0, 0.9), "cinzel"),
+    "lowlight": A("neon", "", (), (270, 330, 190), "bebas"),
+    "starling-court": A("frame", "", (), (345, 40, 15), "playfair_i"),
+    "paper-planes": A("toon", "planes", (), (220, 18, 45), "fredoka"),
+    "signal-fire": A("ridges", "", ("night", "lantern", "pines", "alpine"), (215, 25, 35), "bebas"),
+    "neon-parish": A("neon", "", (), (300, 175, 330), "limelight"),
+    "greenwake": A("forest", "rays", (), (150, 85, 60), "poiret"),
+    "salt-marsh": A("ridges", "", ("night", "moon", "lake"), (170, 150, 60, 0.7, 0.9), "josefin"),
+}
+
+PROD = "HARBOR PICTURES"
 
 
-def add(a, b):
-    return ImageChops.add(a, b)
+def seed_of(slug):
+    return zlib.crc32(slug.encode()) % 100000
 
 
-def hills(draw, w, h, base, amp, color, rnd, step=40):
-    pts = [(0, h)]
-    phase = rnd.random() * 6
-    freq = 1.5 + rnd.random() * 2
-    for x in range(0, w + step, step):
-        y = base + amp * math.sin(x / w * freq * math.pi + phase) + amp * 0.4 * math.sin(x / w * 7 + phase * 2)
-        pts.append((x, y))
-    pts.append((w, h))
-    draw.polygon(pts, fill=color)
+def palette(spec):
+    h, h2, h3, *sv = spec["pal"]
+    return P(h, h2, h3, *sv)
 
 
-def scene(w, h, pal, motif, seed):
-    rnd = random.Random(seed)
-    top, mid, accent = (rgb(c) for c in pal)
-    img = gradient(w, h, top, mid)
-    cx = w * (0.35 + rnd.random() * 0.3)
-    cy = h * (0.30 + rnd.random() * 0.12)
-    r = min(w, h) * 0.17
-    far = mix(top, mid, 0.35)
-    near = mix(top, (0, 0, 0), 0.55)
-    if motif in ("sun", "moon", "lantern", "waves", "trees", "mesa"):
-        img = glow(img, cx, cy, r * 2.4, accent, 0.55)
-    d = ImageDraw.Draw(img)
-    if motif == "sun":
-        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=accent)
-        hills(d, w, h, h * 0.66, h * 0.05, far, rnd)
-        hills(d, w, h, h * 0.78, h * 0.05, near, rnd)
-    elif motif == "moon":
-        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=accent)
-        d.ellipse((cx - r * 0.55, cy - r * 1.1, cx + r * 1.35, cy + r * 0.9), fill=mix(top, mid, 0.18))
-        for _ in range(60):
-            x, y = rnd.random() * w, rnd.random() * h * 0.6
-            s = max(1, w // 400) * (1 + rnd.random())
-            d.ellipse((x, y, x + s, y + s), fill=accent)
-        hills(d, w, h, h * 0.82, h * 0.03, near, rnd)
-    elif motif == "lantern":
-        d.ellipse((cx - r * 0.5, cy - r * 0.5, cx + r * 0.5, cy + r * 0.5), fill=accent)
-        img = glow(img, cx, cy, r * 1.4, accent, 0.9)
-        d = ImageDraw.Draw(img)
-        hills(d, w, h, h * 0.7, h * 0.06, far, rnd)
-        hills(d, w, h, h * 0.82, h * 0.04, near, rnd)
-    elif motif == "rings":
-        for i in range(1, 8):
-            k = i / 8
-            e = r * (0.6 + 2.6 * k)
-            d.ellipse((cx - e, cy - e * 0.35, cx + e, cy + e * 0.35), outline=mix(mid, accent, k), width=max(2, w // 160))
-        d.ellipse((cx - r * 0.5, cy - r * 0.5, cx + r * 0.5, cy + r * 0.5), fill=accent)
-        hills(d, w, h, h * 0.86, h * 0.02, near, rnd)
-    elif motif == "city":
-        x = 0
-        while x < w:
-            bw = int(w * (0.05 + rnd.random() * 0.08))
-            bh = int(h * (0.18 + rnd.random() * 0.34))
-            col = mix(near, mid, 0.15 + rnd.random() * 0.2)
-            d.rectangle((x, h - bh, x + bw, h), fill=col)
-            for wy in range(h - bh + int(h * 0.02), h - int(h * 0.02), max(6, int(h * 0.028))):
-                for wx in range(x + 6, x + bw - 6, max(8, int(w * 0.018))):
-                    if rnd.random() < 0.35:
-                        d.rectangle((wx, wy, wx + 4, wy + 6), fill=accent)
-            x += bw
-        d.ellipse((cx - r * 0.7, cy - r * 0.7, cx + r * 0.7, cy + r * 0.7), fill=mix(accent, mid, 0.3))
-    elif motif == "waves":
-        d.ellipse((cx - r * 0.8, cy - r * 0.8, cx + r * 0.8, cy + r * 0.8), fill=accent)
-        for i in range(6):
-            base = h * (0.55 + i * 0.07)
-            hills(d, w, h, base, h * 0.025, mix(mid, near, i / 5), rnd, step=16)
-    elif motif == "trees":
-        d.ellipse((cx - r * 0.7, cy - r * 0.7, cx + r * 0.7, cy + r * 0.7), fill=accent)
-        for row, col in ((0.72, far), (0.84, near)):
-            x = -20
-            while x < w + 20:
-                th = h * (0.16 + rnd.random() * 0.1)
-                tw = w * 0.07
-                d.polygon([(x, h * row), (x + tw / 2, h * row - th), (x + tw, h * row)], fill=col)
-                d.rectangle((x, h * row, x + tw, h), fill=col)
-                x += tw * 0.8
-    elif motif == "mesa":
-        d.ellipse((cx - r * 0.8, cy - r * 0.8, cx + r * 0.8, cy + r * 0.8), fill=accent)
-        for row, col in ((0.62, far), (0.78, near)):
-            x = -30
-            while x < w:
-                bw = w * (0.12 + rnd.random() * 0.16)
-                bh = h * (0.10 + rnd.random() * 0.14)
-                d.polygon(
-                    [(x, h * row + bh), (x + bw * 0.1, h * row), (x + bw * 0.9, h * row), (x + bw, h * row + bh)], fill=col
-                )
-                x += bw * 0.9
-            d.rectangle((0, h * row + h * 0.1, w, h), fill=col)
-    elif motif == "panes":
-        gw, gh = 5, 8
-        cw, ch = w / gw, h * 0.7 / gh
-        for gx in range(gw):
-            for gy in range(gh):
-                if rnd.random() < 0.7:
-                    t = rnd.random()
-                    d.rectangle(
-                        (gx * cw + 4, gy * ch + 4, (gx + 1) * cw - 4, (gy + 1) * ch - 4),
-                        fill=mix(mid, accent, t * 0.8),
-                    )
-        d.rectangle((0, h * 0.7, w, h), fill=near)
-    elif motif == "stars":
-        for _ in range(140):
-            x, y = rnd.random() * w, rnd.random() * h * 0.75
-            s = max(1.5, w / 300) * (0.5 + rnd.random() * 1.5)
-            d.ellipse((x, y, x + s, y + s), fill=mix(mid, accent, rnd.random()))
-        d.ellipse((cx - r, cy - r, cx + r, cy + r), outline=accent, width=max(3, w // 120))
-        hills(d, w, h, h * 0.84, h * 0.03, near, rnd)
-    return img
+def draw_scene(c, spec):
+    p = palette(spec)
+    fn = getattr(scenes, spec["scene"])
+    if spec["scene"] == "ridges":
+        fn(c, p, spec["v"], spec["flags"])
+    else:
+        fn(c, p, spec["v"])
+    return p
 
 
-def title_lines(name, font, max_width, draw):
-    words = name.split(" ")
-    lines, line = [], ""
-    for word in words:
-        trial = (line + " " + word).strip()
-        if draw.textlength(trial, font=font) <= max_width or not line:
-            line = trial
-        else:
-            lines.append(line)
-            line = word
-    lines.append(line)
-    return lines
+def title_colors(p):
+    return mix(p["hi"], (1, 1, 1), 0.55), p["accent"]
 
 
-def poster(t, seed):
-    w, h = 800, 1200
-    pal = PALETTES[t["palette"]]
-    img = scene(w, h, pal, t["motif"], seed)
-    shade = Image.new("L", (1, h))
-    px = shade.load()
-    for y in range(h):
-        px[0, y] = int(235 * max(0.0, (y / h - 0.52) / 0.48) ** 1.4)
-    shade = shade.resize((w, h))
-    img = Image.composite(Image.new("RGB", (w, h), (6, 8, 14)), img, shade)
-    d = ImageDraw.Draw(img)
-    font = ImageFont.truetype(FONTS[0], 104)
-    lines = title_lines(t["name"].upper(), font, w - 120, d)
-    while len(lines) > 3 or max(d.textlength(line, font=font) for line in lines) > w - 100:
-        font = ImageFont.truetype(FONTS[0], font.size - 8)
-        lines = title_lines(t["name"].upper(), font, w - 120, d)
-    line_h = font.size * 1.12
-    y = h - 90 - line_h * len(lines)
-    for line in lines:
-        width = d.textlength(line, font=font)
-        d.text(((w - width) / 2, y), line, font=font, fill=(250, 244, 232))
-        y += line_h
-    bar = rgb(pal[2])
-    d.rectangle((w / 2 - 60, h - 70, w / 2 + 60, h - 64), fill=bar)
-    return img.resize((400, 600), Image.LANCZOS)
+def make_poster(t, spec):
+    w, h = POSTER
+    c = Canvas(w, h, seed_of(t["slug"]), "poster")
+    p = draw_scene(c, spec)
+    lay = spec.get("lay", "bottom")
+    if lay == "top":
+        c.shade_top(0.38, 0.8)
+        c.shade_bottom(0.78, 0.75)
+    else:
+        c.shade_bottom(0.5 if spec["scene"] == "blocks" else 0.58, 0.96 if spec["scene"] == "blocks" else 0.88, power=1.35)
+        c.shade_top(0.12, 0.35)
+    c.vignette(0.3)
+    c.grain(0.014)
+    fill, accent = title_colors(p)
+    st = typo.STYLES[spec["style"]]
+    cast = [PEOPLE[i].upper() for i, _ in cast_of(t)]
+    top_line = "   ".join(cast[:3]) if t["kind"] == "movie" else f"A {PROD} ORIGINAL SERIES"
+    typo.small_caps_line(c, top_line, w / 2, 50 if lay != "top" else h - 205, "oswald", 20, fill, 0.8, 0.28, 300, shadow=0.6)
+    lines, size = typo.layout_title(t["name"], spec["style"], w * 0.84, int(st["maxs"] * w * 0.95), 3, h * 0.2)
+    im = typo.render_title_mask(lines, spec["style"], size, "c", pad=8)
+    tw, th = im.size
+    if lay == "top":
+        y = 120
+    elif lay == "mid":
+        y = int(h * 0.5 - th / 2 + 40)
+    else:
+        y = int(h * 0.855 - th)
+    typo.paste_mask(c, im, (w - tw) / 2, y, fill, 1.0, shadow=0.75, shadow_blur=10, shadow_off=(0, 5))
+    tag_y = y + th + 14
+    tsz = 21
+    while typo.width(typo.font("josefin", tsz, 500), t["tagline"].upper(), 0.32 * tsz) > w * 0.86:
+        tsz -= 1
+    typo.small_caps_line(c, t["tagline"].upper(), w / 2, tag_y, "josefin", tsz, accent, 0.95, 0.32, 500, shadow=0.7)
+    ry = tag_y - 12
+    c.shape(lambda d: d.rect(w / 2 - 36, ry, w / 2 + 36, ry + 2), accent, 0.9, bbox=(w / 2 - 60, ry - 4, w / 2 + 60, ry + 8))
+    b = f"DIRECTED BY {cast[4]}   WRITTEN BY {cast[5]}   MUSIC BY {cast[6]}"
+    e = f"A {PROD} {'ORIGINAL SERIES' if t['kind'] == 'show' else 'PRODUCTION'}   {t['year']}"
+    typo.credit_block(c, [b, e], w / 2, h - 96, 17, fill, 0.62)
+    return c.image().resize(POSTER_OUT, Image.LANCZOS)
 
 
-def backdrop(t, seed):
-    w, h = 1920, 1080
-    pal = PALETTES[t["palette"]]
-    img = scene(w, h, pal, t["motif"], seed + 99)
-    return img.resize((1280, 720), Image.LANCZOS)
+def make_backdrop(t, spec):
+    w, h = BACKDROP
+    c = Canvas(w, h, seed_of(t["slug"]) + 7, "backdrop")
+    draw_scene(c, spec)
+    lum = float(np.concatenate([c.a[:, : w // 3].ravel(), c.a[int(h * 0.65) :].ravel()]).mean())
+    k = min(0.3, max(0.0, (lum - 0.2) * 2.0))
+    c.shade_left(0.8 if k > 0.05 else 0.64, 0.62 + k, power=1.1 if k > 0.05 else 1.4)
+    c.shade_bottom(0.5, 0.78 + k * 0.5, power=1.4)
+    c.shade_top(0.12, 0.3)
+    c.vignette(0.3)
+    c.grain(0.016)
+    return c.image()
 
 
-LOGO_FONTS = [
-    ("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", True, 14),
-    ("/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf", False, 2),
-    ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", True, 10),
-    ("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf", True, 6),
-]
+def make_logo(t, spec):
+    p = palette(spec)
+    st = typo.STYLES[spec["style"]]
+    fill, accent = title_colors(p)
+    W = 820
+    lines, size = typo.layout_title(t["name"], spec["style"], W, 190, 3, None, (0.62, 1.0, 0.95))
+    im = typo.render_title_mask(lines, spec["style"], size, "c", pad=36)
+    if spec["style"] in ("poiret", "josefin"):
+        im = im.filter(ImageFilter.MaxFilter(3))
+    bb = im.getbbox()
+    im = im.crop((max(0, bb[0] - 24), max(0, bb[1] - 24), min(im.width, bb[2] + 24), min(im.height, bb[3] + 24)))
+    m = np.asarray(im, np.float32) / 255
+    sha = np.asarray(im.filter(ImageFilter.GaussianBlur(7)), np.float32) / 255 * 0.7
+    yy = np.linspace(0, 1, im.height)[:, None, None]
+    top = np.minimum(fill, 1.0) * 255
+    bot = np.minimum(mix(fill, accent, 0.45), 1.0) * 255
+    col = top + (bot - top) * np.clip(yy * 1.2 - 0.1, 0, 1)
+    out = np.zeros((im.height, im.width, 4), np.float32)
+    out[..., :3] = col * m[..., None] + 8 * (1 - m[..., None])
+    out[..., 3] = np.clip(m + sha * (1 - m), 0, 1) * 255
+    rgba = Image.fromarray(out.astype(np.uint8), "RGBA")
+    if rgba.width > 600:
+        rgba = rgba.resize((600, int(rgba.height * 600 / rgba.width)), Image.LANCZOS)
+    return rgba
 
 
-def spaced(d, text, font, spacing):
-    return sum(d.textlength(c, font=font) for c in text) + spacing * (len(text) - 1)
+def render(slug):
+    t = BY_SLUG[slug]
+    spec = SPEC[slug]
+    make_poster(t, spec).save(os.path.join(OUT, f"poster-{slug}.jpg"), quality=82, optimize=True, progressive=True)
+    make_backdrop(t, spec).save(os.path.join(OUT, f"backdrop-{slug}.jpg"), quality=73, optimize=True, progressive=True)
+    make_logo(t, spec).save(os.path.join(OUT, f"logo-{slug}.png"), optimize=True)
+    return slug
 
 
-def logo(t, i):
-    path, upper, spacing = LOGO_FONTS[i % len(LOGO_FONTS)]
-    text = t["name"].upper() if upper else t["name"]
-    size = 150
-    pad = 60
-    probe = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
-    font = ImageFont.truetype(path, size)
-    words = text.split(" ")
-    lines = [text]
-    if len(words) > 2 and spaced(probe, text, font, spacing) > 1300:
-        half = (len(words) + 1) // 2
-        lines = [" ".join(words[:half]), " ".join(words[half:])]
-    width = int(max(spaced(probe, line, font, spacing) for line in lines))
-    line_h = int(size * 1.2)
-    w, h = width + pad * 2, line_h * len(lines) + pad * 2 + 40
-    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    accent = rgb(PALETTES[t["palette"]][2])
-    y = pad
-    for line in lines:
-        x = pad + (width - spaced(d, line, font, spacing)) / 2
-        for c in line:
-            d.text((x, y), c, font=font, fill=(250, 244, 232, 255))
-            x += d.textlength(c, font=font) + spacing
-        y += line_h
-    d.rectangle((w / 2 - 90, y + 8, w / 2 + 90, y + 18), fill=accent + (255,))
-    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    shadow.paste((0, 0, 0, 200), mask=layer.split()[3].filter(ImageFilter.GaussianBlur(10)))
-    out = Image.alpha_composite(shadow, layer)
-    out = out.crop(out.getbbox())
-    return out.resize((out.width // 2, out.height // 2), Image.LANCZOS)
-
-
-def profile(i):
-    size = 600
-    names = list(PALETTES)
-    top, mid, accent = (rgb(c) for c in PALETTES[names[i % len(names)]])
-    img = gradient(size, size, mid, top)
-    d = ImageDraw.Draw(img)
-    skin = mix(accent, mid, 0.35)
-    d.ellipse((size * 0.18, size * 0.66, size * 0.82, size * 1.3), fill=skin)
-    d.ellipse((size * 0.34, size * 0.22, size * 0.66, size * 0.6), fill=mix(accent, (255, 255, 255), 0.2))
-    return img.resize((300, 300), Image.LANCZOS)
+def render_person(i):
+    portrait(i, PEOPLE_SIZE).save(os.path.join(OUT, f"profile-{i + 1}.jpg"), quality=86, optimize=True)
+    return i
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    for i in range(8):
-        profile(i).save(os.path.join(OUT, f"profile-{i + 1}.jpg"), quality=82, optimize=True)
-    for i, t in enumerate(TITLES):
-        logo(t, i).save(os.path.join(OUT, f"logo-{t['slug']}.png"), optimize=True)
-        poster(t, i + 1).save(os.path.join(OUT, f"poster-{t['slug']}.jpg"), quality=82, optimize=True)
-        backdrop(t, i + 1).save(os.path.join(OUT, f"backdrop-{t['slug']}.jpg"), quality=80, optimize=True)
-    print(f"wrote {len(TITLES) * 3 + 8} images to {OUT}")
+    only = sys.argv[1:]
+    missing = [t["slug"] for t in TITLES if t["slug"] not in SPEC]
+    if missing:
+        sys.exit(f"no art spec for {missing}")
+    slugs = only or [t["slug"] for t in TITLES]
+    with ProcessPoolExecutor() as pool:
+        for s in pool.map(render, slugs):
+            print("title", s, flush=True)
+        if not only:
+            list(pool.map(render_person, range(len(PEOPLE))))
+    if not only:
+        keep = {f"{k}-{t['slug']}.{e}" for t in TITLES for k, e in (("poster", "jpg"), ("backdrop", "jpg"), ("logo", "png"))}
+        keep |= {f"profile-{i + 1}.jpg" for i in range(len(PEOPLE))} | {"NOTICE.md"}
+        for f in os.listdir(OUT):
+            if f not in keep:
+                os.remove(os.path.join(OUT, f))
+    print(f"done: {len(slugs)} titles")
 
 
 if __name__ == "__main__":
