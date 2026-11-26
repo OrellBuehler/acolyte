@@ -543,7 +543,8 @@ struct HeroView: View {
     private var content: some View {
         ZStack(alignment: .bottomLeading) {
             Theme.surfaceRaised
-            AuthImage(source: card.wideImage ?? card.poster, size: .hero) { ArtPlaceholderView(name: card.name) }
+            Color.clear.overlay { AuthImage(source: card.wideImage ?? card.poster, size: .hero) { ArtPlaceholderView(name: card.name) } }
+                .clipped()
             LinearGradient(colors: [.clear, Theme.artScrimStrong], startPoint: UnitPoint(x: 0.5, y: 0.35), endPoint: .bottom)
             VStack(alignment: .leading, spacing: Theme.Spacing.small) {
                 if let logo = card.logo {
