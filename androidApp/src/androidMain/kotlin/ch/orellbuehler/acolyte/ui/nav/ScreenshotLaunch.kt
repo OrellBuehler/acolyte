@@ -60,14 +60,18 @@ object ScreenshotLaunch {
         val target by pending.collectAsState()
         LaunchedEffect(target) {
             val current = target ?: return@LaunchedEffect
-            pending.value = null
-            val route = route(current) ?: return@LaunchedEffect
+            val route = route(current)
+            if (route == null) {
+                pending.value = null
+                return@LaunchedEffect
+            }
             val more = tabs.last()
             if (route::class !in tabs.map { it::class } && current.split(':').size == 1) {
                 nav.navigate(more) { launchSingleTop = true }
                 delay(400)
             }
             nav.navigate(route) { launchSingleTop = true }
+            pending.value = null
         }
     }
 }
