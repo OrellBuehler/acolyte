@@ -236,6 +236,13 @@ jobs:
         working-directory: iosApp
         run: xcodegen generate
 
+      # The runner image lists the Apple TV device types but ships no tvOS simulator runtime
+      # ("runtime is not available" on boot), so fetch it. Does nothing when it is installed.
+      - name: Install the tvOS simulator runtime
+        run: |
+          xcodebuild -downloadPlatform tvOS
+          xcrun simctl list runtimes
+
       # The App Store wants 3840 x 2160 for Apple TV. The plain "Apple TV 4K" device types
       # render at 4K; the "(at 1080p)" variants do not, so they are skipped.
       - name: Pick an Apple TV 4K simulator
