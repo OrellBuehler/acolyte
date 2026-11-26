@@ -119,7 +119,7 @@ Swift 6 language mode (`SWIFT_VERSION 6.0`), deployment target iOS 18. Check new
 
 ## tvOS is compile-gated by CI too
 
-Same as iOS: no Swift compile on Linux. CI job `tvos-build` builds the tvOS simulator framework and the `AcolyteTV` scheme, `tvos-tests` runs `shared:tvosSimulatorArm64Test`; both are part of `ios-gate`. Use only tvOS-available SwiftUI API in `AcolyteTV/` and in the shared files above (no `refreshable`, sheets of UIKit pickers, `navigationBarTitleDisplayMode`). Use `.buttonStyle(.card)` for focusable posters and leave focus to the system. `release.yml` does not ship tvOS yet.
+Same as iOS: no Swift compile on Linux. CI job `tvos-build` builds the tvOS simulator framework and the `AcolyteTV` scheme, `tvos-tests` runs `shared:tvosSimulatorArm64Test`; both are part of `ios-gate`. Use only tvOS-available SwiftUI API in `AcolyteTV/` and in the shared files above (no `refreshable`, sheets of UIKit pickers, `navigationBarTitleDisplayMode`). Use `.buttonStyle(.card)` for focusable posters and leave focus to the system. `release.yml` ships tvOS to TestFlight through its `tvos-release` job (own profile `TVOS_PROFILE_APP_BASE64`, `iosApp/ExportOptionsTV.plist`); it is skipped with a notice while that secret is missing. Debug-only `TVScreenshotLaunch.swift` opens screens for the Apple TV store screenshots (`scripts/screenshots/tvos.sh`); the demo server answers every endpoint the TV screens call, so a new TV screen in the set needs its endpoints there.
 
 ## tvOS UI (`AcolyteTV/`)
 
@@ -161,7 +161,7 @@ The counterpart of `AcolyteTV`: the same sections, look and shared presenters, b
 
 ## CI and release
 
-`android.yml` (phone, TV and `androidCommon`), `ios.yml` and `api.yml` gate every PR; `release.yml` ships signed builds when a GitHub release is published (secrets table in the README; it fails in its first step and names any missing secret). Actions are pinned to commit SHAs with a version comment: keep that when bumping. Signing material (`*.jks`, `*.p12`, `*.p8`, `*.mobileprovision`) is gitignored and must never be committed. `iosApp/ExportOptions.plist` has no team id (the workflow injects it) and its profile name `Acolyte App Store` must match the provisioning profile.
+`android.yml` (phone, TV and `androidCommon`), `ios.yml` and `api.yml` gate every PR; `release.yml` ships signed builds when a GitHub release is published (secrets table in the README; it fails in its first step and names any missing secret). Actions are pinned to commit SHAs with a version comment: keep that when bumping. Signing material (`*.jks`, `*.p12`, `*.p8`, `*.mobileprovision`) is gitignored and must never be committed. `iosApp/ExportOptions.plist` has no team id (the workflow injects it) and its profile name `Acolyte App Store` must match the provisioning profile. `ExportOptionsTV.plist` likewise with `Acolyte tvOS App Store`. The `platforms` list of `release.yml` is computed in `release-exists`: a new platform is an input option, a word in that list and an `if` on its job.
 
 ## Git
 
