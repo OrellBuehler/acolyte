@@ -37,7 +37,9 @@ val computedVersionCode =
 
 android {
     namespace = "ch.orellbuehler.acolyte"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 1 }
+    }
 
     defaultConfig {
         applicationId = "ch.orellbuehler.acolyte"
