@@ -1,14 +1,52 @@
-<p align="center"><img src="assets/icon/icon-512.png" alt="Acolyte icon" width="128" height="128"></p>
+<p align="center"><img src="assets/readme/banner.png" alt="Acolyte: your HolyArrs server, in your pocket" width="100%"></p>
 
 # Acolyte (for HolyArrs)
 
-An unofficial mobile app for [HolyArrs](https://github.com/HolyArrs/HolyArrs).
+An unofficial app for [HolyArrs](https://github.com/HolyArrs/HolyArrs), the self-hosted media server, for Android, iPhone and Apple TV.
 
-Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API. It is a separate project and is not affiliated with or endorsed by HolyArrs.
+Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API: there is no backend of ours in between, no account with us, no analytics and no ads. It is a separate project and is not affiliated with or endorsed by HolyArrs.
+
+[Website](https://orellbuehler.github.io/acolyte/) · [Privacy policy](https://orellbuehler.github.io/acolyte/privacy/) · [Support](https://orellbuehler.github.io/acolyte/support/) · [Releases](https://github.com/OrellBuehler/acolyte/releases)
+
+## Screenshots
+
+**iPhone**
+
+<p align="center">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/01-home.png" alt="iPhone: Home" width="135">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/02-explore.png" alt="iPhone: Explore" width="135">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/03-title.png" alt="iPhone: Title" width="135">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/04-library.png" alt="iPhone: Library" width="135">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/05-downloads.png" alt="iPhone: Downloads" width="135">
+  <img src="store/screenshots/ios/en-US/iphone-6.9/06-requests.png" alt="iPhone: Requests" width="135">
+</p>
+
+**Android**
+
+<p align="center">
+  <img src="store/screenshots/android/en-US/phone/01-home.png" alt="Android: Home" width="135">
+  <img src="store/screenshots/android/en-US/phone/02-explore.png" alt="Android: Explore" width="135">
+  <img src="store/screenshots/android/en-US/phone/03-title.png" alt="Android: Title" width="135">
+  <img src="store/screenshots/android/en-US/phone/04-library.png" alt="Android: Library" width="135">
+  <img src="store/screenshots/android/en-US/phone/05-downloads.png" alt="Android: Downloads" width="135">
+  <img src="store/screenshots/android/en-US/phone/06-requests.png" alt="Android: Requests" width="135">
+</p>
+
+The pictures come from the `Store Screenshots` workflow and show invented demo data (see Store screenshots below). German sets are in `store/screenshots/*/de-DE/`.
+
+## What it does
+
+- **Home, Explore and Search**: what is new on your server, browsing by genre, person or collection, and title pages with cast, seasons, episodes and trailers.
+- **Library**: films, series and music with filters you can save.
+- **Requests**: ask for a title and follow it; approvers answer requests in the app.
+- **Calendar and Downloads**: what is coming up and what the server is working on, updated live.
+- **Manage** (for managers): status and health checks, people and permissions, and the server settings.
+- **Sign-in**: HolyArrs password with two-factor, a Jellyfin, Emby or Plex account, or an API key. Secrets are kept in the Android Keystore or the Apple Keychain. Single sign-on (OIDC) is not supported yet.
+- English and German, light and dark mode.
 
 ## Status
 
-Early development. The foundation is in place on Android and iOS: connecting to a server (password with two-factor, Jellyfin/Emby account or API key), the signed-in shell with tabs and the More/Manage list, and the Status screen. The other sections are placeholders. Sign-in with Plex or single sign-on (OIDC) is not supported yet.
+In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) builds in CI but is not part of the release builds yet.
 
 ## How it fits together
 
@@ -16,12 +54,12 @@ Early development. The foundation is in place on Android and iOS: connecting to 
 |---|---|
 | `shared/` | Kotlin Multiplatform: the HolyArrs client (Ktor), sign-in and session, secure storage (Android Keystore, iOS Keychain), live updates (`/live`), image URLs, navigation rules and one presenter per feature. `AcolyteSdk` is the entry point. |
 | `androidApp/` | Jetpack Compose and Material 3. Renders the shared state. |
-| `iosApp/` | SwiftUI (iPhone app `Acolyte`; `AcolyteTV` is an Apple TV app shell on the same shared code, spike stage: sign-in, Home shelves, Settings), project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
+| `iosApp/` | SwiftUI (iPhone app `Acolyte` and the Apple TV app `AcolyteTV` on the same shared code), project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
 | `api/` | The OpenAPI spec of the HolyArrs release the app is built against (`VERSION`). |
 
 Every endpoint the app calls is declared once in `shared` and checked against that spec in CI, and a CI job runs the client against the published HolyArrs Docker image of the same release. [CLAUDE.md](CLAUDE.md) has the conventions for adding endpoints and screens.
 
-Connecting: enter the server address as you open HolyArrs in a browser, including a URL base such as `/holyarrs`. Without a scheme the app tries HTTPS first, then HTTP. Plain HTTP is allowed on the local network; remote servers need HTTPS with a trusted certificate (for a self-signed one, install its certificate authority on the device). A host name other than an IP address must be in the server's allowed host names (HolyArrs Settings, Sign-in and security).
+Connecting: enter the server address as you open HolyArrs in a browser, including a URL base such as `/holyarrs`. Without a scheme the app tries HTTPS first, then HTTP. On iPhone and Apple TV plain HTTP works on the local network only; remote servers need HTTPS with a trusted certificate (for a self-signed one, install its certificate authority on the device). Android also accepts plain HTTP for remote servers, but use HTTPS there: over HTTP your sign-in travels unencrypted. A host name other than an IP address must be in the server's allowed host names (HolyArrs Settings, Sign-in and security).
 
 ## Build
 
@@ -140,7 +178,9 @@ python3 -m http.server -d site 8000   # then open http://localhost:8000
 
 When a change in the app alters what it stores or which hosts it contacts, update both privacy pages (`site/privacy/index.html` and `site/de/privacy/index.html`) and the effective date in the same change.
 
-## Icon
+## Icon and store graphics
+
+`scripts/store/make-promo.py` (needs inkscape, ImageMagick and the Inter font) draws the README banner (`assets/readme/banner.png`), the App Store header and search-result images (`assets/store/appstore-*.png`), the website's sharing picture and its screenshots (`site/assets/og.png`, `site/assets/screens/`) from `store/screenshots/`; run it after new screenshots are merged. `assets/store/feature-graphic.svg` is the Google Play feature graphic.
 
 The icon files are in `assets/icon`.
 
