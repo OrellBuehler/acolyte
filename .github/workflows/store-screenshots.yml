@@ -269,6 +269,13 @@ jobs:
           cat "$RUNNER_TEMP/demo-server.log"
           exit 1
 
+      # Simulator.app forwards input and activates the focus engine; without it no control
+      # shows as focused in the captured frames.
+      - name: Show the simulator
+        run: |
+          open -a Simulator --args -CurrentDeviceUDID "$DEVICE_ID"
+          sleep 15
+
       - name: Capture screenshots
         run: scripts/screenshots/tvos.sh "$DEVICE_ID" "$RUNNER_TEMP/store-screenshots" "$RUNNER_TEMP/demo-server.log"
 
