@@ -973,59 +973,12 @@ jobs:
           /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" ExportOptionsTV.plist \
             || /usr/libexec/PlistBuddy -c "Set :teamID $TEAM_ID" ExportOptionsTV.plist
 
-      - name: Archive
-        working-directory: iosApp
-        env:
-          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          MARKETING_VERSION: ${{ steps.version.outputs.marketing }}
-          BUILD_NUMBER: ${{ github.run_number }}
-        # -allowProvisioningUpdates + the API key = cloud signing: Xcode creates
-        # and manages the development cert and profile for the archive itself.
-        # CODE_SIGNING_ALLOWED=YES overrides the project default (NO) used by the
-        # unsigned PR/simulator build. The build number is the monotonic CI run
-        # number, so every upload is unique within a marketing version.
-        run: |
-          xcodebuild archive \
-            -project Acolyte.xcodeproj \
-            -scheme AcolyteTV \
-            -configuration Release \
-            -destination 'generic/platform=tvOS' \
-            -archivePath "$RUNNER_TEMP/AcolyteTV.xcarchive" \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_"$KEY_ID".p8 \
-            -authenticationKeyID "$KEY_ID" \
-            -authenticationKeyIssuerID "$ISSUER_ID" \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            MARKETING_VERSION="$MARKETING_VERSION" \
-            CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
-
-      - name: Revoke the cloud-signing development certificates
-        # Cloud signing mints a fresh "Apple Development: Created via API" cert
-        # on every run (the ephemeral runner never holds a previous cert's
-        # private key). Apple caps development certs per team, so after ~10
-        # releases Archive fails with "Your account has reached the maximum
-        # number of certificates". Export re-signs with the distribution cert
-        # from secrets, so the cert is dead weight once Archive is done —
-        # revoke them all, including this run's, even when Archive failed.
-        # Skipped only when the API key was never set up.
-        if: always() && steps.asc_key.conclusion == 'success'
-        env:
-          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-        run: |
-          ASC_PRIVATE_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
-            node scripts/ios/revoke-ci-certs.mjs --apply
-
       - name: Import distribution certificate and profile
         env:
           DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
           DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
           PROFILE_APP_BASE64: ${{ secrets.TVOS_PROFILE_APP_BASE64 }}
-        # Manual export signing needs our Apple Distribution identity in a
+        # Manual signing needs our Apple Distribution identity in a
         # keychain and the App Store profile installed where xcodebuild looks.
         # A throwaway keychain keeps the private key off the persistent runner.
         run: |
@@ -1055,6 +1008,33 @@ jobs:
           echo "installed profile $UUID"
 
           security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Archive
+        working-directory: iosApp
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          MARKETING_VERSION: ${{ steps.version.outputs.marketing }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        # Manual signing with the distribution identity and the App Store
+        # profile imported above. Cloud signing (as in the iOS job) needs a
+        # development profile, which Apple only issues to a team with a
+        # registered Apple TV. CODE_SIGNING_ALLOWED=YES overrides the project
+        # default (NO) used by the unsigned PR/simulator build. The build number
+        # is the monotonic CI run number.
+        run: |
+          xcodebuild archive \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTV \
+            -configuration Release \
+            -destination 'generic/platform=tvOS' \
+            -archivePath "$RUNNER_TEMP/AcolyteTV.xcarchive" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="Acolyte tvOS App Store" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            MARKETING_VERSION="$MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
 
       - name: Export IPA
         working-directory: iosApp
