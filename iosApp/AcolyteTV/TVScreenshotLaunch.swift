@@ -23,8 +23,14 @@ enum TVScreenshotLaunch {
             try? await Task.sleep(for: .milliseconds(600))
             navigator.open(.title(kind: parts[1], tmdb: parts[2]))
         } else if let section = SectionID(rawValue: target.lowercased()) {
-            try? await Task.sleep(for: .milliseconds(600))
-            navigator.open(section)
+            Task { @MainActor in
+                let isTab = TVSections.tabs(for: navigator.account).contains(section)
+                for _ in 0..<(isTab ? 6 : 1) {
+                    try? await Task.sleep(for: .milliseconds(1500))
+                    if isTab, navigator.currentTab == section { break }
+                    navigator.open(section)
+                }
+            }
         }
     }
 }

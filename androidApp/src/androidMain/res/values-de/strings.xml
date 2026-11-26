@@ -876,9 +876,9 @@
     <string name="title_add_and_choose">Hinzufügen und Release wählen</string>
     <string name="title_add_defaults_late">Deine gespeicherten Vorgaben kamen nicht rechtzeitig, deshalb sind die üblichen gewählt. Prüfe sie vor dem Hinzufügen.</string>
     <string name="title_add_details_from">Details von</string>
-    <string name="title_add_folders_failed">Die Library-Ordner konnten nicht geladen werden.</string>
+    <string name="title_add_folders_failed">Die Mediathek-Ordner konnten nicht geladen werden.</string>
     <string name="title_add_follow_hint">Im Kalender zeigen.</string>
-    <string name="title_add_hands_off">Hands-off ist an: Kein Library-Ordner nötig. Es geht an den Downloader und die Dateien bleiben dort.</string>
+    <string name="title_add_hands_off">Hands-off ist an: Kein Mediathek-Ordner nötig. Es geht an den Downloader und die Dateien bleiben dort.</string>
     <string name="title_add_keep_hint">HolyArrs sucht danach und später nach einer besseren Kopie.</string>
     <string name="title_add_keep_hint_show">HolyArrs kümmert sich um die oben gewählten Staffeln.</string>
     <string name="title_add_loading">Vorgaben werden geladen</string>
@@ -888,8 +888,8 @@
     <string name="title_add_new_seasons_hint">Was mit einer Staffel geschieht, die später erscheint.</string>
     <string name="title_add_new_seasons_locked">«Nur künftige Staffeln» hält neue Staffeln aktuell.</string>
     <string name="title_add_new_seasons_none">Aus lassen</string>
-    <string name="title_add_no_folder_movie">Es gibt noch keinen Library-Ordner für Filme. Lege zuerst einen an.</string>
-    <string name="title_add_no_folder_show">Es gibt noch keinen Library-Ordner für Serien. Lege zuerst einen an.</string>
+    <string name="title_add_no_folder_movie">Es gibt noch keinen Mediathek-Ordner für Filme. Lege zuerst einen an.</string>
+    <string name="title_add_no_folder_show">Es gibt noch keinen Mediathek-Ordner für Serien. Lege zuerst einen an.</string>
     <string name="title_add_order_absolute">Eine laufende Nummer</string>
     <string name="title_add_order_absolute_hint">Für Anime: Folge 27, ab der ersten gezählt.</string>
     <string name="title_add_order_aired">Staffel und Folge</string>
@@ -911,14 +911,14 @@
     <string name="title_add_seasons_none_hint">Serie hinzufügen, ohne eine Staffel aktuell zu halten; Staffeln später einschalten.</string>
     <string name="title_add_second">Auch eine zweite Version behalten</string>
     <string name="title_add_second_hint">Etwa eine 4K-Kopie neben der HD-Kopie, mit eigenen Auswahlregeln und eigenem Ordner.</string>
-    <string name="title_add_to_library">Zur Library hinzufügen</string>
+    <string name="title_add_to_library">Zur Mediathek hinzufügen</string>
     <string name="title_add_version">Version hinzufügen</string>
     <string name="title_add_version_button">Version hinzufügen</string>
     <string name="title_added">Hinzugefügt</string>
     <string name="title_adopt">Vorhandenes Video verwenden</string>
     <string name="title_adopt_button">Dieses Video verwenden</string>
     <string name="title_adopt_hint">Die Datei muss schon im Ordner dieser Version liegen. Sie wird geprüft und erfasst, nie verschoben.</string>
-    <string name="title_adopt_path">Pfad im Library-Ordner</string>
+    <string name="title_adopt_path">Pfad im Mediathek-Ordner</string>
     <string name="title_age_today">heute</string>
     <string name="title_air_today">Heute</string>
     <string name="title_air_tomorrow">Morgen</string>
@@ -943,7 +943,7 @@
     <string name="title_better_copies">Bessere Kopien</string>
     <string name="title_block_group">Gruppe %1$s sperren</string>
     <string name="title_blocked">Dieser Titel ist für dieses Konto nicht verfügbar.</string>
-    <string name="title_card_in_library">In der Library</string>
+    <string name="title_card_in_library">In der Mediathek</string>
     <string name="title_card_ready">Bereit zum Schauen</string>
     <string name="title_card_requested">Gewünscht</string>
     <string name="title_cast">Besetzung und Team</string>
@@ -997,7 +997,7 @@
     <string name="title_file">Datei</string>
     <string name="title_filter_name">Nach Name filtern</string>
     <string name="title_finale">Finale</string>
-    <string name="title_folder">Library-Ordner</string>
+    <string name="title_folder">Mediathek-Ordner</string>
     <string name="title_follow">Folgen</string>
     <string name="title_following">Folge ich</string>
     <string name="title_gate_announced">Sobald angekündigt</string>
@@ -1016,7 +1016,7 @@
     <string name="title_held_until">bleibt bis %1$s</string>
     <string name="title_hidden_now">Jetzt ausgeblendet</string>
     <string name="title_hide">Beim Stöbern ausblenden…</string>
-    <string name="title_hide_body">Es erscheint nicht mehr in Entdecken, Neu &amp; Beliebt, Suche und Vorschlägen. Links, die Library und Wünsche funktionieren weiter. Das ist keine Kindersperre: Dafür gibst du einem Kinderkonto eine Altersgrenze.</string>
+    <string name="title_hide_body">Es erscheint nicht mehr in Entdecken, Neu &amp; Beliebt, Suche und Vorschlägen. Links, die Mediathek und Wünsche funktionieren weiter. Das ist keine Kindersperre: Dafür gibst du einem Kinderkonto eine Altersgrenze.</string>
     <string name="title_hide_button">Ausblenden</string>
     <string name="title_hide_everyone">Alle</string>
     <string name="title_hide_genre_movies">Alle %1$s-Filme</string>
@@ -1031,7 +1031,7 @@
     <string name="title_history">Verlauf</string>
     <string name="title_history_empty">Noch ist nichts geschehen.</string>
     <string name="title_history_nothing_yet">Noch nichts.</string>
-    <string name="title_in_your_library">In deiner Library</string>
+    <string name="title_in_your_library">In deiner Mediathek</string>
     <string name="title_information">Informationen</string>
     <string name="title_keep_and_add">Diese Kopie behalten und Version hinzufügen</string>
     <string name="title_keep_hint">Neue und bessere Kopien</string>
@@ -1088,7 +1088,7 @@
     <string name="title_no_usenet">Kein Download: Die gefundenen Downloads brauchen einen Usenet-Downloader, und keiner ist eingerichtet.</string>
     <string name="title_not_found">Wir konnten diesen Titel nicht finden</string>
     <string name="title_not_found_hint">Er wurde vielleicht entfernt. Suche nach dem Namen.</string>
-    <string name="title_not_in_library">Dieser Titel ist nicht in deiner Library</string>
+    <string name="title_not_in_library">Dieser Titel ist nicht in deiner Mediathek</string>
     <string name="title_not_in_library_hint">Er wurde vielleicht entfernt.</string>
     <string name="title_not_in_order">Nicht in dieser Reihenfolge (%1$d)</string>
     <string name="title_not_in_order_hint">Dateien und Wunschstatus bleiben</string>
@@ -1164,7 +1164,7 @@
     <string name="title_pill_turned_down">Abgelehnt</string>
     <string name="title_pill_you_asked">Dein Wunsch: %1$s</string>
     <string name="title_plan_episodes">%1$s: nicht mehr aktuell gehalten</string>
-    <string name="title_plan_leaves">Verlässt deine Library. Der Verlauf bleibt.</string>
+    <string name="title_plan_leaves">Verlässt deine Mediathek. Der Verlauf bleibt.</string>
     <string name="title_plan_never_add">Listen fügen ihn nie mehr hinzu</string>
     <string name="title_plan_no_files">Keine Dateien auf dem Datenträger</string>
     <string name="title_plan_season">Staffel %1$d wird nicht mehr aktuell gehalten</string>
@@ -1304,7 +1304,7 @@
     <string name="title_state_downloading">Wird geladen</string>
     <string name="title_state_downloading_percent">Wird geladen %1$d%%</string>
     <string name="title_state_episodes_of">%1$d von %2$d Folgen</string>
-    <string name="title_state_in_library">In der Library</string>
+    <string name="title_state_in_library">In der Mediathek</string>
     <string name="title_state_not_downloaded">Noch nicht geladen</string>
     <string name="title_step_cam">Im Kino gefilmt</string>
     <string name="title_step_sd_dvd">SD von Disc (DVD, Blu-ray)</string>
@@ -1319,7 +1319,7 @@
     <string name="title_sub_last_try_failed">Der letzte Versuch hat nicht geklappt. Ein anderes Release wird versucht.</string>
     <string name="title_sub_left_in_downloader">Die Dateien bleiben im Downloader.</string>
     <string name="title_sub_not_kept">Nicht aktuell gehalten, darum wird nichts geladen.</string>
-    <string name="title_sub_on_its_way">Unterwegs in deine Library</string>
+    <string name="title_sub_on_its_way">Unterwegs in deine Mediathek</string>
     <string name="title_sub_waits">Wird geladen, sobald eine gute Kopie auftaucht.</string>
     <string name="title_subtitles">Untertitel</string>
     <string name="title_subtitles_add_language">Sprache hinzufügen</string>
@@ -1398,8 +1398,8 @@
     <string name="title_subtitles_turn_it_down">Ablehnen</string>
     <string name="title_subtitles_which">Welche Sprachen</string>
     <string name="title_subtitles_why_placeholder">Falscher Film, nicht synchron…</string>
-    <string name="title_tab_library">Library</string>
-    <string name="title_tab_library_alert">Library !</string>
+    <string name="title_tab_library">Mediathek</string>
+    <string name="title_tab_library_alert">Mediathek !</string>
     <string name="title_tab_overview">Übersicht</string>
     <string name="title_teaser">Teaser</string>
     <string name="title_tools_files">Dateien</string>
@@ -1432,7 +1432,7 @@
     <string name="title_version_audio">Benötigtes Audio: %1$s</string>
     <string name="title_version_change">Version %1$s ändern</string>
     <string name="title_version_existing_folder">Vorhandener Ordner (optional)</string>
-    <string name="title_version_folder">Library-Ordner für diese Version</string>
+    <string name="title_version_folder">Mediathek-Ordner für diese Version</string>
     <string name="title_version_intro_movie">Eine weitere Kopie des Films, etwa 4K, mit eigenen Auswahlregeln und eigenem Ordner.</string>
     <string name="title_version_intro_show">Eine weitere Kopie jeder Folge, etwa 4K, mit eigenen Auswahlregeln und eigenem Ordner.</string>
     <string name="title_version_keep_hint">HolyArrs sucht nach dieser Version und nach besseren Kopien.</string>

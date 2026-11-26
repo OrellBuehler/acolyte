@@ -795,9 +795,9 @@
 "title.add.and.choose" = "Hinzufügen und Release wählen";
 "title.add.defaults.late" = "Deine gespeicherten Vorgaben kamen nicht rechtzeitig, deshalb sind die üblichen gewählt. Prüfe sie vor dem Hinzufügen.";
 "title.add.details.from" = "Details von";
-"title.add.folders.failed" = "Die Library-Ordner konnten nicht geladen werden.";
+"title.add.folders.failed" = "Die Mediathek-Ordner konnten nicht geladen werden.";
 "title.add.follow.hint" = "Im Kalender zeigen.";
-"title.add.hands.off" = "Hands-off ist an: Kein Library-Ordner nötig. Es geht an den Downloader und die Dateien bleiben dort.";
+"title.add.hands.off" = "Hands-off ist an: Kein Mediathek-Ordner nötig. Es geht an den Downloader und die Dateien bleiben dort.";
 "title.add.keep.hint" = "HolyArrs sucht danach und später nach einer besseren Kopie.";
 "title.add.keep.hint.show" = "HolyArrs kümmert sich um die oben gewählten Staffeln.";
 "title.add.loading" = "Vorgaben werden geladen";
@@ -807,8 +807,8 @@
 "title.add.new.seasons.hint" = "Was mit einer Staffel geschieht, die später erscheint.";
 "title.add.new.seasons.locked" = "«Nur künftige Staffeln» hält neue Staffeln aktuell.";
 "title.add.new.seasons.none" = "Aus lassen";
-"title.add.no.folder.movie" = "Es gibt noch keinen Library-Ordner für Filme. Lege zuerst einen an.";
-"title.add.no.folder.show" = "Es gibt noch keinen Library-Ordner für Serien. Lege zuerst einen an.";
+"title.add.no.folder.movie" = "Es gibt noch keinen Mediathek-Ordner für Filme. Lege zuerst einen an.";
+"title.add.no.folder.show" = "Es gibt noch keinen Mediathek-Ordner für Serien. Lege zuerst einen an.";
 "title.add.order.absolute" = "Eine laufende Nummer";
 "title.add.order.absolute.hint" = "Für Anime: Folge 27, ab der ersten gezählt.";
 "title.add.order.aired" = "Staffel und Folge";
@@ -830,14 +830,14 @@
 "title.add.seasons.none.hint" = "Serie hinzufügen, ohne eine Staffel aktuell zu halten; Staffeln später einschalten.";
 "title.add.second" = "Auch eine zweite Version behalten";
 "title.add.second.hint" = "Etwa eine 4K-Kopie neben der HD-Kopie, mit eigenen Auswahlregeln und eigenem Ordner.";
-"title.add.to.library" = "Zur Library hinzufügen";
+"title.add.to.library" = "Zur Mediathek hinzufügen";
 "title.add.version" = "Version hinzufügen";
 "title.add.version.button" = "Version hinzufügen";
 "title.added" = "Hinzugefügt";
 "title.adopt" = "Vorhandenes Video verwenden";
 "title.adopt.button" = "Dieses Video verwenden";
 "title.adopt.hint" = "Die Datei muss schon im Ordner dieser Version liegen. Sie wird geprüft und erfasst, nie verschoben.";
-"title.adopt.path" = "Pfad im Library-Ordner";
+"title.adopt.path" = "Pfad im Mediathek-Ordner";
 "title.age.today" = "heute";
 "title.air.today" = "Heute";
 "title.air.tomorrow" = "Morgen";
@@ -862,7 +862,7 @@
 "title.better.copies" = "Bessere Kopien";
 "title.block.group" = "Gruppe %1$@ sperren";
 "title.blocked" = "Dieser Titel ist für dieses Konto nicht verfügbar.";
-"title.card.in.library" = "In der Library";
+"title.card.in.library" = "In der Mediathek";
 "title.card.ready" = "Bereit zum Schauen";
 "title.card.requested" = "Gewünscht";
 "title.cast" = "Besetzung und Team";
@@ -916,7 +916,7 @@
 "title.file" = "Datei";
 "title.filter.name" = "Nach Name filtern";
 "title.finale" = "Finale";
-"title.folder" = "Library-Ordner";
+"title.folder" = "Mediathek-Ordner";
 "title.follow" = "Folgen";
 "title.following" = "Folge ich";
 "title.gate.announced" = "Sobald angekündigt";
@@ -935,7 +935,7 @@
 "title.held.until" = "bleibt bis %1$@";
 "title.hidden.now" = "Jetzt ausgeblendet";
 "title.hide" = "Beim Stöbern ausblenden…";
-"title.hide.body" = "Es erscheint nicht mehr in Entdecken, Neu & Beliebt, Suche und Vorschlägen. Links, die Library und Wünsche funktionieren weiter. Das ist keine Kindersperre: Dafür gibst du einem Kinderkonto eine Altersgrenze.";
+"title.hide.body" = "Es erscheint nicht mehr in Entdecken, Neu & Beliebt, Suche und Vorschlägen. Links, die Mediathek und Wünsche funktionieren weiter. Das ist keine Kindersperre: Dafür gibst du einem Kinderkonto eine Altersgrenze.";
 "title.hide.button" = "Ausblenden";
 "title.hide.everyone" = "Alle";
 "title.hide.genre.movies" = "Alle %1$@-Filme";
@@ -950,7 +950,7 @@
 "title.history" = "Verlauf";
 "title.history.empty" = "Noch ist nichts geschehen.";
 "title.history.nothing.yet" = "Noch nichts.";
-"title.in.your.library" = "In deiner Library";
+"title.in.your.library" = "In deiner Mediathek";
 "title.information" = "Informationen";
 "title.keep.and.add" = "Diese Kopie behalten und Version hinzufügen";
 "title.keep.hint" = "Neue und bessere Kopien";
@@ -1007,7 +1007,7 @@
 "title.no.usenet" = "Kein Download: Die gefundenen Downloads brauchen einen Usenet-Downloader, und keiner ist eingerichtet.";
 "title.not.found" = "Wir konnten diesen Titel nicht finden";
 "title.not.found.hint" = "Er wurde vielleicht entfernt. Suche nach dem Namen.";
-"title.not.in.library" = "Dieser Titel ist nicht in deiner Library";
+"title.not.in.library" = "Dieser Titel ist nicht in deiner Mediathek";
 "title.not.in.library.hint" = "Er wurde vielleicht entfernt.";
 "title.not.in.order" = "Nicht in dieser Reihenfolge (%1$d)";
 "title.not.in.order.hint" = "Dateien und Wunschstatus bleiben";
@@ -1082,7 +1082,7 @@
 "title.pill.turned.down" = "Abgelehnt";
 "title.pill.you.asked" = "Dein Wunsch: %1$@";
 "title.plan.episodes" = "%1$@: nicht mehr aktuell gehalten";
-"title.plan.leaves" = "Verlässt deine Library. Der Verlauf bleibt.";
+"title.plan.leaves" = "Verlässt deine Mediathek. Der Verlauf bleibt.";
 "title.plan.never.add" = "Listen fügen ihn nie mehr hinzu";
 "title.plan.no.files" = "Keine Dateien auf dem Datenträger";
 "title.plan.season" = "Staffel %1$d wird nicht mehr aktuell gehalten";
@@ -1215,7 +1215,7 @@
 "title.state.downloading" = "Wird geladen";
 "title.state.downloading.percent" = "Wird geladen %1$d%%";
 "title.state.episodes.of" = "%1$d von %2$d Folgen";
-"title.state.in.library" = "In der Library";
+"title.state.in.library" = "In der Mediathek";
 "title.state.not.downloaded" = "Noch nicht geladen";
 "title.step.cam" = "Im Kino gefilmt";
 "title.step.sd.dvd" = "SD von Disc (DVD, Blu-ray)";
@@ -1230,7 +1230,7 @@
 "title.sub.last.try.failed" = "Der letzte Versuch hat nicht geklappt. Ein anderes Release wird versucht.";
 "title.sub.left.in.downloader" = "Die Dateien bleiben im Downloader.";
 "title.sub.not.kept" = "Nicht aktuell gehalten, darum wird nichts geladen.";
-"title.sub.on.its.way" = "Unterwegs in deine Library";
+"title.sub.on.its.way" = "Unterwegs in deine Mediathek";
 "title.sub.waits" = "Wird geladen, sobald eine gute Kopie auftaucht.";
 "title.subtitles" = "Untertitel";
 "title.subtitles.add.language" = "Sprache hinzufügen";
@@ -1307,8 +1307,8 @@
 "title.subtitles.turn.it.down" = "Ablehnen";
 "title.subtitles.which" = "Welche Sprachen";
 "title.subtitles.why.placeholder" = "Falscher Film, nicht synchron…";
-"title.tab.library" = "Library";
-"title.tab.library.alert" = "Library !";
+"title.tab.library" = "Mediathek";
+"title.tab.library.alert" = "Mediathek !";
 "title.tab.overview" = "Übersicht";
 "title.teaser" = "Teaser";
 "title.tools.files" = "Dateien";
@@ -1341,7 +1341,7 @@
 "title.version.audio" = "Benötigtes Audio: %1$@";
 "title.version.change" = "Version %1$@ ändern";
 "title.version.existing.folder" = "Vorhandener Ordner (optional)";
-"title.version.folder" = "Library-Ordner für diese Version";
+"title.version.folder" = "Mediathek-Ordner für diese Version";
 "title.version.intro.movie" = "Eine weitere Kopie des Films, etwa 4K, mit eigenen Auswahlregeln und eigenem Ordner.";
 "title.version.intro.show" = "Eine weitere Kopie jeder Folge, etwa 4K, mit eigenen Auswahlregeln und eigenem Ordner.";
 "title.version.keep.hint" = "HolyArrs sucht nach dieser Version und nach besseren Kopien.";
