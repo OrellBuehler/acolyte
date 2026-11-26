@@ -1224,3 +1224,119 @@ details > :last-child {
     display: block;
   }
 }
+
+/* pictures */
+
+.hero-art {
+  margin-top: 1rem;
+}
+
+.hero-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1.25rem;
+  background: #05080d;
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow);
+}
+
+.platform-block {
+  margin-top: 3rem;
+}
+
+.platform-block .shots-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.block-desc {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+.stage {
+  border-radius: 1.25rem;
+  background: #05080d;
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow);
+  overflow: hidden;
+}
+
+.stage img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.phones {
+  display: flex;
+  gap: 1.25rem;
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  list-style: none;
+  justify-content: center;
+  border-radius: 1.25rem;
+  background: #05080d;
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow);
+}
+
+.phones li {
+  flex: none;
+  scroll-snap-align: center;
+}
+
+.phones img {
+  display: block;
+  height: 19rem;
+  width: auto;
+  max-width: none;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.55));
+}
+
+.phones.android img {
+  height: 17rem;
+}
+
+.get-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.card.get {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.card.get h3 {
+  margin: 0;
+}
+
+.card.get .how {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.card.get .note {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.card.get .btn {
+  min-height: 2.75rem;
+  padding-inline: 1.1rem;
+  font-size: 0.95rem;
+}
+
+.soon {
+  cursor: default;
+  color: var(--muted);
+}
+
+.get-note {
+  margin-top: 1.5rem;
+}

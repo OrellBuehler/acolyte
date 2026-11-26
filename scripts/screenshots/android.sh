@@ -35,6 +35,7 @@ demo -e command network -e wifi show -e level 4 -e fully true
 demo -e command network -e mobile show -e datatype none -e level 4 -e fully true
 demo -e command notifications -e visible false
 
+# The screens with a large title scroll it away first, like a person reading the list would.
 # capture <locale tag> <store locale> <file name> <what to open>
 capture() {
   local tag="$1" store="$2" name="$3" open="$4"
@@ -44,6 +45,12 @@ capture() {
     --es screenshot_server "$SERVER" --es screenshot_user "$DEMO_USER" \
     --es screenshot_password "$DEMO_PASSWORD" --es screenshot_open "$open" | tail -3 >&2
   sleep "$SETTLE_SECONDS"
+  case "$name" in
+    02-explore|04-library|05-downloads|06-requests)
+      adb shell input swipe 540 1500 540 1210 900
+      sleep 3
+      ;;
+  esac
   mkdir -p "$OUT/$store/phone"
   local file="$OUT/$store/phone/$name.png"
   adb exec-out screencap -p > "$file"

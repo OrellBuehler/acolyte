@@ -52,7 +52,7 @@ struct TVHomeView: View {
                                 }
                             }
                         }
-                        .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height - 300 }
+                        .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height - 170 }
                         ForEach(rows, id: \.row.id) { entry in
                             TVCardRow(row: entry.row, title: entry.title, seeAll: seeAll(entry.row), focus: $focus)
                         }

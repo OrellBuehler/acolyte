@@ -86,6 +86,8 @@ fun tvBrowseSectionTitle(
 
 fun tvShortDay(day: String): String = dayFormat(day, "EEEMMMd")
 
+fun tvMonthDay(day: String): String = dayFormat(day, "MMMd")
+
 fun tvWeekday(day: String): String = dayFormat(day, "EEEE")
 
 private fun dayFormat(

@@ -103,7 +103,7 @@ struct TVCalendarView: View {
             ForEach(day.groups) { group in
                 TVBackdropCard(
                     title: group.title,
-                    subtitle: group.whenText + " · " + group.tagText,
+                    subtitle: group.headline,
                     detail: group.captionLines.joined(separator: " · "),
                     chip: TVChipInfo(text: group.dot.label, tone: group.dot.tone),
                     image: group.art,

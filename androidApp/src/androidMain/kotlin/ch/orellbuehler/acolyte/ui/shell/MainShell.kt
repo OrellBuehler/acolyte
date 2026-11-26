@@ -54,7 +54,7 @@ fun MainShell(
     val requestsTab = Section.REQUESTS in account.tabs
     key(tabs.map { it.route }) {
         val nav = rememberNavController()
-        ScreenshotLaunch.Navigate(nav)
+        ScreenshotLaunch.Navigate(nav, tabs.map { it.route })
         val entry by nav.currentBackStackEntryAsState()
         var selected by rememberSaveable { mutableIntStateOf(0) }
         val current = tabs.indexOfFirst { tab -> entry?.destination?.hasRoute(tab.route::class) == true }

@@ -71,7 +71,7 @@ SPEC = {
     "northern-lines": A("rail", "", (), (215, 35, 190), "oswald"),
     "cardigan-club": A("blocks", "", (), (20, 175, 60), "abril"),
     "the-long-thaw": A("ridges", "", ("night", "moon", "alpine", "pines"), (205, 190, 270, 0.9, 1.0), "josefin"),
-    "deep-field": A("space", "ringed", (), (175, 290, 40), "orbitron"),
+    "deep-field": A("space", "nebula", (), (175, 290, 40), "orbitron"),
     "harrow-and-finch": A("noir", "", (), (30, 38, 20, 0.8, 0.9), "anton"),
     "wildlight": A("ridges", "", ("sun", "alpine", "lake"), (205, 22, 50), "lora"),
     "crownless": A("ridges", "", ("night", "castle", "moon", "pines"), (350, 40, 20, 1.0, 0.9), "cinzel"),
