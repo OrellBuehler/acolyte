@@ -11,6 +11,7 @@ import ch.orellbuehler.acolyte.BuildConfig
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.SessionState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,13 +52,22 @@ object ScreenshotLaunch {
     }
 
     @Composable
-    internal fun Navigate(nav: NavHostController) {
+    internal fun Navigate(
+        nav: NavHostController,
+        tabs: List<Any>,
+    ) {
         if (!BuildConfig.DEBUG) return
         val target by pending.collectAsState()
         LaunchedEffect(target) {
             val current = target ?: return@LaunchedEffect
             pending.value = null
-            route(current)?.let { nav.navigate(it) { launchSingleTop = true } }
+            val route = route(current) ?: return@LaunchedEffect
+            val more = tabs.last()
+            if (route::class !in tabs.map { it::class } && current.split(':').size == 1) {
+                nav.navigate(more) { launchSingleTop = true }
+                delay(400)
+            }
+            nav.navigate(route) { launchSingleTop = true }
         }
     }
 }

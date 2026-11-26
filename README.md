@@ -1,38 +1,32 @@
-<p align="center"><img src="assets/readme/banner.png" alt="Acolyte: your HolyArrs server, in your pocket" width="100%"></p>
+<p align="center"><img src="assets/readme/banner.jpg" alt="Acolyte: your HolyArrs server, on every screen. An Apple TV, an Android TV, an iPhone and an Android phone showing the app." width="100%"></p>
 
 # Acolyte (for HolyArrs)
 
-An unofficial app for [HolyArrs](https://github.com/HolyArrs/HolyArrs), the self-hosted media server, for Android, iPhone and Apple TV.
+An unofficial app for [HolyArrs](https://github.com/HolyArrs/HolyArrs), the self-hosted media server, on **iPhone**, **Android**, **Apple TV** and **Android TV**.
 
-Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API: there is no backend of ours in between, no account with us, no analytics and no ads. It is a separate project and is not affiliated with or endorsed by HolyArrs.
+Acolyte talks to your own HolyArrs server over its `/api/v1` JSON API: there is no backend of ours in between, no account with us, no analytics and no ads. It is a separate project and is not affiliated with or endorsed by HolyArrs. The logic is Kotlin Multiplatform and shared by all four apps; the screens are native on each platform (Compose, SwiftUI).
 
 [Website](https://orellbuehler.github.io/acolyte/) · [Privacy policy](https://orellbuehler.github.io/acolyte/privacy/) · [Support](https://orellbuehler.github.io/acolyte/support/) · [Releases](https://github.com/OrellBuehler/acolyte/releases)
 
 ## Screenshots
 
-**iPhone**
+Dark mode, English; the invented demo titles come from the `Store Screenshots` workflow (see Store screenshots below). German sets are in `store/screenshots/*/de-DE/`.
 
-<p align="center">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/01-home.png" alt="iPhone: Home" width="135">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/02-explore.png" alt="iPhone: Explore" width="135">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/03-title.png" alt="iPhone: Title" width="135">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/04-library.png" alt="iPhone: Library" width="135">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/05-downloads.png" alt="iPhone: Downloads" width="135">
-  <img src="store/screenshots/ios/en-US/iphone-6.9/06-requests.png" alt="iPhone: Requests" width="135">
-</p>
+**iPhone** (Home, Explore, Title, Library, Downloads, Requests)
+
+<p align="center"><img src="assets/readme/ios.jpg" alt="Six iPhone screens: Home, Explore, a title page, Library, Downloads and Requests" width="100%"></p>
 
 **Android**
 
-<p align="center">
-  <img src="store/screenshots/android/en-US/phone/01-home.png" alt="Android: Home" width="135">
-  <img src="store/screenshots/android/en-US/phone/02-explore.png" alt="Android: Explore" width="135">
-  <img src="store/screenshots/android/en-US/phone/03-title.png" alt="Android: Title" width="135">
-  <img src="store/screenshots/android/en-US/phone/04-library.png" alt="Android: Library" width="135">
-  <img src="store/screenshots/android/en-US/phone/05-downloads.png" alt="Android: Downloads" width="135">
-  <img src="store/screenshots/android/en-US/phone/06-requests.png" alt="Android: Requests" width="135">
-</p>
+<p align="center"><img src="assets/readme/android.jpg" alt="Six Android phone screens: Home, Explore, a title page, Library, Downloads and Requests" width="100%"></p>
 
-The pictures come from the `Store Screenshots` workflow and show invented demo data (see Store screenshots below). German sets are in `store/screenshots/*/de-DE/`.
+**Apple TV** (Home, Explore, New and popular, Calendar, ...)
+
+<p align="center"><img src="assets/readme/tvos.jpg" alt="Three Apple TV screens: Home with the Featured row, Explore and New and popular" width="100%"></p>
+
+**Android TV**
+
+<p align="center"><img src="assets/readme/androidtv.jpg" alt="Three Android TV screens: Home with the Featured row, Explore and Calendar" width="100%"></p>
 
 ## What it does
 
@@ -40,13 +34,33 @@ The pictures come from the `Store Screenshots` workflow and show invented demo d
 - **Library**: films, series and music with filters you can save.
 - **Requests**: ask for a title and follow it; approvers answer requests in the app.
 - **Calendar and Downloads**: what is coming up and what the server is working on, updated live.
-- **Manage** (for managers): status and health checks, people and permissions, and the server settings.
+- **Manage** (phones, for managers): status and health checks, people and permissions, and the server settings.
 - **Sign-in**: HolyArrs password with two-factor, a Jellyfin, Emby or Plex account, or an API key. Secrets are kept in the Android Keystore or the Apple Keychain. Single sign-on (OIDC) is not supported yet.
 - English and German, light and dark mode.
 
+What the TV apps leave out on purpose: the manager tools and settings pages that need a keyboard or long forms (they stay on the phone), Plex sign-in (it needs a browser), and anything that opens a web page. They show Home, Explore, Search, Calendar, Downloads, Requests and Settings, with title pages and trailers, and are driven by the remote or the D-pad. Android TV mirrors the Apple TV app screen for screen.
+
+## Install
+
+Acolyte is in testing, so there are no store pages yet.
+
+| Platform | How |
+|---|---|
+| iPhone | TestFlight public beta: <https://testflight.apple.com/join/v9FwyTym>. The link opens after Apple has reviewed the first build, which is still waiting. Needs iOS 18. |
+| Android | Download `acolyte-<version>.apk` from the [latest release](https://github.com/OrellBuehler/acolyte/releases/latest), open it on the phone and allow installs from that source when asked. Needs Android 8.0. Google Play has an internal testing track only so far (invitation needed). |
+| Apple TV | Prepared for TestFlight with the same app record as the iPhone version, not live yet. Needs tvOS 18. |
+| Android TV, Google TV | Sideload `acolyte-tv-<version>.apk` from the latest release (steps below). Google Play for TV is prepared but not live. Needs Android 8.0. |
+
+Sideloading on Android TV or Google TV, either way:
+
+- **With a computer (adb)**: on the TV open Settings, Device Preferences, About and press OK on "Build" seven times to unlock Developer options, then switch on network (or USB) debugging there. Install with `adb connect <tv ip>:5555` followed by `adb install acolyte-tv-<version>.apk` (the TV asks once to trust the computer).
+- **Without a computer**: copy the APK to a USB stick or send it with a file transfer app, open it with a file manager on the TV (for example Files by Google) and allow "Install unknown apps" for that file manager when asked.
+
+Acolyte then shows up with the other apps on the TV home screen. The phone and TV apps share one application id, so install the TV APK on the TV and the phone APK on phones and tablets. You need a HolyArrs server of your own; Acolyte does not include one.
+
 ## Status
 
-In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) and the Android TV app (`androidTvApp`, same screens, being built up) build in CI; the Apple TV app ships to TestFlight with the release builds once the tvOS profile secret exists (see Release).
+In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight, and the phone and Android TV APKs are attached to each release; the apps are not in the stores yet. The Apple TV app ships to TestFlight with the release builds once the tvOS profile secret exists (see Release), and Android TV to Google Play once the form factor is enabled. Nothing has been tested on a physical TV yet: both TV apps have only run on the Apple TV simulator and an Android TV emulator.
 
 ## How it fits together
 
@@ -141,7 +155,7 @@ The `Store Screenshots` workflow (Actions tab, Run workflow) captures the App St
 | `store/screenshots/androidtv/<locale>/NN-name.png` | 1920 x 1080, Google Play Android TV screenshots from an Android TV emulator (`tv_1080p`, API 34). `scripts/screenshots/androidtv.sh` reaches the tab screens with the remote, waits until two frames two seconds apart are identical, presses DPAD_DOWN to put the focus on a card, and first walks the whole app once: the job fails when the app crashes or hangs, so it doubles as the TV app's smoke test |
 | `store/screenshots/tvos/<locale>/NN-name.png` | 3840 x 2160, the App Store Apple TV slot (`scripts/screenshots/tvos.sh` waits until the demo server is quiet, so pictures are loaded, then captures) |
 
-Locales are `en-US` and `de-DE` (the app runs as `de-CH` for the German set). Tick `commit` when running the workflow to put the new PNGs on the branch `store-screenshots/refresh` and open a pull request; a plain run only uploads the artifacts.
+Locales are `en-US` and `de-DE` (the app runs as `de-CH` for the German set). Tick `commit` when running the workflow to put the new PNGs on the branch `store-screenshots/refresh` and open a pull request; a plain run only uploads the artifacts. The `commit` job also redraws the promo images (`python3 scripts/store/make-promo.py`, see Icon and store graphics), so the pull request carries both.
 
 Locally, `python3 scripts/screenshots/demo-server.py` serves the demo data on port 6263 (sign in with any user and password), and `ACOLYTE_DEMO_URL=http://127.0.0.1:6263 ./gradlew shared:testDebugUnitTest --tests '*DemoServerTest*'` checks that the shared presenters accept it, with strict decoding. To add a screen: add a line to `scripts/screenshots/screens.sh` (`SCREENS` for the phones, `TV_SCREENS` for the TV apps; a section name or `title:<kind>:<tmdb id>`), serve what the screen calls in `demo-server.py` (the log lists every call it did not know), and look at the result in the next workflow run. New artwork: add the title to `catalog.py` and run `scripts/screenshots/make-art.py` (needs Pillow).
 
@@ -192,7 +206,22 @@ When a change in the app alters what it stores or which hosts it contacts, updat
 
 ## Icon and store graphics
 
-`scripts/store/make-promo.py` (needs inkscape, ImageMagick and the Inter font) draws the README banner (`assets/readme/banner.png`), the App Store header and search-result images (`assets/store/appstore-*.png`), the website's sharing picture and its screenshots (`site/assets/og.png`, `site/assets/screens/`) from `store/screenshots/`; run it after new screenshots are merged. `assets/store/feature-graphic.svg` is the Google Play feature graphic.
+`scripts/store/make-promo.py` (needs Pillow and numpy; the Inter font is in `scripts/store/fonts`) draws all of these from `store/screenshots/` and `assets/icon`, with devices drawn by the script (plain bezels, no manufacturer artwork). After a screenshot refresh is merged, redraw everything with one command (the `commit` job of the Store Screenshots workflow does it too, so a refresh pull request already contains the new images):
+
+```sh
+python3 scripts/store/make-promo.py            # or: readme | site | store | captioned
+```
+
+| Output | Purpose |
+|---|---|
+| `assets/readme/banner.jpg`, `ios.jpg`, `android.jpg`, `tvos.jpg`, `androidtv.jpg` | README banner and one strip per platform |
+| `site/assets/img/` | Website pictures, English and German: `hero-*`, `tvos-*` and `androidtv-*` at 1200 and 2400 px (WebP), one framed phone per screen (`ios-*`, `android-*`, WebP with alpha), sharing pictures `og-en.jpg` and `og-de.jpg` (1200 x 630) |
+| `assets/store/appstore-header-5244x2950.png`, `appstore-search-3840x1646.png` | App Store header images (iPhone) |
+| `assets/store/feature-graphic.png` | Google Play feature graphic, 1024 x 500 |
+| `assets/store/androidtv-banner-1280x720.png` | Google Play Android TV banner, 1280 x 720 (required to publish an Android TV app; JPEG or 24-bit PNG without alpha) |
+| `assets/store/captioned/<platform>/<locale>/` | Optional screenshots with a headline above a framed screen (JPEG): iPhone 1320 x 2868, Android 1080 x 1920, Apple TV and Android TV 1920 x 1080. The plain sets in `store/screenshots/` stay the ones to upload; use these where a store allows marketing captions |
+
+The Apple TV icon and Top Shelf images are made by `scripts/ios/make-tvos-assets.py`. The old `feature-graphic.svg` is gone: the script draws the PNG.
 
 The icon files are in `assets/icon`.
 

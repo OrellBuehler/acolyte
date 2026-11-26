@@ -279,7 +279,11 @@ fun TvBackdropCard(
                             contentDescription = null,
                             size = ImageSize.POSTER,
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier.padding(8.dp).size(100.dp, 28.dp),
+                            modifier =
+                                Modifier
+                                    .padding(8.dp)
+                                    .padding(bottom = if (fresh != null && progress == null) 18.dp else 0.dp)
+                                    .size(100.dp, 28.dp),
                         )
                     }
                 }
