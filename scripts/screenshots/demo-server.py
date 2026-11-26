@@ -61,6 +61,10 @@ def backdrop(t):
     return f"https://image.tmdb.org/t/p/w780/backdrop-{t['slug']}.jpg"
 
 
+def logo(t):
+    return f"https://image.tmdb.org/t/p/w500/logo-{t['slug']}.png"
+
+
 def overview(t):
     return t["overview_de"] if lang() == "de" else t["overview"]
 
@@ -190,6 +194,7 @@ def card(t, row, **extra):
         "href": f"/title/{t['id']}",
         "backdrop": backdrop(t),
         "poster": poster(t),
+        "logo": logo(t),
         "at": iso(-timedelta(hours=6)),
     }
     c.update(extra)
@@ -204,6 +209,7 @@ def discover_item(t, **extra):
         "year": t["year"],
         "poster": poster(t),
         "backdrop": backdrop(t),
+        "card_logo": logo(t),
         "overview": overview(t),
         "genres": genres(t),
         "in_library": owned(t),
@@ -255,6 +261,7 @@ def grid_title(t):
         "pick_rules_name": "Standard",
         "artwork": [poster(t)],
         "backdrop": backdrop(t),
+        "logo": logo(t),
         "genres": genres(t),
         "runtime_minutes": t["runtime"],
         "rating": t["rating"],
@@ -286,7 +293,7 @@ def grid_title(t):
 
 def owned_title(t):
     g = grid_title(t)
-    out = {k: g[k] for k in ("id", "kind", "name", "year", "overview", "ids", "keep_up_to_date", "library_folder_id", "folder_path", "pick_rules_id", "pick_rules_name", "artwork", "backdrop", "genres", "runtime_minutes", "rating", "added_at", "size_bytes", "versions", "show")  if k in g}
+    out = {k: g[k] for k in ("id", "kind", "name", "year", "overview", "ids", "keep_up_to_date", "library_folder_id", "folder_path", "pick_rules_id", "pick_rules_name", "artwork", "backdrop", "logo", "genres", "runtime_minutes", "rating", "added_at", "size_bytes", "versions", "show")  if k in g}
     out["slots"] = []
     for s in g["slots"]:
         slot = dict(s, version="main", version_id=t["id"])
@@ -553,6 +560,53 @@ def collections(c):
     return {"collections": []}
 
 
+CALENDAR_PLAN = [
+    (2, "glasshouse", "episode", 3, 7, "The Draft in Room Four"),
+    (2, "tidewater", "episode", 4, 3, "Slack Water"),
+    (2, "the-understudy", "cinema", 0, 0, ""),
+    (4, "night-shift-diaries", "episode", 2, 5, "Double Shift"),
+    (4, "northern-lines", "episode", 3, 1, "Last Train Out"),
+    (4, "moth-and-lamp", "cinema", 0, 0, ""),
+    (7, "starling-court", "episode", 2, 4, "Conflict of Interest"),
+    (7, "lowlight", "episode", 1, 6, "Long Exposure"),
+    (9, "the-cartographers", "episode", 1, 8, "The Edge of the Sheet"),
+    (9, "glasshouse", "episode", 3, 8, "Condensation"),
+    (11, "fjord-and-fire", "cinema", 0, 0, ""),
+    (12, "tidewater", "episode", 4, 4, "Neap"),
+    (14, "night-shift-diaries", "episode", 2, 6, "Skeleton Crew"),
+    (14, "quiet-machines", "cinema", 0, 0, ""),
+    (16, "starling-court", "episode", 2, 5, "Closing Arguments"),
+    (18, "ember-tide", "cinema", 0, 0, ""),
+    (19, "lowlight", "episode", 1, 7, "Contact Sheet"),
+    (21, "the-cartographers", "episode", 1, 9, "Terra Incognita"),
+    (23, "glasshouse", "episode", 3, 9, "Greenhouse Effect"),
+    (26, "northern-lines", "episode", 3, 2, "Terminus"),
+]
+
+
+@route("GET", "/api/v1/calendar")
+def calendar(c):
+    start = datetime.strptime(c.query.get("from", day(0))[:10], "%Y-%m-%d")
+    mid = start + timedelta(days=15)
+    today = NOW.strftime("%Y-%m-%d")
+    rows = []
+    for i, (dom, slug, kind, season, ep, name) in enumerate(CALENDAR_PLAN):
+        t = t_(slug)
+        date = f"{mid.year:04d}-{mid.month:02d}-{dom:02d}"
+        state = "in_library" if date < today else ""
+        if slug == "tidewater" and ep == 4:
+            state = "searching" if date >= today else state
+        rows.append({
+            "title_id": t["id"], "name": t["name"], "year": t["year"], "kind": kind, "date": date,
+            "item_id": 7000 + i if kind == "episode" else 0, "season": season, "episode": ep, "episode_name": name,
+            "tmdb": t["tmdb"], "air_day": date if kind == "episode" else "", "timed": False,
+            "runtime": t["runtime"], "network": "Harbor Stream" if kind == "episode" else "", "state": state,
+            "versions": [], "poster": poster(t), "backdrop": backdrop(t), "genres": genres(t),
+            "studio": "Harbor Pictures" if kind != "episode" else "", "following": False,
+        })
+    return {"from": c.query.get("from", ""), "to": c.query.get("to", ""), "dates": rows, "my_follows": 0, "people": 1}
+
+
 @route("GET", "/api/v1/explore/head")
 def explore_head(c):
     def row(rtype, title, slugs, subtitle=""):
@@ -584,15 +638,50 @@ def explore_strip(c):
     return {"type": c.query.get("type", "all"), "tiles": []}
 
 
+GENRE_CARDS = [
+    (18, "Drama", "harbor-lights"), (14, "Fantasy", "the-last-lantern"), (16, "Animation", "paper-moons"),
+    (878, "Science Fiction", "orbit-nine"), (53, "Thriller", "velvet-static"), (12, "Adventure", "salt-and-ember"),
+    (9648, "Mystery", "midnight-orchard"), (37, "Western", "copper-canyon"), (35, "Comedy", "night-shift-diaries"),
+    (80, "Crime", "tidewater"),
+]
+
+
 @route("GET", "/api/v1/explore/genre-row")
 def explore_genre_row(c):
-    return {"type": c.query.get("type", "all"), "genres": []}
+    kind = "show" if c.query.get("type") == "shows" else "movie"
+    return {"type": c.query.get("type", "all"),
+            "genres": [{"kind": kind, "id": gid, "name": name, "backdrop": backdrop(t_(slug)), "from": "", "both": False}
+                       for gid, name, slug in GENRE_CARDS]}
 
 
 @route("GET", "/api/v1/explore/new")
 def explore_new(c):
-    return {"type": c.query.get("type", "all"), "page": 0, "more": False,
-            "rows": [], "hero": [], "rail": []}
+    def row(rtype, title, slugs):
+        return {"id": rtype, "type": rtype, "title": title, "subtitle": "", "wide": True,
+                "items": [discover_item(t_(s)) for s in slugs]}
+
+    def entry(slug, what):
+        return discover_item(t_(slug), what=what)
+
+    rail = [
+        {"day": day(-1), "items": [entry("glasshouse", "On Harbor Stream"), entry("the-understudy", "Out")]},
+        {"day": day(0), "items": [entry("fjord-and-fire", "Out"), entry("starling-court", "On Harbor Stream"), entry("lowlight", "On Harbor Stream")]},
+        {"day": day(1), "items": [entry("moth-and-lamp", "Coming"), entry("ember-tide", "Coming")]},
+        {"day": day(2), "items": [entry("quiet-machines", "Coming"), entry("the-cartographers", "On Harbor Stream")]},
+    ]
+    return {
+        "type": c.query.get("type", "all"),
+        "page": 0,
+        "more": False,
+        "hero": [discover_item(t_(s)) for s in ("starling-court", "ember-tide", "lowlight")],
+        "rail": rail,
+        "rows": [
+            row("popular_streaming", L("Popular on Harbor Stream", "Beliebt auf Harbor Stream"),
+                ["starling-court", "lowlight", "glasshouse", "tidewater", "the-cartographers", "northern-lines"]),
+            row("popular_cinemas", L("Popular in cinemas", "Beliebt im Kino"),
+                ["fjord-and-fire", "the-understudy", "ember-tide", "quiet-machines", "moth-and-lamp"]),
+        ],
+    }
 
 
 @route("POST", "/api/v1/explore/counts")
@@ -622,6 +711,7 @@ def metadata(c):
         "year": t["year"],
         "poster": poster(t),
         "backdrop": backdrop(t),
+        "logo": logo(t),
         "overview": overview(t),
         "genres": genres(t),
         "runtime_minutes": t["runtime"] if t["kind"] == "movie" else 0,
@@ -680,7 +770,8 @@ def artwork(c):
     if not os.path.isfile(path):
         return not_found()
     with open(path, "rb") as f:
-        return 200, f.read(), {"Content-Type": "image/jpeg", "Cache-Control": "max-age=3600"}
+        kind = "image/png" if path.endswith(".png") else "image/jpeg"
+        return 200, f.read(), {"Content-Type": kind, "Cache-Control": "max-age=3600"}
 
 
 @route("GET", "/live")

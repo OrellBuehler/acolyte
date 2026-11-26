@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the invented posters and backdrops in art/ (needs Pillow, run by hand
+"""Generates the invented posters, backdrops and title logos in art/ (needs Pillow, run by hand
 when the catalog changes; the generated JPEGs are committed)."""
 import math
 import os
@@ -202,15 +202,61 @@ def backdrop(t, seed):
     w, h = 1920, 1080
     pal = PALETTES[t["palette"]]
     img = scene(w, h, pal, t["motif"], seed + 99)
-    return img.resize((960, 540), Image.LANCZOS)
+    return img.resize((1280, 720), Image.LANCZOS)
+
+
+LOGO_FONTS = [
+    ("/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf", True, 14),
+    ("/usr/share/fonts/truetype/liberation2/LiberationSerif-Bold.ttf", False, 2),
+    ("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", True, 10),
+    ("/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf", True, 6),
+]
+
+
+def spaced(d, text, font, spacing):
+    return sum(d.textlength(c, font=font) for c in text) + spacing * (len(text) - 1)
+
+
+def logo(t, i):
+    path, upper, spacing = LOGO_FONTS[i % len(LOGO_FONTS)]
+    text = t["name"].upper() if upper else t["name"]
+    size = 150
+    pad = 60
+    probe = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    font = ImageFont.truetype(path, size)
+    words = text.split(" ")
+    lines = [text]
+    if len(words) > 2 and spaced(probe, text, font, spacing) > 1300:
+        half = (len(words) + 1) // 2
+        lines = [" ".join(words[:half]), " ".join(words[half:])]
+    width = int(max(spaced(probe, line, font, spacing) for line in lines))
+    line_h = int(size * 1.2)
+    w, h = width + pad * 2, line_h * len(lines) + pad * 2 + 40
+    layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    accent = rgb(PALETTES[t["palette"]][2])
+    y = pad
+    for line in lines:
+        x = pad + (width - spaced(d, line, font, spacing)) / 2
+        for c in line:
+            d.text((x, y), c, font=font, fill=(250, 244, 232, 255))
+            x += d.textlength(c, font=font) + spacing
+        y += line_h
+    d.rectangle((w / 2 - 90, y + 8, w / 2 + 90, y + 18), fill=accent + (255,))
+    shadow = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    shadow.paste((0, 0, 0, 200), mask=layer.split()[3].filter(ImageFilter.GaussianBlur(10)))
+    out = Image.alpha_composite(shadow, layer)
+    out = out.crop(out.getbbox())
+    return out.resize((out.width // 2, out.height // 2), Image.LANCZOS)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
     for i, t in enumerate(TITLES):
+        logo(t, i).save(os.path.join(OUT, f"logo-{t['slug']}.png"), optimize=True)
         poster(t, i + 1).save(os.path.join(OUT, f"poster-{t['slug']}.jpg"), quality=82, optimize=True)
         backdrop(t, i + 1).save(os.path.join(OUT, f"backdrop-{t['slug']}.jpg"), quality=80, optimize=True)
-    print(f"wrote {len(TITLES) * 2} images to {OUT}")
+    print(f"wrote {len(TITLES) * 3} images to {OUT}")
 
 
 if __name__ == "__main__":

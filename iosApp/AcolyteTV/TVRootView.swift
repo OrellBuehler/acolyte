@@ -46,7 +46,16 @@ struct TVBrandMark: View {
 
 struct TVMainTabs: View {
     let account: AccountInfo
-    @State private var tabs = TVTabSelection(.home)
+    @State private var tabs: TVTabSelection
+
+    init(account: AccountInfo) {
+        self.account = account
+        #if DEBUG
+        _tabs = State(initialValue: TVTabSelection(TVScreenshotLaunch.startTab(for: account)))
+        #else
+        _tabs = State(initialValue: TVTabSelection(.home))
+        #endif
+    }
 
     var body: some View {
         TabView(selection: Binding(get: { tabs.value }, set: { tabs.value = $0 })) {

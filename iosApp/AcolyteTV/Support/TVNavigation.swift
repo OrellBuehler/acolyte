@@ -103,6 +103,9 @@ struct TVTabHost<Root: View>: View {
         }
         .environment(navigator)
         .environment(router)
+        #if DEBUG
+        .task { await TVScreenshotLaunch.open(navigator) }
+        #endif
         .fullScreenCover(item: $router.ask) { target in
             TVAskView(kind: target.kind, tmdb: target.tmdb, fourK: target.fourK)
         }
