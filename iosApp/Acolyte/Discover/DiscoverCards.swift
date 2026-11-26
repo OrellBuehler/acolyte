@@ -348,7 +348,8 @@ struct BrowseTileView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             Theme.surfaceRaised
-            AuthImage(source: image, size: .backdrop) { Theme.surfaceRaised }
+            Color.clear.overlay { AuthImage(source: image, size: .backdrop) { Theme.surfaceRaised } }
+                .clipped()
             if plain {
                 LinearGradient(colors: [.clear, Theme.artScrim], startPoint: .top, endPoint: .bottom)
             } else {

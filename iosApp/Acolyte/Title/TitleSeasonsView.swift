@@ -278,8 +278,9 @@ struct EpisodeSheetView: View {
         let e = state.episode
         return List {
             Section {
-                AuthImage(source: e.still, size: .backdrop) { ArtPlaceholderView(name: e.name.isEmpty ? state.code : e.name) }
+                Color.clear
                     .aspectRatio(16 / 9, contentMode: .fit)
+                    .overlay { AuthImage(source: e.still, size: .backdrop) { ArtPlaceholderView(name: e.name.isEmpty ? state.code : e.name) } }
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
                     .listRowInsets(EdgeInsets())
                 Text(e.name.isEmpty ? L10n.format("title.episode.number", e.episode) : e.name).font(.headline)

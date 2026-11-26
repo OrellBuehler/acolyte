@@ -253,7 +253,8 @@ private struct PictureTile: View {
         } label: {
             ZStack(alignment: .bottomLeading) {
                 Theme.surfaceRaised
-                AuthImage(source: card.backdrop ?? card.poster, size: .hero) { ArtPlaceholderView(name: card.name) }
+                Color.clear.overlay { AuthImage(source: card.backdrop ?? card.poster, size: .hero) { ArtPlaceholderView(name: card.name) } }
+                    .clipped()
                 LinearGradient(colors: [.clear, Theme.artScrimStrong], startPoint: UnitPoint(x: 0.5, y: 0.4), endPoint: .bottom)
                 VStack(alignment: .leading, spacing: 2) {
                     if let logo = card.logo {

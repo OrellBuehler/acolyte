@@ -24,7 +24,7 @@ struct SettingsHomeView: View {
     var body: some View {
         content
             .navigationTitle(SectionID.settings.title)
-            .searchable(text: $query, prompt: L10n.tr("settings.home.search"))
+            .searchable(text: $query, placement: .navigationBarDrawer(displayMode: .always), prompt: L10n.tr("settings.home.search"))
             .task { await store.watch() }
             .task { await store.load() }
             .task { await store.followLive() }
@@ -33,15 +33,18 @@ struct SettingsHomeView: View {
     @ViewBuilder
     private var content: some View {
         if !store.info.allowed {
-            if store.info.load.phase == .loading {
-                LoadingStateView()
-            } else {
-                EmptyStateView(
-                    title: L10n.tr("settings.home.not.allowed"),
-                    message: L10n.tr("settings.home.not.allowed.text"),
-                    systemImage: "lock"
-                )
-            }
+            List {}
+                .overlay {
+                    if store.info.load.phase == .loading {
+                        LoadingStateView()
+                    } else {
+                        EmptyStateView(
+                            title: L10n.tr("settings.home.not.allowed"),
+                            message: L10n.tr("settings.home.not.allowed.text"),
+                            systemImage: "lock"
+                        )
+                    }
+                }
         } else if query.trimmingCharacters(in: .whitespaces).isEmpty {
             overview
         } else {
@@ -100,11 +103,14 @@ struct SettingsHomeView: View {
     private var results: some View {
         let hits = found
         if hits.isEmpty {
-            EmptyStateView(
-                title: L10n.tr("settings.home.search.empty.title"),
-                message: L10n.tr("settings.home.search.empty.text"),
-                systemImage: "magnifyingglass"
-            )
+            List {}
+                .overlay {
+                    EmptyStateView(
+                        title: L10n.tr("settings.home.search.empty.title"),
+                        message: L10n.tr("settings.home.search.empty.text"),
+                        systemImage: "magnifyingglass"
+                    )
+                }
         } else {
             List(hits) { page in
                 SettingsLink(page: page) {

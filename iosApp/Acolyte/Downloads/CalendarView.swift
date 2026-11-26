@@ -351,12 +351,14 @@ private struct CalendarEntrySheet: View {
     private func content(_ group: CalendarGroupInfo) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.small) {
-                AuthImage(source: group.art, size: .backdrop) {
-                    ArtPlaceholderView(name: group.title)
-                }
-                .frame(maxWidth: .infinity)
-                .aspectRatio(16.0 / 9.0, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
+                Color.clear
+                    .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                    .overlay {
+                        AuthImage(source: group.art, size: .backdrop) {
+                            ArtPlaceholderView(name: group.title)
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
                 Text(group.whenText + " · " + group.tagText)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(Theme.accentText)

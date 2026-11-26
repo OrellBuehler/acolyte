@@ -23,13 +23,16 @@ struct TrailerPlayerView: View {
             }
             .padding(Theme.Spacing.large)
             if !source.youTubeURL.isEmpty {
-                VStack {
-                    Spacer()
-                    Button(L10n.tr("title.watch.on.youtube")) { openYouTube() }
+                Button { openYouTube() } label: {
+                    Label(L10n.tr("title.watch.on.youtube"), systemImage: "arrow.up.right.square")
+                        .font(.footnote.weight(.semibold))
                         .foregroundStyle(Theme.onArt)
-                        .padding(Theme.Spacing.large)
+                        .padding(.horizontal, Theme.Spacing.medium)
+                        .padding(.vertical, Theme.Spacing.small)
+                        .background(Theme.artScrim, in: Capsule())
                 }
-                .frame(maxWidth: .infinity)
+                .padding(Theme.Spacing.large)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }
         .preferredColorScheme(.dark)

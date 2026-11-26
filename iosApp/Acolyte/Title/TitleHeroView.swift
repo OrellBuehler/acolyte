@@ -7,12 +7,14 @@ struct TitleHeroView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.Spacing.small) {
             ZStack(alignment: .bottomLeading) {
-                AuthImage(source: info.backdrop.isEmpty ? info.poster : info.backdrop, size: .hero) {
-                    ArtPlaceholderView(name: info.name)
-                }
-                .frame(maxWidth: .infinity)
-                .aspectRatio(16 / 11, contentMode: .fit)
-                .clipped()
+                Color.clear
+                    .aspectRatio(16 / 11, contentMode: .fit)
+                    .overlay {
+                        AuthImage(source: info.backdrop.isEmpty ? info.poster : info.backdrop, size: .hero) {
+                            ArtPlaceholderView(name: info.name)
+                        }
+                    }
+                    .clipped()
                 LinearGradient(
                     stops: [
                         .init(color: Theme.artScrim.opacity(0.35), location: 0),
