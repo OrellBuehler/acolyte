@@ -23,7 +23,8 @@ struct TVExploreView: View {
                     hero: info.hero,
                     pills: info.heroPills.map { DiscoverText.pill($0) },
                     lookup: TVFocusLookup.cards(all),
-                    initialFocus: info.rows.first.flatMap { row in row.cards.first.map { TVFocusKey.id(row: row.id, card: $0.id) } }
+                    initialFocus: info.rows.first.flatMap { row in row.cards.first.map { TVFocusKey.id(row: row.id, card: $0.id) } },
+                    screen: "explore"
                 ) {
                     header(info)
                 } content: { focus in

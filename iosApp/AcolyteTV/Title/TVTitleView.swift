@@ -201,7 +201,7 @@ private struct TVTitleActions: View {
             }
         }
         .focusSection()
-        .screenshotFocus($focus, id: firstAction)
+        .screenshotFocus($focus, id: firstAction, screen: "title")
     }
 
     private func askText(_ offer: AskOfferKind) -> String {

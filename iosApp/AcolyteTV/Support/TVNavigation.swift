@@ -48,6 +48,8 @@ final class TVNavigator {
         self.tabs = tabs
     }
 
+    var currentTab: SectionID { tabs.value }
+
     func open(_ route: Route) {
         router.open(route)
     }

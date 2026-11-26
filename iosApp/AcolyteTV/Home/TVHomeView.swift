@@ -73,7 +73,7 @@ struct TVHomeView: View {
                 }
             }
         }
-        .screenshotFocus($focus, id: featured.first.map { TVFocusKey.id(row: TVHomeView.featuredRow, card: $0.card.id) })
+        .screenshotFocus($focus, id: featured.first.map { TVFocusKey.id(row: TVHomeView.featuredRow, card: $0.card.id) }, screen: "home")
         .onChange(of: focus) { _, new in
             guard let new, let card = lookup[new] else { return }
             ambient = card
