@@ -52,7 +52,7 @@ struct TVHomeView: View {
                                 }
                             }
                         }
-                        .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height }
+                        .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height - 300 }
                         ForEach(rows, id: \.row.id) { entry in
                             TVCardRow(row: entry.row, title: entry.title, seeAll: seeAll(entry.row), focus: $focus)
                         }
@@ -73,6 +73,7 @@ struct TVHomeView: View {
                 }
             }
         }
+        .screenshotFocus($focus, id: featured.first.map { TVFocusKey.id(row: TVHomeView.featuredRow, card: $0.card.id) })
         .onChange(of: focus) { _, new in
             guard let new, let card = lookup[new] else { return }
             ambient = card

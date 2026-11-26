@@ -54,7 +54,7 @@ struct TVTitleView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: Theme.TV.sectionGap) {
                         TVTitleHero(info: info, store: store)
-                            .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height * 0.8 }
+                            .containerRelativeFrame(.vertical, alignment: .bottomLeading) { height, _ in height * 0.58 }
                         TVTitleShelves(info: info, store: store)
                     }
                 }
@@ -155,7 +155,16 @@ private struct TVTitleHero: View {
 private struct TVTitleActions: View {
     let info: TitleInfo
     let store: TitleStore
+    @FocusState private var focus: String?
     @Environment(TVNavigator.self) private var navigator
+
+    private var firstAction: String? {
+        if info.askOffer != nil { return "ask" }
+        if !info.trailerKey.isEmpty { return "trailer" }
+        if info.fourKOffer != nil { return "4k" }
+        if info.access.followOn && info.hasTmdb { return "follow" }
+        return nil
+    }
 
     var body: some View {
         HStack(spacing: 24) {
@@ -163,18 +172,21 @@ private struct TVTitleActions: View {
                 TVActionButton(title: askText(offer), systemImage: offer == .asked ? "checkmark" : "plus") {
                     navigator.open(.ask(kind: info.kind, tmdb: info.tmdb))
                 }
+                .focused($focus, equals: "ask")
                 .disabled(offer == .asked)
             }
             if !info.trailerKey.isEmpty {
                 TVActionButton(title: L10n.tr("title.trailer"), systemImage: "play.rectangle") {
                     store.playTrailer()
                 }
+                .focused($focus, equals: "trailer")
                 .disabled(store.trailerLoading)
             }
             if let offer = info.fourKOffer {
                 TVActionButton(title: offer == .asked ? L10n.tr("title.requested.4k") : L10n.tr("title.request.4k")) {
                     navigator.open(.ask(kind: info.kind, tmdb: info.tmdb, fourK: true))
                 }
+                .focused($focus, equals: "4k")
                 .disabled(offer == .asked)
             }
             if info.access.followOn && info.hasTmdb {
@@ -184,10 +196,12 @@ private struct TVTitleActions: View {
                 ) {
                     store.run { await $0.toggleFollow() }
                 }
+                .focused($focus, equals: "follow")
                 .disabled(info.followBusy)
             }
         }
         .focusSection()
+        .screenshotFocus($focus, id: firstAction)
     }
 
     private func askText(_ offer: AskOfferKind) -> String {

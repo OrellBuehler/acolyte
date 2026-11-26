@@ -48,6 +48,7 @@ struct TVRequestsView: View {
         } message: {
             if info.isCut { Text(L10n.tr("requests.approve.all.cut")) }
         }
+        .screenshotFocus($focus, id: info.shown.first.map { String($0.id) })
         .onChange(of: focus) { _, new in
             guard let new, let ask = info.shown.first(where: { String($0.id) == new }) else { return }
             ambient = ask.poster.isEmpty ? nil : ask.poster

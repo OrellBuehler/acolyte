@@ -18,7 +18,8 @@ struct TVPopularView: View {
                 TVBrowsePage(
                     hero: info.hero,
                     pills: info.heroPills.map { DiscoverText.pill($0, rank: info.heroRank, service: info.heroService) },
-                    lookup: lookup(info)
+                    lookup: lookup(info),
+                    initialFocus: info.days.first.flatMap { day in day.entries.first.map { TVFocusKey.id(row: "day-" + day.day, card: $0.card.id) } }
                 ) {
                     header(info)
                 } content: { focus in

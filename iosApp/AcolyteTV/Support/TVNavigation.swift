@@ -108,6 +108,7 @@ struct TVTabHost<Root: View>: View {
         #endif
         .fullScreenCover(item: $router.ask) { target in
             TVAskView(kind: target.kind, tmdb: target.tmdb, fourK: target.fourK)
+                .preferredColorScheme(.dark)
         }
     }
 }

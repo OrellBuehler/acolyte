@@ -4,6 +4,7 @@ struct TVBrowsePage<Header: View, Content: View>: View {
     let hero: DiscoverCardInfo?
     var pills: [String] = []
     let lookup: [String: DiscoverCardInfo]
+    var initialFocus: String?
     @ViewBuilder var header: () -> Header
     @ViewBuilder var content: (FocusState<String?>.Binding) -> Content
     @State private var ambient: DiscoverCardInfo?
@@ -28,6 +29,7 @@ struct TVBrowsePage<Header: View, Content: View>: View {
                 }
             }
         }
+        .screenshotFocus($focus, id: initialFocus)
         .onChange(of: focus) { _, new in
             guard let new, let card = lookup[new] else { return }
             ambient = card

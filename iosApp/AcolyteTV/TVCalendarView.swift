@@ -43,6 +43,7 @@ struct TVCalendarView: View {
                 }
             }
         }
+        .screenshotFocus($focus, id: info.days.first?.groups.first?.key)
         .onChange(of: focus) { _, new in
             guard let new, let group = info.group(new) else { return }
             ambient = group.art

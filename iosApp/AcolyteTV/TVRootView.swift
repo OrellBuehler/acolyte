@@ -52,12 +52,27 @@ struct TVMainTabs: View {
     var body: some View {
         TabView(selection: Binding(get: { tabs.value }, set: { tabs.value = $0 })) {
             ForEach(TVSections.tabs(for: account)) { section in
-                Tab(section.title, systemImage: section.symbol, value: section) {
+                Tab(value: section) {
                     TVTabHost(account: account, tabs: tabs) {
                         TVSectionScreen(section: section, account: account)
                     }
+                } label: {
+                    TVTabLabel(section: section)
                 }
             }
+        }
+    }
+}
+
+struct TVTabLabel: View {
+    let section: SectionID
+
+    var body: some View {
+        if section == .settings {
+            Image(systemName: section.symbol)
+                .accessibilityLabel(section.title)
+        } else {
+            Text(section.title)
         }
     }
 }
