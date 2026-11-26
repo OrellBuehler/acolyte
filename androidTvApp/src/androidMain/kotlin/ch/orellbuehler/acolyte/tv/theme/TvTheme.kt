@@ -23,6 +23,7 @@ object TvMetrics {
     val backdropWidth: Dp = 200.dp
     val backdropHeight: Dp = 112.dp
     val personSize: Dp = 84.dp
+    val personPhoto: Dp = 120.dp
     val gutter: Dp = 16.dp
     val sectionGap: Dp = 28.dp
     val focusPad: Dp = 14.dp
