@@ -46,7 +46,8 @@ object TvMetrics {
     val modeTileHeight: Dp = 140.dp
     const val FOCUS_SCALE = 1.08f
     const val HERO_FRACTION = 0.62f
-    const val TITLE_HERO_FRACTION = 0.8f
+    const val HOME_HERO_FRACTION = 0.86f
+    const val TITLE_HERO_FRACTION = 0.66f
 }
 
 object TvType {

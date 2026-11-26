@@ -407,7 +407,7 @@ private fun EntryRow(
             modifier = Modifier.width(96.dp).height(54.dp).clip(RoundedCornerShape(Radius.Poster / 2)),
         )
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("${whenText(g)} · ${tagText(g)}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.acolyte.accentText)
+            Text(calendarHeadline(g), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.acolyte.accentText)
             Text(g.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
             captionLines(g).forEach {
                 Text(it, style = MaterialTheme.typography.bodySmall, color = muted, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -452,7 +452,7 @@ private fun EntrySheet(
                 placeholderName = g.title,
                 modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).clip(RoundedCornerShape(Radius.Card)),
             )
-            Text("${whenText(g)} · ${tagText(g)}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.acolyte.accentText)
+            Text(calendarHeadline(g), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.acolyte.accentText)
             Text(g.title, style = MaterialTheme.typography.titleLarge)
             if (g.kind == "episode") {
                 val today = state.today

@@ -90,7 +90,7 @@ fun TvHomeContent(
                 verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
             ) {
                 item(key = "billboard") {
-                    Column(Modifier.fillParentMaxHeight(1f), verticalArrangement = Arrangement.Bottom) {
+                    Column(Modifier.fillParentMaxHeight(TvMetrics.HOME_HERO_FRACTION), verticalArrangement = Arrangement.Bottom) {
                         state.status.error?.let { TvNoticeBanner(errorText(it), Modifier.tvPageInset()) }
                         Spacer(Modifier.weight(1f))
                         if (shown != null) {

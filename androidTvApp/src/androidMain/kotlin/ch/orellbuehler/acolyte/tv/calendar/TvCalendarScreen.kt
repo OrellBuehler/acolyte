@@ -32,11 +32,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Text
 import ch.orellbuehler.acolyte.feature.downloads.CalendarFollows
-import ch.orellbuehler.acolyte.feature.downloads.CalendarGroup
 import ch.orellbuehler.acolyte.feature.downloads.CalendarState
 import ch.orellbuehler.acolyte.feature.downloads.CalendarType
-import ch.orellbuehler.acolyte.feature.downloads.EntryTag
-import ch.orellbuehler.acolyte.feature.downloads.EntryWhen
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.tv.components.TvActionButton
 import ch.orellbuehler.acolyte.tv.components.TvBackdropCard
@@ -57,12 +54,11 @@ import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.errorText
 import ch.orellbuehler.acolyte.ui.downloads.calendarDayHeading
 import ch.orellbuehler.acolyte.ui.downloads.calendarFollowsLabel
+import ch.orellbuehler.acolyte.ui.downloads.calendarHeadline
 import ch.orellbuehler.acolyte.ui.downloads.calendarMonthTitle
 import ch.orellbuehler.acolyte.ui.downloads.calendarTypeLabel
 import ch.orellbuehler.acolyte.ui.downloads.captionLines
 import ch.orellbuehler.acolyte.ui.downloads.dotText
-import ch.orellbuehler.acolyte.ui.downloads.tagText
-import ch.orellbuehler.acolyte.ui.downloads.whenText
 import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
@@ -145,7 +141,7 @@ fun TvCalendarContent(
                         items(day.groups, key = { it.key }) { group ->
                             TvBackdropCard(
                                 title = group.title,
-                                subtitle = groupSubtitle(group),
+                                subtitle = calendarHeadline(group),
                                 detail = captionLines(group).joinToString(" · "),
                                 chip = TvChipInfo(dotText(group.dot), group.dot.tone),
                                 image = group.art,
@@ -161,14 +157,6 @@ fun TvCalendarContent(
         }
     }
 }
-
-@Composable
-private fun groupSubtitle(group: CalendarGroup): String =
-    if (group.whenKind == EntryWhen.IN_THEATERS && group.tag == EntryTag.IN_CINEMAS) {
-        tagText(group)
-    } else {
-        "${whenText(group)} · ${tagText(group)}"
-    }
 
 @Composable
 private fun MonthBar(
