@@ -77,6 +77,9 @@ class DemoServerTest {
                 check("asks") { strict.call(RequestsEndpoints.asks) }
                 check("owned") { strict.call(DiscoverEndpoints.owned) }
                 check("head") { strict.call(DiscoverEndpoints.head, "type" to "all", "tz" to null, "services" to "", "region" to null) }
+                check("genre row") { strict.call(DiscoverEndpoints.genreRow, "type" to "all") }
+                check("popular") { strict.call(DiscoverEndpoints.popular, "type" to "all", "page" to 0) }
+                check("calendar") { strict.call(DownloadsEndpoints.calendar, "from" to "2026-11-01", "to" to "2026-12-05") }
                 check("details movie") { strict.call(TitleEndpoints.details, "kind" to "movie", "tmdb_id" to "910004") }
                 check("details show") { strict.call(TitleEndpoints.details, "kind" to "show", "tmdb_id" to "920001") }
                 strict.close()

@@ -46,7 +46,7 @@ The pictures come from the `Store Screenshots` workflow and show invented demo d
 
 ## Status
 
-In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) builds in CI but is not part of the release builds yet.
+In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) builds in CI and ships to TestFlight with the release builds once the tvOS profile secret exists (see Release).
 
 ## How it fits together
 
@@ -127,25 +127,27 @@ To move to a new HolyArrs release: `scripts/api/update-spec.sh [tag]` (default: 
 
 ## Store screenshots
 
-The `Store Screenshots` workflow (Actions tab, Run workflow) captures the App Store and Google Play screenshots without anyone running the app: an emulator (Android) and a simulator (iPhone Pro Max) run the Debug apps against `scripts/screenshots/demo-server.py`, a small HolyArrs stand-in (Python standard library only) that answers the `/api/v1` calls of the captured screens from the invented catalog in `scripts/screenshots/catalog.py` (invented titles, people and generated artwork, see `scripts/screenshots/art/NOTICE.md`). The apps go through the normal sign-in flow; only the Debug builds read the launch arguments (iOS) or intent extras (Android) in `ScreenshotLaunch.swift` / `ScreenshotLaunch.kt` that sign in and open a screen. The language follows the apps' own locale (English, and German with the Swiss locale), dark mode, clean status bar (9:41, full battery).
+The `Store Screenshots` workflow (Actions tab, Run workflow) captures the App Store and Google Play screenshots without anyone running the app: an emulator (Android) and simulators (iPhone Pro Max, Apple TV 4K) run the Debug apps against `scripts/screenshots/demo-server.py`, a small HolyArrs stand-in (Python standard library only) that answers the `/api/v1` calls of the captured screens from the invented catalog in `scripts/screenshots/catalog.py` (invented titles, people and generated artwork, see `scripts/screenshots/art/NOTICE.md`). The apps go through the normal sign-in flow; only the Debug builds read the launch arguments (iOS) or intent extras (Android) in `ScreenshotLaunch.swift` / `TVScreenshotLaunch.swift` / `ScreenshotLaunch.kt` that sign in and open a screen. The language follows the apps' own locale (English, and German with the Swiss locale), dark mode, clean status bar (9:41, full battery).
 
 | Where | What |
 |---|---|
-| Artifacts `ios-store-screenshots`, `android-store-screenshots` | The PNGs, laid out like `store/screenshots/` |
+| Artifacts `ios-store-screenshots`, `android-store-screenshots`, `tvos-store-screenshots` | The PNGs, laid out like `store/screenshots/` |
 | `store/screenshots/ios/<locale>/iphone-6.9/NN-name.png` | 1320 x 2868, the App Store 6.9 inch slot |
 | `store/screenshots/android/<locale>/phone/NN-name.png` | 1080 x 1920, Google Play phone screenshots |
+| `store/screenshots/tvos/<locale>/NN-name.png` | 3840 x 2160, the App Store Apple TV slot (`scripts/screenshots/tvos.sh` waits until the demo server is quiet, so pictures are loaded, then captures) |
 
 Locales are `en-US` and `de-DE` (the app runs as `de-CH` for the German set). Tick `commit` when running the workflow to put the new PNGs on the branch `store-screenshots/refresh` and open a pull request; a plain run only uploads the artifacts.
 
-Locally, `python3 scripts/screenshots/demo-server.py` serves the demo data on port 6263 (sign in with any user and password), and `ACOLYTE_DEMO_URL=http://127.0.0.1:6263 ./gradlew shared:testDebugUnitTest --tests '*DemoServerTest*'` checks that the shared presenters accept it, with strict decoding. To add a screen: add a line to `scripts/screenshots/screens.sh` (a section name or `title:<kind>:<tmdb id>`), serve what the screen calls in `demo-server.py` (the log lists every call it did not know), and look at the result in the next workflow run. New artwork: add the title to `catalog.py` and run `scripts/screenshots/make-art.py` (needs Pillow).
+Locally, `python3 scripts/screenshots/demo-server.py` serves the demo data on port 6263 (sign in with any user and password), and `ACOLYTE_DEMO_URL=http://127.0.0.1:6263 ./gradlew shared:testDebugUnitTest --tests '*DemoServerTest*'` checks that the shared presenters accept it, with strict decoding. To add a screen: add a line to `scripts/screenshots/screens.sh` (`SCREENS` for the phones, `TV_SCREENS` for the TV apps; a section name or `title:<kind>:<tmdb id>`), serve what the screen calls in `demo-server.py` (the log lists every call it did not know), and look at the result in the next workflow run. New artwork: add the title to `catalog.py` and run `scripts/screenshots/make-art.py` (needs Pillow).
 
 ## Release
 
-Every store build belongs to a [GitHub release](https://github.com/OrellBuehler/acolyte/releases): publishing a release (tag such as `v1.0.0`) runs `release.yml`, and the tag is the version in both stores. Starting the workflow by hand from the Actions tab (inputs: `version`, and `platforms` = both, android or ios) only retries a platform of a release that already exists. The version must look like `1.2.3` or `v1.2.3`. Until the secrets exist the workflow does nothing on pushes and a release run fails in its first step, naming the missing secrets.
+Every store build belongs to a [GitHub release](https://github.com/OrellBuehler/acolyte/releases): publishing a release (tag such as `v1.0.0`) runs `release.yml`, and the tag is the version in both stores. Starting the workflow by hand from the Actions tab (inputs: `version`, and `platforms` = all, both (the two phone apps), android, ios or tvos) only retries a platform of a release that already exists. The version must look like `1.2.3` or `v1.2.3`. Until the secrets exist the workflow does nothing on pushes and a release run fails in its first step, naming the missing secrets.
 
 - **Versions**: the tag without `v` is the Android `versionName` and the iOS `MARKETING_VERSION`. The workflow run number is the iOS build number and is folded into the Android `versionCode` (`(major*10000 + minor*100 + patch) * 1000 + run number`), so re-runs always increase.
 - **Android job**: builds a signed AAB and APK, uploads both as workflow artifacts, attaches them to the GitHub release as `acolyte-<version>.apk` and `.aab`, and uploads the AAB to the Google Play internal testing track when `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` is set.
 - **iOS job**: checks the stored provisioning profile, builds the shared release framework, archives with App Store Connect API key cloud signing, removes the development certificates that cloud signing created, exports with manual signing (Apple Distribution certificate and the stored profile), verifies the signature and uploads to TestFlight. The IPA is kept as workflow artifact.
+- **tvOS job**: the same steps for the `AcolyteTV` scheme (release framework for `tvosArm64`, archive for `generic/platform=tvOS`, `iosApp/ExportOptionsTV.plist`, upload with `altool -t appletvos`). It uses the same marketing version and build number (the run number) as the iOS job, in the same App Store Connect app, and runs after the iOS job because both create and revoke cloud-signing development certificates. While `TVOS_PROFILE_APP_BASE64` is not set the job `tvos-config` ends green with a notice and the build is skipped; once it is set, any missing secret or failure fails the run like iOS. It never blocks the Android and iOS jobs.
 
 | Secret | Job | Content |
 |---|---|---|
@@ -160,9 +162,12 @@ Every store build belongs to a [GitHub release](https://github.com/OrellBuehler/
 | `APPLE_TEAM_ID` | iOS | Apple developer team ID (injected into `iosApp/ExportOptions.plist` during the job) |
 | `IOS_DIST_CERT_P12_BASE64` | iOS | Apple Distribution certificate with private key, exported as `.p12`, base64 on one line |
 | `IOS_DIST_CERT_PASSWORD` | iOS | Password of the `.p12` |
+| `TVOS_PROFILE_APP_BASE64` | tvOS, optional | tvOS App Store provisioning profile for `ch.orellbuehler.acolyte` named `Acolyte tvOS App Store`, base64 on one line: `openssl base64 -A -in Acolyte_tvOS_App_Store.mobileprovision \| gh secret set TVOS_PROFILE_APP_BASE64`. Without it the tvOS build is skipped. The other Apple secrets are shared with iOS. |
 | `IOS_PROFILE_APP_BASE64` | iOS | App Store provisioning profile for `ch.orellbuehler.acolyte`, base64 on one line: `openssl base64 -A -in Acolyte_App_Store.mobileprovision \| gh secret set IOS_PROFILE_APP_BASE64` |
 
 One-time iOS setup: register the App ID `ch.orellbuehler.acolyte`, create the app in App Store Connect, and create the App Store provisioning profile with the exact name `Acolyte App Store` (the name `iosApp/ExportOptions.plist` refers to). The app uses no capabilities yet; if it gains some, regenerate the profile and update the secret.
+
+One-time tvOS setup: in App Store Connect open the app, add the tvOS platform (same bundle ID, so it is one app record), then in the Apple Developer portal create a tvOS App Store provisioning profile for `ch.orellbuehler.acolyte` with the Apple Distribution certificate, named exactly `Acolyte tvOS App Store` (the name `iosApp/ExportOptionsTV.plist` refers to), and store it in `TVOS_PROFILE_APP_BASE64`. A tvOS build needs the tvOS App Store icon (1280 x 768) and the top shelf images, which the asset catalog `iosApp/AcolyteTV/Assets.xcassets` has. Not verified by a real upload yet: the tvOS job has never run with signing.
 
 ## Website
 

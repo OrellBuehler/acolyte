@@ -23,8 +23,6 @@ RENDER_SECONDS="${RENDER_SECONDS:-4}"
 WIDTH=3840
 HEIGHT=2160
 
-xcrun simctl ui "$DEVICE_ID" appearance dark
-
 wait_settled() {
   local base="$1" last=-1 stable=0 waited=0 count
   while [ "$waited" -lt "$MAX_WAIT_SECONDS" ]; do
@@ -87,4 +85,3 @@ for entry in "en|en_US|en-US" "de|de_CH|de-DE"; do
   done
 done
 
-xcrun simctl ui "$DEVICE_ID" appearance light
