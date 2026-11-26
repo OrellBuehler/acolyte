@@ -123,6 +123,32 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             ARCHS=arm64
 
+  tvos-release-build-temp:
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+      - name: Build shared tvOS framework (release)
+        run: ./gradlew shared:linkReleaseFrameworkTvosSimulatorArm64
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk appletvsimulator --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Release/appletvsimulator${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/tvosSimulatorArm64/releaseFramework/shared.framework "$DEST/"
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+      - name: Build tvOS app (Release)
+        working-directory: iosApp
+        run: |
+          xcodebuild build -project Acolyte.xcodeproj -scheme AcolyteTV \
+            -destination 'generic/platform=tvOS Simulator' -configuration Release \
+            CODE_SIGNING_ALLOWED=NO ARCHS=arm64
+
   tvos-tests:
     needs: tvos-build
     runs-on: xcode-27
