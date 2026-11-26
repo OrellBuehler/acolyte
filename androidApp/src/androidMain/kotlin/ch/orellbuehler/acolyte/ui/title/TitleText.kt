@@ -23,6 +23,7 @@ import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun libraryLabel(status: LibraryStatus): String =
@@ -60,7 +61,7 @@ fun pillText(
 fun feedbackText(feedback: Feedback): String {
     val f = feedback
     return when (f.kind) {
-        FeedbackKind.FAILED -> f.error?.let { errorText(it) } ?: f.text.ifBlank { stringResource(R.string.error_unknown) }
+        FeedbackKind.FAILED -> f.error?.let { errorText(it) } ?: f.text.ifBlank { stringResource(CommonR.string.error_unknown) }
         FeedbackKind.SEARCHING -> stringResource(R.string.title_note_searching, f.text)
         FeedbackKind.SEARCHING_SEASON -> stringResource(R.string.title_note_searching_season, f.count)
         FeedbackKind.SEARCHING_EPISODE -> stringResource(R.string.title_note_searching_episode, f.text)

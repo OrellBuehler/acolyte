@@ -30,6 +30,7 @@ import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.errorText
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun AddTitleContent(
@@ -180,7 +181,9 @@ fun AddTitleContent(
                                 stringResource(if (state.manage) R.string.title_batch_added else R.string.title_batch_requested) to
                                     Tone.OK
                             BatchLine.ALREADY -> stringResource(R.string.title_batch_already) to Tone.WAIT
-                            BatchLine.FAILED -> (item.error?.let { errorText(it) } ?: stringResource(R.string.error_unknown)) to Tone.FAIL
+                            BatchLine.FAILED ->
+                                (item.error?.let { errorText(it) } ?: stringResource(CommonR.string.error_unknown)) to
+                                    Tone.FAIL
                         }
                     StatusChip(text, tone)
                 }

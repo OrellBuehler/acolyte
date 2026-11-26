@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_title_air_today">Heute</string>
+    <string name="tv_title_air_tomorrow">Morgen</string>
+    <string name="tv_title_air_yesterday">Gestern</string>
+    <string name="tv_title_blocked">Dieser Titel ist für dieses Konto nicht verfügbar.</string>
+    <string name="tv_title_card_in_library">In der Library</string>
+    <string name="tv_title_card_ready">Bereit zum Schauen</string>
+    <string name="tv_title_card_requested">Gewünscht</string>
+    <string name="tv_title_cast">Besetzung und Team</string>
+    <string name="tv_title_close">Schliessen</string>
+    <string name="tv_title_episode_number">Folge %1$d</string>
+    <string name="tv_title_follow">Folgen</string>
+    <string name="tv_title_following">Folge ich</string>
+    <string name="tv_title_more_from">Mehr von %1$s</string>
+    <string name="tv_title_more_from_them">Mehr von der Regie</string>
+    <string name="tv_title_more_like_this">Ähnliche Titel</string>
+    <string name="tv_title_more_with">Mehr mit %1$s</string>
+    <string name="tv_title_no_air_date">Noch kein Sendedatum</string>
+    <string name="tv_title_not_found">Wir konnten diesen Titel nicht finden</string>
+    <string name="tv_title_not_found_hint">Er wurde vielleicht entfernt. Suche nach dem Namen.</string>
+    <string name="tv_title_not_in_library">Dieser Titel ist nicht in deiner Library</string>
+    <string name="tv_title_not_in_library_hint">Er wurde vielleicht entfernt.</string>
+    <string name="tv_title_pill_approved">Genehmigt</string>
+    <string name="tv_title_pill_asked">Gewünscht</string>
+    <string name="tv_title_pill_available">Bereit zum Schauen</string>
+    <string name="tv_title_pill_hidden">Beim Stöbern ausgeblendet</string>
+    <string name="tv_title_pill_never_add">Nie hinzufügen</string>
+    <string name="tv_title_pill_turned_down">Abgelehnt</string>
+    <string name="tv_title_pill_you_asked">Dein Wunsch: %1$s</string>
+    <string name="tv_title_request">Wünschen</string>
+    <string name="tv_title_request_4k">4K wünschen</string>
+    <string name="tv_title_request_too">Auch wünschen</string>
+    <string name="tv_title_requested">Gewünscht</string>
+    <string name="tv_title_requested_4k">4K gewünscht</string>
+    <string name="tv_title_role_creator">Schöpfer</string>
+    <string name="tv_title_role_director">Regie</string>
+    <string name="tv_title_runtime_hours">%1$d Std.</string>
+    <string name="tv_title_runtime_hours_minutes">%1$d Std. %2$d Min.</string>
+    <string name="tv_title_runtime_minutes">%1$d Min.</string>
+    <string name="tv_title_season_failed">Die Folgen von %1$s konnten nicht gelesen werden; versuche es gleich nochmals.</string>
+    <string name="tv_title_season_number">Staffel %1$d</string>
+    <string name="tv_title_seasons">Staffeln</string>
+    <string name="tv_title_specials">Specials</string>
+    <string name="tv_title_starring">Mit</string>
+    <string name="tv_title_state_download_failed">Download fehlgeschlagen</string>
+    <string name="tv_title_state_downloaded">Geladen</string>
+    <string name="tv_title_state_downloading">Wird geladen</string>
+    <string name="tv_title_state_downloading_percent">Wird geladen %1$d%%</string>
+    <string name="tv_title_state_episodes_of">%1$d von %2$d Folgen</string>
+    <string name="tv_title_state_in_library">In der Library</string>
+    <string name="tv_title_state_not_downloaded">Noch nicht geladen</string>
+    <string name="tv_title_trailer">Trailer</string>
+    <plurals name="tv_title_seasons_count">
+        <item quantity="one">%1$d Staffel</item>
+        <item quantity="other">%1$d Staffeln</item>
+    </plurals>
+    <plurals name="tv_title_state_downloading_episodes">
+        <item quantity="one">%1$d Folge wird geladen</item>
+        <item quantity="other">%1$d Folgen werden geladen</item>
+    </plurals>
+    <plurals name="tv_title_state_failed_episodes">
+        <item quantity="one">%1$d fehlgeschlagen</item>
+        <item quantity="other">%1$d fehlgeschlagen</item>
+    </plurals>
+</resources>

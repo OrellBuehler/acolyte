@@ -67,6 +67,7 @@ import ch.orellbuehler.acolyte.ui.components.signInErrorText
 import ch.orellbuehler.acolyte.ui.invite.InviteScreen
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun ConnectScreen(expired: Boolean) {
@@ -116,7 +117,7 @@ internal fun AuthFrame(content: @Composable ColumnScope.() -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Image(
-                painter = painterResource(R.drawable.ic_brand_mark),
+                painter = painterResource(CommonR.drawable.ic_brand_mark),
                 contentDescription = null,
                 modifier = Modifier.size(72.dp).clip(RoundedCornerShape(16.dp)),
             )

@@ -52,6 +52,7 @@ import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.theme.Spacing
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 fun qrCells(rows: List<String>): List<List<Boolean>> = rows.map { row -> row.map { it == '1' } }
 
@@ -88,7 +89,7 @@ fun SecurityScreen(onBack: () -> Unit) {
                             AccountSecurityProblem.PASSWORD_SHORT -> stringResource(R.string.myaccount_pw_short, state.minPasswordLength)
                             AccountSecurityProblem.PASSWORDS_DIFFER -> stringResource(R.string.myaccount_pw_differ)
                             AccountSecurityProblem.CODE_INVALID -> stringResource(R.string.myaccount_tf_code_invalid)
-                            AccountSecurityProblem.PLEX_TIMEOUT -> stringResource(R.string.signin_error_plex_timeout)
+                            AccountSecurityProblem.PLEX_TIMEOUT -> stringResource(CommonR.string.signin_error_plex_timeout)
                         }
                     ErrorBannerText(text)
                 }

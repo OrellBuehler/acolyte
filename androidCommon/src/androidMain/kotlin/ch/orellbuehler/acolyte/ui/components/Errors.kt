@@ -3,9 +3,9 @@ package ch.orellbuehler.acolyte.ui.components
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.ApiErrorCode
+import ch.orellbuehler.acolyte.common.R
 import ch.orellbuehler.acolyte.session.SignInError
 import ch.orellbuehler.acolyte.session.SignInErrorCode
 

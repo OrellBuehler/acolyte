@@ -63,6 +63,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 class PresenterViewModel<P>(
     val presenter: P,
@@ -194,7 +195,7 @@ fun noticeText(notice: LibraryNotice): String {
     val n = notice.count
     if (notice.kind == LibraryNoticeKind.FAILED) {
         if (notice.name == "missing") return stringResource(R.string.library_notice_folder_missing)
-        return notice.error?.let { libraryErrorText(it) } ?: stringResource(R.string.error_unknown)
+        return notice.error?.let { libraryErrorText(it) } ?: stringResource(CommonR.string.error_unknown)
     }
     if (notice.partly && notice.total > 0) {
         val text = stringResource(R.string.library_notice_partly, n, notice.total, notice.total - n)
@@ -237,7 +238,7 @@ fun noticeText(notice: LibraryNotice): String {
         LibraryNoticeKind.HANDS_OFF_ON -> stringResource(R.string.library_notice_hands_off_on)
         LibraryNoticeKind.HANDS_OFF_OFF -> stringResource(R.string.library_notice_hands_off_off)
         LibraryNoticeKind.TITLE_DELETED -> stringResource(R.string.library_notice_title_deleted, notice.name)
-        LibraryNoticeKind.FAILED -> stringResource(R.string.error_unknown)
+        LibraryNoticeKind.FAILED -> stringResource(CommonR.string.error_unknown)
     }
 }
 
