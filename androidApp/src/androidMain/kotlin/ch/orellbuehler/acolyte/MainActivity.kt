@@ -7,8 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import ch.orellbuehler.acolyte.ui.AcolyteApp
 import ch.orellbuehler.acolyte.ui.SessionViewModel
+import ch.orellbuehler.acolyte.ui.nav.ScreenshotLaunch
 
 class MainActivity : ComponentActivity() {
     private val sdk get() = (application as AcolyteApplication).sdk
@@ -18,6 +20,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        ScreenshotLaunch.start(sdk, intent, lifecycleScope)
         setContent { AcolyteApp(sdk, sessionViewModel) }
     }
 

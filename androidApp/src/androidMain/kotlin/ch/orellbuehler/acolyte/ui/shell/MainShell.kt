@@ -38,6 +38,7 @@ import ch.orellbuehler.acolyte.ui.SessionViewModel
 import ch.orellbuehler.acolyte.ui.nav.AppNavHost
 import ch.orellbuehler.acolyte.ui.nav.Destination
 import ch.orellbuehler.acolyte.ui.nav.RequestsRoute
+import ch.orellbuehler.acolyte.ui.nav.ScreenshotLaunch
 import ch.orellbuehler.acolyte.ui.nav.destination
 
 @Composable
@@ -53,6 +54,7 @@ fun MainShell(
     val requestsTab = Section.REQUESTS in account.tabs
     key(tabs.map { it.route }) {
         val nav = rememberNavController()
+        ScreenshotLaunch.Navigate(nav)
         val entry by nav.currentBackStackEntryAsState()
         var selected by rememberSaveable { mutableIntStateOf(0) }
         val current = tabs.indexOfFirst { tab -> entry?.destination?.hasRoute(tab.route::class) == true }

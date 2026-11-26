@@ -1,0 +1,251 @@
+name: Store Screenshots
+
+# Captures the App Store (iPhone 6.9 inch) and Google Play (phone) screenshots in English
+# and German. Both apps are the Debug builds, signed in to scripts/screenshots/demo-server.py,
+# a stand-in for a HolyArrs server that answers from invented demo data. Nothing is tapped:
+# each screen is opened through launch arguments / intent extras (ScreenshotLaunch in both
+# apps, compiled into Debug builds only).
+#
+# Run it by hand (Actions > Store Screenshots > Run workflow). The PNGs are uploaded as the
+# `android-store-screenshots` and `ios-store-screenshots` artifacts; tick "commit" to also
+# put them in store/screenshots/ on the branch store-screenshots/refresh and open a pull
+# request for it. It never runs on a push or on every pull request.
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Open a pull request with the refreshed store/screenshots
+        type: boolean
+        default: false
+  # Also when the capture itself changes, so a broken script or demo data shows up on the
+  # pull request instead of on the next manual run. Never commits.
+  pull_request:
+    paths:
+      - .github/workflows/store-screenshots.yml
+      - scripts/screenshots/**
+      - androidApp/src/androidMain/kotlin/ch/orellbuehler/acolyte/ui/nav/ScreenshotLaunch.kt
+      - iosApp/Acolyte/App/ScreenshotLaunch.swift
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: store-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: platform-tools
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/build-cache
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Build debug APK
+        run: ./gradlew androidApp:assembleDebug
+
+      - name: Start the demo server
+        run: |
+          nohup python3 scripts/screenshots/demo-server.py --host 0.0.0.0 --port 6263 > "$RUNNER_TEMP/demo-server.log" 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -sf http://127.0.0.1:6263/api/v1/auth/state > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo-server.log"
+          exit 1
+
+      # A 1080 x 1920 phone (Nexus 5X profile): Play wants 9:16 and not taller than 2:1.
+      - name: Capture screenshots on an emulator
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5X
+          emulator-boot-timeout: 900
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim
+          script: scripts/screenshots/android.sh androidApp/build/outputs/apk/debug/androidApp-debug.apk ${{ runner.temp }}/store-screenshots ${{ runner.temp }}/android-logs
+
+      - name: Show the demo server log
+        if: always()
+        run: cat "$RUNNER_TEMP/demo-server.log" || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: android-store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload the demo server log
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: android-demo-server-log
+          path: |
+            ${{ runner.temp }}/demo-server.log
+            ${{ runner.temp }}/android-logs
+          retention-days: 7
+          if-no-files-found: ignore
+
+  ios:
+    runs-on: xcode-27
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      - name: Build shared iOS framework
+        run: ./gradlew shared:linkDebugFrameworkIosSimulatorArm64
+
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk iphonesimulator --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Debug/iphonesimulator${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/iosSimulatorArm64/debugFramework/shared.framework "$DEST/"
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+
+      # The 6.9 inch App Store slot is the Pro Max screen (1320 x 2868).
+      - name: Pick a Pro Max simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available --json | jq -r '
+            [.devices | to_entries[]
+             | select(.key | test("iOS"))
+             | .value[]
+             | select(.name | test("^iPhone.*Pro Max$"))
+             | .udid] | last')
+          if [ -z "$DEVICE_ID" ] || [ "$DEVICE_ID" = "null" ]; then
+            echo "No iPhone Pro Max simulator available" >&2
+            xcrun simctl list devices available
+            exit 1
+          fi
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+
+      - name: Build iOS app
+        working-directory: iosApp
+        run: |
+          xcodebuild build \
+            -project Acolyte.xcodeproj \
+            -scheme Acolyte \
+            -destination "id=$DEVICE_ID" \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64
+
+      - name: Boot simulator and install app
+        working-directory: iosApp
+        run: |
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" build/DerivedData/Build/Products/Debug-iphonesimulator/Acolyte.app
+
+      - name: Start the demo server
+        run: |
+          nohup python3 scripts/screenshots/demo-server.py --host 127.0.0.1 --port 6263 > "$RUNNER_TEMP/demo-server.log" 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -sf http://127.0.0.1:6263/api/v1/auth/state > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo-server.log"
+          exit 1
+
+      - name: Capture screenshots
+        run: scripts/screenshots/ios.sh "$DEVICE_ID" "$RUNNER_TEMP/store-screenshots"
+
+      - name: Show the demo server log
+        if: always()
+        run: cat "$RUNNER_TEMP/demo-server.log" || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: ios-store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          retention-days: 14
+          if-no-files-found: error
+
+  commit:
+    if: github.event_name == 'workflow_dispatch' && inputs.commit
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Download the screenshots
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: '*-store-screenshots'
+          path: ${{ runner.temp }}/downloaded
+
+      - name: Open a pull request with the refreshed screenshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf store/screenshots
+          mkdir -p store/screenshots
+          cp -R "$RUNNER_TEMP/downloaded/ios-store-screenshots" store/screenshots/ios
+          cp -R "$RUNNER_TEMP/downloaded/android-store-screenshots" store/screenshots/android
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B store-screenshots/refresh
+          git add store/screenshots
+          if git diff --staged --quiet; then
+            echo "The screenshots did not change."
+            exit 0
+          fi
+          git commit -m "refresh store screenshots"
+          git push --force origin store-screenshots/refresh
+          gh pr create --base "${{ github.event.repository.default_branch }}" --head store-screenshots/refresh \
+            --title "refresh store screenshots" --body "Screenshots captured by the Store Screenshots workflow, run ${{ github.run_id }}." \
+            || gh pr edit store-screenshots/refresh --body "Screenshots captured by the Store Screenshots workflow, run ${{ github.run_id }}."

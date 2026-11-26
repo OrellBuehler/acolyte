@@ -2535,7 +2535,7 @@
     <string name="home_sys_working">%1$d von %2$d funktionieren</string>
     <string name="home_tile_and_more">%1$s und %2$d weitere</string>
     <string name="home_tile_ask_on_explore">Frag etwas in Entdecken an</string>
-    <string name="home_tile_attention">Braucht Aufmerksamkeit</string>
+    <string name="home_tile_attention">Zu prüfen</string>
     <string name="home_tile_calendar_big">Was als Nächstes kommt</string>
     <string name="home_tile_calendar_small">Sendetermine und Erscheinungen</string>
     <string name="home_tile_disk">Auf der Festplatte</string>

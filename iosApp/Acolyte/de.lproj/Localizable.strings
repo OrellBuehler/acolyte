@@ -2337,7 +2337,7 @@
 "home.sys.working" = "%1$d von %2$d funktionieren";
 "home.tile.and.more" = "%1$@ und %2$d weitere";
 "home.tile.ask.on.explore" = "Frag etwas in Entdecken an";
-"home.tile.attention" = "Braucht Aufmerksamkeit";
+"home.tile.attention" = "Zu prüfen";
 "home.tile.calendar.big" = "Was als Nächstes kommt";
 "home.tile.calendar.small" = "Sendetermine und Erscheinungen";
 "home.tile.disk" = "Auf der Festplatte";

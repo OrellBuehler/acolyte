@@ -31,6 +31,9 @@ final class AppModel {
             }
             group.addTask {
                 await client.restore()
+                #if DEBUG
+                await ScreenshotLaunch.signIn()
+                #endif
             }
             let inboxDriver = self.inboxDriver
             group.addTask {

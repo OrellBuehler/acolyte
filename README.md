@@ -83,8 +83,23 @@ scripts/api/live-server.sh stop
 | `api.yml` | pull requests and pushes to `main`; weekly and manual for the drift report | `spec`: `api/openapi.json` equals the spec of the release in `api/VERSION`. `contract`: every endpoint the client declares exists in the spec with the same parameters, permission and part, and its models fit the typed schemas. `live`: the published Docker image of that release, set up over the API, answers every read endpoint (password and API key sign-in, strict decoding). `drift` (weekly, manual): compares with the latest HolyArrs release and `main`, writes the job summary and opens or updates an `api-drift` issue when a newer release exists or an endpoint the app uses changed. `api-gate` is the always-reporting required check. |
 | `release.yml` | published GitHub release, manual dispatch | Signed release builds, see below. |
 | `pages.yml` | pushes to `main` that touch `site/**`, manual | Deploys the website in `site/` to GitHub Pages, see Website. |
+| `store-screenshots.yml` | manual dispatch; pull requests that touch the screenshot files | Store screenshots for both stores, see below. Not a required check. |
 
 To move to a new HolyArrs release: `scripts/api/update-spec.sh [tag]` (default: the latest release), then fix what the contract and live tests report. The iOS jobs run on GitHub's `xcode-27` image with the Xcode 27.0 GM pinned and verified by `.github/actions/ios-setup`. Dependabot proposes weekly Gradle and GitHub Actions updates (Kotlin is bumped by hand together with SKIE).
+
+## Store screenshots
+
+The `Store Screenshots` workflow (Actions tab, Run workflow) captures the App Store and Google Play screenshots without anyone running the app: an emulator (Android) and a simulator (iPhone Pro Max) run the Debug apps against `scripts/screenshots/demo-server.py`, a small HolyArrs stand-in (Python standard library only) that answers the `/api/v1` calls of the captured screens from the invented catalog in `scripts/screenshots/catalog.py` (invented titles, people and generated artwork, see `scripts/screenshots/art/NOTICE.md`). The apps go through the normal sign-in flow; only the Debug builds read the launch arguments (iOS) or intent extras (Android) in `ScreenshotLaunch.swift` / `ScreenshotLaunch.kt` that sign in and open a screen. The language follows the apps' own locale (English, and German with the Swiss locale), dark mode, clean status bar (9:41, full battery).
+
+| Where | What |
+|---|---|
+| Artifacts `ios-store-screenshots`, `android-store-screenshots` | The PNGs, laid out like `store/screenshots/` |
+| `store/screenshots/ios/<locale>/iphone-6.9/NN-name.png` | 1320 x 2868, the App Store 6.9 inch slot |
+| `store/screenshots/android/<locale>/phone/NN-name.png` | 1080 x 1920, Google Play phone screenshots |
+
+Locales are `en-US` and `de-DE` (the app runs as `de-CH` for the German set). Tick `commit` when running the workflow to put the new PNGs on the branch `store-screenshots/refresh` and open a pull request; a plain run only uploads the artifacts.
+
+Locally, `python3 scripts/screenshots/demo-server.py` serves the demo data on port 6263 (sign in with any user and password), and `ACOLYTE_DEMO_URL=http://127.0.0.1:6263 ./gradlew shared:testDebugUnitTest --tests '*DemoServerTest*'` checks that the shared presenters accept it, with strict decoding. To add a screen: add a line to `scripts/screenshots/screens.sh` (a section name or `title:<kind>:<tmdb id>`), serve what the screen calls in `demo-server.py` (the log lists every call it did not know), and look at the result in the next workflow run. New artwork: add the title to `catalog.py` and run `scripts/screenshots/make-art.py` (needs Pillow).
 
 ## Release
 
