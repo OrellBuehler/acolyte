@@ -65,6 +65,7 @@ import ch.orellbuehler.acolyte.ui.components.ServerImage
 import ch.orellbuehler.acolyte.ui.theme.Radius
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 internal fun RemoveDialog(
@@ -518,10 +519,10 @@ internal fun SteerSheet(
                     val actions =
                         listOfNotNull(
                             "" to R.string.downloads_then_default,
-                            "stop" to R.string.downloads_then_stop,
-                            "remove" to R.string.downloads_then_remove,
-                            if (start.action == "remove_files") "remove_files" to R.string.downloads_then_remove_files else null,
-                            if (start.action == "super_seed") "super_seed" to R.string.downloads_then_super else null,
+                            "stop" to CommonR.string.downloads_then_stop,
+                            "remove" to CommonR.string.downloads_then_remove,
+                            if (start.action == "remove_files") "remove_files" to CommonR.string.downloads_then_remove_files else null,
+                            if (start.action == "super_seed") "super_seed" to CommonR.string.downloads_then_super else null,
                         )
                     val labels = actions.map { stringResource(it.second) }
                     Picker(

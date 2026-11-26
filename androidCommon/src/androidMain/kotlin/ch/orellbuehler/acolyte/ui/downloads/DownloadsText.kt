@@ -3,19 +3,30 @@ package ch.orellbuehler.acolyte.ui.downloads
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.model.ShareLimits
+import ch.orellbuehler.acolyte.common.R
+import ch.orellbuehler.acolyte.feature.downloads.ClientNote
+import ch.orellbuehler.acolyte.feature.downloads.ClientNoteKind
 import ch.orellbuehler.acolyte.feature.downloads.DetailKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadAction
 import ch.orellbuehler.acolyte.feature.downloads.DownloadFormat
+import ch.orellbuehler.acolyte.feature.downloads.DownloadItem
+import ch.orellbuehler.acolyte.feature.downloads.DownloadKindFilter
 import ch.orellbuehler.acolyte.feature.downloads.DownloadNoteKind
 import ch.orellbuehler.acolyte.feature.downloads.DownloadRules
+import ch.orellbuehler.acolyte.feature.downloads.DownloadsEmpty
+import ch.orellbuehler.acolyte.feature.downloads.DownloadsEmptyKind
+import ch.orellbuehler.acolyte.feature.downloads.DownloadsNotice
+import ch.orellbuehler.acolyte.feature.downloads.DownloadsState
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsSub
 import ch.orellbuehler.acolyte.feature.downloads.DownloadsTab
+import ch.orellbuehler.acolyte.feature.downloads.NetworkFilter
+import ch.orellbuehler.acolyte.feature.downloads.NoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.ProblemKind
 import ch.orellbuehler.acolyte.feature.downloads.RowDetail
 import ch.orellbuehler.acolyte.feature.downloads.RowNote
 import ch.orellbuehler.acolyte.feature.downloads.SortKey
+import ch.orellbuehler.acolyte.feature.downloads.StatusLine
 import ch.orellbuehler.acolyte.feature.downloads.StatusWord
 import ch.orellbuehler.acolyte.feature.downloads.SubLine
 import ch.orellbuehler.acolyte.feature.downloads.SubLineKind
@@ -230,3 +241,189 @@ fun clockText(iso: String): String? =
     } catch (e: Exception) {
         null
     }
+
+@Composable
+fun noticeText(notice: DownloadsNotice): String {
+    val o = notice.outcome
+    return when (notice.kind) {
+        NoticeKind.PAUSED -> stringResource(R.string.downloads_notice_paused)
+        NoticeKind.STARTED -> stringResource(R.string.downloads_notice_started)
+        NoticeKind.RETRIED -> stringResource(R.string.downloads_notice_retried)
+        NoticeKind.MOVED_TOP -> stringResource(R.string.downloads_notice_moved_top)
+        NoticeKind.MOVED_BOTTOM -> stringResource(R.string.downloads_notice_moved_bottom)
+        NoticeKind.MOVED_UP -> stringResource(R.string.downloads_notice_moved_up)
+        NoticeKind.MOVED_DOWN -> stringResource(R.string.downloads_notice_moved_down)
+        NoticeKind.PRIORITY_SET -> stringResource(R.string.downloads_notice_priority)
+        NoticeKind.CHECKING -> stringResource(R.string.downloads_notice_checking)
+        NoticeKind.ANNOUNCED -> stringResource(R.string.downloads_notice_announced)
+        NoticeKind.FORCE_STARTED -> stringResource(R.string.downloads_notice_force)
+        NoticeKind.IMPORT_QUEUED -> stringResource(R.string.downloads_notice_import_queued)
+        NoticeKind.REMOVED -> stringResource(R.string.downloads_notice_removed, notice.count)
+        NoticeKind.REMOVED_KEPT -> stringResource(R.string.downloads_notice_removed_kept, notice.text)
+        NoticeKind.MARKED_FAILED -> stringResource(R.string.downloads_notice_marked_failed)
+        NoticeKind.ALL_STARTED -> stringResource(R.string.downloads_notice_all_started)
+        NoticeKind.ALL_PAUSED -> stringResource(R.string.downloads_notice_all_paused)
+        NoticeKind.ALL_FAILED -> stringResource(R.string.downloads_notice_all_failed, notice.text)
+        NoticeKind.SPEED_SAVED -> stringResource(R.string.downloads_notice_speed_saved)
+        NoticeKind.SEEDING_SET -> stringResource(R.string.downloads_notice_seeding_set)
+        NoticeKind.MOVING -> stringResource(R.string.downloads_notice_moving)
+        NoticeKind.SPEEDS_SET -> stringResource(R.string.downloads_notice_speeds_set)
+        NoticeKind.SEARCHING -> stringResource(R.string.downloads_notice_searching, notice.text)
+        NoticeKind.TURNED_DOWN -> stringResource(R.string.downloads_notice_turned_down, notice.text)
+        NoticeKind.STOPPED -> stringResource(R.string.downloads_notice_stopped, notice.text)
+        NoticeKind.IMPORTED -> stringResource(R.string.downloads_notice_imported, notice.text)
+        NoticeKind.EDITION_SET -> stringResource(R.string.downloads_notice_edition_set)
+        NoticeKind.MATCHING -> stringResource(R.string.downloads_notice_matching)
+        NoticeKind.MATCHED -> stringResource(R.string.downloads_notice_matched)
+        NoticeKind.DOWNLOAD_FAILED ->
+            if (notice.text.isBlank()) {
+                stringResource(R.string.downloads_notice_download_failed_plain)
+            } else {
+                stringResource(R.string.downloads_notice_download_failed, notice.text)
+            }
+        NoticeKind.BULK_DONE ->
+            if (notice.skipped > 0) {
+                stringResource(R.string.downloads_notice_bulk_skipped, notice.count, notice.skipped)
+            } else {
+                stringResource(R.string.downloads_notice_bulk, notice.count)
+            }
+        NoticeKind.NOT_HERE -> stringResource(R.string.downloads_notice_not_here)
+        NoticeKind.ADDED ->
+            if (o == null) {
+                stringResource(R.string.downloads_add_nothing)
+            } else {
+                val parts = mutableListOf<String>()
+                if (o.added > 0) parts += stringResource(R.string.downloads_add_added, o.added)
+                if (o.pending > 0) parts += stringResource(R.string.downloads_add_pending, o.pending)
+                if (o.duplicates > 0) parts += stringResource(R.string.downloads_add_duplicates, o.duplicates)
+                if (o.failed > 0) parts += stringResource(R.string.downloads_add_failed, o.failed)
+                if (o.bad.isNotEmpty()) parts += stringResource(R.string.downloads_add_bad, o.bad.joinToString(", "))
+                if (o.dropped > 0) parts += stringResource(R.string.downloads_add_dropped, o.dropped)
+                if (parts.isEmpty()) stringResource(R.string.downloads_add_nothing) else parts.joinToString(" · ")
+            }
+    }
+}
+
+fun subEmpty(sub: DownloadsSub?): Int =
+    when (sub) {
+        DownloadsSub.QUEUED -> R.string.downloads_empty_sub_queued
+        DownloadsSub.PAUSED -> R.string.downloads_empty_sub_paused
+        DownloadsSub.DOWNLOADING -> R.string.downloads_empty_sub_downloading
+        DownloadsSub.CHECKING -> R.string.downloads_empty_sub_checking
+        DownloadsSub.IMPORTING -> R.string.downloads_empty_sub_importing
+        DownloadsSub.FAILED -> R.string.downloads_empty_sub_failed
+        DownloadsSub.DECIDE, null -> R.string.downloads_empty_sub_decide
+    }
+
+fun tabEmpty(tab: DownloadsTab): Pair<Int, Int> =
+    when (tab) {
+        DownloadsTab.ALL -> R.string.downloads_empty_all_title to R.string.downloads_empty_all
+        DownloadsTab.WAITING -> R.string.downloads_empty_waiting_title to R.string.downloads_empty_waiting
+        DownloadsTab.PROGRESS -> R.string.downloads_empty_progress_title to R.string.downloads_empty_progress
+        DownloadsTab.PROBLEMS -> R.string.downloads_empty_problems_title to R.string.downloads_empty_problems
+        DownloadsTab.DONE -> R.string.downloads_empty_done_title to R.string.downloads_empty_done
+    }
+
+@Composable
+fun clientNoteText(note: ClientNote): String =
+    stringResource(
+        when (note.kind) {
+            ClientNoteKind.WAITING -> R.string.downloads_note_client_waiting
+            ClientNoteKind.STALE -> R.string.downloads_note_client_stale
+            ClientNoteKind.OFFLINE -> R.string.downloads_note_client_offline
+        },
+        note.name,
+    )
+
+data class EmptyWords(
+    val title: String,
+    val message: String?,
+)
+
+@Composable
+fun downloadsEmptyWords(
+    state: DownloadsState,
+    empty: DownloadsEmpty,
+): EmptyWords {
+    val f = state.filter
+    return when (empty.kind) {
+        DownloadsEmptyKind.NO_MATCHES -> EmptyWords(stringResource(R.string.downloads_empty_matches, f.query), null)
+        DownloadsEmptyKind.NO_KIND ->
+            EmptyWords(
+                stringResource(
+                    when (f.kind) {
+                        DownloadKindFilter.SHOW -> R.string.downloads_empty_kind_show
+                        DownloadKindFilter.MUSIC -> R.string.downloads_empty_kind_music
+                        else -> R.string.downloads_empty_kind_movie
+                    },
+                ),
+                null,
+            )
+        DownloadsEmptyKind.NO_NETWORK ->
+            EmptyWords(
+                stringResource(
+                    if (f.network ==
+                        NetworkFilter.USENET
+                    ) {
+                        R.string.downloads_empty_network_usenet
+                    } else {
+                        R.string.downloads_empty_network_torrent
+                    },
+                ),
+                null,
+            )
+        DownloadsEmptyKind.LOADING_MORE ->
+            EmptyWords(
+                stringResource(R.string.downloads_empty_loading_title),
+                stringResource(R.string.downloads_empty_loading, empty.count),
+            )
+        DownloadsEmptyKind.SUB -> EmptyWords(stringResource(subEmpty(f.sub)), null)
+        DownloadsEmptyKind.NOTHING, DownloadsEmptyKind.TAB -> {
+            val (title, message) = tabEmpty(f.tab)
+            EmptyWords(stringResource(title), stringResource(message))
+        }
+    }
+}
+
+@Composable
+fun downloadSecondLine(item: DownloadItem): String {
+    val problem = item.problem
+    val note = item.note
+    return when {
+        problem != null -> stringResource(problem.kind.label())
+        note != null -> noteText(note)
+        else -> ""
+    }
+}
+
+@Composable
+fun downloadFactsLine(item: DownloadItem): String {
+    val facts = mutableListOf<String>()
+    if (item.row.size > 0) facts += DownloadFormat.size(item.row.size)
+    if (!item.history) facts += "${DownloadFormat.percent(item.progress)}%"
+    if (item.moving && item.row.speed >= 1000) {
+        facts += stringResource(R.string.downloads_speed_down, speedText(item.row.speed))
+        if (item.row.upSpeed > 0) facts += stringResource(R.string.downloads_speed_up, speedText(item.row.upSpeed))
+        if (item.row.eta > 0) facts += stringResource(R.string.downloads_time_left, durationText(item.row.eta))
+    }
+    return facts.joinToString(" · ")
+}
+
+@Composable
+fun statusLineText(line: StatusLine): String {
+    val parts = mutableListOf(stringResource(R.string.downloads_speed_down, speedText(line.speed)))
+    if (line.free > 0) parts += stringResource(R.string.downloads_status_free, DownloadFormat.freeSize(line.free))
+    if (line.left > 0) parts += stringResource(R.string.downloads_time_left, durationText(line.left))
+    return parts.joinToString(" · ") + if (line.limited) " · " + stringResource(R.string.downloads_status_limited) else ""
+}
+
+@Composable
+fun dayText(day: ch.orellbuehler.acolyte.feature.downloads.Day): String {
+    val date = java.time.LocalDate.of(day.year, day.month, day.day)
+    val now = java.time.LocalDate.now()
+    val pattern = if (day.year == now.year) "EEE, d MMM" else "EEE, d MMM yyyy"
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    return java.time.format.DateTimeFormatter
+        .ofPattern(pattern, locale)
+        .format(date)
+}

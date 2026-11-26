@@ -176,7 +176,7 @@ fun TvConfirmDialog(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(title, style = TvType.title3, color = TvColors.text)
-            Text(message, style = TvType.footnote, color = TvColors.textMuted)
+            if (message.isNotEmpty()) Text(message, style = TvType.footnote, color = TvColors.textMuted)
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TvActionButton(cancel, onDismiss, Modifier.focusRequester(focus))
                 TvActionButton(confirm, onConfirm, prominent = true)
@@ -188,6 +188,7 @@ fun TvConfirmDialog(
 @Composable
 fun TvMenuDialog(
     actions: List<TvMenuAction>,
+    title: String? = null,
     onDismiss: () -> Unit,
 ) {
     val focus = remember { FocusRequester() }
@@ -200,6 +201,7 @@ fun TvMenuDialog(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            if (title != null) Text(title, style = TvType.headline, color = TvColors.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
             actions.forEachIndexed { index, action ->
                 TvActionButton(
                     title = action.title,

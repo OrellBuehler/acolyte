@@ -26,6 +26,7 @@
     <string name="tv_requests_mode_choose_hint">Tick whole seasons, or open one for single episodes.</string>
     <string name="tv_requests_mode_future">Future seasons only</string>
     <string name="tv_requests_mode_future_hint">Nothing that is out already; new episodes and seasons from today on.</string>
+    <string name="tv_requests_more">Show more</string>
     <string name="tv_requests_outcome_already">%1$s already requested</string>
     <string name="tv_requests_outcome_approved">%1$s approved</string>
     <string name="tv_requests_outcome_on_it">You\'re on the request too.</string>

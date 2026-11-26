@@ -57,6 +57,7 @@ import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,7 +94,9 @@ fun AskReviewSheet(
                     }
                     if (!ask.isWaiting) AskLines(ask, approver = true, myId = 0)
                     if (ask.tmdbId.isNotEmpty() && ask.kind != "artist") {
-                        TextButton(onClick = { onOpenTitle(ask.kind, ask.tmdbId) }) { Text(stringResource(R.string.requests_open_title)) }
+                        TextButton(
+                            onClick = { onOpenTitle(ask.kind, ask.tmdbId) },
+                        ) { Text(stringResource(CommonR.string.requests_open_title)) }
                     }
                     if (ask.isWaiting) {
                         Text(stringResource(R.string.requests_what_to_add), style = MaterialTheme.typography.titleMedium)
@@ -126,7 +129,7 @@ fun AskReviewSheet(
                         }
                         Box(Modifier.weight(1f))
                         if (ask.isWaiting || ask.isFailed) {
-                            OutlinedButton(onClick = onDecline) { Text(stringResource(R.string.requests_decline)) }
+                            OutlinedButton(onClick = onDecline) { Text(stringResource(CommonR.string.requests_decline)) }
                         }
                         if (ask.isWaiting) {
                             Button(
@@ -137,7 +140,7 @@ fun AskReviewSheet(
                                         containerColor = MaterialTheme.acolyte.ok,
                                         contentColor = MaterialTheme.colorScheme.surface,
                                     ),
-                            ) { Text(stringResource(R.string.requests_approve)) }
+                            ) { Text(stringResource(CommonR.string.requests_approve)) }
                         }
                     }
                 }

@@ -26,6 +26,7 @@
     <string name="tv_requests_mode_choose_hint">Kreuz ganze Staffeln an oder öffne eine für einzelne Folgen.</string>
     <string name="tv_requests_mode_future">Nur künftige Staffeln</string>
     <string name="tv_requests_mode_future_hint">Nichts, was schon erschienen ist; neue Folgen und Staffeln ab heute.</string>
+    <string name="tv_requests_more">Mehr anzeigen</string>
     <string name="tv_requests_outcome_already">%1$s schon angefragt</string>
     <string name="tv_requests_outcome_approved">%1$s genehmigt</string>
     <string name="tv_requests_outcome_on_it">Du bist auch bei der Anfrage dabei.</string>
