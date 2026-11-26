@@ -105,6 +105,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import kotlin.time.Clock
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 class HistoryViewModel(
     sdk: AcolyteSdk,
@@ -299,7 +300,7 @@ private fun HistoryList(
             item(key = "day-${day.day.key}") {
                 val heading =
                     when (day.day) {
-                        today -> stringResource(R.string.downloads_day_today)
+                        today -> stringResource(CommonR.string.downloads_day_today)
                         today.plusDays(-1) -> stringResource(R.string.downloads_day_yesterday)
                         else -> dayText(day.day)
                     }
@@ -634,7 +635,7 @@ private fun HistorySheet(
                 if (item.head.titleId > 0) {
                     OutlinedButton(
                         onClick = { viewModel.openTitle(item.head.titleId, onOpenTitle) },
-                    ) { Text(stringResource(R.string.downloads_action_open)) }
+                    ) { Text(stringResource(CommonR.string.downloads_action_open)) }
                 }
                 if (item.downloadId > 0) {
                     OutlinedButton(

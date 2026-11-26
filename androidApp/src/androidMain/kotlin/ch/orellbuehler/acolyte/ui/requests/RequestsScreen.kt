@@ -58,7 +58,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,17 +72,13 @@ import ch.orellbuehler.acolyte.api.model.Ask
 import ch.orellbuehler.acolyte.feature.requests.ApproverTab
 import ch.orellbuehler.acolyte.feature.requests.ClearKind
 import ch.orellbuehler.acolyte.feature.requests.KindFilter
-import ch.orellbuehler.acolyte.feature.requests.MemberTab
 import ch.orellbuehler.acolyte.feature.requests.NOTE_MAX
 import ch.orellbuehler.acolyte.feature.requests.PendingKind
 import ch.orellbuehler.acolyte.feature.requests.RequestPage
 import ch.orellbuehler.acolyte.feature.requests.RequestsNote
-import ch.orellbuehler.acolyte.feature.requests.RequestsNoteKind
 import ch.orellbuehler.acolyte.feature.requests.RequestsState
 import ch.orellbuehler.acolyte.feature.requests.UNDO_MILLIS
 import ch.orellbuehler.acolyte.feature.requests.askerNames
-import ch.orellbuehler.acolyte.feature.requests.deciderName
-import ch.orellbuehler.acolyte.feature.requests.fromWatchlistCount
 import ch.orellbuehler.acolyte.feature.requests.isFailed
 import ch.orellbuehler.acolyte.feature.requests.isWaiting
 import ch.orellbuehler.acolyte.feature.requests.life
@@ -96,7 +91,6 @@ import ch.orellbuehler.acolyte.ui.components.ErrorBanner
 import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusChip
 import ch.orellbuehler.acolyte.ui.components.StatusContent
-import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.nav.Routes
 import ch.orellbuehler.acolyte.ui.nav.SearchRoute
 import ch.orellbuehler.acolyte.ui.nav.destination
@@ -104,6 +98,7 @@ import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun RequestsScreen(
@@ -187,9 +182,11 @@ fun RequestsScreen(
                 empty = {
                     Column {
                         EmptyView(
-                            title = stringResource(R.string.requests_empty_title),
+                            title = stringResource(CommonR.string.requests_empty_title),
                             message =
-                                stringResource(if (state.canAsk) R.string.requests_empty_message else R.string.requests_empty_cannot_ask),
+                                stringResource(
+                                    if (state.canAsk) CommonR.string.requests_empty_message else CommonR.string.requests_empty_cannot_ask,
+                                ),
                             icon = Icons.Rounded.Checklist,
                             modifier = Modifier.weight(1f),
                         )
@@ -198,7 +195,7 @@ fun RequestsScreen(
                                 onClick = { onNavigate(SearchRoute) },
                                 modifier = Modifier.align(Alignment.CenterHorizontally).padding(Spacing.XLarge),
                             ) {
-                                Text(stringResource(R.string.requests_ask_something))
+                                Text(stringResource(CommonR.string.requests_ask_something))
                             }
                         }
                     }
@@ -282,7 +279,7 @@ fun RequestsScreen(
         ConfirmDialog(
             title = stringResource(R.string.requests_take_back_title, titleWithYear(ask)),
             text = stringResource(R.string.requests_take_back_text),
-            confirm = stringResource(R.string.requests_take_back),
+            confirm = stringResource(CommonR.string.requests_take_back),
             dismiss = stringResource(R.string.requests_keep),
             danger = true,
             onConfirm = {
@@ -294,9 +291,9 @@ fun RequestsScreen(
     }
     if (confirmAll) {
         ConfirmDialog(
-            title = stringResource(R.string.requests_approve_all_title, state.waitingToApprove),
-            text = if (state.isCut) stringResource(R.string.requests_approve_all_cut) else null,
-            confirm = stringResource(R.string.requests_approve_n, state.waitingToApprove),
+            title = stringResource(CommonR.string.requests_approve_all_title, state.waitingToApprove),
+            text = if (state.isCut) stringResource(CommonR.string.requests_approve_all_cut) else null,
+            confirm = stringResource(CommonR.string.requests_approve_n, state.waitingToApprove),
             dismiss = stringResource(R.string.common_cancel),
             onConfirm = {
                 confirmAll = false
@@ -356,20 +353,14 @@ fun pageTitle(page: RequestPage): String =
     )
 
 @Composable
-fun titleWithYear(ask: Ask?): String {
-    ask ?: return ""
-    return if (ask.year > 0) "${ask.name} (${ask.year})" else ask.name
-}
-
-@Composable
 private fun NoteSnackbar(
     note: RequestsNote?,
     host: SnackbarHostState,
     onUndo: (List<Long>) -> Unit,
     onShown: () -> Unit,
 ) {
-    val text = note?.let { noteText(it) }
-    val undo = stringResource(R.string.requests_undo)
+    val text = note?.let { requestsNoteText(it) }
+    val undo = stringResource(CommonR.string.requests_undo)
     LaunchedEffect(note?.id) {
         val current = note ?: return@LaunchedEffect
         val message = text ?: return@LaunchedEffect
@@ -385,36 +376,6 @@ private fun NoteSnackbar(
             host.showSnackbar(message, duration = SnackbarDuration.Long)
         }
         onShown()
-    }
-}
-
-@Composable
-private fun noteText(note: RequestsNote): String {
-    val error = note.error?.let { askErrorText(it) }.orEmpty()
-    return when (note.kind) {
-        RequestsNoteKind.APPROVED -> stringResource(R.string.requests_note_approved, note.name)
-        RequestsNoteKind.DECLINED -> stringResource(R.string.requests_note_declined, note.name)
-        RequestsNoteKind.APPROVED_MANY -> pluralStringResource(R.plurals.requests_note_approved_many, note.count, note.count)
-        RequestsNoteKind.APPROVE_FAILED -> stringResource(R.string.requests_note_approve_failed, note.name, error)
-        RequestsNoteKind.DECLINE_FAILED -> stringResource(R.string.requests_note_decline_failed, note.name, error)
-        RequestsNoteKind.ALREADY_DECIDED -> {
-            val head =
-                stringResource(
-                    when (note.state) {
-                        "turned_down" -> R.string.requests_note_already_declined
-                        "approved", "available" -> R.string.requests_note_already_approved
-                        else -> R.string.requests_note_already_answered
-                    },
-                    note.name,
-                )
-            if (note.by.isNotBlank()) stringResource(R.string.requests_note_by, head, note.by) else head
-        }
-        RequestsNoteKind.NOTICE -> note.text
-        RequestsNoteKind.REMOVED -> pluralStringResource(R.plurals.requests_note_removed, note.count, note.count)
-        RequestsNoteKind.NOTHING_TO_REMOVE -> stringResource(R.string.requests_note_nothing_removed)
-        RequestsNoteKind.REMOVE_FAILED -> stringResource(R.string.requests_note_remove_failed, error)
-        RequestsNoteKind.TAKEN_BACK -> stringResource(R.string.requests_note_taken_back, note.name)
-        RequestsNoteKind.TAKE_BACK_FAILED -> stringResource(R.string.requests_note_remove_failed, error)
     }
 }
 
@@ -481,7 +442,7 @@ private fun RequestsList(
                 ) {
                     if (state.canApproveAll) {
                         OutlinedButton(onClick = onApproveAll, enabled = !state.busy) {
-                            Text(stringResource(R.string.requests_approve_all, state.waitingToApprove))
+                            Text(stringResource(CommonR.string.requests_approve_all, state.waitingToApprove))
                         }
                     }
                     when (state.clearable) {
@@ -515,7 +476,7 @@ private fun RequestsList(
         if (state.isCut) {
             item(key = "cut") {
                 Text(
-                    stringResource(R.string.requests_showing, state.asks.size, state.total),
+                    stringResource(CommonR.string.requests_showing, state.asks.size, state.total),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = Spacing.Screen, vertical = Spacing.Medium),
@@ -535,7 +496,7 @@ private fun MemberHeader(
         state.limits.forEach { line -> Hint(limitText(line)) }
         if (state.canAsk || state.hasOwnReports) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                if (state.canAsk) Button(onClick = onSearch) { Text(stringResource(R.string.requests_ask_something)) }
+                if (state.canAsk) Button(onClick = onSearch) { Text(stringResource(CommonR.string.requests_ask_something)) }
                 if (state.hasOwnReports) OutlinedButton(onClick = onReports) { Text(stringResource(R.string.requests_your_reports)) }
             }
         }
@@ -548,45 +509,12 @@ private fun CalmTab(
     viewModel: RequestsViewModel,
 ) {
     val filtered = state.approver && state.filtersOn > 0
-    val title: String
-    val message: String?
-    when {
-        filtered -> {
-            title =
-                state.stage?.let { stringResource(R.string.requests_filtered_stage, stageLabel(it)) }
-                    ?: stringResource(R.string.requests_filtered_kind, kindFilterLabel(state.kind))
-            message = stringResource(R.string.requests_filtered_hidden)
-        }
-        state.approver ->
-            when (state.approverTab) {
-                ApproverTab.WAITING -> {
-                    title = stringResource(R.string.requests_calm_caught_up)
-                    message = stringResource(R.string.requests_calm_waiting)
-                }
-                ApproverTab.PROCESSING -> {
-                    title = stringResource(R.string.requests_calm_processing_title)
-                    message = stringResource(R.string.requests_calm_processing)
-                }
-                ApproverTab.DONE -> {
-                    title = stringResource(R.string.requests_calm_done_title)
-                    message = stringResource(R.string.requests_calm_done)
-                }
-            }
-        else -> {
-            title =
-                when (state.memberTab) {
-                    MemberTab.WAITING -> stringResource(R.string.requests_calm_caught_up)
-                    MemberTab.FAILED -> stringResource(R.string.requests_calm_nothing_failed)
-                    else -> stringResource(R.string.requests_calm_nothing_yet, memberTabLabel(state.memberTab))
-                }
-            message = null
-        }
-    }
+    val (title, message) = calmWords(state)
     Column(Modifier.fillMaxWidth().padding(Spacing.XLarge), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         if (message != null) Hint(message, Modifier.padding(top = Spacing.XSmall))
         if (filtered) {
-            TextButton(onClick = viewModel::clearFilters) { Text(stringResource(R.string.requests_show_all)) }
+            TextButton(onClick = viewModel::clearFilters) { Text(stringResource(CommonR.string.requests_show_all)) }
         }
     }
 }
@@ -620,7 +548,7 @@ private fun RequestCard(
                         modifier = Modifier.weight(1f),
                     )
                     if (ask.id in state.newIds) {
-                        Badge(containerColor = MaterialTheme.colorScheme.primary) { Text(stringResource(R.string.requests_new)) }
+                        Badge(containerColor = MaterialTheme.colorScheme.primary) { Text(stringResource(CommonR.string.requests_new)) }
                     }
                     if (!state.approver && ask.isWaiting && ask.mine && pending == null) {
                         Box {
@@ -629,7 +557,7 @@ private fun RequestCard(
                             }
                             DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.requests_take_back)) },
+                                    text = { Text(stringResource(CommonR.string.requests_take_back)) },
                                     onClick = {
                                         menu = false
                                         onTakeBack()
@@ -649,18 +577,18 @@ private fun RequestCard(
                                 if (pending ==
                                     PendingKind.APPROVE
                                 ) {
-                                    R.string.requests_sending_approve
+                                    CommonR.string.requests_sending_approve
                                 } else {
-                                    R.string.requests_sending_decline
+                                    CommonR.string.requests_sending_decline
                                 },
                             ),
                             Modifier.weight(1f),
                         )
-                        TextButton(onClick = onUndo) { Text(stringResource(R.string.requests_undo)) }
+                        TextButton(onClick = onUndo) { Text(stringResource(CommonR.string.requests_undo)) }
                     }
                 } else if (state.approver && ask.isWaiting) {
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small)) {
-                        OutlinedButton(onClick = onDecline) { Text(stringResource(R.string.requests_decline)) }
+                        OutlinedButton(onClick = onDecline) { Text(stringResource(CommonR.string.requests_decline)) }
                         Button(
                             onClick = onApprove,
                             colors =
@@ -668,10 +596,10 @@ private fun RequestCard(
                                     containerColor = MaterialTheme.acolyte.ok,
                                     contentColor = MaterialTheme.colorScheme.surface,
                                 ),
-                        ) { Text(stringResource(R.string.requests_approve)) }
+                        ) { Text(stringResource(CommonR.string.requests_approve)) }
                     }
                 } else if (state.approver && ask.isFailed) {
-                    OutlinedButton(onClick = onDecline) { Text(stringResource(R.string.requests_decline)) }
+                    OutlinedButton(onClick = onDecline) { Text(stringResource(CommonR.string.requests_decline)) }
                 }
                 if (ask.state == "approved" && !ask.isFailed) {
                     Spacer(Modifier.height(Spacing.XSmall))
@@ -694,49 +622,18 @@ fun AskLines(
     approver: Boolean,
     myId: Long,
 ) {
-    val ago = relativeTime(ask.askedAt).orEmpty()
-    val askedBy = stringResource(R.string.requests_asked_by, namesText(ask.askerNames))
-    Hint(if (ago.isNotEmpty()) "$askedBy · $ago" else askedBy)
-    if (ask.viaPlugin.isNotBlank()) Hint(stringResource(R.string.requests_via, ask.viaPlugin))
-    val watch = ask.people.filter { it.fromWatchlist }
-    if (watch.isNotEmpty()) {
-        Hint(
-            when {
-                ask.fromWatchlistCount > 1 -> stringResource(R.string.requests_watchlist_many, ask.fromWatchlistCount)
-                watch[0].id == myId -> stringResource(R.string.requests_watchlist_yours)
-                else -> stringResource(R.string.requests_watchlist_of, watch[0].name)
-            },
-        )
-    }
-    val decider = ask.deciderName
-    val decided = relativeTime(ask.decidedAt)
-    when {
-        ask.autoApproved && ask.state != "asked" -> Hint(stringResource(R.string.requests_auto_approved))
-        ask.state == "turned_down" && decider.isNotBlank() -> Hint(stringResource(R.string.requests_declined_by, decider))
-        ask.state != "asked" && ask.state != "turned_down" && decider.isNotBlank() ->
-            Hint(
-                stringResource(R.string.requests_approved_by, decider),
-            )
-        decided != null && ask.state == "turned_down" -> Hint(stringResource(R.string.requests_declined_at, decided))
-    }
-    if (ask.note.isNotBlank()) {
-        Text(
-            "“${ask.note}”",
-            style = MaterialTheme.typography.bodySmall,
-            fontStyle = FontStyle.Italic,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-    if (approver && ask.alsoDeclined.isNotEmpty()) {
-        Hint(stringResource(R.string.requests_declined_before, namesText(ask.alsoDeclined.map { it.displayName.ifBlank { it.name } })))
-    }
-    when {
-        ask.isFailed -> FailText(failedText(ask))
-        ask.state == "approved" -> {
-            val step = stepText(ask)
-            Hint(step ?: keepsText(ask))
-            if (approver && ask.step?.text?.isNotBlank() == true) Hint(ask.step?.text.orEmpty())
+    askLines(ask, approver, myId).forEach { line ->
+        when (line.kind) {
+            AskLineKind.MUTED -> Hint(line.text)
+            AskLineKind.NOTE ->
+                Text(
+                    line.text,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontStyle = FontStyle.Italic,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            AskLineKind.FAIL -> FailText(line.text)
         }
     }
 }
@@ -752,7 +649,7 @@ private fun FilterSheet(
         Column(Modifier.padding(horizontal = Spacing.Screen).padding(bottom = Spacing.XLarge)) {
             if (state.stages.isNotEmpty()) {
                 Text(stringResource(R.string.requests_filter_status), style = MaterialTheme.typography.titleSmall)
-                RadioLine(stringResource(R.string.requests_filter_all_statuses), state.stage == null) { viewModel.setStage(null) }
+                RadioLine(stringResource(CommonR.string.requests_filter_all_statuses), state.stage == null) { viewModel.setStage(null) }
                 state.stages.forEach { stage ->
                     RadioLine("${stageLabel(stage)} (${state.stageCounts[stage] ?: 0})", state.stage == stage) { viewModel.setStage(stage) }
                 }
@@ -840,7 +737,7 @@ private fun DeclineSheet(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
                 Spacer(Modifier.width(Spacing.Small))
-                Button(onClick = { onDecline(reason) }) { Text(stringResource(R.string.requests_decline)) }
+                Button(onClick = { onDecline(reason) }) { Text(stringResource(CommonR.string.requests_decline)) }
             }
         }
     }

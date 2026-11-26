@@ -90,6 +90,7 @@ import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 private val BUTTONS =
     setOf(DownloadAction.PAUSE, DownloadAction.RESUME, DownloadAction.RETRY, DownloadAction.OPEN_TITLE, DownloadAction.REMOVE)
@@ -140,7 +141,11 @@ internal fun DownloadDetailSheet(
                     val health = mutableListOf(stringResource(item.word.label()))
                     if (!item.history) health += "${DownloadFormat.percent(item.progress)}%"
                     if (item.moving) health += speedText(item.row.speed)
-                    if (item.moving && item.row.eta > 0) health += stringResource(R.string.downloads_time_left, durationText(item.row.eta))
+                    if (item.moving &&
+                        item.row.eta > 0
+                    ) {
+                        health += stringResource(CommonR.string.downloads_time_left, durationText(item.row.eta))
+                    }
                     Text(health.joinToString(" · "), style = MaterialTheme.typography.labelMedium, color = toneColor(item.tone))
                     item.problem?.let {
                         Text(
@@ -488,8 +493,8 @@ private fun PeersTab(state: DownloadDetailState) {
             Text(listOf(p.address, p.client).filter { it.isNotEmpty() }.joinToString(" · "), style = MaterialTheme.typography.bodySmall)
             Text(
                 "${DownloadFormat.percent(p.progress)}% · " +
-                    stringResource(R.string.downloads_speed_down, speedText(p.speed)) + " · " +
-                    stringResource(R.string.downloads_speed_up, speedText(p.upSpeed)),
+                    stringResource(CommonR.string.downloads_speed_down, speedText(p.speed)) + " · " +
+                    stringResource(CommonR.string.downloads_speed_up, speedText(p.upSpeed)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -606,7 +611,7 @@ private fun TrackersTab(
                 TextButton(onClick = {
                     scope.launch { presenter.removeTracker(t.ref) }
                     editing = null
-                }) { Text(stringResource(R.string.downloads_action_remove), color = MaterialTheme.acolyte.failText) }
+                }) { Text(stringResource(CommonR.string.downloads_action_remove), color = MaterialTheme.acolyte.failText) }
             },
         )
     }
@@ -668,7 +673,7 @@ private fun LogTab(state: DownloadDetailState) {
         val heading =
             when {
                 day == null -> ""
-                day == today -> stringResource(R.string.downloads_day_today)
+                day == today -> stringResource(CommonR.string.downloads_day_today)
                 day == today.plusDays(-1) -> stringResource(R.string.downloads_day_yesterday)
                 else -> dayText(day)
             }
@@ -994,7 +999,7 @@ private fun DecisionCard(
                             },
                         )
                         if (d.kind != "artist") {
-                            DropdownMenuItem(text = { Text(stringResource(R.string.downloads_action_open)) }, onClick = {
+                            DropdownMenuItem(text = { Text(stringResource(CommonR.string.downloads_action_open)) }, onClick = {
                                 open = false
                                 viewModel.openTitle(d.titleId, onOpenTitle)
                             })
@@ -1017,15 +1022,4 @@ private fun DecisionCard(
             }
         }
     }
-}
-
-@Composable
-internal fun dayText(day: ch.orellbuehler.acolyte.feature.downloads.Day): String {
-    val date = java.time.LocalDate.of(day.year, day.month, day.day)
-    val now = java.time.LocalDate.now()
-    val pattern = if (day.year == now.year) "EEE, d MMM" else "EEE, d MMM yyyy"
-    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
-    return java.time.format.DateTimeFormatter
-        .ofPattern(pattern, locale)
-        .format(date)
 }

@@ -57,6 +57,7 @@ import ch.orellbuehler.acolyte.ui.components.ErrorView
 import ch.orellbuehler.acolyte.ui.components.LoadingView
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -211,7 +212,7 @@ fun AskSheet(
                         else -> stringResource(R.string.requests_ask_hear)
                     },
                 )
-                if (state.neverAdd) FailText(stringResource(R.string.requests_error_never_add))
+                if (state.neverAdd) FailText(stringResource(CommonR.string.requests_error_never_add))
                 if (state.isShow) ShowChoices(state, viewModel)
                 if (state.showsQuality) QualityPills(state.pills, state.selected, viewModel::select)
                 state.alsoPills.forEach { pill ->
@@ -240,8 +241,8 @@ fun AskSheet(
 @Composable
 private fun showModeWords(state: AskSheetState): String =
     when (state.mode) {
-        ShowMode.FUTURE -> stringResource(R.string.requests_seasons_future)
-        ShowMode.ALL -> stringResource(R.string.requests_seasons_whole)
+        ShowMode.FUTURE -> stringResource(CommonR.string.requests_seasons_future)
+        ShowMode.ALL -> stringResource(CommonR.string.requests_seasons_whole)
         ShowMode.CHOOSE -> chooseSummary(state)
     }
 
@@ -383,7 +384,7 @@ fun AskMusicSheet(
                     val what =
                         if (brief.albums.isEmpty()) {
                             stringResource(
-                                R.string.requests_albums_every,
+                                CommonR.string.requests_albums_every,
                             )
                         } else {
                             namesText(brief.albums.map { it.name })

@@ -77,6 +77,7 @@ import ch.orellbuehler.acolyte.ui.components.ScreenScaffold
 import ch.orellbuehler.acolyte.ui.components.StatusContent
 import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.theme.Spacing
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun OutsideListsScreen(onBack: () -> Unit) {
@@ -229,9 +230,9 @@ private fun ListRow(
                                 if (list.titleKind ==
                                     "show"
                                 ) {
-                                    R.string.requests_kind_shows
+                                    CommonR.string.requests_kind_shows
                                 } else {
-                                    R.string.requests_kind_movies
+                                    CommonR.string.requests_kind_movies
                                 },
                             ),
                         )
@@ -308,14 +309,14 @@ private fun ListForm(
                 SegmentedButton(selected = !state.isShowList, onClick = {
                     viewModel.setTitleKind(false)
                 }, shape = SegmentedButtonDefaults.itemShape(0, 2)) {
-                    Text(stringResource(R.string.requests_kind_movies))
+                    Text(stringResource(CommonR.string.requests_kind_movies))
                 }
                 SegmentedButton(
                     selected = state.isShowList,
                     onClick = { viewModel.setTitleKind(true) },
                     shape = SegmentedButtonDefaults.itemShape(1, 2),
                 ) {
-                    Text(stringResource(R.string.requests_kind_shows))
+                    Text(stringResource(CommonR.string.requests_kind_shows))
                 }
             }
             OutlinedTextField(
@@ -612,14 +613,14 @@ fun NeverAddScreen(onBack: () -> Unit) {
                                         onClick = { show = false },
                                         shape = SegmentedButtonDefaults.itemShape(0, 2),
                                     ) {
-                                        Text(stringResource(R.string.requests_kind_movie))
+                                        Text(stringResource(CommonR.string.requests_kind_movie))
                                     }
                                     SegmentedButton(
                                         selected = show,
                                         onClick = { show = true },
                                         shape = SegmentedButtonDefaults.itemShape(1, 2),
                                     ) {
-                                        Text(stringResource(R.string.requests_kind_show))
+                                        Text(stringResource(CommonR.string.requests_kind_show))
                                     }
                                 }
                                 OutlinedTextField(
@@ -670,7 +671,7 @@ fun NeverAddScreen(onBack: () -> Unit) {
                             ) {
                                 Column(Modifier.weight(1f)) {
                                     Text(entry.name, style = MaterialTheme.typography.bodyLarge)
-                                    val kind = if (entry.kind == "show") stringResource(R.string.requests_kind_show) + " · " else ""
+                                    val kind = if (entry.kind == "show") stringResource(CommonR.string.requests_kind_show) + " · " else ""
                                     Hint(listOf("${kind}tmdb:${entry.tmdb}", entry.reason).filter { it.isNotBlank() }.joinToString(" · "))
                                 }
                                 TextButton(onClick = { viewModel.remove(entry.id) }, enabled = entry.id !in state.removing) {
