@@ -1,11 +1,17 @@
 name: Release
 
-# Builds the signed Android release (AAB + APK) and the iOS release and ships them:
+# Builds the signed Android release (AAB + APK), the iOS release and the Apple TV release
+# and ships them:
 #   Android: attached to the GitHub release, uploaded to Google Play internal testing
 #            when GOOGLE_PLAY_SERVICE_ACCOUNT_JSON is set.
 #   iOS:     uploaded to TestFlight.
+#   tvOS:    uploaded to TestFlight (same app record, own provisioning profile). Skipped with a
+#            notice while TVOS_PROFILE_APP_BASE64 does not exist; never blocks the other jobs.
 # Every secret is listed in README.md ("Release"). A job whose required secrets are
 # missing fails in its first step and names them.
+#
+# A platform is one entry in the `platforms` input, one word in the list computed by the
+# release-exists job and one `if` on its job: adding a platform touches those three places.
 
 on:
   release:
@@ -21,14 +27,16 @@ on:
       # needs a dispatch — and without this, that would re-upload the other
       # platform under a fresh build number.
       platforms:
-        description: 'Which apps to build and upload'
+        description: 'Which apps to build and upload (both = the two phone apps)'
         required: false
-        default: both
+        default: all
         type: choice
         options:
+          - all
           - both
           - android
           - ios
+          - tvos
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -47,7 +55,29 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+    outputs:
+      platforms: ${{ steps.platforms.outputs.list }}
     steps:
+      # A space-separated list with spaces on both ends, so a job can test for ' ios '
+      # without 'android' matching 'androidtv'. A published release ships every platform.
+      - name: Work out the platforms to ship
+        id: platforms
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PLATFORMS: ${{ inputs.platforms }}
+        run: |
+          all="android ios tvos"
+          list="$all"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$INPUT_PLATFORMS" in
+              all) list="$all" ;;
+              both) list="android ios" ;;
+              *) list="$INPUT_PLATFORMS" ;;
+            esac
+          fi
+          echo "Platforms: $list"
+          echo "list= $list " >> "$GITHUB_OUTPUT"
+
       - name: Require a GitHub release for a dispatched version
         if: github.event_name == 'workflow_dispatch'
         env:
@@ -67,8 +97,7 @@ jobs:
 
   android-release:
     needs: release-exists
-    # `inputs` is unset on the release trigger, which always ships both.
-    if: github.event_name != 'workflow_dispatch' || inputs.platforms != 'ios'
+    if: contains(needs.release-exists.outputs.platforms, ' android ')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -227,7 +256,7 @@ jobs:
 
   ios-release:
     needs: release-exists
-    if: github.event_name != 'workflow_dispatch' || inputs.platforms != 'android'
+    if: contains(needs.release-exists.outputs.platforms, ' ios ')
     # GitHub's arm64 Xcode 27 image, matching the iOS PR build (ios.yml). It
     # carries the Xcode 27.0 GM alongside 27.1/27.2 previews; the ios-setup
     # action pins and verifies the GM.
@@ -540,3 +569,347 @@ jobs:
         with:
           name: release-ipa
           path: ${{ runner.temp }}/export/*.ipa
+
+  tvos-config:
+    needs: release-exists
+    if: contains(needs.release-exists.outputs.platforms, ' tvos ')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      configured: ${{ steps.profile.outputs.configured }}
+    steps:
+      - name: Check for the tvOS provisioning profile
+        id: profile
+        env:
+          PROFILE: ${{ secrets.TVOS_PROFILE_APP_BASE64 }}
+        run: |
+          if [ -n "$PROFILE" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::TVOS_PROFILE_APP_BASE64 is not set, so the Apple TV build was skipped. Add the tvOS platform in App Store Connect, create the 'Acolyte tvOS App Store' profile and store it in that secret (README.md, Release)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Runs after the iOS job even when that one failed or was not requested: both jobs create
+  # and revoke "Created via API" development certificates for the team, so running them
+  # side by side could revoke the certificate the other archive is still using.
+  tvos-release:
+    needs: [release-exists, tvos-config, ios-release]
+    if: ${{ !cancelled() && needs.release-exists.result == 'success' && needs.tvos-config.outputs.configured == 'true' }}
+    # GitHub's arm64 Xcode 27 image, matching the tvOS PR build (ios.yml). It
+    # carries the Xcode 27.0 GM alongside 27.1/27.2 previews; the ios-setup
+    # action pins and verifies the GM.
+    runs-on: xcode-27
+    timeout-minutes: 45
+    permissions:
+      contents: read
+
+    steps:
+      - name: Require signing secrets
+        env:
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          IOS_DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          IOS_DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          TVOS_PROFILE_APP_BASE64: ${{ secrets.TVOS_PROFILE_APP_BASE64 }}
+        run: |
+          missing=""
+          for name in APP_STORE_CONNECT_API_KEY_BASE64 APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APPLE_TEAM_ID IOS_DIST_CERT_P12_BASE64 IOS_DIST_CERT_PASSWORD TVOS_PROFILE_APP_BASE64; do
+            if [ -z "${!name}" ]; then
+              missing="$missing $name"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub secrets:$missing. See the Release section of README.md."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      # Export signs manually against the profile kept in a secret. Compare it
+      # with the export options (and the app's entitlements, once it has any)
+      # first: an expired, misnamed or stale profile otherwise fails the job
+      # ~25 minutes in with a bare "doesn't include the <entitlement> entitlement".
+      - name: Check provisioning profile
+        working-directory: iosApp
+        env:
+          PROFILE_APP_BASE64: ${{ secrets.TVOS_PROFILE_APP_BASE64 }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          BUNDLE_ID=ch.orellbuehler.acolyte
+          ENTITLEMENTS=Acolyte/Acolyte.entitlements
+          prof="$RUNNER_TEMP/pf-tv.mobileprovision"
+          plist="$RUNNER_TEMP/pf-tv.plist"
+          failed=0
+
+          # <key> names out of an xml1 dump. plutil's json converter refuses
+          # values JSON cannot represent (data, date), and a profile's
+          # Entitlements dict can hold them.
+          keys_of() {
+            { grep -o '<key>[^<]*</key>' || true; } | sed 's/<[^>]*>//g' | sort -u
+          }
+
+          echo "$PROFILE_APP_BASE64" | base64 -d > "$prof"
+          security cms -D -i "$prof" > "$plist"
+
+          expires=$(plutil -extract ExpirationDate raw -o - "$plist" 2>/dev/null || true)
+          if [ -n "$expires" ] && [ "$(date -u +%Y-%m-%d)" \> "${expires%%T*}" ]; then
+            echo "::error::Provisioning profile expired on $expires"
+            failed=1
+          fi
+
+          actual_name=$(plutil -extract Name raw -o - "$plist")
+          expected_name=$(/usr/libexec/PlistBuddy -c "Print :provisioningProfiles:$BUNDLE_ID" ExportOptionsTV.plist)
+          if [ "$actual_name" != "$expected_name" ]; then
+            echo "::error::Profile is named '$actual_name' but ExportOptionsTV.plist expects '$expected_name'"
+            failed=1
+          fi
+
+          if ! plutil -extract Platform xml1 -o - "$plist" | grep -q '<string>tvOS</string>'; then
+            echo "::error::Profile is not a tvOS profile (an iOS profile with the same name does not work for the Apple TV build)"
+            failed=1
+          fi
+
+          app_id=$(plutil -extract Entitlements.application-identifier raw -o - "$plist" 2>/dev/null || true)
+          if [ "$app_id" != "$TEAM_ID.$BUNDLE_ID" ]; then
+            echo "::error::Profile is for '$app_id', expected '$TEAM_ID.$BUNDLE_ID'"
+            failed=1
+          fi
+
+          # Every entitlement the app requests must be granted by the profile;
+          # the profile carrying extras is fine. Skipped while the app has no
+          # entitlements file (it has none so far).
+          if [ -f "$ENTITLEMENTS" ]; then
+            requested=$(plutil -convert xml1 -o - "$ENTITLEMENTS" | keys_of)
+            granted=$(plutil -extract Entitlements xml1 -o - "$plist" | keys_of)
+            missing=$(comm -23 <(echo "$requested") <(echo "$granted"))
+            if [ -n "$missing" ]; then
+              echo "::error::Profile is missing entitlements: $(echo "$missing" | tr '\n' ' ')"
+              failed=1
+            fi
+          fi
+
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::Recreate the tvOS App Store profile for $BUNDLE_ID named '$expected_name' in the Apple Developer portal, then update the secret: openssl base64 -A -in Acolyte_tvOS_App_Store.mobileprovision | gh secret set TVOS_PROFILE_APP_BASE64"
+            exit 1
+          fi
+          echo "ok: profile '$actual_name' (expires $expires)"
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      # The app links the KMP shared framework, so build and stage it for the
+      # Release/device archive (mirrors the debug/simulator steps in ios.yml).
+      - name: Build shared tvOS framework (release, device)
+        run: ./gradlew shared:linkReleaseFrameworkTvosArm64
+
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk appletvos --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Release/appletvos${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/tvosArm64/releaseFramework/shared.framework "$DEST/"
+
+      - name: Determine version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$EVENT_NAME" = "release" ]; then
+            RAW="$REF_NAME"
+          else
+            RAW="$INPUT_VERSION"
+          fi
+          if ! echo "$RAW" | grep -Eq '^v?[0-9]+(\.[0-9]+){1,2}$'; then
+            echo "::error::Version '$RAW' is not of the form 1.2.3 or v1.2.3."
+            exit 1
+          fi
+          # CFBundleShortVersionString must be a numeric x.y.z — strip a leading v.
+          echo "marketing=${RAW#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+
+      - name: Set up App Store Connect API key
+        id: asc_key
+        env:
+          API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          # xcodebuild cloud signing and `altool` both auto-discover the key at
+          # ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8
+          echo "$API_KEY_BASE64" | openssl base64 -d \
+            > ~/.appstoreconnect/private_keys/AuthKey_"$KEY_ID".p8
+
+      - name: Inject team ID into ExportOptionsTV.plist
+        working-directory: iosApp
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" ExportOptionsTV.plist \
+            || /usr/libexec/PlistBuddy -c "Set :teamID $TEAM_ID" ExportOptionsTV.plist
+
+      - name: Archive
+        working-directory: iosApp
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          MARKETING_VERSION: ${{ steps.version.outputs.marketing }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        # -allowProvisioningUpdates + the API key = cloud signing: Xcode creates
+        # and manages the development cert and profile for the archive itself.
+        # CODE_SIGNING_ALLOWED=YES overrides the project default (NO) used by the
+        # unsigned PR/simulator build. The build number is the monotonic CI run
+        # number, so every upload is unique within a marketing version.
+        run: |
+          xcodebuild archive \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTV \
+            -configuration Release \
+            -destination 'generic/platform=tvOS' \
+            -archivePath "$RUNNER_TEMP/AcolyteTV.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_"$KEY_ID".p8 \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID" \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            MARKETING_VERSION="$MARKETING_VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER"
+
+      - name: Revoke the cloud-signing development certificates
+        # Cloud signing mints a fresh "Apple Development: Created via API" cert
+        # on every run (the ephemeral runner never holds a previous cert's
+        # private key). Apple caps development certs per team, so after ~10
+        # releases Archive fails with "Your account has reached the maximum
+        # number of certificates". Export re-signs with the distribution cert
+        # from secrets, so the cert is dead weight once Archive is done —
+        # revoke them all, including this run's, even when Archive failed.
+        # Skipped only when the API key was never set up.
+        if: always() && steps.asc_key.conclusion == 'success'
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          ASC_PRIVATE_KEY_PATH=~/.appstoreconnect/private_keys/AuthKey_"$ASC_KEY_ID".p8 \
+            node scripts/ios/revoke-ci-certs.mjs --apply
+
+      - name: Import distribution certificate and profile
+        env:
+          DIST_CERT_P12_BASE64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          DIST_CERT_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROFILE_APP_BASE64: ${{ secrets.TVOS_PROFILE_APP_BASE64 }}
+        # Manual export signing needs our Apple Distribution identity in a
+        # keychain and the App Store profile installed where xcodebuild looks.
+        # A throwaway keychain keeps the private key off the persistent runner.
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/signing-tv.keychain-db"
+          KEYCHAIN_PWD="$(openssl rand -base64 24)"
+          security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN"
+          security set-keychain-settings -lut 3600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN"
+
+          CERT="$RUNNER_TEMP/dist-tv.p12"
+          echo "$DIST_CERT_P12_BASE64" | base64 -d > "$CERT"
+          security import "$CERT" -k "$KEYCHAIN" -P "$DIST_CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          rm -f "$CERT"
+          # Let codesign use the imported key without an interactive prompt, and
+          # add our keychain to the search list (keeping the existing ones).
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN" >/dev/null
+          # shellcheck disable=SC2046 # the existing keychains are a plain word list
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | sed 's/"//g')
+
+          TMP="$(mktemp "$RUNNER_TEMP"/prof-tv.XXXXXX)"
+          echo "$PROFILE_APP_BASE64" | base64 -d > "$TMP"
+          UUID="$(security cms -D -i "$TMP" | plutil -extract UUID raw -o - -)"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$TMP" "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          echo "installed profile $UUID"
+
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+      - name: Export IPA
+        working-directory: iosApp
+        # Manual signing: export re-signs using the Apple Distribution identity
+        # imported above and the profile named in ExportOptionsTV.plist. No
+        # -allowProvisioningUpdates / API key here — that path used the flaky
+        # cloud-managed distribution certificate.
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/AcolyteTV.xcarchive" \
+            -exportOptionsPlist ExportOptionsTV.plist \
+            -exportPath "$RUNNER_TEMP/export-tv"
+
+      - name: Verify distribution signature
+        # Fail fast and clearly if export did not produce a distribution-signed
+        # app (altool would otherwise reject it ~40s later with a vaguer error).
+        run: |
+          set -euo pipefail
+          set -- "$RUNNER_TEMP"/export-tv/*.ipa
+          IPA="$1"
+          [ -f "$IPA" ] || { echo "::error::Export produced no IPA"; exit 1; }
+          unzip -q -o "$IPA" -d "$RUNNER_TEMP/verify-tv"
+          set -- "$RUNNER_TEMP"/verify-tv/Payload/*.app
+          APP="$1"
+          AUTH=$(codesign -dvv "$APP" 2>&1 | grep '^Authority=' | head -n1 || true)
+          echo "$AUTH"
+          case "$AUTH" in
+            *"Apple Distribution"*) echo "OK: distribution-signed" ;;
+            *) echo "::error::Exported app is not distribution-signed: ${AUTH:-<none>}"; exit 1 ;;
+          esac
+
+      - name: Upload to TestFlight
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        # altool can print "UPLOAD FAILED" (e.g. an icon with an alpha channel,
+        # or an invalid signature) and still exit 0, which silently produces a
+        # green run with no build in App Store Connect. Validate first, then
+        # upload, and fail the step on a non-zero exit OR any error text.
+        run: |
+          set -o pipefail
+          set -- "$RUNNER_TEMP"/export-tv/*.ipa
+          IPA="$1"
+          [ -f "$IPA" ] || { echo "::error::Export produced no IPA"; exit 1; }
+          echo "IPA: $IPA"
+
+          run_altool() {
+            local action="$1" log="$2"
+            if ! xcrun altool "$action" -f "$IPA" -t appletvos \
+                  --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID" 2>&1 | tee "$log"; then
+              echo "::error::altool $action exited non-zero"
+              return 1
+            fi
+            # Drop altool's benign success lines ("No errors uploading
+            # archive at ...") first — otherwise the "errors uploading"
+            # pattern below matches them and fails a successful upload.
+            if grep -viE 'No errors (uploading|validating)' "$log" \
+                 | grep -qiE 'UPLOAD FAILED|VALIDATE FAILED|VALIDATION_ERROR|errors? (uploading|validating)|not (properly )?signed|alpha channel|Failed to (upload|validate)'; then
+              echo "::error::altool $action reported errors (see log above)"
+              return 1
+            fi
+          }
+
+          echo "Validating $IPA"
+          run_altool --validate-app "$RUNNER_TEMP/altool-validate-tv.log"
+          echo "Uploading $IPA"
+          run_altool --upload-app "$RUNNER_TEMP/altool-upload-tv.log"
+          echo "Upload accepted by App Store Connect."
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: release-tvos-ipa
+          path: ${{ runner.temp }}/export-tv/*.ipa
