@@ -48,6 +48,7 @@ import ch.orellbuehler.acolyte.ui.components.PasswordField
 import ch.orellbuehler.acolyte.ui.components.PlexWaitingPanel
 import ch.orellbuehler.acolyte.ui.components.ReauthSheet
 import ch.orellbuehler.acolyte.ui.theme.Spacing
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun FirstRunScreen() {
@@ -148,7 +149,7 @@ private fun ServersStep(viewModel: FirstRunViewModel) {
         onConnect = { formKind = "emby" },
         onUnlink = { viewModel.unlinkMedia("emby") },
     )
-    if (security.problem == AccountSecurityProblem.PLEX_TIMEOUT) NoticeBanner(stringResource(R.string.signin_error_plex_timeout))
+    if (security.problem == AccountSecurityProblem.PLEX_TIMEOUT) NoticeBanner(stringResource(CommonR.string.signin_error_plex_timeout))
     security.error?.let { ErrorBanner(it) }
     Button(onClick = viewModel::next, enabled = !busy, modifier = Modifier.fillMaxWidth().height(48.dp)) {
         Text(stringResource(if (anyLinked) R.string.wizard_continue else R.string.wizard_skip_servers))

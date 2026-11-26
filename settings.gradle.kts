@@ -15,4 +15,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Acolyte"
 include(":shared")
+include(":androidCommon")
 include(":androidApp")
+include(":androidTvApp")

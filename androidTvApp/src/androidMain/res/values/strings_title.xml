@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_title_air_today">Today</string>
+    <string name="tv_title_air_tomorrow">Tomorrow</string>
+    <string name="tv_title_air_yesterday">Yesterday</string>
+    <string name="tv_title_blocked">This title is not available on this account.</string>
+    <string name="tv_title_card_in_library">In library</string>
+    <string name="tv_title_card_ready">Ready to watch</string>
+    <string name="tv_title_card_requested">Requested</string>
+    <string name="tv_title_cast">Cast and crew</string>
+    <string name="tv_title_close">Close</string>
+    <string name="tv_title_episode_number">Episode %1$d</string>
+    <string name="tv_title_follow">Follow</string>
+    <string name="tv_title_following">Following</string>
+    <string name="tv_title_more_from">More from %1$s</string>
+    <string name="tv_title_more_from_them">More from the director</string>
+    <string name="tv_title_more_like_this">More like this</string>
+    <string name="tv_title_more_with">More with %1$s</string>
+    <string name="tv_title_no_air_date">No air date yet</string>
+    <string name="tv_title_not_found">We could not find this title</string>
+    <string name="tv_title_not_found_hint">It may have been removed. Try searching by name.</string>
+    <string name="tv_title_not_in_library">This title is not in your Library</string>
+    <string name="tv_title_not_in_library_hint">It may have been removed.</string>
+    <string name="tv_title_pill_approved">Approved</string>
+    <string name="tv_title_pill_asked">Requested</string>
+    <string name="tv_title_pill_available">Ready to watch</string>
+    <string name="tv_title_pill_hidden">Hidden from browsing</string>
+    <string name="tv_title_pill_never_add">Never add</string>
+    <string name="tv_title_pill_turned_down">Declined</string>
+    <string name="tv_title_pill_you_asked">You asked: %1$s</string>
+    <string name="tv_title_request">Request</string>
+    <string name="tv_title_request_4k">Request 4K</string>
+    <string name="tv_title_request_too">Request too</string>
+    <string name="tv_title_requested">Requested</string>
+    <string name="tv_title_requested_4k">Requested 4K</string>
+    <string name="tv_title_role_creator">Creator</string>
+    <string name="tv_title_role_director">Director</string>
+    <string name="tv_title_runtime_hours">%1$d hr</string>
+    <string name="tv_title_runtime_hours_minutes">%1$d hr %2$d min</string>
+    <string name="tv_title_runtime_minutes">%1$d min</string>
+    <string name="tv_title_season_failed">The episodes of %1$s could not be read; try again shortly.</string>
+    <string name="tv_title_season_number">Season %1$d</string>
+    <string name="tv_title_seasons">Seasons</string>
+    <string name="tv_title_specials">Specials</string>
+    <string name="tv_title_starring">Starring</string>
+    <string name="tv_title_state_download_failed">Download failed</string>
+    <string name="tv_title_state_downloaded">Downloaded</string>
+    <string name="tv_title_state_downloading">Downloading</string>
+    <string name="tv_title_state_downloading_percent">Downloading %1$d%%</string>
+    <string name="tv_title_state_episodes_of">%1$d of %2$d episodes</string>
+    <string name="tv_title_state_in_library">In library</string>
+    <string name="tv_title_state_not_downloaded">Not downloaded yet</string>
+    <string name="tv_title_trailer">Trailer</string>
+    <plurals name="tv_title_seasons_count">
+        <item quantity="one">%1$d season</item>
+        <item quantity="other">%1$d seasons</item>
+    </plurals>
+    <plurals name="tv_title_state_downloading_episodes">
+        <item quantity="one">Downloading %1$d episode</item>
+        <item quantity="other">Downloading %1$d episodes</item>
+    </plurals>
+    <plurals name="tv_title_state_failed_episodes">
+        <item quantity="one">%1$d failed</item>
+        <item quantity="other">%1$d failed</item>
+    </plurals>
+</resources>

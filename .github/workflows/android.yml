@@ -52,19 +52,26 @@ jobs:
             gradle-android-${{ runner.os }}-
 
       - name: Run ktlint
-        run: ./gradlew shared:ktlintCheck androidApp:ktlintCheck
+        run: ./gradlew shared:ktlintCheck androidCommon:ktlintCheck androidApp:ktlintCheck androidTvApp:ktlintCheck
 
       - name: Build shared module
         run: ./gradlew shared:compileDebugKotlinAndroid
 
-      - name: Build debug APK
-        run: ./gradlew androidApp:assembleDebug
+      - name: Build debug APKs
+        run: ./gradlew androidApp:assembleDebug androidTvApp:assembleDebug
 
       - name: Upload debug APK
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: debug-apk
           path: androidApp/build/outputs/apk/debug/*.apk
+          retention-days: 14
+
+      - name: Upload debug TV APK
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: debug-tv-apk
+          path: androidTvApp/build/outputs/apk/debug/*.apk
           retention-days: 14
 
   lint:
@@ -101,13 +108,13 @@ jobs:
             gradle-android-${{ runner.os }}-
 
       - name: Run Android lint
-        run: ./gradlew androidApp:lintDebug
+        run: ./gradlew androidApp:lintDebug androidCommon:lintDebug androidTvApp:lintDebug
 
       - name: Run shared module tests
         run: ./gradlew shared:allTests
 
       - name: Run Android unit tests
-        run: ./gradlew androidApp:testDebugUnitTest
+        run: ./gradlew androidApp:testDebugUnitTest androidTvApp:testDebugUnitTest
 
       - name: Upload test results
         if: always()
@@ -116,6 +123,8 @@ jobs:
           name: test-results
           path: |
             androidApp/build/reports/tests/
+            androidTvApp/build/reports/tests/
+            androidTvApp/build/tv-screens/
             shared/build/reports/tests/
           retention-days: 7
 
