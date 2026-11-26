@@ -46,7 +46,7 @@ The pictures come from the `Store Screenshots` workflow and show invented demo d
 
 ## Status
 
-In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) builds in CI and ships to TestFlight with the release builds once the tvOS profile secret exists (see Release).
+In testing. Signed builds of every [release](https://github.com/OrellBuehler/acolyte/releases) go to the Google Play internal testing track and to TestFlight; the app is not in the stores yet. The Apple TV app (`AcolyteTV`: Home, Explore, Search, Calendar, Downloads, Requests and Settings, without the manager tools) and the Android TV app (`androidTvApp`, same screens, being built up) build in CI; the Apple TV app ships to TestFlight with the release builds once the tvOS profile secret exists (see Release).
 
 ## How it fits together
 
@@ -54,6 +54,8 @@ In testing. Signed builds of every [release](https://github.com/OrellBuehler/aco
 |---|---|
 | `shared/` | Kotlin Multiplatform: the HolyArrs client (Ktor), sign-in and session, secure storage (Android Keystore, iOS Keychain), live updates (`/live`), image URLs, navigation rules and one presenter per feature. `AcolyteSdk` is the entry point. |
 | `androidApp/` | Jetpack Compose and Material 3. Renders the shared state. |
+| `androidTvApp/` | The Android TV app (Compose for TV), same application id as the phone app. Renders the same shared state with D-pad navigation. |
+| `androidCommon/` | Small Android library both Android apps use: the palette, server images, error texts and the session view model. |
 | `iosApp/` | SwiftUI (iPhone app `Acolyte` and the Apple TV app `AcolyteTV` on the same shared code), project generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen). Uses the shared framework through [SKIE](https://skie.touchlab.co). |
 | `api/` | The OpenAPI spec of the HolyArrs release the app is built against (`VERSION`). |
 
@@ -74,6 +76,8 @@ Requirements: JDK 17 and the Android SDK (set `ANDROID_HOME` or `sdk.dir` in `lo
 ./gradlew androidApp:lintDebug            # Android lint
 ./gradlew shared:ktlintCheck androidApp:ktlintCheck
 ```
+
+The Android TV app is the `androidTvApp` module and has the same tasks (`androidTvApp:assembleDebug`, `androidTvApp:testDebugUnitTest`, `androidTvApp:lintDebug`, `androidTvApp:ktlintCheck`); the shared library module is `androidCommon` (`androidCommon:lintDebug`, `androidCommon:ktlintCheck`). To try the TV app, install the debug APK on an Android TV device or emulator (an `Android TV` system image) with `adb install androidTvApp/build/outputs/apk/debug/androidTvApp-debug.apk`.
 
 ### iOS
 
@@ -116,7 +120,7 @@ scripts/api/live-server.sh stop
 
 | Workflow | Runs on | What it does |
 |---|---|---|
-| `android.yml` | pull requests and pushes to `main`, manual | ktlint, shared module build, debug APK (uploaded as artifact), Android lint, shared and Android unit tests, informational Kover coverage. `android-gate` is the always-reporting required check. |
+| `android.yml` | pull requests and pushes to `main`, manual | ktlint, shared module build, debug APKs of the phone and TV apps (uploaded as artifacts), Android lint, shared and Android unit tests (phone and TV), informational Kover coverage. `android-gate` is the always-reporting required check. |
 | `ios.yml` | pull requests and pushes to `main`, manual | `ios-build` (string table check, shared framework and simulator app build, the fast compile signal), then `ios-tests` (Kotlin/Native tests of `shared`). `ios-gate` is the always-reporting required check. |
 | `api.yml` | pull requests and pushes to `main`; weekly and manual for the drift report | `spec`: `api/openapi.json` equals the spec of the release in `api/VERSION`. `contract`: every endpoint the client declares exists in the spec with the same parameters, permission and part, and its models fit the typed schemas. `live`: the published Docker image of that release, set up over the API, answers every read endpoint (password and API key sign-in, strict decoding). `drift` (weekly, manual): compares with the latest HolyArrs release and `main`, writes the job summary and opens or updates an `api-drift` issue when a newer release exists or an endpoint the app uses changed. `api-gate` is the always-reporting required check. |
 | `release.yml` | published GitHub release, manual dispatch | Signed release builds, see below. |
@@ -195,4 +199,4 @@ The icon files are in `assets/icon`.
 | `adaptive-foreground.svg`, `adaptive-foreground-1024.png` | Android adaptive icon foreground, on background `#05080D` |
 | `icon-small.svg`, `icon-small-48.png`, `icon-small-32.png`, `icon-small-16.png` | Simplified drawing for 48 px and below |
 
-The Android launcher icon (`androidApp/src/androidMain/res/drawable/ic_launcher_*.xml`) is the same drawing as a vector; the iOS app icon is `icon-1024.png` flattened onto `#05080D` (App Store icons cannot have an alpha channel).
+The Android launcher icon (`androidCommon/src/androidMain/res/drawable/ic_launcher_*.xml`) is the same drawing as a vector; the iOS app icon is `icon-1024.png` flattened onto `#05080D` (App Store icons cannot have an alpha channel).

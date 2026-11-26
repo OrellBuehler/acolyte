@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_offline">Can\'t reach the server. Check your connection.</string>
+    <string name="error_timeout">The server took too long to answer.</string>
+    <string name="error_tls">The server\'s certificate is not trusted.</string>
+    <string name="error_unauthorized">Your session has ended. Sign in again.</string>
+    <string name="error_forbidden">Your account may not do this.</string>
+    <string name="error_not_found">This was not found on the server.</string>
+    <string name="error_bad_request">The server did not accept this request.</string>
+    <string name="error_conflict">This clashes with the current state on the server.</string>
+    <string name="error_part_off">This part of HolyArrs is turned off.</string>
+    <string name="error_hands_off">Hands-off mode is on, so HolyArrs only sends to the downloader.</string>
+    <string name="error_reauth">Confirm your password again to do this.</string>
+    <string name="error_rate_limited">Too many requests. Wait a moment and try again.</string>
+    <string name="error_server">The server ran into a problem.</string>
+    <string name="error_invalid_response">The server sent an answer the app does not understand.</string>
+    <string name="error_unknown">Something went wrong.</string>
+    <string name="signin_error_invalid_address">That does not look like a server address.</string>
+    <string name="signin_error_unreachable">No server answered at this address.</string>
+    <string name="signin_error_tls">The server\'s certificate is not trusted. For a self-signed certificate, install its certificate authority on this device.</string>
+    <string name="signin_error_not_holyarrs">This is not a HolyArrs server. Check the address and the URL base.</string>
+    <string name="signin_error_needs_setup">This server is not set up yet. Finish the setup in a browser first.</string>
+    <string name="signin_error_host_refused">The server refuses this host name. Add it in HolyArrs under Settings, Sign-in and security, Allowed host names.</string>
+    <string name="signin_error_wrong_credentials">Wrong name or password.</string>
+    <string name="signin_error_wrong_code">Wrong code.</string>
+    <string name="signin_error_sign_in_ended">This sign-in has ended. Start again.</string>
+    <string name="signin_error_key_rejected">The server did not accept this API key.</string>
+    <string name="signin_error_not_allowed">This account may not sign in.</string>
+    <string name="signin_error_way_off">This sign-in method is turned off on the server.</string>
+    <string name="signin_error_rate_limited">Too many attempts. Try again in %1$d s.</string>
+    <string name="signin_error_server">The server ran into a problem. Try again later.</string>
+    <string name="signin_error_invalid_name">Usernames are 1 to 30 letters, numbers, _ or dots, with no spaces.</string>
+    <string name="signin_error_password_short">The password is too short.</string>
+    <string name="signin_error_name_taken">That name is taken. Pick another.</string>
+    <string name="signin_error_owner_exists">An owner already exists. Sign in instead.</string>
+    <string name="signin_error_plex_timeout">Plex sign-in timed out. Try again.</string>
+    <string name="signin_error_reset_code_wrong">That code is wrong or has run out. Make a new one.</string>
+    <string name="signin_error_invite_gone">This invite is used up or has ended. Ask for a new one.</string>
+    <string name="signin_error_linked">This account already has a HolyArrs account. Sign in instead.</string>
+</resources>

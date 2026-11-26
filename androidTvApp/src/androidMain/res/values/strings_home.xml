@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_home_coming_up">Coming up</string>
+    <string name="tv_home_featured">Featured</string>
+    <string name="tv_home_just_arrived">Just arrived</string>
+    <string name="tv_home_new_this_week">New this week</string>
+    <string name="tv_home_new_today">New today</string>
+    <string name="tv_home_out_now">Out now</string>
+    <string name="tv_home_pill_coming_soon">Coming soon</string>
+    <string name="tv_home_pill_following">Following</string>
+    <string name="tv_home_pill_new_season">New season</string>
+    <string name="tv_home_recently_added">Recently added</string>
+</resources>

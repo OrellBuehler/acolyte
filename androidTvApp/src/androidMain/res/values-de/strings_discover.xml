@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_discover_action_add">%1$s hinzufügen</string>
+    <string name="tv_discover_action_ask">%1$s anfragen</string>
+    <string name="tv_discover_day_today">Heute</string>
+    <string name="tv_discover_fresh_new_episode">Neue Folge</string>
+    <string name="tv_discover_fresh_new_episodes">Neue Folgen</string>
+    <string name="tv_discover_fresh_new_release">Neu erschienen</string>
+    <string name="tv_discover_fresh_new_season">Neue Staffel</string>
+    <string name="tv_discover_fresh_new_series">Neue Serie</string>
+    <string name="tv_discover_fresh_recently_added">Kürzlich hinzugefügt</string>
+    <string name="tv_discover_genre_action">Action</string>
+    <string name="tv_discover_genre_action_adventure">Action &amp; Abenteuer</string>
+    <string name="tv_discover_genre_adventure">Abenteuer</string>
+    <string name="tv_discover_genre_animation">Animation</string>
+    <string name="tv_discover_genre_comedy">Komödie</string>
+    <string name="tv_discover_genre_crime">Krimi</string>
+    <string name="tv_discover_genre_documentary">Dokumentarfilm</string>
+    <string name="tv_discover_genre_drama">Drama</string>
+    <string name="tv_discover_genre_family">Familie</string>
+    <string name="tv_discover_genre_fantasy">Fantasy</string>
+    <string name="tv_discover_genre_history">Historie</string>
+    <string name="tv_discover_genre_horror">Horror</string>
+    <string name="tv_discover_genre_kids">Kinder</string>
+    <string name="tv_discover_genre_music">Musik</string>
+    <string name="tv_discover_genre_mystery">Mystery</string>
+    <string name="tv_discover_genre_news">Nachrichten</string>
+    <string name="tv_discover_genre_reality">Reality</string>
+    <string name="tv_discover_genre_romance">Liebesfilm</string>
+    <string name="tv_discover_genre_sci_fi_fantasy">Sci-Fi &amp; Fantasy</string>
+    <string name="tv_discover_genre_science_fiction">Science-Fiction</string>
+    <string name="tv_discover_genre_soap">Seifenoper</string>
+    <string name="tv_discover_genre_talk">Talk</string>
+    <string name="tv_discover_genre_thriller">Thriller</string>
+    <string name="tv_discover_genre_tv_movie">TV-Film</string>
+    <string name="tv_discover_genre_war">Kriegsfilm</string>
+    <string name="tv_discover_genre_war_politics">Krieg &amp; Politik</string>
+    <string name="tv_discover_genre_western">Western</string>
+    <string name="tv_discover_kind_artist">Künstler</string>
+    <string name="tv_discover_kind_movie">Film</string>
+    <string name="tv_discover_kind_music">Musik</string>
+    <string name="tv_discover_kind_show">Serie</string>
+    <string name="tv_discover_line_new_movie">Neuer Film</string>
+    <string name="tv_discover_line_new_music">Neue Musik</string>
+    <string name="tv_discover_line_new_show">Neue Serie</string>
+    <string name="tv_discover_mark_approved_waiting">Genehmigt, wartet auf eine Kopie</string>
+    <string name="tv_discover_mark_declined">Abgelehnt</string>
+    <string name="tv_discover_mark_downloading">Wird geladen</string>
+    <string name="tv_discover_mark_downloading_percent">Wird geladen, %1$d %%</string>
+    <string name="tv_discover_mark_hidden">Beim Stöbern ausgeblendet</string>
+    <string name="tv_discover_mark_in_library">In deiner Bibliothek</string>
+    <string name="tv_discover_mark_partly">Teilweise vorhanden</string>
+    <string name="tv_discover_mark_requested">Angefragt</string>
+    <string name="tv_discover_mark_waiting">Wartet auf eine Kopie</string>
+    <string name="tv_discover_note_downloading">Wird geladen</string>
+    <string name="tv_discover_role_director">Regie</string>
+    <plurals name="tv_discover_note_albums_up_to_date">
+        <item quantity="one">%1$d Album · aktuell</item>
+        <item quantity="other">%1$d Alben · aktuell</item>
+    </plurals>
+    <plurals name="tv_discover_note_missing_episodes">
+        <item quantity="one">%1$d Folge fehlt</item>
+        <item quantity="other">%1$d Folgen fehlen</item>
+    </plurals>
+    <plurals name="tv_discover_note_missing_tracks">
+        <item quantity="one">%1$d Titel fehlt</item>
+        <item quantity="other">%1$d Titel fehlen</item>
+    </plurals>
+    <plurals name="tv_discover_note_seasons_up_to_date">
+        <item quantity="one">%1$d Staffel · aktuell</item>
+        <item quantity="other">%1$d Staffeln · aktuell</item>
+    </plurals>
+</resources>

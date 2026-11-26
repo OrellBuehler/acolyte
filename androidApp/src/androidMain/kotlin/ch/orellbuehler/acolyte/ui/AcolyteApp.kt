@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.orellbuehler.acolyte.AcolyteSdk
-import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.session.Role
 import ch.orellbuehler.acolyte.session.SessionState
 import ch.orellbuehler.acolyte.ui.connect.ConnectScreen
@@ -32,8 +30,7 @@ import ch.orellbuehler.acolyte.ui.shell.MainShell
 import ch.orellbuehler.acolyte.ui.theme.AcolyteTheme
 import ch.orellbuehler.acolyte.ui.theme.isDark
 import ch.orellbuehler.acolyte.ui.wizard.FirstRunScreen
-
-val LocalSdk = staticCompositionLocalOf<AcolyteSdk> { error("AcolyteSdk is not provided") }
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun AcolyteApp(
@@ -64,7 +61,7 @@ fun AcolyteApp(
 private fun Splash() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Image(
-            painter = painterResource(R.drawable.ic_brand_mark),
+            painter = painterResource(CommonR.drawable.ic_brand_mark),
             contentDescription = null,
             modifier = Modifier.size(96.dp).clip(RoundedCornerShape(22.dp)),
         )

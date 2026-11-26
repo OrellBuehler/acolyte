@@ -46,6 +46,7 @@ import ch.orellbuehler.acolyte.ui.connect.BusyButton
 import ch.orellbuehler.acolyte.ui.connect.ErrorLine
 import ch.orellbuehler.acolyte.ui.connect.Heading
 import ch.orellbuehler.acolyte.ui.theme.Spacing
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun InviteScreen(
@@ -73,7 +74,7 @@ fun InviteScreen(
             state.signedInAs != null -> SignedInNotice(state.signedInAs.orEmpty(), state.busy, viewModel, onClose)
             state.plexUrl != null -> PlexWaitingPanel(onCancel = viewModel::cancelPlex)
             error?.code == SignInErrorCode.LINKED -> {
-                ErrorLine(stringResource(R.string.signin_error_linked))
+                ErrorLine(stringResource(CommonR.string.signin_error_linked))
                 OutlinedButton(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.invite_to_sign_in)) }
             }
             else -> {

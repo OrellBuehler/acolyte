@@ -36,21 +36,6 @@
     <string name="empty_title">Noch nichts da</string>
 
     <string name="error_title">Laden fehlgeschlagen</string>
-    <string name="error_offline">Der Server ist nicht erreichbar. Prüfe die Verbindung.</string>
-    <string name="error_timeout">Der Server hat zu lange nicht geantwortet.</string>
-    <string name="error_tls">Dem Zertifikat des Servers wird nicht vertraut.</string>
-    <string name="error_unauthorized">Deine Sitzung ist abgelaufen. Melde dich erneut an.</string>
-    <string name="error_forbidden">Dein Konto darf das nicht.</string>
-    <string name="error_not_found">Das wurde auf dem Server nicht gefunden.</string>
-    <string name="error_bad_request">Der Server hat die Anfrage nicht angenommen.</string>
-    <string name="error_conflict">Das passt nicht zum aktuellen Stand auf dem Server.</string>
-    <string name="error_part_off">Dieser Teil von HolyArrs ist ausgeschaltet.</string>
-    <string name="error_hands_off">Der Hands-off-Modus ist an, deshalb schickt HolyArrs nur an den Downloader.</string>
-    <string name="error_reauth">Bestätige dafür dein Passwort erneut.</string>
-    <string name="error_rate_limited">Zu viele Anfragen. Warte kurz und versuche es erneut.</string>
-    <string name="error_server">Auf dem Server ist ein Fehler aufgetreten.</string>
-    <string name="error_invalid_response">Der Server hat eine Antwort geschickt, die die App nicht versteht.</string>
-    <string name="error_unknown">Etwas ist schiefgelaufen.</string>
 
     <string name="connect_title">Mit HolyArrs verbinden</string>
     <string name="connect_subtitle">Gib die Adresse deines HolyArrs-Servers ein.</string>
@@ -84,20 +69,6 @@
     <string name="twofactor_code">Code</string>
     <string name="twofactor_submit">Bestätigen</string>
 
-    <string name="signin_error_invalid_address">Das sieht nicht nach einer Serveradresse aus.</string>
-    <string name="signin_error_unreachable">Unter dieser Adresse antwortet kein Server.</string>
-    <string name="signin_error_tls">Dem Zertifikat des Servers wird nicht vertraut. Installiere bei einem selbst signierten Zertifikat die Zertifizierungsstelle auf diesem Gerät.</string>
-    <string name="signin_error_not_holyarrs">Das ist kein HolyArrs-Server. Prüfe die Adresse und den URL-Pfad.</string>
-    <string name="signin_error_needs_setup">Dieser Server ist noch nicht eingerichtet. Schliesse die Einrichtung zuerst im Browser ab.</string>
-    <string name="signin_error_host_refused">Der Server lehnt diesen Hostnamen ab. Füge ihn in HolyArrs unter Einstellungen, Anmeldung und Sicherheit, Erlaubte Hostnamen hinzu.</string>
-    <string name="signin_error_wrong_credentials">Falscher Name oder falsches Passwort.</string>
-    <string name="signin_error_wrong_code">Falscher Code.</string>
-    <string name="signin_error_sign_in_ended">Diese Anmeldung ist abgelaufen. Beginne von vorn.</string>
-    <string name="signin_error_key_rejected">Der Server hat diesen API-Schlüssel nicht akzeptiert.</string>
-    <string name="signin_error_not_allowed">Dieses Konto darf sich nicht anmelden.</string>
-    <string name="signin_error_way_off">Diese Anmeldeart ist auf dem Server ausgeschaltet.</string>
-    <string name="signin_error_rate_limited">Zu viele Versuche. Versuche es in %1$d s erneut.</string>
-    <string name="signin_error_server">Auf dem Server ist ein Fehler aufgetreten. Versuche es später erneut.</string>
 
 
     <string name="account_summary">%1$s · %2$s</string>
@@ -5046,14 +5017,6 @@
     <string name="signin_setup_photo_add">Foto hinzufügen</string>
     <string name="signin_setup_photo_change">Foto ändern</string>
     <string name="signin_setup_photo_remove">Foto entfernen</string>
-    <string name="signin_error_invalid_name">Benutzernamen haben 1 bis 30 Buchstaben, Zahlen, _ oder Punkte, ohne Leerzeichen.</string>
-    <string name="signin_error_password_short">Das Passwort ist zu kurz.</string>
-    <string name="signin_error_name_taken">Dieser Name ist vergeben. Wähle einen anderen.</string>
-    <string name="signin_error_owner_exists">Es gibt bereits einen Besitzer. Melde dich stattdessen an.</string>
-    <string name="signin_error_plex_timeout">Die Plex-Anmeldung hat zu lange gedauert. Versuche es erneut.</string>
-    <string name="signin_error_reset_code_wrong">Dieser Code ist falsch oder abgelaufen. Erstelle einen neuen.</string>
-    <string name="signin_error_invite_gone">Diese Einladung ist aufgebraucht oder abgelaufen. Frag nach einer neuen.</string>
-    <string name="signin_error_linked">Dieses Konto hat bereits ein HolyArrs-Konto. Melde dich stattdessen an.</string>
     <string name="invite_entry">Du hast einen Einladungslink?</string>
     <string name="invite_link">Einladungslink</string>
     <string name="invite_link_hint">https://media.example.com/invite/...</string>

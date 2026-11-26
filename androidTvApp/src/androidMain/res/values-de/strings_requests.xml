@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv_requests_also_ask">Auch %1$s anfragen</string>
+    <string name="tv_requests_ask_all_seasons">Alle Staffeln anfragen</string>
+    <string name="tv_requests_ask_already">Jemand hat es schon angefragt (%1$s). Du schliesst dich an und erfährst, wenn es bereit ist.</string>
+    <string name="tv_requests_ask_already_show">Jemand hat %1$s schon angefragt (%2$s). Dieselbe Anfrage schliesst sich an.</string>
+    <string name="tv_requests_ask_for">%1$s anfragen</string>
+    <string name="tv_requests_ask_future">Künftige Staffeln anfragen</string>
+    <string name="tv_requests_ask_hear">Du erfährst, wenn es genehmigt und wenn es bereit ist.</string>
+    <string name="tv_requests_ask_title">%1$s anfragen</string>
+    <string name="tv_requests_done">Fertig</string>
+    <string name="tv_requests_error_age">Dieses Konto kann nur Titel innerhalb seiner Altersgrenze anfragen.</string>
+    <string name="tv_requests_error_asked_again">Jemand hat das erneut angefragt; entscheide stattdessen die offene Anfrage.</string>
+    <string name="tv_requests_error_decided">Diese Anfrage wurde schon entschieden.</string>
+    <string name="tv_requests_error_in_library">Es ist schon in der Mediathek.</string>
+    <string name="tv_requests_error_limit">Du hast deine wöchentlichen Anfragen aufgebraucht.</string>
+    <string name="tv_requests_error_limit_wait">Du hast deine wöchentlichen Anfragen aufgebraucht. Versuch es in %1$s wieder.</string>
+    <string name="tv_requests_error_never_add">Es steht auf der Nie-hinzufügen-Liste.</string>
+    <string name="tv_requests_error_no_music">Dieses Konto kann keine Musik anfragen, weil Musik keine Altersfreigaben hat.</string>
+    <string name="tv_requests_error_not_included">Die Albumarten des Künstlers schliessen dieses Album aus; frag den Besitzer.</string>
+    <string name="tv_requests_follow">Folgen</string>
+    <string name="tv_requests_follow_hint">In meinem Kalender zeigen.</string>
+    <string name="tv_requests_mode_all">Alle Staffeln</string>
+    <string name="tv_requests_mode_all_hint">Jede Staffel und spätere Staffeln.</string>
+    <string name="tv_requests_mode_choose">Staffeln oder Folgen wählen</string>
+    <string name="tv_requests_mode_choose_hint">Kreuz ganze Staffeln an oder öffne eine für einzelne Folgen.</string>
+    <string name="tv_requests_mode_future">Nur künftige Staffeln</string>
+    <string name="tv_requests_mode_future_hint">Nichts, was schon erschienen ist; neue Folgen und Staffeln ab heute.</string>
+    <string name="tv_requests_outcome_already">%1$s schon angefragt</string>
+    <string name="tv_requests_outcome_approved">%1$s genehmigt</string>
+    <string name="tv_requests_outcome_on_it">Du bist auch bei der Anfrage dabei.</string>
+    <string name="tv_requests_outcome_on_services">Es läuft auf einem Dienst des Besitzers, darum wurde es nicht heruntergeladen.</string>
+    <string name="tv_requests_outcome_requested">%1$s angefragt</string>
+    <string name="tv_requests_outcome_requested_four_k">%1$s in 4K angefragt</string>
+    <string name="tv_requests_outcome_searching">Es wird nach einem Release gesucht.</string>
+    <string name="tv_requests_outcome_turned_down">%1$s wurde nicht heruntergeladen</string>
+    <string name="tv_requests_outcome_waiting">Wartet auf Genehmigung.</string>
+    <string name="tv_requests_pick_season">Wähle eine Staffel oder Folge</string>
+    <string name="tv_requests_pill_in_library">In der Mediathek</string>
+    <string name="tv_requests_pill_requested">Angefragt</string>
+    <string name="tv_requests_quality">Qualität</string>
+    <string name="tv_requests_quality_four_k">4K</string>
+    <string name="tv_requests_quality_standard">Standard</string>
+    <string name="tv_requests_season_in_library">In der Mediathek</string>
+    <string name="tv_requests_season_kept">Wird aktuell gehalten</string>
+    <string name="tv_requests_season_many">Staffeln %1$s</string>
+    <string name="tv_requests_season_one">Staffel %1$d</string>
+    <string name="tv_requests_season_picked">%1$d gewählt</string>
+    <string name="tv_requests_season_specials">Specials</string>
+    <string name="tv_requests_seasons_future">nur künftige Staffeln</string>
+    <string name="tv_requests_seasons_whole">die ganze Serie</string>
+    <string name="tv_requests_undo">Rückgängig</string>
+    <string name="tv_requests_wait_and">%1$s und %2$s</string>
+    <string name="tv_requests_wait_few_days">einigen Tagen</string>
+    <string name="tv_requests_wait_minute">einer Minute</string>
+    <plurals name="tv_requests_days">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tagen</item>
+    </plurals>
+    <plurals name="tv_requests_episodes_count">
+        <item quantity="one">%1$d Folge</item>
+        <item quantity="other">%1$d Folgen</item>
+    </plurals>
+    <plurals name="tv_requests_hours">
+        <item quantity="one">%1$d Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="tv_requests_minutes">
+        <item quantity="one">%1$d Minute</item>
+        <item quantity="other">%1$d Minuten</item>
+    </plurals>
+</resources>

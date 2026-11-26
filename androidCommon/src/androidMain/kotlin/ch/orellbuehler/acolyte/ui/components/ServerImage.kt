@@ -25,6 +25,7 @@ fun ServerImage(
     size: ImageSize = ImageSize.POSTER,
     placeholderName: String? = null,
     contentScale: ContentScale = ContentScale.Crop,
+    alignment: Alignment = Alignment.Center,
 ) {
     val images = LocalSdk.current.images
     val url = remember(source, size) { images.url(source, size) }
@@ -35,6 +36,7 @@ fun ServerImage(
                 model = url,
                 contentDescription = contentDescription,
                 contentScale = contentScale,
+                alignment = alignment,
                 modifier = Modifier.fillMaxSize(),
             )
         }
