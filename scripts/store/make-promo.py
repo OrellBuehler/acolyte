@@ -370,9 +370,9 @@ def phone_row(img, kind, locale, items, x0, x1, cy, base):
 def phones_scene(W, H, locale, shots, path, tagline, text_x=0.06):
     img = background(W, H, glows_for(W, H, 0.7), star_count=28)
     phone_row(img, "ios", locale, list(zip(shots, (0.8, 0.92, 0.8))), W * 0.40, W * 0.98, H * 0.52, H)
-    wordmark(img, W * text_x, H * 0.24, H * 0.14)
+    wordmark(img, W * text_x, H * 0.24, min(H * 0.14, W * 0.06))
     d = ImageDraw.Draw(img)
-    y = text_block(d, W * text_x, H * 0.46, tagline, H * 0.055, 650, TEXT, W * 0.32, line=1.18)
+    y = text_block(d, W * text_x, H * 0.46, tagline, min(H * 0.055, W * 0.0236), 650, TEXT, W * 0.32, line=1.18)
     d.rectangle((W * text_x, y + H * 0.012, W * text_x + H * 0.09, y + H * 0.022), fill=RED_HOT)
     finish(img, path, noise=False)
 
@@ -476,7 +476,7 @@ def main(args):
     if "store" in want:
         st = ROOT / "assets/store"
         phones_scene(5244, 2950, "en-US", ("04-library", "01-home", "03-title"), st / "appstore-header-5244x2950.png", STORE_TAGLINE, 0.07)
-        phones_scene(3840, 1646, "en-US", ("04-library", "01-home", "03-title"), st / "appstore-search-3840x1646.png", STORE_TAGLINE)
+        phones_scene(3840, 2560, "en-US", ("04-library", "01-home", "03-title"), st / "appstore-search-3840x2560.png", STORE_TAGLINE, 0.07)
         feature_graphic(st / "feature-graphic.png")
         tv_banner(st / "androidtv-banner-1280x720.png")
     if "captioned" in want:

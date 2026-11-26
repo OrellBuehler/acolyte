@@ -216,7 +216,7 @@ python3 scripts/store/make-promo.py            # or: readme | site | store | cap
 |---|---|
 | `assets/readme/banner.jpg`, `ios.jpg`, `android.jpg`, `tvos.jpg`, `androidtv.jpg` | README banner and one strip per platform |
 | `site/assets/img/` | Website pictures, English and German: `hero-*`, `tvos-*` and `androidtv-*` at 1200 and 2400 px (WebP), one framed phone per screen (`ios-*`, `android-*`, WebP with alpha), sharing pictures `og-en.jpg` and `og-de.jpg` (1200 x 630) |
-| `assets/store/appstore-header-5244x2950.png`, `appstore-search-3840x1646.png` | App Store header images (iPhone) |
+| `assets/store/appstore-header-5244x2950.png`, `appstore-search-3840x2560.png` | App Store header and search results images (iPhone) |
 | `assets/store/feature-graphic.png` | Google Play feature graphic, 1024 x 500 |
 | `assets/store/androidtv-banner-1280x720.png` | Google Play Android TV banner, 1280 x 720 (required to publish an Android TV app; JPEG or 24-bit PNG without alpha) |
 | `assets/store/captioned/<platform>/<locale>/` | Optional screenshots with a headline above a framed screen (JPEG): iPhone 1320 x 2868, Android 1080 x 1920, Apple TV and Android TV 1920 x 1080. The plain sets in `store/screenshots/` stay the ones to upload; use these where a store allows marketing captions |
