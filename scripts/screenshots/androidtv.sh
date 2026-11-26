@@ -28,9 +28,20 @@ MIN_SECONDS="${MIN_SECONDS:-8}"
 MAX_WAIT_SECONDS="${MAX_WAIT_SECONDS:-60}"
 FAILED=0
 
-# The keys pressed on the remote after a screen settled, to move the focus onto a card.
+# The tab screens are reached with the remote from Home (RIGHT, <n> times) like a person would; the
+# others are opened by the launch intent. Then the keys that move the focus onto a card or a button.
+declare -A TAB_STEPS=(
+  ["02-explore"]=1
+  ["05-calendar"]=4
+  ["06-requests"]=3
+)
 declare -A KEYS=(
+  ["01-home"]="DOWN"
+  ["02-explore"]="DOWN DOWN"
   ["03-title"]=""
+  ["04-new-and-popular"]="DOWN DOWN"
+  ["05-calendar"]="DOWN DOWN DOWN DOWN"
+  ["06-requests"]="DOWN DOWN DOWN"
 )
 
 adb install -r "$APK" >/dev/null
@@ -82,16 +93,27 @@ wait_settled() {
   echo "::warning::$1 did not settle within ${MAX_WAIT_SECONDS}s, capturing anyway" >&2
 }
 
+press() {
+  for key in $1; do
+    adb shell input keyevent "KEYCODE_DPAD_$key"
+    sleep 1
+  done
+}
+
 # capture <locale tag> <store locale> <file name> <what to open>
 capture() {
   local tag="$1" store="$2" name="$3" open="$4"
   adb shell cmd locale set-app-locales "$PKG" --locales "$tag" >/dev/null
-  launch "$open"
+  local steps="${TAB_STEPS[$name]-}"
+  if [ -n "$steps" ]; then
+    launch home
+    wait_settled "$store/$name home"
+    press "$(printf 'RIGHT %.0s' $(seq 1 "$steps"))"
+  else
+    launch "$open"
+  fi
   wait_settled "$store/$name"
-  for key in ${KEYS[$name]-DPAD_DOWN}; do
-    adb shell input keyevent "KEYCODE_$key"
-    sleep 1
-  done
+  press "${KEYS[$name]}"
   wait_settled "$store/$name"
   mkdir -p "$OUT/$store"
   local file="$OUT/$store/$name.png"
@@ -101,7 +123,6 @@ capture() {
     sleep "$MIN_SECONDS"
     shot "$file"
   fi
-  adb shell dumpsys activity top | grep -m3 -i "mFocusedWindow\|ACTIVITY " >> "$LOGS/focus.txt" || true
   echo "$store/$name: $(file -b "$file" | cut -c1-60)"
   check_crash "$store/$name"
 }
@@ -120,17 +141,6 @@ for entry in "en-US|en-US" "de-CH|de-DE"; do
 done
 
 adb shell cmd locale set-app-locales "$PKG" --locales en-US >/dev/null
-mkdir -p "$LOGS/probe"
-for screen in "${TV_SCREENS[@]}"; do
-  launch "${screen##*|}"
-  wait_settled "${screen%%|*}"
-  shot "$LOGS/probe/${screen%%|*}-0.png"
-  for press in 1 2 3; do
-    adb shell input keyevent KEYCODE_DPAD_DOWN
-    sleep 3
-    shot "$LOGS/probe/${screen%%|*}-$press.png"
-  done
-done
 launch home
 sleep 15
 for tab in 1 2 3 4 5 6; do
