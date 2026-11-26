@@ -700,7 +700,7 @@ def metadata(c):
     if not t:
         return not_found()
     people = [
-        {"name": PEOPLE[i], "role": "cast", "character": ch, "profile": "", "id": str(5000 + i)}
+        {"name": PEOPLE[i], "role": "cast", "character": ch, "profile": f"https://image.tmdb.org/t/p/w185/profile-{i + 1}.jpg", "id": str(5000 + i)}
         for i, ch in enumerate(["Captain Ines Varga", "Elias Thorne", "The Keeper", "Mayor Dunmore", "Petra", "Old Jonas"])
     ]
     seasons = [{"number": n + 1, "episode_count": ec, "year": t["year"] + n} for n, ec in enumerate(t.get("episodes", ()))]

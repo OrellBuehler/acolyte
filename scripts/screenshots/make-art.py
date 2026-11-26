@@ -250,13 +250,27 @@ def logo(t, i):
     return out.resize((out.width // 2, out.height // 2), Image.LANCZOS)
 
 
+def profile(i):
+    size = 600
+    names = list(PALETTES)
+    top, mid, accent = (rgb(c) for c in PALETTES[names[i % len(names)]])
+    img = gradient(size, size, mid, top)
+    d = ImageDraw.Draw(img)
+    skin = mix(accent, mid, 0.35)
+    d.ellipse((size * 0.18, size * 0.66, size * 0.82, size * 1.3), fill=skin)
+    d.ellipse((size * 0.34, size * 0.22, size * 0.66, size * 0.6), fill=mix(accent, (255, 255, 255), 0.2))
+    return img.resize((300, 300), Image.LANCZOS)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
+    for i in range(8):
+        profile(i).save(os.path.join(OUT, f"profile-{i + 1}.jpg"), quality=82, optimize=True)
     for i, t in enumerate(TITLES):
         logo(t, i).save(os.path.join(OUT, f"logo-{t['slug']}.png"), optimize=True)
         poster(t, i + 1).save(os.path.join(OUT, f"poster-{t['slug']}.jpg"), quality=82, optimize=True)
         backdrop(t, i + 1).save(os.path.join(OUT, f"backdrop-{t['slug']}.jpg"), quality=80, optimize=True)
-    print(f"wrote {len(TITLES) * 3} images to {OUT}")
+    print(f"wrote {len(TITLES) * 3 + 8} images to {OUT}")
 
 
 if __name__ == "__main__":
