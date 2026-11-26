@@ -273,7 +273,7 @@ jobs:
       # shows as focused in the captured frames.
       - name: Show the simulator
         run: |
-          open -a Simulator --args -CurrentDeviceUDID "$DEVICE_ID"
+          open "$(xcode-select -p)/Applications/Simulator.app" --args -CurrentDeviceUDID "$DEVICE_ID" || echo "::warning::Simulator.app did not open"
           sleep 15
 
       - name: Capture screenshots
