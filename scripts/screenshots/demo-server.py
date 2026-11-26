@@ -453,9 +453,9 @@ def home(c):
         return card(t_(slug), "season", line=L(f"Season {n}", f"Staffel {n}"), season=n, at=iso(-timedelta(hours=hours)))
 
     new_seasons = [
-        season("night-shift-diaries", 2, 4),
+        season("deep-field", 1, 4),
         season("the-cartographers", 1, 12),
-        season("deep-field", 1, 16),
+        season("night-shift-diaries", 2, 16),
         season("wildlight", 2, 22),
         season("the-long-thaw", 2, 30),
         season("crownless", 2, 40),
@@ -613,8 +613,8 @@ def collections(c):
 
 
 CALENDAR_PLAN = [
-    (1, "cardigan-club", "episode", 2, 3, "Purl Harbor"),
-    (1, "deep-field", "episode", 1, 4, "Parallax"),
+    (3, "cardigan-club", "episode", 2, 3, "Purl Harbor"),
+    (3, "deep-field", "episode", 1, 4, "Parallax"),
     (2, "glasshouse", "episode", 3, 7, "The Draft in Room Four"),
     (2, "tidewater", "episode", 4, 3, "Slack Water"),
     (2, "the-understudy", "cinema", 0, 0, ""),
