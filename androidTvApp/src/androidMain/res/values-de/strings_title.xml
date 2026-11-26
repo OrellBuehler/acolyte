@@ -4,7 +4,7 @@
     <string name="tv_title_air_tomorrow">Morgen</string>
     <string name="tv_title_air_yesterday">Gestern</string>
     <string name="tv_title_blocked">Dieser Titel ist für dieses Konto nicht verfügbar.</string>
-    <string name="tv_title_card_in_library">In der Library</string>
+    <string name="tv_title_card_in_library">In der Mediathek</string>
     <string name="tv_title_card_ready">Bereit zum Schauen</string>
     <string name="tv_title_card_requested">Gewünscht</string>
     <string name="tv_title_cast">Besetzung und Team</string>
@@ -19,7 +19,7 @@
     <string name="tv_title_no_air_date">Noch kein Sendedatum</string>
     <string name="tv_title_not_found">Wir konnten diesen Titel nicht finden</string>
     <string name="tv_title_not_found_hint">Er wurde vielleicht entfernt. Suche nach dem Namen.</string>
-    <string name="tv_title_not_in_library">Dieser Titel ist nicht in deiner Library</string>
+    <string name="tv_title_not_in_library">Dieser Titel ist nicht in deiner Mediathek</string>
     <string name="tv_title_not_in_library_hint">Er wurde vielleicht entfernt.</string>
     <string name="tv_title_pill_approved">Genehmigt</string>
     <string name="tv_title_pill_asked">Gewünscht</string>
@@ -48,7 +48,7 @@
     <string name="tv_title_state_downloading">Wird geladen</string>
     <string name="tv_title_state_downloading_percent">Wird geladen %1$d%%</string>
     <string name="tv_title_state_episodes_of">%1$d von %2$d Folgen</string>
-    <string name="tv_title_state_in_library">In der Library</string>
+    <string name="tv_title_state_in_library">In der Mediathek</string>
     <string name="tv_title_state_not_downloaded">Noch nicht geladen</string>
     <string name="tv_title_trailer">Trailer</string>
     <plurals name="tv_title_seasons_count">

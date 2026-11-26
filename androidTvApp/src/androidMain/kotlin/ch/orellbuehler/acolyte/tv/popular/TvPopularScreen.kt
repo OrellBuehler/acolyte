@@ -1,6 +1,7 @@
 package ch.orellbuehler.acolyte.tv.popular
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
@@ -32,6 +33,7 @@ import ch.orellbuehler.acolyte.tv.components.TvTypeChipRow
 import ch.orellbuehler.acolyte.tv.components.tvHeroPillText
 import ch.orellbuehler.acolyte.tv.components.tvPageInset
 import ch.orellbuehler.acolyte.tv.theme.TvColors
+import ch.orellbuehler.acolyte.tv.theme.TvMetrics
 import ch.orellbuehler.acolyte.tv.theme.TvType
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.errorText
@@ -83,7 +85,7 @@ fun TvPopularContent(
             hero = state.hero,
             pills = state.heroPills.map { tvHeroPillText(it, state.heroRank, state.heroService) },
             header = {
-                Column {
+                Column(Modifier.padding(top = TvMetrics.marginY)) {
                     TvTypeChipRow(state.type, actions.select)
                     state.status.error?.let { TvNoticeBanner(errorText(it), Modifier.tvPageInset()) }
                     if (state.sourceOff) TvNoticeBanner(stringResource(R.string.tv_discover_source_off), Modifier.tvPageInset())

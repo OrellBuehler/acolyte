@@ -135,9 +135,10 @@ The `Store Screenshots` workflow (Actions tab, Run workflow) captures the App St
 
 | Where | What |
 |---|---|
-| Artifacts `ios-store-screenshots`, `android-store-screenshots`, `tvos-store-screenshots` | The PNGs, laid out like `store/screenshots/` |
+| Artifacts `ios-store-screenshots`, `android-store-screenshots`, `androidtv-store-screenshots`, `tvos-store-screenshots` | The PNGs, laid out like `store/screenshots/` |
 | `store/screenshots/ios/<locale>/iphone-6.9/NN-name.png` | 1320 x 2868, the App Store 6.9 inch slot |
 | `store/screenshots/android/<locale>/phone/NN-name.png` | 1080 x 1920, Google Play phone screenshots |
+| `store/screenshots/androidtv/<locale>/NN-name.png` | 1920 x 1080, Google Play Android TV screenshots from an Android TV emulator (`tv_1080p`, API 34). `scripts/screenshots/androidtv.sh` reaches the tab screens with the remote, waits until two frames two seconds apart are identical, presses DPAD_DOWN to put the focus on a card, and first walks the whole app once: the job fails when the app crashes or hangs, so it doubles as the TV app's smoke test |
 | `store/screenshots/tvos/<locale>/NN-name.png` | 3840 x 2160, the App Store Apple TV slot (`scripts/screenshots/tvos.sh` waits until the demo server is quiet, so pictures are loaded, then captures) |
 
 Locales are `en-US` and `de-DE` (the app runs as `de-CH` for the German set). Tick `commit` when running the workflow to put the new PNGs on the branch `store-screenshots/refresh` and open a pull request; a plain run only uploads the artifacts.

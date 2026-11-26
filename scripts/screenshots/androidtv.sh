@@ -39,7 +39,7 @@ declare -A KEYS=(
   ["01-home"]="DOWN"
   ["02-explore"]="DOWN DOWN"
   ["03-title"]=""
-  ["04-new-and-popular"]="DOWN DOWN"
+  ["04-new-and-popular"]="DOWN"
   ["05-calendar"]="DOWN DOWN DOWN DOWN"
   ["06-requests"]="DOWN DOWN DOWN"
 )
