@@ -37,6 +37,7 @@ fun TvShelf(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     seeAll: (() -> Unit)? = null,
+    belowTitle: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
     Column(modifier.fillMaxWidth()) {
@@ -46,6 +47,7 @@ fun TvShelf(
                 Text(subtitle, style = TvType.footnote, color = TvColors.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
+        belowTitle()
         LazyRow(
             modifier = Modifier.focusRestorer(),
             contentPadding = PaddingValues(horizontal = TvMetrics.marginX, vertical = TvMetrics.focusPad),

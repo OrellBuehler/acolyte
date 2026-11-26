@@ -127,13 +127,13 @@ fun TvStatusContent(
         Phase.READY ->
             if (isEmpty) {
                 val focus = remember { FocusRequester() }
-                Column(
-                    modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    empty()
-                    TvActionButton(stringResource(R.string.tv_reload), reload, Modifier.focusRequester(focus))
+                Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(Modifier.weight(1f)) { empty() }
+                    TvActionButton(
+                        stringResource(R.string.tv_reload),
+                        reload,
+                        Modifier.padding(bottom = TvMetrics.marginY * 2).focusRequester(focus),
+                    )
                     LaunchedEffect(Unit) { focus.requestFocusSafely() }
                 }
             } else {

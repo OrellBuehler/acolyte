@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import ch.orellbuehler.acolyte.feature.discover.DiscoverCard
@@ -48,11 +50,9 @@ fun TvBrowsePage(
             verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
         ) {
             item(key = "hero") {
-                Column(
-                    Modifier.fillParentMaxHeight(TvMetrics.HERO_FRACTION).tvPageInset(),
-                    verticalArrangement = Arrangement.Bottom,
-                ) {
+                Column(Modifier.fillParentMaxHeight(TvMetrics.HERO_FRACTION)) {
                     header()
+                    Spacer(Modifier.weight(1f))
                     if (shown != null) {
                         TvBillboard(
                             shown,
@@ -64,7 +64,7 @@ fun TvBrowsePage(
                                 } else {
                                     emptyList()
                                 },
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            modifier = Modifier.tvPageInset().padding(bottom = 8.dp),
                         )
                     }
                 }
@@ -78,13 +78,14 @@ fun TvBrowsePage(
 fun TvAmbientPage(
     modifier: Modifier = Modifier,
     fallback: String? = null,
+    topPadding: Dp = TvMetrics.focusPad,
     content: LazyListScope.(onFocusImage: (String?) -> Unit) -> Unit,
 ) {
     var ambient by remember { mutableStateOf<String?>(null) }
     Box(modifier.fillMaxSize()) {
         TvBackdropLayer(ambient ?: fallback, blurred = true)
         LazyColumn(
-            contentPadding = PaddingValues(top = TvMetrics.focusPad, bottom = TvMetrics.marginY),
+            contentPadding = PaddingValues(top = topPadding, bottom = TvMetrics.marginY),
             verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
         ) {
             content { image -> if (image != null) ambient = image }
