@@ -100,6 +100,7 @@ struct RequestsView: View {
             list
         }
         .navigationTitle(SectionID.requests.title)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
         .safeAreaInset(edge: .bottom) { toast }
         .animation(.smooth(duration: 0.24), value: info.note?.id)
