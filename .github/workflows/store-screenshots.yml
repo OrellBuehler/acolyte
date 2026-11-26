@@ -1,15 +1,16 @@
 name: Store Screenshots
 
-# Captures the App Store (iPhone 6.9 inch) and Google Play (phone) screenshots in English
-# and German. Both apps are the Debug builds, signed in to scripts/screenshots/demo-server.py,
-# a stand-in for a HolyArrs server that answers from invented demo data. Nothing is tapped:
-# each screen is opened through launch arguments / intent extras (ScreenshotLaunch in both
-# apps, compiled into Debug builds only).
+# Captures the App Store (iPhone 6.9 inch, Apple TV 4K) and Google Play (phone) screenshots in
+# English and German. The apps are the Debug builds, signed in to scripts/screenshots/demo-server.py,
+# a stand-in for a HolyArrs server that answers from invented demo data. Nothing is tapped or
+# pressed: each screen is opened through launch arguments / intent extras (ScreenshotLaunch in
+# the apps, compiled into Debug builds only).
 #
-# Run it by hand (Actions > Store Screenshots > Run workflow). The PNGs are uploaded as the
-# `android-store-screenshots` and `ios-store-screenshots` artifacts; tick "commit" to also
-# put them in store/screenshots/ on the branch store-screenshots/refresh and open a pull
-# request for it. It never runs on a push or on every pull request.
+# Run it by hand (Actions > Store Screenshots > Run workflow). The PNGs are uploaded as one
+# `<platform>-store-screenshots` artifact per platform job (android, ios, tvos); tick "commit"
+# to also put them in store/screenshots/<platform>/ on the branch store-screenshots/refresh and
+# open a pull request for it. A new platform job only has to upload an artifact with that name
+# and be listed in the `commit` job's needs. It never runs on a push or on every pull request.
 on:
   workflow_dispatch:
     inputs:
@@ -25,6 +26,7 @@ on:
       - scripts/screenshots/**
       - androidApp/src/androidMain/kotlin/ch/orellbuehler/acolyte/ui/nav/ScreenshotLaunch.kt
       - iosApp/Acolyte/App/ScreenshotLaunch.swift
+      - iosApp/AcolyteTV/TVScreenshotLaunch.swift
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -209,9 +211,90 @@ jobs:
           retention-days: 14
           if-no-files-found: error
 
+  tvos:
+    runs-on: xcode-27
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      - name: Build shared tvOS framework
+        run: ./gradlew shared:linkDebugFrameworkTvosSimulatorArm64
+
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk appletvsimulator --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Debug/appletvsimulator${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/tvosSimulatorArm64/debugFramework/shared.framework "$DEST/"
+
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate
+
+      - name: Build tvOS app
+        working-directory: iosApp
+        run: |
+          xcodebuild build \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTV \
+            -destination 'generic/platform=tvOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64
+
+      # The App Store wants 3840 x 2160 for Apple TV. The plain "Apple TV 4K" device types
+      # render at 4K; the "(at 1080p)" variants do not, so they are skipped. The tvOS runtime
+      # is downloaded first because the runner image does not always carry a usable one.
+      - name: Boot an Apple TV 4K simulator and install the app
+        working-directory: iosApp
+        run: |
+          xcodebuild -downloadPlatform tvOS || true
+          DEVICE_ID=$(../scripts/screenshots/tvos-device.sh)
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+          xcrun simctl install "$DEVICE_ID" build/DerivedData/Build/Products/Debug-appletvsimulator/AcolyteTV.app
+
+      - name: Start the demo server
+        run: |
+          nohup python3 scripts/screenshots/demo-server.py --host 127.0.0.1 --port 6263 > "$RUNNER_TEMP/demo-server.log" 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -sf http://127.0.0.1:6263/api/v1/auth/state > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo-server.log"
+          exit 1
+
+      # Simulator.app forwards input and activates the focus engine; without it no control
+      # shows as focused in the captured frames.
+      - name: Show the simulator
+        run: |
+          open "$(xcode-select -p)/Applications/Simulator.app" --args -CurrentDeviceUDID "$DEVICE_ID" || echo "::warning::Simulator.app did not open"
+          sleep 15
+
+      - name: Capture screenshots
+        run: scripts/screenshots/tvos.sh "$DEVICE_ID" "$RUNNER_TEMP/store-screenshots" "$RUNNER_TEMP/demo-server.log"
+
+      - name: Show the demo server log
+        if: always()
+        run: cat "$RUNNER_TEMP/demo-server.log" || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: tvos-store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          retention-days: 14
+          if-no-files-found: error
+
   commit:
     if: github.event_name == 'workflow_dispatch' && inputs.commit
-    needs: [android, ios]
+    needs: [android, ios, tvos]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -234,8 +317,10 @@ jobs:
         run: |
           rm -rf store/screenshots
           mkdir -p store/screenshots
-          cp -R "$RUNNER_TEMP/downloaded/ios-store-screenshots" store/screenshots/ios
-          cp -R "$RUNNER_TEMP/downloaded/android-store-screenshots" store/screenshots/android
+          for dir in "$RUNNER_TEMP"/downloaded/*-store-screenshots; do
+            name="$(basename "$dir")"
+            cp -R "$dir" "store/screenshots/${name%-store-screenshots}"
+          done
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B store-screenshots/refresh

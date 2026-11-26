@@ -20,6 +20,7 @@ struct TVRootView: View {
         }
         .animation(.smooth(duration: 0.3), value: model.session)
         .tint(Theme.accent)
+        .preferredColorScheme(.dark)
         .task {
             await model.start()
         }

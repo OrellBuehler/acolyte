@@ -22,6 +22,9 @@ final class TVAppModel {
             }
             group.addTask {
                 await client.restore()
+                #if DEBUG
+                await TVScreenshotLaunch.signIn()
+                #endif
             }
         }
     }
