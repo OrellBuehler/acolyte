@@ -413,6 +413,12 @@ jobs:
             name="$(basename "$dir")"
             cp -R "$dir" "store/screenshots/${name%-store-screenshots}"
           done
+          python3 - <<'PY'
+          import pathlib
+          from PIL import Image
+          for path in pathlib.Path("store/screenshots").rglob("*.png"):
+              Image.open(path).save(path, optimize=True, compress_level=9)
+          PY
           rm -rf assets/store/captioned site/assets/img
           python3 scripts/store/make-promo.py
           git config user.name "github-actions[bot]"
@@ -425,6 +431,8 @@ jobs:
           fi
           git commit -m "refresh store screenshots"
           git push --force origin store-screenshots/refresh
-          gh pr create --base "${{ github.event.repository.default_branch }}" --head store-screenshots/refresh \
-            --title "refresh store screenshots" --body "Screenshots captured by the Store Screenshots workflow, promo images redrawn from them, run ${{ github.run_id }}." \
-            || gh pr edit store-screenshots/refresh --body "Screenshots captured by the Store Screenshots workflow, promo images redrawn from them, run ${{ github.run_id }}."
+          if ! gh pr create --base "${{ github.event.repository.default_branch }}" --head store-screenshots/refresh \
+            --title "refresh store screenshots" --body "Screenshots captured by the Store Screenshots workflow, promo images redrawn from them, run ${{ github.run_id }}."; then
+            gh pr edit store-screenshots/refresh --body "Screenshots captured by the Store Screenshots workflow, promo images redrawn from them, run ${{ github.run_id }}." \
+              || echo "::notice::The branch store-screenshots/refresh is pushed. Actions may not open pull requests here: run gh pr create --base ${{ github.event.repository.default_branch }} --head store-screenshots/refresh"
+          fi

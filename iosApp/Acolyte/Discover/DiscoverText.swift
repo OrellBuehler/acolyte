@@ -238,6 +238,18 @@ enum DiscoverText {
         return date.formatted(style)
     }
 
+    static func monthDay(_ day: String) -> String {
+        guard let date = Format.date(iso: day.count == 10 ? day + "T00:00:00Z" : day) else { return day }
+        var style = Date.FormatStyle().month(.abbreviated).day()
+        style.timeZone = TimeZone(identifier: "UTC") ?? .current
+        return date.formatted(style)
+    }
+
+    static func dayTitle(word: String, offset: Int, day: String) -> String {
+        let named = offset >= -1 && offset <= 1
+        return word + " · " + (named ? shortDate(day) : monthDay(day))
+    }
+
     static func weekday(_ day: String) -> String {
         guard let date = Format.date(iso: day + "T00:00:00Z") else { return day }
         var style = Date.FormatStyle().weekday(.wide)

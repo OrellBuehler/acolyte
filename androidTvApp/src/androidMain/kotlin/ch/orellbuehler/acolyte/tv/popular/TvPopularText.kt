@@ -6,6 +6,7 @@ import ch.orellbuehler.acolyte.feature.discover.RailDayEntry
 import ch.orellbuehler.acolyte.feature.discover.RailEntry
 import ch.orellbuehler.acolyte.feature.discover.WhatKind
 import ch.orellbuehler.acolyte.tv.R
+import ch.orellbuehler.acolyte.tv.components.tvMonthDay
 import ch.orellbuehler.acolyte.tv.components.tvShortDay
 import ch.orellbuehler.acolyte.tv.components.tvWeekday
 
@@ -18,7 +19,7 @@ fun tvDayTitle(day: RailDayEntry): String {
             1 -> stringResource(R.string.tv_discover_day_tomorrow)
             else -> tvWeekday(day.day)
         }
-    return "$word · ${tvShortDay(day.day)}"
+    return "$word · ${if (day.offset in -1..1) tvShortDay(day.day) else tvMonthDay(day.day)}"
 }
 
 @Composable

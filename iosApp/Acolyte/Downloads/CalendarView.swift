@@ -272,7 +272,7 @@ private struct EntryRow: View {
             .frame(width: 96, height: 54)
             .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.poster / 2, style: .continuous))
             VStack(alignment: .leading, spacing: 2) {
-                Text(group.whenText + " · " + group.tagText)
+                Text(group.headline)
                     .font(.caption.weight(.medium))
                     .foregroundStyle(Theme.accentText)
                     .lineLimit(1)
@@ -359,7 +359,7 @@ private struct CalendarEntrySheet: View {
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card, style: .continuous))
-                Text(group.whenText + " · " + group.tagText)
+                Text(group.headline)
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(Theme.accentText)
                 Text(group.title)

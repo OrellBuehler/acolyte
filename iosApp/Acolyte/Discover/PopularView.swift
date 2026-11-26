@@ -66,7 +66,7 @@ struct PopularView: View {
                             .padding(.horizontal, Theme.Spacing.screen)
                             .accessibilityAddTraits(.isHeader)
                         ForEach(store.info.days) { day in
-                            CardShelf(title: "\(dayWord(day)) · \(DiscoverText.shortDate(day.day))") {
+                            CardShelf(title: DiscoverText.dayTitle(word: dayWord(day), offset: day.offset, day: day.day)) {
                                 ForEach(day.entries) { entry in
                                     TitleWideCard(card: entry.card, subtitle: what(entry))
                                 }

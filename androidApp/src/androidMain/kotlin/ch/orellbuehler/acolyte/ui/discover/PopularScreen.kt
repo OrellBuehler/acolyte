@@ -206,7 +206,7 @@ private fun DayView(
             1 -> stringResource(R.string.discover_day_tomorrow)
             else -> date?.dayOfWeek?.getDisplayName(TextStyle.FULL, Locale.getDefault()) ?: day.day
         }
-    val small = date?.let { shortDate(it) }.orEmpty()
+    val small = date?.let { if (day.offset in -1..1) shortDate(it) else monthDay(it) }.orEmpty()
     CardShelf(title = "$word · $small") {
         items(day.entries, key = { day.day + it.card.key }) { entry -> TitleWideCard(entry.card, events, subtitle = whatText(entry)) }
     }
@@ -251,6 +251,11 @@ private fun PopularRowView(
             }
         }
     }
+}
+
+fun monthDay(date: LocalDate): String {
+    val locale = Locale.getDefault()
+    return date.format(DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, "MMMd"), locale))
 }
 
 fun shortDate(date: LocalDate): String {

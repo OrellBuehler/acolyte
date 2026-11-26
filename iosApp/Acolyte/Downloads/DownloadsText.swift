@@ -950,6 +950,11 @@ extension CalendarGroupInfo {
         return last
     }
 
+    var headline: String {
+        if whenKind == .inTheaters && tag == .inCinemas { return tagText }
+        return whenText + " · " + tagText
+    }
+
     var whenText: String {
         switch whenKind {
         case .time: DownloadsText.time(minutes: minutes)

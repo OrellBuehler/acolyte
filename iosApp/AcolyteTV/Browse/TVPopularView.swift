@@ -30,7 +30,7 @@ struct TVPopularView: View {
                             .foregroundStyle(Theme.text)
                             .accessibilityAddTraits(.isHeader)
                         ForEach(info.days) { day in
-                            TVShelf(title: "\(dayWord(day)) · \(DiscoverText.shortDate(day.day))") {
+                            TVShelf(title: DiscoverText.dayTitle(word: dayWord(day), offset: day.offset, day: day.day)) {
                                 ForEach(day.entries) { entry in
                                     TVDiscoverCard(
                                         card: entry.card,
