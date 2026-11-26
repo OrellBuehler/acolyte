@@ -32,7 +32,7 @@ struct TrailerPlayerView: View {
                         .background(Theme.artScrim, in: Capsule())
                 }
                 .padding(Theme.Spacing.large)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
         }
         .preferredColorScheme(.dark)
