@@ -56,6 +56,14 @@ fun tagText(g: CalendarGroup): String =
     }
 
 @Composable
+fun calendarHeadline(g: CalendarGroup): String =
+    if (g.whenKind == EntryWhen.IN_THEATERS && g.tag == EntryTag.IN_CINEMAS) {
+        tagText(g)
+    } else {
+        "${whenText(g)} · ${tagText(g)}"
+    }
+
+@Composable
 fun whenText(g: CalendarGroup): String =
     when (g.whenKind) {
         EntryWhen.TIME -> LocalTime.of(g.minutes / 60, g.minutes % 60).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))

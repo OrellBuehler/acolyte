@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
@@ -40,7 +41,7 @@ fun TvBackdropLayer(
     blurred: Boolean = false,
 ) {
     val background = TvColors.background
-    Box(modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize().clipToBounds()) {
         Crossfade(targetState = source, animationSpec = tween(400), label = "backdrop") { current ->
             Box(Modifier.fillMaxSize()) {
                 if (current != null) {

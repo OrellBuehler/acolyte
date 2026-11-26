@@ -54,12 +54,11 @@ import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.errorText
 import ch.orellbuehler.acolyte.ui.downloads.calendarDayHeading
 import ch.orellbuehler.acolyte.ui.downloads.calendarFollowsLabel
+import ch.orellbuehler.acolyte.ui.downloads.calendarHeadline
 import ch.orellbuehler.acolyte.ui.downloads.calendarMonthTitle
 import ch.orellbuehler.acolyte.ui.downloads.calendarTypeLabel
 import ch.orellbuehler.acolyte.ui.downloads.captionLines
 import ch.orellbuehler.acolyte.ui.downloads.dotText
-import ch.orellbuehler.acolyte.ui.downloads.tagText
-import ch.orellbuehler.acolyte.ui.downloads.whenText
 import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
@@ -142,7 +141,7 @@ fun TvCalendarContent(
                         items(day.groups, key = { it.key }) { group ->
                             TvBackdropCard(
                                 title = group.title,
-                                subtitle = whenText(group) + " · " + tagText(group),
+                                subtitle = calendarHeadline(group),
                                 detail = captionLines(group).joinToString(" · "),
                                 chip = TvChipInfo(dotText(group.dot), group.dot.tone),
                                 image = group.art,

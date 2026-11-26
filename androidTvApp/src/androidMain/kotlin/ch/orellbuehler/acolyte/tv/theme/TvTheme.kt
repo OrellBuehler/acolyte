@@ -1,6 +1,9 @@
 package ch.orellbuehler.acolyte.tv.theme
 
+import androidx.compose.foundation.gestures.BringIntoViewSpec
+import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +46,8 @@ object TvMetrics {
     val modeTileHeight: Dp = 140.dp
     const val FOCUS_SCALE = 1.08f
     const val HERO_FRACTION = 0.62f
-    const val TITLE_HERO_FRACTION = 0.8f
+    const val HOME_HERO_FRACTION = 0.86f
+    const val TITLE_HERO_FRACTION = 0.6f
 }
 
 object TvType {
@@ -128,9 +132,30 @@ private val TvColorScheme =
         scrim = Color.Black,
     )
 
+// Compose's default pivots every focused item to 30 percent of the list, which scrolls a billboard away
+// as soon as focus reaches the first row. Scroll only as far as needed to show the focused item.
+private val TvMinimalScroll =
+    object : BringIntoViewSpec {
+        override fun calculateScrollDistance(
+            offset: Float,
+            size: Float,
+            containerSize: Float,
+        ): Float {
+            val trailing = offset + size
+            return when {
+                offset >= 0f && trailing <= containerSize -> 0f
+                offset < 0f && trailing > containerSize -> 0f
+                kotlin.math.abs(offset) < kotlin.math.abs(trailing - containerSize) -> offset
+                else -> trailing - containerSize
+            }
+        }
+    }
+
 @Composable
 fun TvTheme(content: @Composable () -> Unit) {
     AcolyteTheme(dark = true) {
-        MaterialTheme(colorScheme = TvColorScheme, typography = TvTypography, content = content)
+        MaterialTheme(colorScheme = TvColorScheme, typography = TvTypography) {
+            CompositionLocalProvider(LocalBringIntoViewSpec provides TvMinimalScroll, content = content)
+        }
     }
 }

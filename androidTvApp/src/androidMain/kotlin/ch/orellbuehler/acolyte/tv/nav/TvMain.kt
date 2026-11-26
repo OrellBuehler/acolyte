@@ -37,6 +37,7 @@ import androidx.tv.material3.TabRow
 import androidx.tv.material3.Text
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
+import ch.orellbuehler.acolyte.tv.TvScreenshotLaunch
 import ch.orellbuehler.acolyte.tv.ask.TvAskScreen
 import ch.orellbuehler.acolyte.tv.browse.TvBrowseScreen
 import ch.orellbuehler.acolyte.tv.browse.TvCollectionScreen
@@ -70,6 +71,7 @@ fun TvMain(
     val selection = remember(tabs) { TvTabSelection(tabs) }
     val navigator = remember(account, nav, selection) { TvNavigator(account, nav, selection) }
     CompositionLocalProvider(LocalTvNavigator provides navigator, LocalTvSignOut provides onSignOut) {
+        TvScreenshotLaunch.Navigate()
         NavHost(nav, startDestination = TabsRoute) {
             composable<TabsRoute> { TvMainTabs(account, selection) }
             composable<TitleRoute> { entry ->
@@ -164,7 +166,7 @@ fun TvMainTabs(
                         ),
                 ) {
                     Row(
-                        Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                        Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {

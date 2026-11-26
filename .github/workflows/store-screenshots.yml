@@ -1,13 +1,13 @@
 name: Store Screenshots
 
-# Captures the App Store (iPhone 6.9 inch, Apple TV 4K) and Google Play (phone) screenshots in
-# English and German. The apps are the Debug builds, signed in to scripts/screenshots/demo-server.py,
+# Captures the App Store (iPhone 6.9 inch, Apple TV 4K) and Google Play (phone, Android TV)
+# screenshots in English and German. The apps are the Debug builds, signed in to scripts/screenshots/demo-server.py,
 # a stand-in for a HolyArrs server that answers from invented demo data. Nothing is tapped or
 # pressed: each screen is opened through launch arguments / intent extras (ScreenshotLaunch in
 # the apps, compiled into Debug builds only).
 #
 # Run it by hand (Actions > Store Screenshots > Run workflow). The PNGs are uploaded as one
-# `<platform>-store-screenshots` artifact per platform job (android, ios, tvos); tick "commit"
+# `<platform>-store-screenshots` artifact per platform job (android, androidtv, ios, tvos); tick "commit"
 # to also put them in store/screenshots/<platform>/ on the branch store-screenshots/refresh and
 # open a pull request for it. A new platform job only has to upload an artifact with that name
 # and be listed in the `commit` job's needs. It never runs on a push or on every pull request.
@@ -27,6 +27,7 @@ on:
       - androidApp/src/androidMain/kotlin/ch/orellbuehler/acolyte/ui/nav/ScreenshotLaunch.kt
       - iosApp/Acolyte/App/ScreenshotLaunch.swift
       - iosApp/AcolyteTV/TVScreenshotLaunch.swift
+      - androidTvApp/src/androidMain/kotlin/ch/orellbuehler/acolyte/tv/TvScreenshotLaunch.kt
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -122,6 +123,94 @@ jobs:
           path: |
             ${{ runner.temp }}/demo-server.log
             ${{ runner.temp }}/android-logs
+          retention-days: 7
+          if-no-files-found: ignore
+
+  androidtv:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4.0.4
+        with:
+          packages: platform-tools
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/build-cache
+          key: gradle-android-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/libs.versions.toml', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-android-${{ runner.os }}-
+
+      - name: Build debug TV APK
+        run: ./gradlew androidTvApp:assembleDebug
+
+      - name: Start the demo server
+        run: |
+          nohup python3 scripts/screenshots/demo-server.py --host 0.0.0.0 --port 6263 > "$RUNNER_TEMP/demo-server.log" 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -sf http://127.0.0.1:6263/api/v1/auth/state > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo-server.log"
+          exit 1
+
+      # An Android TV emulator at 1920 x 1080 (the tv_1080p profile), the size Play wants for
+      # TV screenshots. The script also walks the app once and fails when it crashes.
+      - name: Capture screenshots on an Android TV emulator
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 34
+          target: android-tv
+          arch: x86
+          profile: tv_1080p
+          ram-size: 3072M
+          emulator-boot-timeout: 900
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-save -noaudio -no-boot-anim
+          script: scripts/screenshots/androidtv.sh androidTvApp/build/outputs/apk/debug/androidTvApp-debug.apk ${{ runner.temp }}/store-screenshots ${{ runner.temp }}/androidtv-logs
+
+      - name: Show the demo server log
+        if: always()
+        run: cat "$RUNNER_TEMP/demo-server.log" || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: androidtv-store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: androidtv-demo-server-log
+          path: |
+            ${{ runner.temp }}/demo-server.log
+            ${{ runner.temp }}/androidtv-logs
           retention-days: 7
           if-no-files-found: ignore
 
@@ -294,7 +383,7 @@ jobs:
 
   commit:
     if: github.event_name == 'workflow_dispatch' && inputs.commit
-    needs: [android, ios, tvos]
+    needs: [android, androidtv, ios, tvos]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

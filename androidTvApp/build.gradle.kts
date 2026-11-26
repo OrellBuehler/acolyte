@@ -28,7 +28,8 @@ kotlin {
 
 val appVersion = (findProperty("APP_VERSION") as? String)?.trimStart('v') ?: "dev"
 val buildNumber = (findProperty("BUILD_NUMBER") as? String)?.toIntOrNull() ?: 0
-// Same formula as the phone app plus 500, so the two artifacts of the one Play listing never share a versionCode.
+// Same formula as the phone app plus one billion: Play wants every artifact of the listing to have its own versionCode,
+// and the phone codes stay below 10^9 (up to version 99.99.99), so the two ranges can never meet. Still below Play's 2.1 billion limit.
 val computedVersionCode =
     if (appVersion != "dev") {
         val parts = appVersion.split(".").map { it.toIntOrNull() ?: 0 }
@@ -46,7 +47,7 @@ android {
         applicationId = "ch.orellbuehler.acolyte"
         minSdk = 26
         targetSdk = 36
-        versionCode = computedVersionCode + 500
+        versionCode = computedVersionCode + 1_000_000_000
         versionName = appVersion
     }
 
