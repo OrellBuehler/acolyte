@@ -66,6 +66,7 @@ import ch.orellbuehler.acolyte.ui.components.relativeTime
 import ch.orellbuehler.acolyte.ui.nav.Routes
 import ch.orellbuehler.acolyte.ui.theme.Spacing
 import java.util.Locale
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 @Composable
 fun RequestRulesScreen(
@@ -551,7 +552,7 @@ private fun StreamingCard(
                         Hint(stringResource(R.string.requests_cleanup_row, title.service, formatBytes(title.bytes)))
                     }
                     TextButton(onClick = { onNavigate(Routes.title(title.kind, title.tmdbId)) }, enabled = title.tmdbId.isNotEmpty()) {
-                        Text(stringResource(R.string.requests_open_title))
+                        Text(stringResource(CommonR.string.requests_open_title))
                     }
                 }
             }

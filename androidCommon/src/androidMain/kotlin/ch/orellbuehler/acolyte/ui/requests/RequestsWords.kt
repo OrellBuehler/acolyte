@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.api.ApiError
 import ch.orellbuehler.acolyte.api.model.Ask
+import ch.orellbuehler.acolyte.common.R
 import ch.orellbuehler.acolyte.feature.requests.AlbumKind
 import ch.orellbuehler.acolyte.feature.requests.ApproverTab
 import ch.orellbuehler.acolyte.feature.requests.AskFailure
@@ -16,10 +16,16 @@ import ch.orellbuehler.acolyte.feature.requests.LimitKind
 import ch.orellbuehler.acolyte.feature.requests.LimitLine
 import ch.orellbuehler.acolyte.feature.requests.MemberTab
 import ch.orellbuehler.acolyte.feature.requests.ReportKind
+import ch.orellbuehler.acolyte.feature.requests.RequestsNote
+import ch.orellbuehler.acolyte.feature.requests.RequestsNoteKind
+import ch.orellbuehler.acolyte.feature.requests.RequestsState
 import ch.orellbuehler.acolyte.feature.requests.Stage
 import ch.orellbuehler.acolyte.feature.requests.StepKind
 import ch.orellbuehler.acolyte.feature.requests.WaitTime
 import ch.orellbuehler.acolyte.feature.requests.askFailure
+import ch.orellbuehler.acolyte.feature.requests.askerNames
+import ch.orellbuehler.acolyte.feature.requests.deciderName
+import ch.orellbuehler.acolyte.feature.requests.fromWatchlistCount
 import ch.orellbuehler.acolyte.feature.requests.isArtist
 import ch.orellbuehler.acolyte.feature.requests.isFailed
 import ch.orellbuehler.acolyte.feature.requests.qualityTagLine
@@ -310,4 +316,146 @@ fun regionName(code: String): String {
             .build()
             .getDisplayCountry(locale)
     }.getOrNull()?.ifBlank { null } ?: code
+}
+
+@Composable
+fun titleWithYear(ask: Ask?): String {
+    ask ?: return ""
+    return if (ask.year > 0) "${ask.name} (${ask.year})" else ask.name
+}
+
+@Composable
+fun requestsNoteText(note: RequestsNote): String {
+    val error = note.error?.let { askErrorText(it) }.orEmpty()
+    return when (note.kind) {
+        RequestsNoteKind.APPROVED -> stringResource(R.string.requests_note_approved, note.name)
+        RequestsNoteKind.DECLINED -> stringResource(R.string.requests_note_declined, note.name)
+        RequestsNoteKind.APPROVED_MANY -> pluralStringResource(R.plurals.requests_note_approved_many, note.count, note.count)
+        RequestsNoteKind.APPROVE_FAILED -> stringResource(R.string.requests_note_approve_failed, note.name, error)
+        RequestsNoteKind.DECLINE_FAILED -> stringResource(R.string.requests_note_decline_failed, note.name, error)
+        RequestsNoteKind.ALREADY_DECIDED -> {
+            val head =
+                stringResource(
+                    when (note.state) {
+                        "turned_down" -> R.string.requests_note_already_declined
+                        "approved", "available" -> R.string.requests_note_already_approved
+                        else -> R.string.requests_note_already_answered
+                    },
+                    note.name,
+                )
+            if (note.by.isNotBlank()) stringResource(R.string.requests_note_by, head, note.by) else head
+        }
+        RequestsNoteKind.NOTICE -> note.text
+        RequestsNoteKind.REMOVED -> pluralStringResource(R.plurals.requests_note_removed, note.count, note.count)
+        RequestsNoteKind.NOTHING_TO_REMOVE -> stringResource(R.string.requests_note_nothing_removed)
+        RequestsNoteKind.REMOVE_FAILED -> stringResource(R.string.requests_note_remove_failed, error)
+        RequestsNoteKind.TAKEN_BACK -> stringResource(R.string.requests_note_taken_back, note.name)
+        RequestsNoteKind.TAKE_BACK_FAILED -> stringResource(R.string.requests_note_remove_failed, error)
+    }
+}
+
+val RequestsNote.failed: Boolean
+    get() =
+        when (kind) {
+            RequestsNoteKind.APPROVE_FAILED,
+            RequestsNoteKind.DECLINE_FAILED,
+            RequestsNoteKind.REMOVE_FAILED,
+            RequestsNoteKind.TAKE_BACK_FAILED,
+            -> true
+            else -> false
+        }
+
+enum class AskLineKind {
+    MUTED,
+    NOTE,
+    FAIL,
+}
+
+data class AskLine(
+    val text: String,
+    val kind: AskLineKind = AskLineKind.MUTED,
+)
+
+@Composable
+fun askLines(
+    ask: Ask,
+    approver: Boolean,
+    myId: Long,
+): List<AskLine> {
+    val lines = mutableListOf<AskLine>()
+
+    fun muted(text: String) {
+        lines += AskLine(text)
+    }
+    val ago = relativeTime(ask.askedAt).orEmpty()
+    val askedBy = stringResource(R.string.requests_asked_by, namesText(ask.askerNames))
+    muted(if (ago.isNotEmpty()) "$askedBy · $ago" else askedBy)
+    if (ask.viaPlugin.isNotBlank()) muted(stringResource(R.string.requests_via, ask.viaPlugin))
+    val watch = ask.people.filter { it.fromWatchlist }
+    if (watch.isNotEmpty()) {
+        muted(
+            when {
+                ask.fromWatchlistCount > 1 -> stringResource(R.string.requests_watchlist_many, ask.fromWatchlistCount)
+                watch[0].id == myId -> stringResource(R.string.requests_watchlist_yours)
+                else -> stringResource(R.string.requests_watchlist_of, watch[0].name)
+            },
+        )
+    }
+    val decider = ask.deciderName
+    val decided = relativeTime(ask.decidedAt)
+    when {
+        ask.autoApproved && ask.state != "asked" -> muted(stringResource(R.string.requests_auto_approved))
+        ask.state == "turned_down" && decider.isNotBlank() -> muted(stringResource(R.string.requests_declined_by, decider))
+        ask.state != "asked" && ask.state != "turned_down" && decider.isNotBlank() ->
+            muted(stringResource(R.string.requests_approved_by, decider))
+        decided != null && ask.state == "turned_down" -> muted(stringResource(R.string.requests_declined_at, decided))
+    }
+    if (ask.note.isNotBlank()) lines += AskLine("\u201c${ask.note}\u201d", AskLineKind.NOTE)
+    if (approver && ask.alsoDeclined.isNotEmpty()) {
+        muted(stringResource(R.string.requests_declined_before, namesText(ask.alsoDeclined.map { it.displayName.ifBlank { it.name } })))
+    }
+    when {
+        ask.isFailed -> lines += AskLine(failedText(ask), AskLineKind.FAIL)
+        ask.state == "approved" -> {
+            muted(stepText(ask) ?: keepsText(ask))
+            if (approver && ask.step?.text?.isNotBlank() == true) muted(ask.step?.text.orEmpty())
+        }
+    }
+    return lines
+}
+
+data class CalmWords(
+    val title: String,
+    val message: String?,
+)
+
+@Composable
+fun calmWords(state: RequestsState): CalmWords {
+    val filtered = state.approver && state.filtersOn > 0
+    return when {
+        filtered ->
+            CalmWords(
+                state.stage?.let { stringResource(R.string.requests_filtered_stage, stageLabel(it)) }
+                    ?: stringResource(R.string.requests_filtered_kind, kindFilterLabel(state.kind)),
+                stringResource(R.string.requests_filtered_hidden),
+            )
+        state.approver ->
+            when (state.approverTab) {
+                ApproverTab.WAITING ->
+                    CalmWords(stringResource(R.string.requests_calm_caught_up), stringResource(R.string.requests_calm_waiting))
+                ApproverTab.PROCESSING ->
+                    CalmWords(stringResource(R.string.requests_calm_processing_title), stringResource(R.string.requests_calm_processing))
+                ApproverTab.DONE ->
+                    CalmWords(stringResource(R.string.requests_calm_done_title), stringResource(R.string.requests_calm_done))
+            }
+        else ->
+            CalmWords(
+                when (state.memberTab) {
+                    MemberTab.WAITING -> stringResource(R.string.requests_calm_caught_up)
+                    MemberTab.FAILED -> stringResource(R.string.requests_calm_nothing_failed)
+                    else -> stringResource(R.string.requests_calm_nothing_yet, memberTabLabel(state.memberTab))
+                },
+                null,
+            )
+    }
 }

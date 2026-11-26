@@ -71,17 +71,11 @@ import ch.orellbuehler.acolyte.R
 import ch.orellbuehler.acolyte.feature.downloads.CalendarFollows
 import ch.orellbuehler.acolyte.feature.downloads.CalendarGroup
 import ch.orellbuehler.acolyte.feature.downloads.CalendarLayout
-import ch.orellbuehler.acolyte.feature.downloads.CalendarNoticeKind
 import ch.orellbuehler.acolyte.feature.downloads.CalendarRules
 import ch.orellbuehler.acolyte.feature.downloads.CalendarState
 import ch.orellbuehler.acolyte.feature.downloads.CalendarType
 import ch.orellbuehler.acolyte.feature.downloads.Day
 import ch.orellbuehler.acolyte.feature.downloads.DownloadTitleLink
-import ch.orellbuehler.acolyte.feature.downloads.EntryDot
-import ch.orellbuehler.acolyte.feature.downloads.EntryTag
-import ch.orellbuehler.acolyte.feature.downloads.EntryWhen
-import ch.orellbuehler.acolyte.feature.downloads.EpisodeSpan
-import ch.orellbuehler.acolyte.feature.downloads.MovieDateKind
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.EmptyView
 import ch.orellbuehler.acolyte.ui.components.ErrorBanner
@@ -95,11 +89,8 @@ import ch.orellbuehler.acolyte.ui.theme.Spacing
 import ch.orellbuehler.acolyte.ui.theme.acolyte
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
-import java.time.LocalTime
-import java.time.YearMonth
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.time.format.TextStyle
+import ch.orellbuehler.acolyte.common.R as CommonR
 
 class CalendarViewModel(
     sdk: AcolyteSdk,
@@ -166,16 +157,7 @@ fun CalendarScreen(
     var open by remember { mutableStateOf<String?>(null) }
     val snackbar = remember { SnackbarHostState() }
     val notice = state.notice
-    val noticeLine =
-        notice?.let {
-            when (it.kind) {
-                CalendarNoticeKind.FOLLOWED -> stringResource(R.string.downloads_calendar_followed, it.name)
-                CalendarNoticeKind.UNFOLLOWED -> stringResource(R.string.downloads_calendar_unfollowed, it.name)
-                CalendarNoticeKind.SEARCHING -> stringResource(R.string.downloads_calendar_searching, it.name)
-                CalendarNoticeKind.NOTHING_TO_SEARCH -> stringResource(R.string.downloads_calendar_nothing_to_search)
-                CalendarNoticeKind.SEARCHING_MISSING -> stringResource(R.string.downloads_calendar_searching_missing, it.count)
-            }
-        }
+    val noticeLine = notice?.let { calendarNoticeText(it) }
     LaunchedEffect(notice?.id) {
         if (notice != null && noticeLine != null) {
             snackbar.showSnackbar(noticeLine)
@@ -206,7 +188,7 @@ fun CalendarScreen(
                 }
                 IconButton(
                     onClick = viewModel::today,
-                ) { Icon(Icons.Rounded.Today, contentDescription = stringResource(R.string.downloads_calendar_today)) }
+                ) { Icon(Icons.Rounded.Today, contentDescription = stringResource(CommonR.string.downloads_calendar_today)) }
                 IconButton(onClick = { filtering = true }) {
                     Icon(Icons.Rounded.FilterList, contentDescription = stringResource(R.string.downloads_calendar_filter))
                 }
@@ -247,19 +229,11 @@ private fun CalendarBody(
                 IconButton(onClick = viewModel::previous, enabled = state.canPrevious) {
                     Icon(
                         Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                        contentDescription = stringResource(R.string.downloads_calendar_previous),
+                        contentDescription = stringResource(CommonR.string.downloads_calendar_previous),
                     )
                 }
-                val locale = LocalConfiguration.current.locales[0]
                 Text(
-                    YearMonth
-                        .of(
-                            state.month.year,
-                            state.month.month,
-                        ).format(DateTimeFormatter.ofPattern("LLLL yyyy", locale))
-                        .replaceFirstChar {
-                            it.uppercase()
-                        },
+                    calendarMonthTitle(state.month),
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f),
@@ -267,7 +241,7 @@ private fun CalendarBody(
                 IconButton(onClick = viewModel::next, enabled = state.canNext) {
                     Icon(
                         Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = stringResource(R.string.downloads_calendar_next),
+                        contentDescription = stringResource(CommonR.string.downloads_calendar_next),
                     )
                 }
             }
@@ -276,13 +250,13 @@ private fun CalendarBody(
             item(key = "hidden") {
                 Row(Modifier.fillMaxWidth().padding(horizontal = Spacing.Screen), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        stringResource(R.string.downloads_calendar_hidden, state.hidden),
+                        stringResource(CommonR.string.downloads_calendar_hidden, state.hidden),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f),
                     )
                     TextButton(onClick = { viewModel.presenter.setFollows(CalendarFollows.LIBRARY) }) {
-                        Text(stringResource(R.string.downloads_calendar_show_library))
+                        Text(stringResource(CommonR.string.downloads_calendar_show_library))
                     }
                 }
             }
@@ -309,8 +283,8 @@ private fun CalendarBody(
                 item(key = "empty") {
                     Box(Modifier.fillMaxWidth().padding(vertical = Spacing.XLarge)) {
                         EmptyView(
-                            title = stringResource(R.string.downloads_calendar_empty_title),
-                            message = stringResource(R.string.downloads_calendar_empty),
+                            title = stringResource(CommonR.string.downloads_calendar_empty_title),
+                            message = stringResource(CommonR.string.downloads_calendar_empty),
                             icon = Icons.Rounded.CalendarMonth,
                         )
                     }
@@ -329,11 +303,7 @@ private fun DayHeading(
     day: Day,
     today: Day,
 ) {
-    val text =
-        when (day) {
-            today -> stringResource(R.string.downloads_day_today)
-            else -> dayText(day)
-        }
+    val text = calendarDayHeading(day, today)
     Text(
         text,
         style = MaterialTheme.typography.titleMedium,
@@ -418,80 +388,6 @@ private fun MonthGrid(
 }
 
 @Composable
-internal fun tagText(g: CalendarGroup): String =
-    when (g.tag) {
-        EntryTag.SHOW_PREMIERE -> stringResource(R.string.downloads_calendar_tag_show_premiere)
-        EntryTag.SEASON_PREMIERE -> stringResource(R.string.downloads_calendar_tag_season_premiere)
-        EntryTag.NEW_EPISODE -> stringResource(R.string.downloads_calendar_tag_new_episode)
-        EntryTag.NEW_ALBUM -> stringResource(R.string.downloads_calendar_tag_new_album)
-        EntryTag.NEW_SINGLE -> stringResource(R.string.downloads_calendar_tag_new_single)
-        EntryTag.NEW_EP -> stringResource(R.string.downloads_calendar_tag_new_ep)
-        EntryTag.IN_CINEMAS -> stringResource(R.string.downloads_calendar_tag_in_cinemas)
-        EntryTag.NEW_MOVIE -> stringResource(R.string.downloads_calendar_tag_new_movie)
-        EntryTag.EPISODES -> stringResource(R.string.downloads_calendar_tag_episodes, g.count)
-        EntryTag.ALBUMS -> stringResource(R.string.downloads_calendar_tag_albums, g.count)
-        EntryTag.MOVIE_DATES -> {
-            val words =
-                g.movieKinds.map {
-                    stringResource(
-                        when (it) {
-                            MovieDateKind.CINEMA -> R.string.downloads_calendar_kind_cinema
-                            MovieDateKind.DIGITAL -> R.string.downloads_calendar_kind_digital
-                            MovieDateKind.DISC -> R.string.downloads_calendar_kind_disc
-                        },
-                    )
-                }
-            if (words.size >
-                1
-            ) {
-                stringResource(R.string.downloads_calendar_and, words.dropLast(1).joinToString(", "), words.last().lowercase())
-            } else {
-                words.firstOrNull().orEmpty()
-            }
-        }
-    }
-
-@Composable
-internal fun whenText(g: CalendarGroup): String =
-    when (g.whenKind) {
-        EntryWhen.TIME -> LocalTime.of(g.minutes / 60, g.minutes % 60).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
-        EntryWhen.ALL_DAY -> stringResource(R.string.downloads_calendar_all_day)
-        EntryWhen.ALBUM -> stringResource(R.string.downloads_calendar_album)
-        EntryWhen.SINGLE -> stringResource(R.string.downloads_calendar_single)
-        EntryWhen.EP -> stringResource(R.string.downloads_calendar_ep)
-        EntryWhen.IN_THEATERS -> stringResource(R.string.downloads_calendar_in_theaters)
-        EntryWhen.STREAMING -> stringResource(R.string.downloads_calendar_streaming)
-    }
-
-@Composable
-internal fun episodesText(g: CalendarGroup): String =
-    when (g.span) {
-        EpisodeSpan.ONE -> stringResource(R.string.downloads_calendar_season_episode, g.season, g.episode)
-        EpisodeSpan.SAME_SEASON -> stringResource(R.string.downloads_calendar_season_episodes, g.season, g.episode, g.episode2)
-        EpisodeSpan.ACROSS -> stringResource(R.string.downloads_calendar_season_span, g.season, g.episode, g.season2, g.episode2)
-    }
-
-@Composable
-internal fun dotText(dot: EntryDot): String =
-    stringResource(
-        when (dot) {
-            EntryDot.HAVE -> R.string.downloads_calendar_dot_have
-            EntryDot.GETTING -> R.string.downloads_calendar_dot_getting
-            EntryDot.PROBLEM -> R.string.downloads_calendar_dot_problem
-            EntryDot.MISSING -> R.string.downloads_calendar_dot_missing
-            EntryDot.UPCOMING -> R.string.downloads_calendar_dot_upcoming
-        },
-    )
-
-@Composable
-private fun captionLines(g: CalendarGroup): List<String> =
-    when (g.kind) {
-        "episode" -> listOf(episodesText(g), g.episodeName, g.network)
-        "album" -> listOf(g.lead.name, g.album.takeIf { it != g.title }.orEmpty())
-        else -> listOf(g.caption)
-    }.filter { it.isNotBlank() }
-
-@Composable
 private fun EntryRow(
     g: CalendarGroup,
     state: CalendarState,
@@ -564,7 +460,7 @@ private fun EntrySheet(
                     if (g.entries.size > 1) {
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Small), verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                stringResource(R.string.downloads_calendar_season_episode, e.season, e.episode),
+                                stringResource(CommonR.string.downloads_calendar_season_episode, e.season, e.episode),
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             val dot = CalendarRules.dot(e, today)
@@ -572,7 +468,7 @@ private fun EntrySheet(
                         }
                     } else {
                         Text(
-                            stringResource(R.string.downloads_calendar_season_episode, e.season, e.episode),
+                            stringResource(CommonR.string.downloads_calendar_season_episode, e.season, e.episode),
                             style = MaterialTheme.typography.titleSmall,
                         )
                     }
@@ -649,10 +545,10 @@ private fun CalendarFilterSheet(
         ) {
             ChipGroup(stringResource(R.string.downloads_calendar_type)) {
                 listOfNotNull(
-                    CalendarType.ALL to R.string.downloads_calendar_all,
-                    CalendarType.MOVIES to R.string.downloads_calendar_movies,
-                    CalendarType.SHOWS to R.string.downloads_calendar_shows,
-                    if (state.musicOn) CalendarType.MUSIC to R.string.downloads_calendar_music else null,
+                    CalendarType.ALL to CommonR.string.downloads_calendar_all,
+                    CalendarType.MOVIES to CommonR.string.downloads_calendar_movies,
+                    CalendarType.SHOWS to CommonR.string.downloads_calendar_shows,
+                    if (state.musicOn) CalendarType.MUSIC to CommonR.string.downloads_calendar_music else null,
                 ).forEach { (t, label) -> FilterChip(state.type == t, { p.setType(t) }, label = { Text(stringResource(label)) }) }
             }
             Text(
@@ -661,15 +557,15 @@ private fun CalendarFilterSheet(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             listOfNotNull(
-                Triple(CalendarFollows.MINE, R.string.downloads_calendar_mine, R.string.downloads_calendar_mine_hint),
+                Triple(CalendarFollows.MINE, CommonR.string.downloads_calendar_mine, R.string.downloads_calendar_mine_hint),
                 if (state.people >
                     1
                 ) {
-                    Triple(CalendarFollows.EVERYONE, R.string.downloads_calendar_everyone, R.string.downloads_calendar_everyone_hint)
+                    Triple(CalendarFollows.EVERYONE, CommonR.string.downloads_calendar_everyone, R.string.downloads_calendar_everyone_hint)
                 } else {
                     null
                 },
-                Triple(CalendarFollows.LIBRARY, R.string.downloads_calendar_library, R.string.downloads_calendar_library_hint),
+                Triple(CalendarFollows.LIBRARY, CommonR.string.downloads_calendar_library, R.string.downloads_calendar_library_hint),
             ).forEach { (f, label, hint) ->
                 Row(
                     Modifier
