@@ -7,11 +7,14 @@ struct MusicArt: View {
     var size = 500
 
     var body: some View {
-        AuthImage(source: path.flatMap { $0.isEmpty ? nil : MusicFormat.image($0, size: size) }, size: .posterLarge) {
-            ArtPlaceholderView(name: name)
-        }
-        .aspectRatio(1, contentMode: .fit)
-        .clipShape(shape)
+        Color.clear
+            .aspectRatio(1, contentMode: .fit)
+            .overlay {
+                AuthImage(source: path.flatMap { $0.isEmpty ? nil : MusicFormat.image($0, size: size) }, size: .posterLarge) {
+                    ArtPlaceholderView(name: name)
+                }
+            }
+            .clipShape(shape)
     }
 
     private var shape: AnyShape {

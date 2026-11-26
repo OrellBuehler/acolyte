@@ -10,12 +10,13 @@ struct AuthImage<Placeholder: View>: View {
 
     var body: some View {
         ZStack {
-            placeholder()
             if let image {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .transition(.opacity)
+            } else {
+                placeholder()
             }
         }
         .clipped()
