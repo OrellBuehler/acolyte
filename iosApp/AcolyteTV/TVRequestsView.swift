@@ -48,6 +48,7 @@ struct TVRequestsView: View {
         } message: {
             if info.isCut { Text(L10n.tr("requests.approve.all.cut")) }
         }
+        .screenshotFocus($focus, id: info.canApproveAll ? "bulk" : info.shown.first.map { String($0.id) }, screen: "requests")
         .onChange(of: focus) { _, new in
             guard let new, let ask = info.shown.first(where: { String($0.id) == new }) else { return }
             ambient = ask.poster.isEmpty ? nil : ask.poster
@@ -194,6 +195,7 @@ struct TVRequestsView: View {
             TVActionButton(title: L10n.format("requests.approve.all", info.waitingToApprove), systemImage: "checkmark.circle") {
                 confirmAll = true
             }
+            .focused($focus, equals: "bulk")
             .disabled(info.busy)
             .padding(.vertical, Theme.TV.focusPad)
         }

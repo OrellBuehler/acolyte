@@ -48,6 +48,8 @@ final class TVNavigator {
         self.tabs = tabs
     }
 
+    var currentTab: SectionID { tabs.value }
+
     func open(_ route: Route) {
         router.open(route)
     }
@@ -108,6 +110,7 @@ struct TVTabHost<Root: View>: View {
         #endif
         .fullScreenCover(item: $router.ask) { target in
             TVAskView(kind: target.kind, tmdb: target.tmdb, fourK: target.fourK)
+                .preferredColorScheme(.dark)
         }
     }
 }

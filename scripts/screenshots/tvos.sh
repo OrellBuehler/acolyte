@@ -4,6 +4,8 @@
 # arguments that sign it in to the demo server and open the screen (TVScreenshotLaunch.swift),
 # so nothing has to be pressed. A screen counts as settled when the demo server has stopped
 # receiving requests (the pictures are all fetched), then the frame gets a moment to cross-fade.
+# The Debug app also moves focus to the first card of the page (Support/TVScreenshotFocus.swift), as
+# if Down had been pressed once, so the focused (lifted) state and the billboard that follows it show.
 #
 # Usage: tvos.sh <simulator udid> <output dir> <demo server log>
 set -euo pipefail
@@ -19,7 +21,7 @@ SERVER="http://127.0.0.1:$DEMO_PORT"
 MIN_REQUESTS="${MIN_REQUESTS:-8}"
 QUIET_SECONDS="${QUIET_SECONDS:-4}"
 MAX_WAIT_SECONDS="${MAX_WAIT_SECONDS:-90}"
-RENDER_SECONDS="${RENDER_SECONDS:-4}"
+RENDER_SECONDS="${RENDER_SECONDS:-7}"
 WIDTH=3840
 HEIGHT=2160
 
@@ -51,7 +53,7 @@ capture() {
   xcrun simctl launch "$DEVICE_ID" "$BUNDLE_ID" \
     -AppleLanguages "($language)" -AppleLocale "$apple" \
     -acolyte_screenshot_server "$SERVER" -acolyte_screenshot_user "$DEMO_USER" \
-    -acolyte_screenshot_password "$DEMO_PASSWORD" -acolyte_screenshot_open "$open" >/dev/null
+    -acolyte_screenshot_password "$DEMO_PASSWORD" -acolyte_screenshot_open "$open" -acolyte_screenshot_focus 1 >/dev/null
   wait_settled "$base" "$store/$name"
   sleep "$RENDER_SECONDS"
   mkdir -p "$OUT/$store"

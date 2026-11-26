@@ -415,6 +415,7 @@ struct TVShelf<Content: View>: View {
                 .padding(.vertical, Theme.TV.focusPad)
             }
             .scrollClipDisabled()
+            .fixedSize(horizontal: false, vertical: true)
         }
         .focusSection()
     }
