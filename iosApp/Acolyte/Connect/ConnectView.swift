@@ -101,6 +101,10 @@ private struct ServerStep: View {
                     open()
                 }
             }
+            if let url = URL(string: L10n.tr("privacy.policy.url")) {
+                Link(L10n.tr("privacy.policy"), destination: url)
+                    .font(.subheadline)
+            }
         }
     }
 

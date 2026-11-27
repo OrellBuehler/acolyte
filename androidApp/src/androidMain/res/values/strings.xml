@@ -80,6 +80,8 @@
     <string name="account_method">Signed in with</string>
     <string name="account_live">Live updates</string>
     <string name="account_sign_out">Sign out</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_url">https://orellbuehler.github.io/acolyte/privacy/</string>
     <string name="account_sign_out_title">Sign out?</string>
     <string name="account_sign_out_message">You can sign in again any time.</string>
     <string name="account_safe_mode">The server runs in safe mode: only the core is on.</string>

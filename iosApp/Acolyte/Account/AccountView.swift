@@ -80,6 +80,9 @@ struct AccountView: View {
                 LabeledContent(L10n.tr("account.live")) {
                     StatusChip(text: liveText, tone: liveTone)
                 }
+                if let url = URL(string: L10n.tr("privacy.policy.url")) {
+                    Link(L10n.tr("privacy.policy"), destination: url)
+                }
             }
             Section {
                 Button(L10n.tr("account.sign.out"), role: .destructive) {

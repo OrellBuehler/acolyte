@@ -78,6 +78,8 @@
     <string name="account_method">Angemeldet mit</string>
     <string name="account_live">Live-Updates</string>
     <string name="account_sign_out">Abmelden</string>
+    <string name="privacy_policy">Datenschutzerklärung</string>
+    <string name="privacy_policy_url">https://orellbuehler.github.io/acolyte/de/privacy/</string>
     <string name="account_sign_out_title">Abmelden?</string>
     <string name="account_sign_out_message">Du kannst dich jederzeit wieder anmelden.</string>
     <string name="account_safe_mode">Der Server läuft im abgesicherten Modus: Nur der Kern ist eingeschaltet.</string>

@@ -311,6 +311,7 @@ class TvScreensTest {
     fun settingsAsksBeforeSigningOut() {
         show { TvSettingsScreen(account) }
         compose.onNodeWithText("holyarrs.local").assertIsDisplayed()
+        compose.onNodeWithText("Privacy policy: orellbuehler.github.io/acolyte/privacy").assertIsDisplayed()
         compose.onNodeWithText("Sign out").requestFocus()
         compose.waitForIdle()
         compose.onNodeWithText("Sign out").performKeyInput { pressKey(Key.DirectionCenter) }

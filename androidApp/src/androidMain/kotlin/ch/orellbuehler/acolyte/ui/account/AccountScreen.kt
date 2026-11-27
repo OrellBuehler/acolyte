@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,6 +62,8 @@ fun AccountScreen(
 ) {
     val live by LocalSdk.current.session.liveStatus
         .collectAsStateWithLifecycle()
+    val uri = LocalUriHandler.current
+    val privacyUrl = stringResource(R.string.privacy_policy_url)
     var confirm by rememberSaveable { mutableStateOf(false) }
 
     ScreenScaffold(title = stringResource(R.string.section_account), onBack = onBack) { padding ->
@@ -111,6 +114,8 @@ fun AccountScreen(
                     Text(stringResource(R.string.account_live), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     StatusChip(stringResource(live.label()), live.tone())
                 }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                NavRow(stringResource(R.string.privacy_policy)) { runCatching { uri.openUri(privacyUrl) } }
             }
             OutlinedButton(onClick = { confirm = true }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.account_sign_out))

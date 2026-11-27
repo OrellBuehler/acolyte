@@ -44,6 +44,7 @@
     <string name="tv_settings_account">Angemeldet als</string>
     <string name="tv_settings_server">Server</string>
     <string name="tv_settings_sign_out">Abmelden</string>
+    <string name="tv_settings_privacy">Datenschutzerklärung: orellbuehler.github.io/acolyte/de/privacy</string>
     <string name="tv_signin_name">Name</string>
     <string name="tv_signin_password">Passwort</string>
     <string name="tv_signin_submit">Anmelden</string>
