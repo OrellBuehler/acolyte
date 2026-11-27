@@ -150,15 +150,16 @@ final class SmokeTests: XCTestCase {
         step(app, "approve", "open", wait: 16)
         walk(app, "approve", "DDD")
         XCUIRemote.shared.press(.select)
-        let approve = app.buttons["Approve"]
-        XCTAssertTrue(approve.waitForExistence(timeout: 8), "the actions of a request did not open")
-        for _ in 0..<4 where !approve.hasFocus {
+        XCTAssertTrue(app.buttons["Approve"].firstMatch.waitForExistence(timeout: 8), "the actions of a request did not open")
+        let approve = app.buttons.matching(NSPredicate(format: "label == %@ AND hasFocus == true", "Approve"))
+        for _ in 0..<4 where approve.count == 0 {
             XCUIRemote.shared.press(.down)
             Thread.sleep(forTimeInterval: 1)
         }
-        XCTAssertTrue(approve.hasFocus, "Approve cannot be reached")
+        save("approve-actions")
+        XCTAssertTrue(approve.count > 0, "Approve cannot be reached")
         XCUIRemote.shared.press(.select)
-        XCTAssertTrue(app.buttons["Undo"].waitForExistence(timeout: 8), "approving left no undo line")
+        XCTAssertTrue(app.buttons["Undo"].firstMatch.waitForExistence(timeout: 8), "approving left no undo line")
         step(app, "approve", "approved", wait: 2)
         app.terminate()
     }
