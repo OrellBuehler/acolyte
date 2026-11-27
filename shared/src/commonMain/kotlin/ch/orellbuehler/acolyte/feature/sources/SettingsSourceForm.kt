@@ -29,6 +29,7 @@ object SettingsSourceSites {
             SettingsSourceBuiltIn("knaben", "Knaben", "https://api.knaben.org", false, false, everything, 2000, 100, 20, true),
             SettingsSourceBuiltIn("torrentscsv", "TorrentsCSV", "https://torrents-csv.com", false, false, everything, 2000, 100, 20, false),
             SettingsSourceBuiltIn("subsplease", "SubsPlease", "https://subsplease.org", false, false, listOf("tv"), 2000, 100, 20, true),
+            SettingsSourceBuiltIn("yts", "YTS", "https://movies-api.accel.li", false, false, listOf("movie"), 2500, 100, 20, true),
             SettingsSourceBuiltIn("iptorrents", "IPTorrents", "https://iptorrents.com", true, true, everything, 3000, 60, 30, true),
         )
 
