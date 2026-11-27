@@ -337,8 +337,6 @@ internal object KnownSpecGaps {
                     "Choices and MoveInput in internal/migrate/plan_types.go and routes_move.go",
                 "POST /api/v1/migrate/downloaders: sends a body but the spec takes none" to
                     "bringDownloaders in internal/migrate/routes_move.go reads {snapshots}",
-                "POST /api/v1/sources body.site: sent by the model but not in the spec" to
-                    "built-in site of a site-format Source (sources.Input.Site)",
                 "POST /api/v1/sources body.site_user: sent by the model but not in the spec" to
                     "IPTorrents user id (sources.Input.SiteUser)",
                 "POST /api/v1/sources body.site_login: sent by the model but not in the spec" to
@@ -347,8 +345,6 @@ internal object KnownSpecGaps {
                     "browser user agent for the cookie (sources.Input.SiteAgent)",
                 "POST /api/v1/sources body.downloader_id: sent by the model but not in the spec" to
                     "the one Downloader a Source sends to (sources.Input.DownloaderID)",
-                "PUT /api/v1/sources/{id} body.site: sent by the model but not in the spec" to
-                    "built-in site of a site-format Source (sources.Input.Site)",
                 "PUT /api/v1/sources/{id} body.site_user: sent by the model but not in the spec" to
                     "IPTorrents user id (sources.Input.SiteUser)",
                 "PUT /api/v1/sources/{id} body.site_login: sent by the model but not in the spec" to
