@@ -17,7 +17,7 @@ fun <T> LazyListScope.tvThumbRows(
 ) {
     items(items.chunked(2), key = { row -> row.joinToString("|") { key(it).toString() } }) { row ->
         Row(
-            Modifier.padding(horizontal = TvMetrics.marginX, vertical = TvMetrics.textGap / 2),
+            Modifier.tvRowBounds().padding(horizontal = TvMetrics.marginX, vertical = TvMetrics.textGap / 2),
             horizontalArrangement = Arrangement.spacedBy(TvMetrics.gutter),
         ) {
             row.forEach { content(it, Modifier.weight(1f)) }

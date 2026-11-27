@@ -137,7 +137,7 @@ fun TvStatusContent(
                     LaunchedEffect(Unit) { focus.requestFocusSafely() }
                 }
             } else {
-                content()
+                Box(Modifier.fillMaxSize().tvTopScrim()) { content() }
             }
     }
 }

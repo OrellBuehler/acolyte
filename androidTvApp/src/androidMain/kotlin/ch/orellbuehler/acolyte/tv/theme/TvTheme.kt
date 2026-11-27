@@ -39,12 +39,14 @@ object TvMetrics {
     val thumbInset: Dp = 12.dp
     val thumbCorner: Dp = 6.dp
     val tabBarHeight: Dp = 48.dp
+    val scrimHeight: Dp = 16.dp
     val logoWidth: Dp = 260.dp
     val logoHeight: Dp = 76.dp
     val formWidth: Dp = 420.dp
     val modeTileWidth: Dp = 250.dp
     val modeTileHeight: Dp = 140.dp
     const val FOCUS_SCALE = 1.08f
+    const val DIM_ALPHA = 0.55f
     const val HERO_FRACTION = 0.62f
     const val HOME_HERO_FRACTION = 0.86f
     const val TITLE_HERO_FRACTION = 0.6f
@@ -133,7 +135,8 @@ private val TvColorScheme =
     )
 
 // Compose's default pivots every focused item to 30 percent of the list, which scrolls a billboard away
-// as soon as focus reaches the first row. Scroll only as far as needed to show the focused item.
+// as soon as focus reaches the first row. Scroll only as far as needed to show the requested rectangle (a
+// whole row, see tvRowBounds), and align its top when it is taller than the viewport.
 private val TvMinimalScroll =
     object : BringIntoViewSpec {
         override fun calculateScrollDistance(
@@ -143,9 +146,9 @@ private val TvMinimalScroll =
         ): Float {
             val trailing = offset + size
             return when {
+                size > containerSize -> offset
                 offset >= 0f && trailing <= containerSize -> 0f
-                offset < 0f && trailing > containerSize -> 0f
-                kotlin.math.abs(offset) < kotlin.math.abs(trailing - containerSize) -> offset
+                offset < 0f -> offset
                 else -> trailing - containerSize
             }
         }

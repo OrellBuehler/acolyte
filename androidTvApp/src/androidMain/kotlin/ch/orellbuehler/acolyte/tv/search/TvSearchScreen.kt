@@ -59,6 +59,7 @@ import ch.orellbuehler.acolyte.tv.components.tvBrowseSectionTitle
 import ch.orellbuehler.acolyte.tv.components.tvGenreText
 import ch.orellbuehler.acolyte.tv.components.tvPageInset
 import ch.orellbuehler.acolyte.tv.components.tvPosterGrid
+import ch.orellbuehler.acolyte.tv.components.tvRowBounds
 import ch.orellbuehler.acolyte.tv.nav.LocalTvNavigator
 import ch.orellbuehler.acolyte.tv.theme.TvColors
 import ch.orellbuehler.acolyte.tv.theme.TvMetrics
@@ -132,7 +133,7 @@ fun TvSearchContent(
     var text by remember { mutableStateOf(state.query) }
     LaunchedEffect(state.query) { if (state.query != text) text = state.query }
     val query = state.query.trim()
-    TvAmbientPage { onFocusImage ->
+    TvAmbientPage(scrimTop = true) { onFocusImage ->
         item(key = "field") {
             Column(Modifier.tvPageInset()) {
                 TvTextField(
@@ -286,7 +287,7 @@ private fun LazyListScope.tileGrid(
     }) { line ->
         val navigator = LocalTvNavigator.current
         Row(
-            Modifier.padding(horizontal = TvMetrics.marginX),
+            Modifier.tvRowBounds().padding(horizontal = TvMetrics.marginX),
             horizontalArrangement = Arrangement.spacedBy(TvMetrics.gutter),
         ) {
             line.forEach { tile ->
@@ -370,7 +371,7 @@ private fun LazyListScope.personGrid(
 ) {
     items(people.distinctBy { it.id }.chunked(PEOPLE_COLUMNS), key = { "$key-${it.first().id}" }) { line ->
         Row(
-            Modifier.padding(horizontal = TvMetrics.marginX),
+            Modifier.tvRowBounds().padding(horizontal = TvMetrics.marginX),
             horizontalArrangement = Arrangement.spacedBy(TvMetrics.gutter),
         ) {
             line.forEach { person ->
