@@ -27,6 +27,7 @@ NOW = datetime.now(timezone.utc).replace(microsecond=0)
 LOCAL = threading.local()
 ROUTES = []
 OWNER = "Noor Haldane"
+STRESS = False
 
 
 def lang():
@@ -540,6 +541,8 @@ def library_folders(c):
 @route("GET", "/api/v1/downloads/view")
 def downloads_view(c):
     rows = download_rows()
+    if STRESS:
+        rows = [dict(r, id=r["id"] + 100 * n, hash=f"{r['id'] + 100 * n:040x}") for n in range(6) for r in rows]
     return {
         "downloads": rows,
         "totals": {"speed": sum(r["speed"] for r in rows), "up_speed": 2_000_000},
@@ -564,6 +567,14 @@ def asks_list(c):
         "counts": {"pending": 3, "processing": 2, "done": 1, "failed": 0},
         "total": len(rows),
     }
+
+
+@route("POST", r"/api/v1/asks/(?P<id>\d+)/approve")
+def asks_approve(c):
+    for a in asks():
+        if a["id"] == int(c.m["id"]):
+            return {"ask": dict(a, state="approved", state_label=L("Approved", "Genehmigt")), "notice": ""}
+    return not_found()
 
 
 @route("GET", "/api/v1/asks/limit")
@@ -830,6 +841,42 @@ def metadata(c):
     return out
 
 
+EPISODE_PLOTS = [
+    ("A letter arrives a day late.", "Ein Brief kommt einen Tag zu spät."),
+    ("Nobody admits who left the gate open, and by the evening the whole street has picked a side.",
+     "Niemand gibt zu, das Tor offen gelassen zu haben, und am Abend hat die ganze Strasse Partei ergriffen."),
+    ("", ""),
+    ("An old promise comes due on the worst possible morning. What starts as a favour turns into a long drive, a borrowed boat "
+     "and a conversation that has waited eleven years.",
+     "Ein altes Versprechen wird am denkbar schlechtesten Morgen fällig. Aus einem Gefallen werden eine lange Fahrt, ein geliehenes Boot "
+     "und ein Gespräch, das elf Jahre gewartet hat."),
+    ("The power goes out and everyone tells a different story about the summer before.",
+     "Der Strom fällt aus, und alle erzählen eine andere Geschichte vom Sommer davor."),
+]
+
+
+@route("GET", r"/api/v1/metadata/show/(?P<tmdb>\d+)/seasons/(?P<number>\d+)")
+def season_episodes(c):
+    t = BY_TMDB.get(c.m["tmdb"])
+    number = int(c.m["number"])
+    counts = t.get("episodes", ()) if t else ()
+    if not 1 <= number <= len(counts):
+        return not_found()
+    first = datetime(t["year"] + number - 1, 3, 4, tzinfo=timezone.utc)
+    episodes = []
+    for n in range(1, counts[number - 1] + 1):
+        plot = EPISODE_PLOTS[(n + number) % len(EPISODE_PLOTS)]
+        episodes.append({
+            "number": n,
+            "name": "" if n % 4 == 0 else L(f"Chapter {n}", f"Kapitel {n}"),
+            "overview": L(*plot),
+            "runtime": t["runtime"] + (n % 3) * 2,
+            "still": "",
+            "air_day": (first + timedelta(days=7 * (n - 1))).strftime("%Y-%m-%d"),
+        })
+    return {"tmdb_id": t["tmdb"], "season": number, "episodes": episodes}
+
+
 @route("GET", "/api/v1/titles/lookup")
 def lookup_movies(c):
     t = BY_TMDB.get(c.query.get("term", "").replace("tmdb:", ""))
@@ -979,7 +1026,10 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--host", default="0.0.0.0")
     p.add_argument("--port", type=int, default=6263)
+    p.add_argument("--stress", action="store_true")
     a = p.parse_args()
+    global STRESS
+    STRESS = a.stress
     server = Server((a.host, a.port), Handler)
     print(f"demo server on http://{a.host}:{a.port}", flush=True)
     server.serve_forever()

@@ -35,6 +35,10 @@ data class ShowSeasonsState(
     val historyLoaded: Boolean = false,
     val feedback: Feedback? = null,
 ) {
+    val loaded: List<SeasonEpisodes> get() = seasons.values.toList()
+
+    val openSeasons: List<Int> get() = open.toList()
+
     fun find(episodeId: Long): OwnedEpisode? =
         seasons.values.firstNotNullOfOrNull { s -> s.episodes.firstOrNull { it.id == episodeId } }
             ?: outside.firstOrNull { it.id == episodeId }

@@ -6,10 +6,13 @@ struct TVBackdropLayer: View {
 
     var body: some View {
         ZStack {
-            AuthImage(source: source, size: .hero) { Theme.background }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .scaleEffect(blurred ? 1.15 : 1)
-                .blur(radius: blurred ? 50 : 0)
+            Color.clear
+                .overlay {
+                    AuthImage(source: source, size: .hero) { Theme.background }
+                        .scaleEffect(blurred ? 1.15 : 1)
+                        .blur(radius: blurred ? 50 : 0)
+                }
+                .clipped()
             if blurred {
                 Theme.background.opacity(0.68)
             } else {

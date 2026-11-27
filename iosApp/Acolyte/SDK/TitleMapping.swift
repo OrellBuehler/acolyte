@@ -116,8 +116,8 @@ extension Mapping {
             OutcomeInfo(empty: o.empty, refused: o.refused, note: o.note, sources: o.sources.map { OutcomeSourceInfo(name: $0.name, why: $0.why) })
         }
         var points: [Int64: PointsInfo] = [:]
-        for (slot, value) in s.points {
-            if let mapped = Mapping.points(value) { points[slot.int64Value] = mapped }
+        for slot in s.pointSlots {
+            if let value = s.points[slot], let mapped = Mapping.points(value) { points[slot.int64Value] = mapped }
         }
         let slotCards = s.slotCards.map { card in
             SlotCardInfo(
@@ -337,16 +337,16 @@ extension Mapping {
         var history: [Int: [HistoryRowInfo]] = [:]
         var count: [Int: Int] = [:]
         var size: [Int: Int64] = [:]
-        for (number, value) in s.seasons {
-            let n = Int(number.int32Value)
+        for value in s.loaded {
+            let n = Int(value.season)
             loaded[n] = SeasonEpisodesInfo(loading: value.loading, failed: value.failed, episodes: value.episodes.map { episode($0, today: today) })
-            shown[n] = s.episodesOf(season: number.int32Value).map { episode($0, today: today) }
-            history[n] = s.seasonHistory(season: number.int32Value).map { event($0, tone: TitleLogic.shared.eventTone(kind: $0.kind)) }
-            count[n] = s.seasonFiles(season: number.int32Value).count
-            size[n] = s.seasonSize(season: number.int32Value)
+            shown[n] = s.episodesOf(season: value.season).map { episode($0, today: today) }
+            history[n] = s.seasonHistory(season: value.season).map { event($0, tone: TitleLogic.shared.eventTone(kind: $0.kind)) }
+            count[n] = s.seasonFiles(season: value.season).count
+            size[n] = s.seasonSize(season: value.season)
         }
         return ShowSeasonsInfo(
-            open: Set(s.open.map { Int($0.int32Value) }),
+            open: Set(s.openSeasons.map { Int($0.int32Value) }),
             seasons: loaded,
             shown: shown,
             outside: s.outside.map { episode($0, today: today) },

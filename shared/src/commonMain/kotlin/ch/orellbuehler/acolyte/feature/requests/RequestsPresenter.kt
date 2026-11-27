@@ -99,6 +99,10 @@ data class RequestsState(
     val busy: Boolean = false,
     val note: RequestsNote? = null,
 ) {
+    val pendingIds: List<Long> get() = pending.keys.toList()
+
+    fun pendingOf(id: Long): PendingKind? = pending[id]
+
     val effective: List<Ask>
         get() =
             asks.map { ask ->

@@ -140,6 +140,9 @@ class RequestsPresenterTest {
             presenter.approve(1)
             var s = presenter.state.value
             assertEquals(PendingKind.APPROVE, s.pending[1])
+            assertEquals(listOf(1L), s.pendingIds)
+            assertEquals(PendingKind.APPROVE, s.pendingOf(1))
+            assertNull(s.pendingOf(2))
             assertEquals(RequestsNoteKind.APPROVED, s.note?.kind)
             assertTrue(s.note?.undoable == true)
             assertEquals(listOf(2L), s.shown.map { it.id })

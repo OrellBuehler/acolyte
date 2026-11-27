@@ -1,0 +1,28 @@
+include:
+  - project.yml
+
+targets:
+  AcolyteTVUITests:
+    type: bundle.ui-testing
+    platform: tvOS
+    sources:
+      - path: AcolyteTVUITests
+    dependencies:
+      - target: AcolyteTV
+    settings:
+      base:
+        SWIFT_VERSION: '5.0'
+        TARGETED_DEVICE_FAMILY: '3'
+        PRODUCT_BUNDLE_IDENTIFIER: ch.orellbuehler.acolyte.tvuitests
+        TEST_TARGET_NAME: AcolyteTV
+
+schemes:
+  AcolyteTVSmoke:
+    build:
+      targets:
+        AcolyteTV: all
+        AcolyteTVUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - AcolyteTVUITests

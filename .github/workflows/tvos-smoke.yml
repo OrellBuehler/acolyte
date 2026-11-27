@@ -1,0 +1,136 @@
+name: tvOS Smoke Test
+
+# Drives the Apple TV app on a simulator with the remote, the way a person on the sofa does:
+# it opens title pages (a movie, a show in the library, a show that is not), walks through
+# Home, Explore, Requests, Calendar and Downloads with the arrow keys and opens titles from
+# Home. iosApp/AcolyteTVUITests fails when the app dies, when focus lands off screen or when
+# a page is laid out larger than the screen. The data comes from the screenshot demo server
+# (started with --stress, so that the lists are long enough to scroll).
+#
+# It is not part of ios-gate: the simulator boot on the runner is flaky, so re-run a failed
+# boot before reading anything into it. The artifact has a screenshot and the focus and
+# frame of every control after each key press, plus crash reports.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/tvos-smoke.yml
+      - iosApp/AcolyteTV/**
+      - iosApp/AcolyteTVUITests/**
+      - iosApp/project-smoke.yml
+      - scripts/screenshots/demo-server.py
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: tvos-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tvos-smoke:
+    runs-on: xcode-27
+    timeout-minutes: 75
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up the Xcode runner
+        uses: ./.github/actions/ios-setup
+
+      - name: Build shared tvOS framework
+        run: ./gradlew shared:linkDebugFrameworkTvosSimulatorArm64
+
+      - name: Stage shared framework for Xcode
+        run: |
+          SDK_NAME=$(xcrun --sdk appletvsimulator --show-sdk-version)
+          DEST="shared/build/xcode-frameworks/Debug/appletvsimulator${SDK_NAME}"
+          mkdir -p "$DEST"
+          cp -R shared/build/bin/tvosSimulatorArm64/debugFramework/shared.framework "$DEST/"
+
+      # project-smoke.yml is project.yml plus the UI test target and its scheme.
+      - name: Generate Xcode project
+        working-directory: iosApp
+        run: xcodegen generate --spec project-smoke.yml
+
+      - name: Build the app and the tests
+        working-directory: iosApp
+        run: |
+          xcodebuild build-for-testing \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTVSmoke \
+            -destination 'generic/platform=tvOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64
+
+      - name: Boot an Apple TV simulator
+        run: |
+          xcodebuild -downloadPlatform tvOS || true
+          DEVICE_ID=$(scripts/screenshots/tvos-device.sh)
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+
+      - name: Start the demo server
+        run: |
+          nohup python3 scripts/screenshots/demo-server.py --host 127.0.0.1 --port 6263 --stress > "$RUNNER_TEMP/demo-server.log" 2>&1 &
+          for _ in $(seq 1 20); do
+            curl -sf http://127.0.0.1:6263/api/v1/auth/state > /dev/null && exit 0
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/demo-server.log"
+          exit 1
+
+      # Simulator.app forwards input and activates the focus engine.
+      - name: Show the simulator
+        run: |
+          open "$(xcode-select -p)/Applications/Simulator.app" --args -CurrentDeviceUDID "$DEVICE_ID" || echo "::warning::Simulator.app did not open"
+          sleep 15
+
+      - name: Run the smoke tests
+        working-directory: iosApp
+        run: |
+          OUT="$RUNNER_TEMP/smoke"
+          rm -rf "$OUT"
+          mkdir -p "$OUT/shots"
+          touch "$OUT/start"
+          status=0
+          TEST_RUNNER_SMOKE_OUT="$OUT/shots" xcodebuild test-without-building \
+            -project Acolyte.xcodeproj \
+            -scheme AcolyteTVSmoke \
+            -destination "platform=tvOS Simulator,id=$DEVICE_ID" \
+            -configuration Debug \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            ARCHS=arm64 > "$OUT/xcodebuild.log" 2>&1 || status=$?
+          grep -E "Test Case .*(passed|failed)|error:|Executed" "$OUT/xcodebuild.log" || tail -100 "$OUT/xcodebuild.log"
+          exit "$status"
+
+      - name: Collect crash reports and logs
+        if: always()
+        run: |
+          OUT="$RUNNER_TEMP/smoke"
+          mkdir -p "$OUT/crashes"
+          if [ -f "$OUT/start" ]; then
+            find ~/Library/Logs/DiagnosticReports -type f -name 'AcolyteTV*' -newer "$OUT/start" -exec cp {} "$OUT/crashes/" \; || true
+          fi
+          ls "$OUT/crashes"
+          cp "$RUNNER_TEMP/demo-server.log" "$OUT/" || true
+
+      - name: Shut the simulator down
+        if: always()
+        run: |
+          xcrun simctl shutdown "$DEVICE_ID" || true
+          xcrun simctl delete "$DEVICE_ID" || true
+
+      - name: Upload screenshots, logs and crash reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: tvos-smoke
+          path: ${{ runner.temp }}/smoke
+          retention-days: 7
