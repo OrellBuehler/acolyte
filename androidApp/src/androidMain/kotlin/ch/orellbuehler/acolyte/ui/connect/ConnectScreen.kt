@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -162,6 +163,14 @@ private fun ServerStep(
     )
     BusyButton(stringResource(R.string.connect_continue), state.busy, enabled = address.isNotBlank()) { viewModel.connect(address) }
     InviteEntry(viewModel)
+    PrivacyLink()
+}
+
+@Composable
+private fun PrivacyLink() {
+    val uri = LocalUriHandler.current
+    val url = stringResource(R.string.privacy_policy_url)
+    TextButton(onClick = { runCatching { uri.openUri(url) } }) { Text(stringResource(R.string.privacy_policy)) }
 }
 
 @Composable

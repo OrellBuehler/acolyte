@@ -19,6 +19,11 @@ struct TVSettingsView: View {
                     confirmSignOut = true
                 }
             }
+            Section {
+                Text(L10n.tr("tv.settings.privacy"))
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textMuted)
+            }
         }
         .confirmationDialog(L10n.tr("account.sign.out.title"), isPresented: $confirmSignOut) {
             Button(L10n.tr("account.sign.out"), role: .destructive) { model.signOut() }

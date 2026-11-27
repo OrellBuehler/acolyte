@@ -38,6 +38,7 @@ fun TvSettingsScreen(account: Account) {
             SettingsRow(stringResource(R.string.tv_settings_account), account.displayName.ifEmpty { account.userName })
         }
         TvActionButton(stringResource(R.string.tv_settings_sign_out), onClick = { confirm = true })
+        Text(stringResource(R.string.tv_settings_privacy), style = TvType.footnote, color = TvColors.textMuted)
     }
     if (confirm) {
         TvConfirmDialog(

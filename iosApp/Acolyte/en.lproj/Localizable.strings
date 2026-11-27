@@ -6,6 +6,8 @@
 "account.safe.mode" = "The server runs in safe mode: only the core is on.";
 "account.server" = "Server";
 "account.sign.out" = "Sign out";
+"privacy.policy" = "Privacy policy";
+"privacy.policy.url" = "https://orellbuehler.github.io/acolyte/privacy/";
 "account.sign.out.message" = "You can sign in again any time.";
 "account.sign.out.title" = "Sign out?";
 "account.summary" = "%1$@ · %2$@";
@@ -6885,6 +6887,7 @@
 "tv.settings.server" = "Server";
 "tv.settings.account" = "Signed in as";
 "tv.settings.sign.out" = "Sign out";
+"tv.settings.privacy" = "Privacy policy: orellbuehler.github.io/acolyte/privacy";
 "tv.signin.unsupported" = "This step is not available on Apple TV yet. Go back, or finish it in the app on your phone.";
 "tv.reload" = "Reload";
 "tv.home.featured" = "Featured";
