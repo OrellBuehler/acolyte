@@ -239,6 +239,42 @@ class TitlePresenterTest {
         }
 
     @Test
+    fun loadedSeasonsAreListedForTheApps() =
+        runTest {
+            val server = FakeServer()
+            server.json(
+                "GET",
+                "/api/v1/titles/5",
+                """{"id":5,"kind":"show","name":"Show","ids":{},"keep_up_to_date":true,"show":{"seasons":[]}}""",
+            )
+            server.json(
+                "GET",
+                "/api/v1/titles/5/episodes",
+                """{"episode_order":"aired","episodes":[{"id":368,"season":8,"episode":1,"name":"Winterfell","air_day":"2019-04-14",
+                   "slots":[{"id":368,"version":"Main","version_id":1,"state":"wanted","state_label":"Missing","good_enough":false}]}]}""",
+            )
+            val title = TitlePresenter(server.api(), "", "", 5, false, account(), "en")
+            title.load()
+            val seasons = title.seasons()
+            assertTrue(
+                seasons.state.value.loaded
+                    .isEmpty(),
+            )
+            seasons.ensure(8)
+            seasons.toggle(0)
+            val state = seasons.state.value
+            assertEquals(listOf(8, 0), state.loaded.map { it.season })
+            assertEquals(
+                listOf("Winterfell"),
+                state.loaded
+                    .first()
+                    .episodes
+                    .map { it.name },
+            )
+            assertEquals(listOf(0), state.openSeasons)
+        }
+
+    @Test
     fun seasonReleasesSendTheSeason() =
         runTest {
             val server = FakeServer()

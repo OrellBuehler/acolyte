@@ -216,6 +216,8 @@ data class TitleState(
 ) {
     val isShow: Boolean get() = kind == "show"
 
+    val pointSlots: List<Long> get() = points.keys.toList()
+
     val name: String get() =
         details?.name?.ifBlank { null } ?: movie?.name?.ifBlank { null } ?: show?.name?.ifBlank { null }
             ?: owned?.name.orEmpty()

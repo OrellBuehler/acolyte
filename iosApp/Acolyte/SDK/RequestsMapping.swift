@@ -74,8 +74,8 @@ extension Mapping {
 
     static func requests(_ s: RequestsState) -> RequestsInfo {
         var pending: [Int64: PendingKindInfo] = [:]
-        for (k, v) in s.pending {
-            pending[k.int64Value] = PendingKindInfo(rawValue: key(v)) ?? .approve
+        for id in s.pendingIds {
+            if let kind = s.pendingOf(id: id.int64Value) { pending[id.int64Value] = PendingKindInfo(rawValue: key(kind)) ?? .approve }
         }
         let note = s.note.map { n in
             RequestsNoteInfo(
