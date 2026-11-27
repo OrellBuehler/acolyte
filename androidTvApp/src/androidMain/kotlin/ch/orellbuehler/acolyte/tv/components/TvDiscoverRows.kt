@@ -176,7 +176,7 @@ fun LazyListScope.tvPosterGrid(
 ) {
     items(cards.distinctBy { it.key }.chunked(TV_POSTER_COLUMNS), key = { "$rowId-${it.first().key}" }) { line ->
         Row(
-            Modifier.padding(horizontal = TvMetrics.marginX),
+            Modifier.tvRowBounds().padding(horizontal = TvMetrics.marginX),
             horizontalArrangement = Arrangement.spacedBy(TvMetrics.gutter),
         ) {
             line.forEach { card ->

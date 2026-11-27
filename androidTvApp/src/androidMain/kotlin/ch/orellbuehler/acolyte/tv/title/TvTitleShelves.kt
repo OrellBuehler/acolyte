@@ -31,6 +31,7 @@ import ch.orellbuehler.acolyte.tv.components.TvPersonCard
 import ch.orellbuehler.acolyte.tv.components.TvShelf
 import ch.orellbuehler.acolyte.tv.components.TvTitleCard
 import ch.orellbuehler.acolyte.tv.components.tvPageInset
+import ch.orellbuehler.acolyte.tv.components.tvRowBounds
 import ch.orellbuehler.acolyte.tv.nav.LocalTvNavigator
 import ch.orellbuehler.acolyte.tv.theme.TvColors
 import ch.orellbuehler.acolyte.tv.theme.TvMetrics
@@ -128,7 +129,7 @@ internal fun EpisodesSection(
     LaunchedEffect(seasons, browse.selected, state.isOwned) { if (state.isOwned) seasons.ensure(browse.selected) }
     val have = if (state.isOwned) owned.seasons[browse.selected]?.episodes.orEmpty() else emptyList()
     val today = LocalDate.now().toString()
-    Column {
+    Column(Modifier.tvRowBounds()) {
         Text(
             stringResource(R.string.tv_title_seasons),
             style = TvType.headline,

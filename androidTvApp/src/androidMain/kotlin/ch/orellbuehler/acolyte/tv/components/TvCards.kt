@@ -66,7 +66,7 @@ fun TvCardSurface(
     Card(
         onClick = onClick,
         onLongClick = onLongClick,
-        modifier = modifier,
+        modifier = modifier.tvFocusSlack(),
         shape = CardDefaults.shape(shape),
         colors = CardDefaults.colors(containerColor = TvColors.surfaceRaised),
         scale = CardDefaults.scale(focusedScale = TvMetrics.FOCUS_SCALE),

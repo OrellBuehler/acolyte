@@ -158,6 +158,18 @@ for open in popular downloads settings person:5000 genre:movie:18 genre:show:18 
   check_crash "$open"
 done
 
+# Evidence for the focus rules (the focused row fully inside the screen, the other rows dimmed): the
+# screens go to the logs artifact, not to the store set.
+for open in home title:show:920001; do
+  launch "$open"
+  sleep 12
+  for step in 1 2 3 4 5; do
+    adb shell input keyevent KEYCODE_DPAD_DOWN
+    sleep 2
+    shot "$LOGS/focus-${open//:/-}-down-$step.png"
+  done
+done
+
 if [ "$FAILED" -ne 0 ]; then
   exit 1
 fi

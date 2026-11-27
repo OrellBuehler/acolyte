@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,33 +44,36 @@ fun TvBrowsePage(
     var ambient by remember { mutableStateOf<DiscoverCard?>(null) }
     LaunchedEffect(hero?.key) { ambient = null }
     val shown = ambient ?: hero
-    Box(modifier.fillMaxSize()) {
-        TvBackdropLayer(shown?.wideImage)
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = TvMetrics.marginY),
-            verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
-        ) {
-            item(key = "hero") {
-                Column(Modifier.fillParentMaxHeight(TvMetrics.HERO_FRACTION)) {
-                    header()
-                    Spacer(Modifier.weight(1f))
-                    if (shown != null) {
-                        TvBillboard(
-                            shown,
-                            pills =
-                                if (shown.key ==
-                                    hero?.key
-                                ) {
-                                    pills
-                                } else {
-                                    emptyList()
-                                },
-                            modifier = Modifier.tvPageInset().padding(bottom = 8.dp),
-                        )
+    val rowFocus = remember { TvRowFocus() }
+    CompositionLocalProvider(LocalTvRowFocus provides rowFocus) {
+        Box(modifier.fillMaxSize()) {
+            TvBackdropLayer(shown?.wideImage)
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = TvMetrics.marginY),
+                verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
+            ) {
+                item(key = "hero") {
+                    Column(Modifier.fillParentMaxHeight(TvMetrics.HERO_FRACTION).tvRowBounds()) {
+                        header()
+                        Spacer(Modifier.weight(1f))
+                        if (shown != null) {
+                            TvBillboard(
+                                shown,
+                                pills =
+                                    if (shown.key ==
+                                        hero?.key
+                                    ) {
+                                        pills
+                                    } else {
+                                        emptyList()
+                                    },
+                                modifier = Modifier.tvPageInset().padding(bottom = 8.dp),
+                            )
+                        }
                     }
                 }
+                content { ambient = it }
             }
-            content { ambient = it }
         }
     }
 }
@@ -79,12 +83,14 @@ fun TvAmbientPage(
     modifier: Modifier = Modifier,
     fallback: String? = null,
     topPadding: Dp = TvMetrics.focusPad,
+    scrimTop: Boolean = false,
     content: LazyListScope.(onFocusImage: (String?) -> Unit) -> Unit,
 ) {
     var ambient by remember { mutableStateOf<String?>(null) }
     Box(modifier.fillMaxSize()) {
         TvBackdropLayer(ambient ?: fallback, blurred = true)
         LazyColumn(
+            modifier = if (scrimTop) Modifier.tvTopScrim() else Modifier,
             contentPadding = PaddingValues(top = topPadding, bottom = TvMetrics.marginY),
             verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
         ) {

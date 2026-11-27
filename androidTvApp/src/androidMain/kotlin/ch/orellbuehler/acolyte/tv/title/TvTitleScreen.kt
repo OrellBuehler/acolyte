@@ -1,22 +1,19 @@
 package ch.orellbuehler.acolyte.tv.title
 
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Block
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Notifications
-import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.runtime.Composable
@@ -44,7 +41,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.tv.material3.Text
 import ch.orellbuehler.acolyte.feature.Phase
 import ch.orellbuehler.acolyte.feature.Tone
-import ch.orellbuehler.acolyte.feature.title.AskOffer
 import ch.orellbuehler.acolyte.feature.title.HeroPill
 import ch.orellbuehler.acolyte.feature.title.TitleProblem
 import ch.orellbuehler.acolyte.feature.title.TitleState
@@ -57,13 +53,18 @@ import ch.orellbuehler.acolyte.tv.components.TvStatusChip
 import ch.orellbuehler.acolyte.tv.components.TvStatusContent
 import ch.orellbuehler.acolyte.tv.components.requestFocusSafely
 import ch.orellbuehler.acolyte.tv.components.tvPageInset
+import ch.orellbuehler.acolyte.tv.components.tvRowBounds
 import ch.orellbuehler.acolyte.tv.nav.LocalTvNavigator
 import ch.orellbuehler.acolyte.tv.theme.TvColors
 import ch.orellbuehler.acolyte.tv.theme.TvMetrics
 import ch.orellbuehler.acolyte.tv.theme.TvType
 import ch.orellbuehler.acolyte.ui.LocalSdk
 import ch.orellbuehler.acolyte.ui.components.ServerImage
+import kotlinx.coroutines.delay
 import java.util.Locale
+
+private const val FOCUS_TRIES = 10
+private const val FOCUS_RETRY_MILLIS = 300L
 
 @Composable
 fun TvTitleScreen(
@@ -103,7 +104,18 @@ fun TvTitleContent(
     onFollow: () -> Unit,
     episodes: (@Composable () -> Unit)?,
 ) {
-    Box(Modifier.fillMaxSize()) {
+    val page = remember { FocusRequester() }
+    val noActions = state.ready && tvTitleActions(state, trailerLoading).isEmpty()
+    LaunchedEffect(noActions) {
+        if (noActions) {
+            repeat(FOCUS_TRIES) {
+                if (runCatching { page.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
+                delay(FOCUS_RETRY_MILLIS)
+            }
+        }
+    }
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val heroMinHeight = maxHeight * TvMetrics.TITLE_HERO_FRACTION
         if (state.problem == TitleProblem.NONE && state.status.phase == Phase.READY) {
             TvBackdropLayer(state.backdrop.ifEmpty { state.poster })
         }
@@ -124,6 +136,7 @@ fun TvTitleContent(
             TitleProblem.NONE ->
                 TvStatusContent(state.status, isEmpty = false, reload = onRefresh) {
                     LazyColumn(
+                        modifier = Modifier.focusRequester(page).focusGroup(),
                         contentPadding = PaddingValues(bottom = TvMetrics.marginY),
                         verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
                     ) {
@@ -133,7 +146,7 @@ fun TvTitleContent(
                                 trailerLoading,
                                 onTrailer,
                                 onFollow,
-                                Modifier.fillParentMaxHeight(TvMetrics.TITLE_HERO_FRACTION),
+                                Modifier.heightIn(min = heroMinHeight),
                             )
                         }
                         titleShelves(state, episodes)
@@ -152,7 +165,7 @@ private fun TitleHero(
     modifier: Modifier,
 ) {
     Column(
-        modifier.tvPageInset(),
+        modifier.tvRowBounds().tvPageInset(),
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Bottom),
     ) {
         val logo = state.logo
@@ -250,66 +263,25 @@ private fun TitleActions(
 ) {
     val navigator = LocalTvNavigator.current
     val first = remember { FocusRequester() }
-    val buttons = mutableListOf<@Composable (Modifier) -> Unit>()
-    state.askOffer?.let { offer ->
-        buttons +=
-            { m ->
-                TvActionButton(
-                    title = askText(offer),
-                    icon = if (offer == AskOffer.ASKED) Icons.Rounded.Check else Icons.Rounded.Add,
-                    enabled = offer != AskOffer.ASKED,
-                    modifier = m,
-                    onClick = { navigator.openAsk(state.kind, state.tmdb) },
-                )
-            }
-    }
-    if (state.trailer != null) {
-        buttons +=
-            { m ->
-                TvActionButton(
-                    title = stringResource(R.string.tv_title_trailer),
-                    icon = Icons.Rounded.PlayCircle,
-                    enabled = !trailerLoading,
-                    modifier = m,
-                    onClick = onTrailer,
-                )
-            }
-    }
-    state.fourKOffer?.let { offer ->
-        buttons +=
-            { m ->
-                TvActionButton(
-                    title = stringResource(if (offer == AskOffer.ASKED) R.string.tv_title_requested_4k else R.string.tv_title_request_4k),
-                    enabled = offer != AskOffer.ASKED,
-                    modifier = m,
-                    onClick = { navigator.openAsk(state.kind, state.tmdb, fourK = true) },
-                )
-            }
-    }
-    if (state.access.followOn && state.hasTmdb) {
-        buttons +=
-            { m ->
-                TvActionButton(
-                    title = stringResource(if (state.following) R.string.tv_title_following else R.string.tv_title_follow),
-                    icon = if (state.following) Icons.Rounded.NotificationsActive else Icons.Rounded.Notifications,
-                    enabled = !state.followBusy,
-                    modifier = m,
-                    onClick = onFollow,
-                )
-            }
-    }
+    val actions = tvTitleActions(state, trailerLoading)
+    if (actions.isEmpty()) return
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        buttons.forEachIndexed { index, button -> button(if (index == 0) Modifier.focusRequester(first) else Modifier) }
+        actions.forEachIndexed { index, action ->
+            TvActionButton(
+                title = stringResource(action.label),
+                icon = action.icon,
+                enabled = action.enabled,
+                modifier = if (index == 0) Modifier.focusRequester(first) else Modifier,
+                onClick = {
+                    when (action.kind) {
+                        TvTitleActionKind.ASK -> navigator.openAsk(state.kind, state.tmdb)
+                        TvTitleActionKind.TRAILER -> onTrailer()
+                        TvTitleActionKind.ASK_4K -> navigator.openAsk(state.kind, state.tmdb, fourK = true)
+                        TvTitleActionKind.FOLLOW -> onFollow()
+                    }
+                },
+            )
+        }
     }
     LaunchedEffect(Unit) { first.requestFocusSafely() }
 }
-
-@Composable
-private fun askText(offer: AskOffer): String =
-    stringResource(
-        when (offer) {
-            AskOffer.ASK, AskOffer.SEASONS -> R.string.tv_title_request
-            AskOffer.ASK_TOO -> R.string.tv_title_request_too
-            AskOffer.ASKED -> R.string.tv_title_requested
-        },
-    )

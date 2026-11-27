@@ -1,5 +1,7 @@
 package ch.orellbuehler.acolyte.tv.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,9 +14,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,6 +35,8 @@ import ch.orellbuehler.acolyte.tv.theme.TvColors
 import ch.orellbuehler.acolyte.tv.theme.TvMetrics
 import ch.orellbuehler.acolyte.tv.theme.TvType
 
+private const val DIM_MILLIS = 220
+
 fun Modifier.tvPageInset(): Modifier = padding(horizontal = TvMetrics.marginX)
 
 @Composable
@@ -40,7 +48,16 @@ fun TvShelf(
     belowTitle: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
-    Column(modifier.fillMaxWidth()) {
+    val rows = LocalTvRowFocus.current
+    val row = remember { Any() }
+    val alpha by animateFloatAsState(rows?.alpha(row) ?: 1f, tween(DIM_MILLIS), label = "row-dim")
+    Column(
+        modifier
+            .fillMaxWidth()
+            .tvRowBounds()
+            .onFocusChanged { rows?.update(row, it.hasFocus) }
+            .graphicsLayer { this.alpha = alpha },
+    ) {
         Column(Modifier.tvPageInset()) {
             Text(title, style = TvType.headline, color = TvColors.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (!subtitle.isNullOrEmpty()) {
@@ -70,7 +87,7 @@ fun TvChipRow(
     content: LazyListScope.() -> Unit,
 ) {
     LazyRow(
-        modifier = modifier.focusRestorer(),
+        modifier = modifier.tvRowBounds().focusRestorer(),
         contentPadding = PaddingValues(horizontal = TvMetrics.marginX, vertical = TvMetrics.focusPad),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         content = content,

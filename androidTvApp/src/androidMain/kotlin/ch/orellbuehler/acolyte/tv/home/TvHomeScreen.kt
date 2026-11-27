@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,15 +30,18 @@ import ch.orellbuehler.acolyte.feature.home.HomeState
 import ch.orellbuehler.acolyte.nav.Section
 import ch.orellbuehler.acolyte.session.Account
 import ch.orellbuehler.acolyte.tv.R
+import ch.orellbuehler.acolyte.tv.components.LocalTvRowFocus
 import ch.orellbuehler.acolyte.tv.components.TvBackdropCard
 import ch.orellbuehler.acolyte.tv.components.TvBackdropLayer
 import ch.orellbuehler.acolyte.tv.components.TvBillboard
 import ch.orellbuehler.acolyte.tv.components.TvCardRow
 import ch.orellbuehler.acolyte.tv.components.TvDiscoverCard
 import ch.orellbuehler.acolyte.tv.components.TvNoticeBanner
+import ch.orellbuehler.acolyte.tv.components.TvRowFocus
 import ch.orellbuehler.acolyte.tv.components.TvShelf
 import ch.orellbuehler.acolyte.tv.components.TvStatusContent
 import ch.orellbuehler.acolyte.tv.components.tvPageInset
+import ch.orellbuehler.acolyte.tv.components.tvRowBounds
 import ch.orellbuehler.acolyte.tv.nav.LocalTvNavigator
 import ch.orellbuehler.acolyte.tv.nav.TvSections
 import ch.orellbuehler.acolyte.tv.theme.TvMetrics
@@ -78,76 +82,81 @@ fun TvHomeContent(
     val shown = billboard ?: first
     val label = featured.firstOrNull { it.card.key == shown?.key }
 
-    Box(Modifier.fillMaxSize()) {
-        TvBackdropLayer((ambient ?: shown)?.wideImage)
-        TvStatusContent(
-            status = state.status,
-            isEmpty = first == null && state.comingUp.isEmpty(),
-            reload = onRefresh,
-        ) {
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = TvMetrics.marginY),
-                verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
+    CompositionLocalProvider(LocalTvRowFocus provides remember { TvRowFocus() }) {
+        Box(Modifier.fillMaxSize()) {
+            TvBackdropLayer((ambient ?: shown)?.wideImage)
+            TvStatusContent(
+                status = state.status,
+                isEmpty = first == null && state.comingUp.isEmpty(),
+                reload = onRefresh,
             ) {
-                item(key = "billboard") {
-                    Column(Modifier.fillParentMaxHeight(TvMetrics.HOME_HERO_FRACTION), verticalArrangement = Arrangement.Bottom) {
-                        state.status.error?.let { TvNoticeBanner(errorText(it), Modifier.tvPageInset()) }
-                        Spacer(Modifier.weight(1f))
-                        if (shown != null) {
-                            TvBillboard(
-                                shown,
-                                label = label?.let { tvPictureLabel(it) },
-                                modifier = Modifier.tvPageInset().padding(bottom = 8.dp),
-                            )
-                        }
-                        if (featured.isNotEmpty()) {
-                            TvShelf(stringResource(R.string.tv_home_featured)) {
-                                items(featured, key = { it.card.key }) { picture ->
-                                    TvDiscoverCard(
-                                        card = picture.card,
-                                        wide = true,
-                                        badge = tvPictureLabel(picture),
-                                        showsText = false,
-                                        onFocus = {
-                                            billboard = picture.card
-                                            ambient = picture.card
-                                        },
-                                    )
+                LazyColumn(
+                    contentPadding = PaddingValues(bottom = TvMetrics.marginY),
+                    verticalArrangement = Arrangement.spacedBy(TvMetrics.sectionGap),
+                ) {
+                    item(key = "billboard") {
+                        Column(
+                            Modifier.fillParentMaxHeight(TvMetrics.HOME_HERO_FRACTION).tvRowBounds(),
+                            verticalArrangement = Arrangement.Bottom,
+                        ) {
+                            state.status.error?.let { TvNoticeBanner(errorText(it), Modifier.tvPageInset()) }
+                            Spacer(Modifier.weight(1f))
+                            if (shown != null) {
+                                TvBillboard(
+                                    shown,
+                                    label = label?.let { tvPictureLabel(it) },
+                                    modifier = Modifier.tvPageInset().padding(bottom = 8.dp),
+                                )
+                            }
+                            if (featured.isNotEmpty()) {
+                                TvShelf(stringResource(R.string.tv_home_featured)) {
+                                    items(featured, key = { it.card.key }) { picture ->
+                                        TvDiscoverCard(
+                                            card = picture.card,
+                                            wide = true,
+                                            badge = tvPictureLabel(picture),
+                                            showsText = false,
+                                            onFocus = {
+                                                billboard = picture.card
+                                                ambient = picture.card
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                items(rows, key = { it.row.id }) { entry ->
-                    TvCardRow(
-                        row = entry.row,
-                        title = entry.title,
-                        seeAll = seeAll(entry.row, navigator.account) { navigator.openSection(Section.EXPLORE) },
-                        onFocusCard = { ambient = it },
-                    )
-                }
-                if (state.comingUp.isNotEmpty()) {
-                    item(key = "coming-up") {
-                        TvShelf(
-                            title = stringResource(R.string.tv_home_coming_up),
-                            seeAll =
-                                if (TvSections.visible(
-                                        Section.CALENDAR,
-                                        navigator.account,
+                    items(rows, key = { it.row.id }) { entry ->
+                        TvCardRow(
+                            row = entry.row,
+                            title = entry.title,
+                            seeAll = seeAll(entry.row, navigator.account) { navigator.openSection(Section.EXPLORE) },
+                            onFocusCard = { ambient = it },
+                        )
+                    }
+                    if (state.comingUp.isNotEmpty()) {
+                        item(key = "coming-up") {
+                            TvShelf(
+                                title = stringResource(R.string.tv_home_coming_up),
+                                seeAll =
+                                    if (TvSections.visible(
+                                            Section.CALENDAR,
+                                            navigator.account,
+                                        )
+                                    ) {
+                                        ({ navigator.openSection(Section.CALENDAR) })
+                                    } else {
+                                        null
+                                    },
+                            ) {
+                                items(state.comingUp, key = { it.key }) { up ->
+                                    TvBackdropCard(
+                                        title = up.name,
+                                        subtitle = listOf(up.sub, tvUpWhen(up)).filter { it.isNotEmpty() }.joinToString(" · "),
+                                        image = up.image,
+                                        onClick = { if (up.tmdb.isNotEmpty()) navigator.openTitle(up.kind, up.tmdb) },
                                     )
-                                ) {
-                                    ({ navigator.openSection(Section.CALENDAR) })
-                                } else {
-                                    null
-                                },
-                        ) {
-                            items(state.comingUp, key = { it.key }) { up ->
-                                TvBackdropCard(
-                                    title = up.name,
-                                    subtitle = listOf(up.sub, tvUpWhen(up)).filter { it.isNotEmpty() }.joinToString(" · "),
-                                    image = up.image,
-                                    onClick = { if (up.tmdb.isNotEmpty()) navigator.openTitle(up.kind, up.tmdb) },
-                                )
+                                }
                             }
                         }
                     }
