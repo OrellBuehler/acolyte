@@ -47,7 +47,7 @@ Acolyte is in testing, so there are no store pages yet.
 | Platform | How |
 |---|---|
 | iPhone | [Join the public beta on TestFlight](https://testflight.apple.com/join/v9FwyTym). The link opens once Apple has reviewed the first build, which is in their queue. Needs iOS 18. |
-| Android | Download `acolyte-<version>.apk` from the [latest release](https://github.com/OrellBuehler/acolyte/releases/latest), open it on the phone and allow installs from that source when asked. Needs Android 8.0. Google Play has an internal testing track only so far (invitation needed). |
+| Android | Download `acolyte-<version>.apk` from the [latest release](https://github.com/OrellBuehler/acolyte/releases/latest), open it on the phone and allow installs from that source when asked. Needs Android 8.0. Or use the closed beta on Google Play: join the [acolyte-test group](https://groups.google.com/g/acolyte-test), then [become a tester](https://play.google.com/apps/testing/ch.orellbuehler.acolyte) and install from Play. |
 | Apple TV | In internal testing on TestFlight. It will join the same public beta link as the iPhone version. Needs tvOS 18. |
 | Android TV, Google TV | Sideload `acolyte-tv-<version>.apk` from the latest release (steps below). Google Play for TV is prepared but not live. Needs Android 8.0. |
 
