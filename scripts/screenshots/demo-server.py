@@ -27,6 +27,7 @@ NOW = datetime.now(timezone.utc).replace(microsecond=0)
 LOCAL = threading.local()
 ROUTES = []
 OWNER = "Noor Haldane"
+STRESS = False
 
 
 def lang():
@@ -540,6 +541,8 @@ def library_folders(c):
 @route("GET", "/api/v1/downloads/view")
 def downloads_view(c):
     rows = download_rows()
+    if STRESS:
+        rows = [dict(r, id=r["id"] + 100 * n, hash=f"{r['id'] + 100 * n:040x}") for n in range(6) for r in rows]
     return {
         "downloads": rows,
         "totals": {"speed": sum(r["speed"] for r in rows), "up_speed": 2_000_000},
@@ -564,6 +567,14 @@ def asks_list(c):
         "counts": {"pending": 3, "processing": 2, "done": 1, "failed": 0},
         "total": len(rows),
     }
+
+
+@route("POST", r"/api/v1/asks/(?P<id>\d+)/approve")
+def asks_approve(c):
+    for a in asks():
+        if a["id"] == int(c.m["id"]):
+            return {"ask": dict(a, state="approved", state_label=L("Approved", "Genehmigt")), "notice": ""}
+    return not_found()
 
 
 @route("GET", "/api/v1/asks/limit")
@@ -1015,7 +1026,10 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--host", default="0.0.0.0")
     p.add_argument("--port", type=int, default=6263)
+    p.add_argument("--stress", action="store_true")
     a = p.parse_args()
+    global STRESS
+    STRESS = a.stress
     server = Server((a.host, a.port), Handler)
     print(f"demo server on http://{a.host}:{a.port}", flush=True)
     server.serve_forever()
